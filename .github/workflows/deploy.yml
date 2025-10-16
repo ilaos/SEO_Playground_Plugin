@@ -1,0 +1,35 @@
+name: Deploy to scseoexperts.com (SFTP)
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Optional: add a build step here if you ever compile assets (npm/composer etc.)
+
+      - name: Deploy via SFTP (SSH key)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.SFTP_HOST }}
+          port: ${{ secrets.SFTP_PORT }}
+          username: ${{ secrets.SFTP_USERNAME }}
+          protocol: sftp
+          privateKey: ${{ secrets.SSH_PRIVATE_KEY }}
+          server-dir: ${{ secrets.REMOTE_PATH }}/
+          dry-run: true              # first run = simulate upload only
+          state-name: .ftp-deploy-sync-state.json
+          exclude: |
+            **/.git*
+            **/.github/**/*
+            **/.vscode/**/*
+            **/node_modules/**/*
+            **/dist/**/*
+            **/*.log
+            **/*.zip
