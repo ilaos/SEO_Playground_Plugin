@@ -12,14 +12,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Deploy only the clean plugin payload from ./plugin to the server
       - name: SFTP Deploy
         uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
-          server: ${{ secrets.SFTP_HOST }}
-          port: ${{ secrets.SFTP_PORT }}
-          username: ${{ secrets.SFTP_USERNAME }}
+          server: ${{ secrets.SFTP_HOST }}              # 208.109.42.149
+          port: ${{ secrets.SFTP_PORT }}                # 22
+          username: ${{ secrets.SFTP_USERNAME }}        # qjkfb257fv8x
           ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
-          # If your plugin lives in a subfolder, set that here (e.g., "./plugin")
-          local_path: "./"
-          remote_path: ${{ secrets.REMOTE_PATH }}/
+          local_path: "./plugin"                        # deploy this folder only
+          remote_path: ${{ secrets.REMOTE_PATH }}/      # /home/.../alma-seo-playground/
           sftp_only: true
+          delete_remote_files: true                     # remove files not in ./plugin
