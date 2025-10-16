@@ -12,19 +12,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Optional: add a build step here if you ever compile assets (npm/composer etc.)
-
-      - name: Deploy via SFTP (SSH key)
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      # ✅ Secure SFTP deploy with SSH key
+      - name: SFTP Deploy
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
           server: ${{ secrets.SFTP_HOST }}
           port: ${{ secrets.SFTP_PORT }}
           username: ${{ secrets.SFTP_USERNAME }}
-          protocol: sftp
-          privateKey: ${{ secrets.SSH_PRIVATE_KEY }}
-          server-dir: ${{ secrets.REMOTE_PATH }}/
-          dry-run: true              # first run = simulate upload only
-          state-name: .ftp-deploy-sync-state.json
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          local_path: "./"
+          remote_path: ${{ secrets.REMOTE_PATH }}/
+          sftp_only: true
+          dry_run: true          # first run = simulate only
           exclude: |
             **/.git*
             **/.github/**/*
