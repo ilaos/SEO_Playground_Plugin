@@ -12,7 +12,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ✅ Secure SFTP deploy with SSH key
       - name: SFTP Deploy
         uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
@@ -20,15 +19,7 @@ jobs:
           port: ${{ secrets.SFTP_PORT }}
           username: ${{ secrets.SFTP_USERNAME }}
           ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          # If your plugin lives in a subfolder, set that here (e.g., "./plugin")
           local_path: "./"
           remote_path: ${{ secrets.REMOTE_PATH }}/
           sftp_only: true
-          dry_run: true          # first run = simulate only
-          exclude: |
-            **/.git*
-            **/.github/**/*
-            **/.vscode/**/*
-            **/node_modules/**/*
-            **/dist/**/*
-            **/*.log
-            **/*.zip
