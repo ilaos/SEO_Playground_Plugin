@@ -246,7 +246,7 @@ if (!function_exists('almaseo_handle_content_refresh_reminder')) {
             "Post: %s\n" .
             "Last updated: %d days ago\n" .
             "Edit URL: %s\n\n" .
-            "This reminder was set in SEO Playground by AlmaSEO.",
+            "This reminder was set in AlmaSEO SEO Playground.",
             $post->post_title,
             $days_since_update,
             get_edit_post_link($post_id, 'email')
@@ -401,7 +401,7 @@ if (!function_exists('almaseo_display_content_reminders')) {
                 "<?php echo esc_html($reminder['post_title']); ?>" is due for a refresh 
                 (last updated <?php echo esc_html($reminder['days_old']); ?> days ago).
                 <a href="<?php echo esc_url($reminder['edit_link']); ?>" class="button button-small" style="margin-left: 10px;">
-                    Open SEO Playground →
+                    Open AlmaSEO SEO Playground →
                 </a>
             </p>
         </div>
@@ -748,7 +748,7 @@ add_action('admin_menu', function() {
     // Add main menu item in sidebar
     add_menu_page(
         'SEO Playground by AlmaSEO', // Page title
-        'SEO Playground', // Menu title (shorter for sidebar)
+        'AlmaSEO SEO Playground', // Menu title (shorter for sidebar)
         'manage_options',
         'seo-playground', // Menu slug
         'seo_playground_render_overview_page', // Function
@@ -759,7 +759,7 @@ add_action('admin_menu', function() {
     // Add Overview as first submenu (replaces the main menu link)
     add_submenu_page(
         'seo-playground',
-        'SEO Playground Overview',
+        'AlmaSEO SEO Playground Overview',
         'Overview',
         'manage_options',
         'seo-playground', // Same slug as parent to replace it
@@ -803,8 +803,8 @@ add_action('admin_menu', function() {
     
     // Keep the old settings page URL working for backwards compatibility
     add_options_page(
-        'SEO Playground Connection',
-        'SEO Playground',
+        'AlmaSEO SEO Playground Connection',
+        'AlmaSEO SEO Playground',
         'manage_options',
         'almaseo-connector',
         'almaseo_connector_settings_page'
@@ -1027,7 +1027,7 @@ function almaseo_welcome_screen_page() {
                         Step 2: Create or Edit Content
                     </h3>
                     <p class="almaseo-feature-description">
-                        Open any post or page and find the "SEO Playground" meta box. This is where all the SEO magic happens.
+                        Open any post or page and find the "AlmaSEO SEO Playground" meta box. This is where all the SEO magic happens.
                     </p>
                 </div>
                 
@@ -1105,7 +1105,7 @@ function almaseo_connector_settings_page() {
             echo '<div class="notice notice-success is-dismissible">';
             echo '<p><strong>✅ Connection Imported Successfully!</strong></p>';
             echo '<p>Site ID: ' . esc_html($import_result['site_id']) . ' | Username: ' . esc_html($import_result['username']) . '</p>';
-            echo '<p>All SEO Playground features are now unlocked!</p>';
+            echo '<p>All AlmaSEO SEO Playground features are now unlocked!</p>';
             echo '</div>';
             
             // Refresh connection status
@@ -2599,7 +2599,7 @@ add_action('admin_notices', function() {
                 <ol style="margin-left: 25px; color: #666;">
                     <li>Connect to AlmaSEO to enable AI features</li>
                     <li>Edit any post or page</li>
-                    <li>Find the "SEO Playground" meta box</li>
+                    <li>Find the "AlmaSEO SEO Playground" meta box</li>
                     <li>Use AI to generate optimized content</li>
                 </ol>
             </div>
@@ -4963,7 +4963,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
             <div class="almaseo-seo-tips-section" id="almaseo-seo-tips-section">
                 <div class="almaseo-field-group">
                     <label class="almaseo-seo-tips-label" for="seo-tips-toggle">
-                        💡 SEO Playground Tips (From Alma)
+                        💡 AlmaSEO SEO Playground Tips (From Alma)
                         <span class="tips-tooltip" title="Helpful SEO tips to improve your workflow and results.">ⓘ</span>
                     </label>
                     
