@@ -1,0 +1,50 @@
+{
+  "name": "AlmaSEO SEO Playground",
+  "version": "5.0.1-beta.1",
+  "download_url": "https://api.almaseo.com/updates/almaseo-seo-playground-5.0.1-beta.1.zip",
+  "homepage": "https://almaseo.com/beta",
+  "requires": "5.8",
+  "requires_php": "7.4",
+  "tested": "6.6",
+  "last_updated": "2025-08-25 09:00:00",
+  "author": "AlmaSEO",
+  "author_homepage": "https://almaseo.com",
+  "sections": {
+    "description": "<p><strong>⚠️ BETA RELEASE - For Testing Only</strong></p><p>This is a beta version of AlmaSEO SEO Playground. Please test thoroughly before using in production.</p><p><strong>What's Being Tested:</strong></p><ul><li>Improved sitemap generation performance (30% faster)</li><li>Enhanced memory management for 100k+ URL sites</li><li>Better conflict resolution with third-party plugins</li><li>Refined hreflang validation logic</li><li>Optimized delta ring buffer</li></ul><p><strong>How to Report Issues:</strong></p><ol><li>Export Health Log: AlmaSEO → Sitemaps → Health → Export</li><li>Note your WordPress/PHP versions</li><li>Email: beta@almaseo.com</li></ol>",
+    "installation": "<ol><li>Upload the plugin files to <code>/wp-content/plugins/almaseo-seo-playground/</code></li><li>Activate the plugin through the 'Plugins' screen in WordPress</li><li>Navigate to AlmaSEO → Sitemaps to configure</li><li>Run initial build: <code>wp almaseo sitemaps build --mode=static</code></li></ol>",
+    "changelog": "<h4>Version 5.0.1-beta.1 - Beta Release (August 25, 2025)</h4><ul><li><strong>🚀 Performance:</strong> Optimized sitemap generation for large sites (30% faster)</li><li><strong>🔧 Fixed:</strong> Memory leak in image provider for posts with 50+ images</li><li><strong>🔧 Fixed:</strong> Hreflang reciprocity validation edge case with x-default</li><li><strong>🔧 Fixed:</strong> Delta ring buffer overflow on sites with >1000 daily changes</li><li><strong>✨ Improved:</strong> Conflict detection now handles deactivated plugin artifacts</li><li><strong>✨ Improved:</strong> IndexNow retry logic with exponential backoff</li><li><strong>✨ Improved:</strong> News sitemap timezone handling for non-UTC sites</li><li><strong>🐛 Fixed:</strong> WP-CLI validate command output formatting</li><li><strong>🐛 Fixed:</strong> Multisite network activation compatibility</li><li><strong>📊 Added:</strong> Performance metrics in Health Log for troubleshooting</li></ul><h4>Version 5.0.0 - Previous Stable</h4><ul><li>Complete XML sitemap system initial release</li></ul>",
+    "faq": "<h4>Should I use this beta in production?</h4><p><strong>Not recommended.</strong> Beta releases are for testing on staging sites or low-traffic production sites with good backups.</p><h4>How do I switch back to stable?</h4><p>Go to AlmaSEO → Sitemaps → Tools → Updates and change Channel to 'Stable'. The next update will return you to the stable branch.</p><h4>What data is collected during beta?</h4><p>Only Health Log data that you explicitly export and send. No automatic telemetry.</p><h4>How long does beta testing last?</h4><p>Typically 2 weeks. After validation, features move to stable release.</p>",
+    "upgrade_notice": "⚠️ BETA: Contains experimental features. Test thoroughly. Keep backups. Report issues to beta@almaseo.com"
+  },
+  "icons": {
+    "1x": "https://api.almaseo.com/assets/icon-128x128-beta.png",
+    "2x": "https://api.almaseo.com/assets/icon-256x256-beta.png",
+    "svg": "https://api.almaseo.com/assets/icon-beta.svg"
+  },
+  "banners": {
+    "low": "https://api.almaseo.com/assets/banner-772x250-beta.jpg",
+    "high": "https://api.almaseo.com/assets/banner-1544x500-beta.jpg"
+  },
+  "compatibility": {
+    "6.6": {
+      "5.0.1-beta.1": [95, "Beta testing in progress - mostly stable"]
+    },
+    "6.5": {
+      "5.0.1-beta.1": [95, "Beta testing in progress - mostly stable"]
+    }
+  },
+  "beta_info": {
+    "testing_focus": [
+      "Large site performance (50k+ URLs)",
+      "Memory usage optimization",
+      "Multisite compatibility",
+      "Conflict resolution accuracy",
+      "IndexNow reliability"
+    ],
+    "known_issues": [
+      "Media scan may timeout on sites with 10k+ images (workaround: use CLI)",
+      "Hreflang validation UI may show false positives (cosmetic only)"
+    ],
+    "rollback": "wp eval \"update_option('almaseo_sitemap_settings', array_merge(get_option('almaseo_sitemap_settings',[]), ['takeover'=>false,'perf'=>['storage_mode'=>'dynamic']]));\""
+  }
+}

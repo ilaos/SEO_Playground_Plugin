@@ -1,0 +1,566 @@
+/**
+ * AlmaSEO Search Console Tab - Polish Styles
+ * Consistent styling for Search Console panels and data tables
+ */
+
+/* ========================================
+   Search Console Panel Base
+   ======================================== */
+
+#tab-search-console .almaseo-field-group {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+#tab-search-console .almaseo-field-group:hover {
+    border-color: #c3c4c7;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+#tab-search-console .almaseo-field-group:focus-within {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.1);
+}
+
+/* ========================================
+   GSC Keywords Panel Header
+   ======================================== */
+
+.almaseo-gsc-keywords-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #23282d;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.gsc-keywords-tooltip {
+    cursor: help;
+    color: #999;
+    font-size: 14px;
+    margin-left: auto;
+    transition: color 0.2s ease;
+}
+
+.gsc-keywords-tooltip:hover {
+    color: #0073aa;
+}
+
+/* ========================================
+   GSC Keywords Header Bar
+   ======================================== */
+
+.gsc-keywords-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #f9fafb;
+    border-radius: 4px;
+}
+
+.gsc-keywords-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.gsc-date-range {
+    font-size: 13px;
+    color: #666;
+    padding: 4px 10px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+.gsc-keywords-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* ========================================
+   GSC Action Buttons
+   ======================================== */
+
+.gsc-refresh-btn,
+.gsc-export-btn {
+    background: #0073aa;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.gsc-refresh-btn:hover,
+.gsc-export-btn:hover {
+    background: #005a87;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.gsc-refresh-btn:active,
+.gsc-export-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.gsc-refresh-btn:disabled,
+.gsc-export-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.gsc-refresh-btn:focus,
+.gsc-export-btn:focus {
+    outline: 2px solid #0073aa;
+    outline-offset: 2px;
+}
+
+.gsc-export-btn {
+    background: #46b450;
+}
+
+.gsc-export-btn:hover {
+    background: #3a9444;
+}
+
+/* ========================================
+   Data Table Styling
+   ======================================== */
+
+.gsc-keywords-table-container {
+    overflow-x: auto;
+    margin: 20px 0;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: white;
+}
+
+.gsc-keywords-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.gsc-keywords-table thead {
+    background: #f9fafb;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.gsc-keywords-table th {
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+    color: #23282d;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    background: #f9fafb;
+    z-index: 10;
+}
+
+.gsc-keywords-table th:hover {
+    background: #f0f0f0;
+    cursor: pointer;
+}
+
+/* Sort indicators */
+.gsc-keywords-table th.sortable::after {
+    content: '↕';
+    margin-left: 5px;
+    opacity: 0.3;
+    font-size: 12px;
+}
+
+.gsc-keywords-table th.sort-asc::after {
+    content: '↑';
+    opacity: 1;
+    color: #0073aa;
+}
+
+.gsc-keywords-table th.sort-desc::after {
+    content: '↓';
+    opacity: 1;
+    color: #0073aa;
+}
+
+/* Table Body */
+.gsc-keywords-table tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+}
+
+.gsc-keywords-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+.gsc-keywords-table tbody tr:nth-child(even) {
+    background: rgba(0, 0, 0, 0.01);
+}
+
+.gsc-keywords-table td {
+    padding: 12px 15px;
+    color: #555;
+}
+
+/* Keyword column - make it stand out */
+.gsc-keywords-table .gsc-keyword {
+    font-weight: 500;
+    color: #23282d;
+}
+
+/* Numeric columns alignment */
+.gsc-keywords-table .gsc-clicks,
+.gsc-keywords-table .gsc-impressions,
+.gsc-keywords-table .gsc-ctr,
+.gsc-keywords-table .gsc-position {
+    text-align: right;
+}
+
+/* CTR formatting */
+.gsc-keywords-table .gsc-ctr {
+    font-weight: 500;
+}
+
+/* Position coloring */
+.gsc-keywords-table .gsc-position {
+    font-weight: 600;
+}
+
+/* High performance indicators */
+.gsc-keywords-table tr.high-ctr {
+    background: rgba(70, 180, 80, 0.05);
+}
+
+.gsc-keywords-table tr.high-ctr:hover {
+    background: rgba(70, 180, 80, 0.1);
+}
+
+.gsc-keywords-table tr.top-position {
+    background: rgba(0, 115, 170, 0.05);
+}
+
+.gsc-keywords-table tr.top-position:hover {
+    background: rgba(0, 115, 170, 0.1);
+}
+
+/* Position badges */
+.position-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.position-badge.top-3 {
+    background: #e7f5e7;
+    color: #46b450;
+}
+
+.position-badge.top-10 {
+    background: #e3f2fd;
+    color: #0073aa;
+}
+
+.position-badge.needs-work {
+    background: #fff9e6;
+    color: #ffb900;
+}
+
+/* ========================================
+   Empty State
+   ======================================== */
+
+.gsc-keywords-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+.gsc-keywords-empty .empty-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.gsc-keywords-empty .empty-text {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.gsc-keywords-empty .empty-hint {
+    font-size: 13px;
+    color: #999;
+}
+
+/* ========================================
+   Loading State
+   ======================================== */
+
+.gsc-keywords-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    min-height: 200px;
+}
+
+.gsc-keywords-loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #f0f0f0;
+    border-top-color: #0073aa;
+    border-radius: 50%;
+    animation: gscSpin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes gscSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.gsc-keywords-loading-text {
+    font-size: 13px;
+    color: #666;
+}
+
+/* ========================================
+   Error State
+   ======================================== */
+
+.gsc-keywords-error {
+    background: #fff5f5;
+    border: 1px solid #ffcccb;
+    border-radius: 4px;
+    padding: 15px;
+    margin-top: 15px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.gsc-keywords-error .error-icon {
+    font-size: 20px;
+    line-height: 1;
+}
+
+.gsc-keywords-error .error-text {
+    font-size: 13px;
+    color: #dc3232;
+    flex: 1;
+}
+
+/* ========================================
+   Footer & Timestamp
+   ======================================== */
+
+.gsc-keywords-footer {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.gsc-keywords-timestamp {
+    font-size: 11px;
+    color: #999;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+@media (max-width: 768px) {
+    .gsc-keywords-header {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .gsc-keywords-info,
+    .gsc-keywords-actions {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Mobile table - horizontal scroll */
+    .gsc-keywords-table-container {
+        margin: 15px -15px;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+    }
+    
+    .gsc-keywords-table {
+        font-size: 13px;
+    }
+    
+    .gsc-keywords-table th,
+    .gsc-keywords-table td {
+        padding: 10px 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Stack buttons vertically on small screens */
+    .gsc-keywords-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .gsc-refresh-btn,
+    .gsc-export-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Hide less important columns on mobile */
+    .gsc-keywords-table .gsc-impressions {
+        display: none;
+    }
+    
+    /* Make table more compact */
+    .gsc-keywords-table th,
+    .gsc-keywords-table td {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+}
+
+/* ========================================
+   Dark Mode Support
+   ======================================== */
+
+@media (prefers-color-scheme: dark) {
+    #tab-search-console .almaseo-field-group {
+        background: #1e1e1e;
+        border-color: #444;
+    }
+    
+    .almaseo-gsc-keywords-label {
+        color: #e0e0e0;
+    }
+    
+    .gsc-keywords-header {
+        background: #2a2a2a;
+    }
+    
+    .gsc-date-range {
+        background: #333;
+        border-color: #555;
+        color: #e0e0e0;
+    }
+    
+    .gsc-keywords-table-container {
+        background: #1e1e1e;
+        border-color: #444;
+    }
+    
+    .gsc-keywords-table thead {
+        background: #2a2a2a;
+        border-bottom-color: #444;
+    }
+    
+    .gsc-keywords-table th {
+        background: #2a2a2a;
+        color: #e0e0e0;
+    }
+    
+    .gsc-keywords-table tbody tr {
+        border-bottom-color: #333;
+    }
+    
+    .gsc-keywords-table tbody tr:hover {
+        background: #2a2a2a;
+    }
+    
+    .gsc-keywords-table td {
+        color: #ccc;
+    }
+    
+    .gsc-keywords-table .gsc-keyword {
+        color: #e0e0e0;
+    }
+    
+    .gsc-keywords-empty .empty-text {
+        color: #aaa;
+    }
+    
+    .gsc-keywords-error {
+        background: #2a1e1e;
+        border-color: #5a3333;
+    }
+}
+
+/* ========================================
+   Accessibility
+   ======================================== */
+
+.gsc-keywords-table:focus {
+    outline: 2px solid #0073aa;
+    outline-offset: 2px;
+}
+
+.gsc-keywords-table tbody tr:focus {
+    outline: 2px solid #0073aa;
+    outline-offset: -2px;
+}
+
+/* Screen reader only */
+.gsc-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Focus visible */
+#tab-search-console *:focus-visible {
+    outline: 2px solid #0073aa;
+    outline-offset: 2px;
+}
+
+/* ========================================
+   Print Styles
+   ======================================== */
+
+@media print {
+    .gsc-keywords-actions {
+        display: none;
+    }
+    
+    .gsc-keywords-table-container {
+        border: 1px solid #000;
+    }
+    
+    .gsc-keywords-table {
+        font-size: 10pt;
+    }
+}

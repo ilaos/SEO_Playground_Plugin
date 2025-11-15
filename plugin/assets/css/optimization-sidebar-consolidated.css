@@ -1,0 +1,470 @@
+/* AlmaSEO Optimization Sidebar Styles v1.2 */
+
+/* Panel info badges */
+.almaseo-panel-info {
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 12px;
+}
+
+.almaseo-data-badges {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.almaseo-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.almaseo-badge-provider {
+    background: linear-gradient(135deg, #e8eaf6 0%, #f3e5f5 100%);
+    color: #5e35b1;
+    border: 1px solid #d1c4e9;
+}
+
+.almaseo-badge-provider .badge-fallback {
+    opacity: 0.7;
+    font-style: italic;
+    margin-left: 4px;
+}
+
+.almaseo-badge-time {
+    background: #fff;
+    color: #666;
+    border: 1px solid #ddd;
+}
+
+.almaseo-badge-time strong {
+    color: #333;
+    margin-left: 4px;
+}
+
+/* Focus keyword nudge */
+.almaseo-focus-nudge {
+    padding: 8px 12px;
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 4px;
+    color: #155724;
+    font-size: 13px;
+    margin: 0 16px 12px;
+    animation: slideDown 0.3s ease-out;
+}
+
+.almaseo-focus-nudge button {
+    color: #0c5460;
+    text-decoration: underline;
+    padding: 0 2px;
+    min-width: auto;
+    height: auto;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Header adjustments */
+.almaseo-optimization-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.almaseo-focus-keyword {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #f0f3ff 0%, #f8f9ff 100%);
+    border-radius: 4px;
+    border: 1px solid #d4d9ff;
+}
+
+.almaseo-focus-keyword strong {
+    color: #1e1e1e;
+    font-size: 13px;
+}
+
+.focus-keyword-value {
+    color: #667eea;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.almaseo-focus-keyword button {
+    margin-left: auto;
+}
+
+.almaseo-optimization-header .refresh-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+}
+
+.almaseo-loading {
+    padding: 20px;
+    text-align: center;
+}
+
+.almaseo-loading p {
+    margin-top: 10px;
+    color: #666;
+}
+
+/* Quick Wins Table */
+.almaseo-quick-wins {
+    padding: 8px 0;
+}
+
+.almaseo-keywords-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.almaseo-keywords-table thead {
+    background: #f0f0f0;
+}
+
+.almaseo-keywords-table th {
+    padding: 8px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #ddd;
+    position: relative;
+}
+
+.almaseo-keywords-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s ease;
+}
+
+.almaseo-keywords-table th.sortable:hover {
+    background: #e8e8e8;
+}
+
+.almaseo-keywords-table th .sort-arrow {
+    color: #667eea;
+    font-weight: bold;
+    margin-left: 4px;
+}
+
+.almaseo-keywords-table td {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+/* Opportunity highlighting */
+.almaseo-keywords-table .almaseo-opp {
+    background: linear-gradient(90deg, #fff8dc 0%, #fffef5 100%);
+    position: relative;
+}
+
+.almaseo-keywords-table .almaseo-opp::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: #ffc107;
+}
+
+.almaseo-keywords-table .almaseo-opp td:first-child {
+    padding-left: 12px;
+}
+
+/* Focus badge */
+.focus-badge {
+    color: #ffc107;
+    font-size: 16px;
+    vertical-align: middle;
+    margin-left: 4px;
+}
+
+.almaseo-keywords-table .actions {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.almaseo-keywords-table .actions button {
+    min-width: auto;
+    padding: 2px 8px;
+    font-size: 11px;
+}
+
+/* Keyword Suggestions */
+.almaseo-keyword-suggestions {
+    padding: 8px 0;
+}
+
+.suggestions-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.suggestions-list li {
+    margin-bottom: 12px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+    transition: all 0.2s ease;
+}
+
+.suggestions-list li:hover {
+    background: #f0f3ff;
+    border-color: #d4d9ff;
+    transform: translateX(2px);
+}
+
+.suggestion-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.suggestion-keyword {
+    font-weight: 600;
+    color: #1e1e1e;
+    font-size: 14px;
+}
+
+.suggestion-relevance {
+    color: #666;
+    font-size: 12px;
+}
+
+.suggestion-item button {
+    align-self: flex-start;
+    margin-top: 4px;
+}
+
+/* Ignored Keywords */
+.ignored-keywords-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.ignored-keywords-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    margin-bottom: 4px;
+    background: #f5f5f5;
+    border-radius: 3px;
+}
+
+.ignored-keywords-list li span {
+    color: #999;
+    text-decoration: line-through;
+}
+
+.ignored-keywords-list button {
+    min-width: auto;
+    padding: 2px 8px;
+    font-size: 11px;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .almaseo-panel-info {
+        background: #2a2d3a;
+        border-bottom-color: #444;
+    }
+    
+    .almaseo-badge-provider {
+        background: linear-gradient(135deg, #3a3d4a 0%, #4a3d5a 100%);
+        color: #b8a3ff;
+        border-color: #5a4d6a;
+    }
+    
+    .almaseo-badge-time {
+        background: #323541;
+        color: #999;
+        border-color: #444;
+    }
+    
+    .almaseo-badge-time strong {
+        color: #e0e0e0;
+    }
+    
+    .almaseo-focus-nudge {
+        background: #2d4a2f;
+        border-color: #3a5a3c;
+        color: #a8d8aa;
+    }
+    
+    .almaseo-focus-nudge button {
+        color: #8ac8cc;
+    }
+    
+    .almaseo-optimization-header {
+        border-bottom-color: #444;
+    }
+    
+    .almaseo-focus-keyword {
+        background: linear-gradient(135deg, #2a2d3a 0%, #323541 100%);
+        border-color: #444;
+    }
+    
+    .almaseo-focus-keyword strong {
+        color: #e0e0e0;
+    }
+    
+    .focus-keyword-value {
+        color: #8b9aff;
+    }
+    
+    .almaseo-keywords-table thead {
+        background: #2a2d3a;
+    }
+    
+    .almaseo-keywords-table th {
+        border-bottom-color: #444;
+        color: #e0e0e0;
+    }
+    
+    .almaseo-keywords-table th.sortable:hover {
+        background: #323541;
+    }
+    
+    .almaseo-keywords-table td {
+        border-bottom-color: #444;
+        color: #e0e0e0;
+    }
+    
+    .almaseo-keywords-table .almaseo-opp {
+        background: linear-gradient(90deg, #3a3520 0%, #2a2d3a 100%);
+    }
+    
+    .suggestions-list li {
+        background: #2a2d3a;
+        border-color: #444;
+        color: #e0e0e0;
+    }
+    
+    .suggestions-list li:hover {
+        background: #323541;
+        border-color: #555;
+    }
+    
+    .suggestion-keyword {
+        color: #e0e0e0;
+    }
+    
+    .suggestion-relevance {
+        color: #999;
+    }
+    
+    .ignored-keywords-list li {
+        background: #2a2d3a;
+    }
+    
+    .ignored-keywords-list li span {
+        color: #666;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 782px) {
+    .almaseo-keywords-table {
+        font-size: 12px;
+    }
+    
+    .almaseo-keywords-table th,
+    .almaseo-keywords-table td {
+        padding: 6px;
+    }
+    
+    .almaseo-optimization-header,
+    .almaseo-panel-info {
+        padding: 8px 12px;
+    }
+    
+    .almaseo-data-badges {
+        font-size: 10px;
+    }
+}
+
+/* AlmaSEO Brand Icon */
+.almaseo-icon {
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Keyboard navigation enhancement */
+.almaseo-keywords-table button:focus,
+.suggestions-list button:focus,
+.ignored-keywords-list button:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* Loading states */
+.components-spinner {
+    margin: 0 !important;
+}
+
+/* Smooth transitions */
+.almaseo-keywords-table tr,
+.suggestions-list li,
+.ignored-keywords-list li {
+    transition: all 0.2s ease;
+}
+
+/* Empty state styling */
+.components-notice {
+    margin: 16px 0;
+}
+
+.components-notice.is-info {
+    background: #f0f8ff;
+    border-left-color: #0073aa;
+}
+
+.components-notice.is-warning {
+    background: #fff8f0;
+    border-left-color: #ffb900;
+}
+
+/* Animation for refresh */
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.refresh-button .components-spinner {
+    animation: rotate 1s linear infinite;
+}

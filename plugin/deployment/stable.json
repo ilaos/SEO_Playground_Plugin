@@ -1,0 +1,36 @@
+{
+  "name": "AlmaSEO SEO Playground",
+  "version": "5.0.0",
+  "download_url": "https://api.almaseo.com/updates/almaseo-seo-playground-5.0.0.zip",
+  "homepage": "https://almaseo.com",
+  "requires": "5.8",
+  "requires_php": "7.4",
+  "tested": "6.6",
+  "last_updated": "2025-08-24 12:00:00",
+  "author": "AlmaSEO",
+  "author_homepage": "https://almaseo.com",
+  "sections": {
+    "description": "<p>Enterprise-grade SEO toolkit with comprehensive XML sitemaps, IndexNow integration, and advanced schema support.</p><p><strong>Key Features:</strong></p><ul><li>Complete XML sitemap system with static generation</li><li>Delta tracking for instant change detection</li><li>Hreflang support for multilingual sites</li><li>Image and video sitemaps with CDN optimization</li><li>Google News sitemap for publishers</li><li>IndexNow instant submission</li><li>Safe conflict detection with other SEO plugins</li></ul>",
+    "installation": "<ol><li>Upload the plugin files to <code>/wp-content/plugins/almaseo-seo-playground/</code></li><li>Activate the plugin through the 'Plugins' screen in WordPress</li><li>Navigate to AlmaSEO → Sitemaps to configure</li><li>Run initial build: <code>wp almaseo sitemaps build --mode=static</code></li></ol>",
+    "changelog": "<h4>Version 5.0.0 - Stable Release (August 24, 2025)</h4><ul><li><strong>Core:</strong> Complete XML sitemap system with provider architecture</li><li><strong>Performance:</strong> Static generation with gzip compression</li><li><strong>Tracking:</strong> Delta sitemap with ring buffer for recent changes</li><li><strong>International:</strong> Hreflang support with WPML/Polylang integration</li><li><strong>Media:</strong> Image/video sitemaps with CDN URL deduplication</li><li><strong>News:</strong> Google News sitemap with 48-hour rolling window</li><li><strong>Integration:</strong> IndexNow for instant search engine updates</li><li><strong>Safety:</strong> Conflict detection for Yoast, AIOSEO, RankMath</li><li><strong>UI:</strong> HTML sitemap shortcode [almaseo_html_sitemap]</li><li><strong>CLI:</strong> Full WP-CLI support for automation</li><li><strong>Multisite:</strong> Per-site configuration support</li></ul>",
+    "faq": "<h4>Can I use this alongside other SEO plugins?</h4><p>Yes! The conflict detection system ensures safe coexistence. The takeover mode is disabled by default to prevent conflicts.</p><h4>How do I enable static sitemap generation?</h4><p>Static mode is enabled by default for best performance. Run <code>wp almaseo sitemaps build --mode=static</code> to generate files.</p><h4>What if I need to rollback?</h4><p>Quick rollback: Set takeover=OFF and storage_mode=dynamic in settings. Or run: <code>wp eval \"update_option('almaseo_sitemap_settings', array_merge(get_option('almaseo_sitemap_settings',[]), ['takeover'=>false,'perf'=>['storage_mode'=>'dynamic']]));\"</code></p><h4>Is this production-ready?</h4><p>Version 5.0.0 is the stable release after extensive testing. For early access to new features, switch to the beta channel in Tools → Updates.</p>"
+  },
+  "icons": {
+    "1x": "https://api.almaseo.com/assets/icon-128x128.png",
+    "2x": "https://api.almaseo.com/assets/icon-256x256.png",
+    "svg": "https://api.almaseo.com/assets/icon.svg"
+  },
+  "banners": {
+    "low": "https://api.almaseo.com/assets/banner-772x250.jpg",
+    "high": "https://api.almaseo.com/assets/banner-1544x500.jpg"
+  },
+  "compatibility": {
+    "6.6": {
+      "5.0.0": [100, "Fully tested and compatible with WordPress 6.6"]
+    },
+    "6.5": {
+      "5.0.0": [100, "Fully tested and compatible with WordPress 6.5"]
+    }
+  },
+  "upgrade_notice": "5.0.0 is a major release. Backup your site before upgrading. Review settings after update as some defaults have changed for optimal performance."
+}

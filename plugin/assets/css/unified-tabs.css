@@ -1,0 +1,154 @@
+/**
+ * AlmaSEO Unified Tab Styles
+ * Consistent styling for all tabs with emojis
+ * 
+ * @package AlmaSEO
+ * @since 6.8.2
+ */
+
+/* Tab Navigation */
+.almaseo-tab-navigation {
+    background: #fff;
+    border-bottom: 2px solid #dcdcde;
+    padding: 0;
+    margin: 0 0 20px 0;
+}
+
+.almaseo-tab-scroll-wrapper {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+
+/* Tab Buttons - Unified Design */
+.almaseo-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: #50575e;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    position: relative;
+}
+
+.almaseo-tab-btn:hover {
+    background: #f8f9fa;
+    color: #2271b1;
+}
+
+.almaseo-tab-btn.active {
+    color: #2271b1;
+    border-bottom-color: #2271b1;
+    background: #f0f6fc;
+}
+
+/* Tab Icons - Consistent Size */
+.almaseo-tab-btn .tab-icon {
+    font-size: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Tab Labels */
+.almaseo-tab-btn .tab-label {
+    font-size: 14px;
+    line-height: 1;
+}
+
+/* Tab Badge - Only for Unlock AI Features */
+.almaseo-tab-btn .tab-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    background: #d63638;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 3px;
+    text-transform: uppercase;
+    margin-left: 6px;
+}
+
+/* Remove badge from all tabs except unlock */
+.almaseo-tab-btn:not(.almaseo-unlock-tab) .tab-badge {
+    display: none;
+}
+
+/* Tab Panels */
+.almaseo-tab-panel {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.almaseo-tab-panel.active {
+    display: block;
+}
+
+/* Tab Content Consistency */
+.almaseo-tab-panel > div:first-child {
+    margin-top: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .almaseo-tab-btn {
+        padding: 10px 15px;
+        font-size: 13px;
+    }
+    
+    .almaseo-tab-btn .tab-icon {
+        font-size: 16px;
+    }
+    
+    .almaseo-tab-btn .tab-label {
+        font-size: 13px;
+    }
+    
+    .almaseo-tab-scroll-wrapper {
+        overflow-x: scroll;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .almaseo-tab-navigation {
+        background: #1d2327;
+        border-bottom-color: #3c434a;
+    }
+    
+    .almaseo-tab-btn {
+        color: #c3c4c7;
+    }
+    
+    .almaseo-tab-btn:hover {
+        background: #2c3338;
+        color: #72aee6;
+    }
+    
+    .almaseo-tab-btn.active {
+        color: #72aee6;
+        border-bottom-color: #72aee6;
+        background: #2c3338;
+    }
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

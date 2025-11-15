@@ -1,0 +1,529 @@
+/**
+ * AlmaSEO SEO Playground - Consolidated Styles
+ * Version: 2.1.0
+ * Description: Shared styles for all SEO Playground components
+ */
+
+/* ============================================
+   SHARED VARIABLES & MIXINS
+   ============================================ */
+:root {
+    /* Colors */
+    --almaseo-primary: #667eea;
+    --almaseo-primary-dark: #764ba2;
+    --almaseo-secondary: #0073aa;
+    --almaseo-success: #28a745;
+    --almaseo-warning: #f59e0b;
+    --almaseo-danger: #dc3545;
+    --almaseo-info: #17a2b8;
+    
+    /* Backgrounds */
+    --almaseo-bg-white: #ffffff;
+    --almaseo-bg-light: #f8f9fa;
+    --almaseo-bg-gray: #e9ecef;
+    
+    /* Borders */
+    --almaseo-border-light: #e1e1e1;
+    --almaseo-border-gray: #dee2e6;
+    --almaseo-border-dark: #c3c4c7;
+    
+    /* Text */
+    --almaseo-text-primary: #2c3e50;
+    --almaseo-text-secondary: #495057;
+    --almaseo-text-muted: #6c757d;
+    --almaseo-text-light: #999999;
+    
+    /* Spacing */
+    --almaseo-spacing-xs: 4px;
+    --almaseo-spacing-sm: 8px;
+    --almaseo-spacing-md: 12px;
+    --almaseo-spacing-lg: 20px;
+    --almaseo-spacing-xl: 30px;
+    
+    /* Border Radius */
+    --almaseo-radius-sm: 4px;
+    --almaseo-radius-md: 6px;
+    --almaseo-radius-lg: 8px;
+    --almaseo-radius-xl: 12px;
+    --almaseo-radius-round: 50%;
+    
+    /* Shadows */
+    --almaseo-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --almaseo-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.08);
+    --almaseo-shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+    --almaseo-shadow-focus: 0 0 0 3px rgba(0, 115, 170, 0.1);
+    
+    /* Transitions */
+    --almaseo-transition-fast: 0.2s ease;
+    --almaseo-transition-normal: 0.3s ease;
+    --almaseo-transition-slow: 0.5s ease;
+}
+
+/* Dark Mode Variables */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --almaseo-bg-white: #1a1a1a;
+        --almaseo-bg-light: #2a2a2a;
+        --almaseo-bg-gray: #333333;
+        --almaseo-border-light: #444444;
+        --almaseo-border-gray: #555555;
+        --almaseo-border-dark: #666666;
+        --almaseo-text-primary: #e8e8e8;
+        --almaseo-text-secondary: #b8b8b8;
+        --almaseo-text-muted: #999999;
+        --almaseo-text-light: #777777;
+    }
+}
+
+/* ============================================
+   SHARED COMPONENTS
+   ============================================ */
+
+/* Field Groups */
+.almaseo-field-group {
+    background: var(--almaseo-bg-white);
+    border: 1px solid var(--almaseo-border-light);
+    border-radius: var(--almaseo-radius-lg);
+    padding: var(--almaseo-spacing-lg);
+    margin-bottom: var(--almaseo-spacing-lg);
+    box-shadow: var(--almaseo-shadow-sm);
+    transition: all var(--almaseo-transition-normal);
+}
+
+.almaseo-field-group:hover {
+    box-shadow: var(--almaseo-shadow-md);
+    transform: translateY(-1px);
+}
+
+.almaseo-field-group:focus-within {
+    border-color: var(--almaseo-secondary);
+    box-shadow: var(--almaseo-shadow-focus);
+}
+
+/* Panel Headers */
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--almaseo-spacing-lg);
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.panel-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--almaseo-text-primary);
+}
+
+.panel-icon {
+    font-size: 20px;
+    line-height: 1;
+}
+
+.panel-tooltip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: #e8f4fd;
+    color: var(--almaseo-secondary);
+    border-radius: var(--almaseo-radius-round);
+    font-size: 12px;
+    font-weight: bold;
+    cursor: help;
+    transition: all var(--almaseo-transition-fast);
+}
+
+.panel-tooltip:hover {
+    background: var(--almaseo-secondary);
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Buttons */
+.almaseo-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--almaseo-radius-md);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--almaseo-transition-normal);
+}
+
+.almaseo-btn-primary {
+    background: linear-gradient(135deg, var(--almaseo-primary) 0%, var(--almaseo-primary-dark) 100%);
+    color: white;
+}
+
+.almaseo-btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.almaseo-btn-secondary {
+    background: white;
+    border: 2px solid var(--almaseo-border-light);
+    color: var(--almaseo-text-secondary);
+}
+
+.almaseo-btn-secondary:hover:not(:disabled) {
+    background: var(--almaseo-bg-light);
+    border-color: var(--almaseo-secondary);
+    color: var(--almaseo-secondary);
+}
+
+.almaseo-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.almaseo-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Form Controls */
+.almaseo-input,
+.almaseo-textarea,
+.almaseo-select {
+    width: 100%;
+    padding: var(--almaseo-spacing-md);
+    border: 2px solid var(--almaseo-border-light);
+    border-radius: var(--almaseo-radius-md);
+    font-size: 14px;
+    transition: all var(--almaseo-transition-normal);
+    background: var(--almaseo-bg-white);
+    color: var(--almaseo-text-primary);
+}
+
+.almaseo-input:focus,
+.almaseo-textarea:focus,
+.almaseo-select:focus {
+    outline: none;
+    border-color: var(--almaseo-secondary);
+    box-shadow: var(--almaseo-shadow-focus);
+}
+
+.almaseo-textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+}
+
+/* Loading States */
+.almaseo-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 40px;
+}
+
+.almaseo-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--almaseo-border-light);
+    border-top-color: var(--almaseo-primary);
+    border-radius: var(--almaseo-radius-round);
+    animation: almaseo-spin 1s linear infinite;
+}
+
+.almaseo-loading-text {
+    font-size: 14px;
+    color: var(--almaseo-text-muted);
+    font-weight: 500;
+}
+
+/* Empty States */
+.almaseo-empty-state {
+    text-align: center;
+    padding: 40px;
+}
+
+.almaseo-empty-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.almaseo-empty-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--almaseo-text-primary);
+    margin-bottom: 8px;
+}
+
+.almaseo-empty-description {
+    font-size: 14px;
+    color: var(--almaseo-text-muted);
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* Messages */
+.almaseo-message {
+    padding: 12px 16px;
+    border-radius: var(--almaseo-radius-md);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: almaseo-slideDown 0.3s ease;
+}
+
+.almaseo-message-success {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.almaseo-message-error {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.almaseo-message-warning {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+}
+
+.almaseo-message-info {
+    background: #d1ecf1;
+    border: 1px solid #bee5eb;
+    color: #0c5460;
+}
+
+/* Character Counters */
+.char-counter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--almaseo-text-muted);
+}
+
+.char-count {
+    transition: color var(--almaseo-transition-fast);
+}
+
+.char-count.warning {
+    color: var(--almaseo-warning);
+}
+
+.char-count.error {
+    color: var(--almaseo-danger);
+}
+
+/* Badges */
+.almaseo-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #e8f4fd;
+    color: var(--almaseo-secondary);
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Tables */
+.almaseo-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.almaseo-table thead {
+    background: var(--almaseo-bg-light);
+    border-bottom: 2px solid var(--almaseo-border-light);
+}
+
+.almaseo-table th {
+    padding: 12px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--almaseo-text-secondary);
+    white-space: nowrap;
+}
+
+.almaseo-table tbody tr {
+    border-bottom: 1px solid var(--almaseo-border-gray);
+    transition: background var(--almaseo-transition-fast);
+}
+
+.almaseo-table tbody tr:hover {
+    background: var(--almaseo-bg-light);
+}
+
+.almaseo-table td {
+    padding: 12px;
+    font-size: 14px;
+    color: var(--almaseo-text-secondary);
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes almaseo-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes almaseo-fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes almaseo-slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 100px;
+    }
+}
+
+@keyframes almaseo-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+*:focus-visible {
+    outline: 2px solid var(--almaseo-secondary);
+    outline-offset: 2px;
+}
+
+[role="button"] {
+    cursor: pointer;
+}
+
+[aria-disabled="true"] {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .almaseo-field-group {
+        border-width: 2px;
+    }
+    
+    .almaseo-btn {
+        border: 2px solid currentColor;
+    }
+}
+
+/* ============================================
+   RESPONSIVE UTILITIES
+   ============================================ */
+@media (max-width: 768px) {
+    .almaseo-field-group {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .panel-title {
+        font-size: 14px;
+    }
+    
+    .almaseo-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .panel-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .almaseo-table {
+        font-size: 12px;
+    }
+    
+    .almaseo-table th,
+    .almaseo-table td {
+        padding: 8px;
+    }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+    .almaseo-btn,
+    .panel-tooltip,
+    .almaseo-spinner {
+        display: none !important;
+    }
+    
+    .almaseo-field-group {
+        page-break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+}
+
+/* ============================================
+   WORDPRESS ADMIN COMPATIBILITY
+   ============================================ */
+#wpcontent .almaseo-seo-playground {
+    margin-left: 0;
+}
+
+.wp-admin .almaseo-field-group select {
+    max-width: none;
+}
+
+/* Gutenberg Compatibility */
+.block-editor-page .almaseo-seo-playground {
+    margin-top: 20px;
+}
+
+/* Classic Editor Compatibility */
+#post-body-content + .almaseo-seo-playground {
+    margin-top: 20px;
+}
+
+/* Mobile Admin Adjustments */
+@media screen and (max-width: 782px) {
+    .wp-admin .almaseo-seo-playground {
+        margin: 10px 0;
+    }
+}

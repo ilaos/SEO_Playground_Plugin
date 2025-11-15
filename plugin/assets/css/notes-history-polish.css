@@ -1,0 +1,902 @@
+/**
+ * AlmaSEO Notes & History Tab Polish CSS
+ * Version: 1.0.0
+ * Description: Comprehensive visual polish for Notes & History tab with dark mode support
+ */
+
+/* ============================================
+   NOTES & HISTORY TAB CONTAINER
+   ============================================ */
+#tab-notes-history {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+#tab-notes-history .almaseo-field-group {
+    background: #ffffff;
+    border: 1px solid #e1e1e1;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+#tab-notes-history .almaseo-field-group:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+}
+
+/* Panel Headers */
+#tab-notes-history .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+#tab-notes-history .panel-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+#tab-notes-history .panel-icon {
+    font-size: 20px;
+    line-height: 1;
+}
+
+#tab-notes-history .panel-tooltip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: #e8f4fd;
+    color: #0073aa;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: help;
+    transition: all 0.2s ease;
+}
+
+#tab-notes-history .panel-tooltip:hover {
+    background: #0073aa;
+    color: white;
+    transform: scale(1.1);
+}
+
+/* ============================================
+   SEARCH & FILTER BAR
+   ============================================ */
+.notes-toolbar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.notes-search-container {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+}
+
+.notes-search-input {
+    width: 100%;
+    padding: 10px 40px 10px 12px;
+    border: 2px solid #e1e1e1;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.notes-search-input:focus {
+    outline: none;
+    border-color: #0073aa;
+    box-shadow: 0 0 0 3px rgba(0, 115, 170, 0.1);
+}
+
+.notes-search-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    pointer-events: none;
+}
+
+.notes-sort-container {
+    min-width: 150px;
+}
+
+.notes-sort-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #e1e1e1;
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.notes-sort-select:focus {
+    outline: none;
+    border-color: #0073aa;
+    box-shadow: 0 0 0 3px rgba(0, 115, 170, 0.1);
+}
+
+/* ============================================
+   SEO NOTES PANEL
+   ============================================ */
+.seo-notes-panel {
+    position: relative;
+}
+
+/* Note Input Section */
+.note-input-section {
+    margin-bottom: 20px;
+}
+
+.note-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 12px;
+    border: 2px solid #e1e1e1;
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.6;
+    resize: vertical;
+    transition: all 0.3s ease;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.note-textarea:focus {
+    outline: none;
+    border-color: #0073aa;
+    box-shadow: 0 0 0 3px rgba(0, 115, 170, 0.1);
+}
+
+.note-textarea::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+.note-char-counter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.note-char-count {
+    transition: color 0.3s ease;
+}
+
+.note-char-count.warning {
+    color: #f59e0b;
+}
+
+.note-char-count.error {
+    color: #ef4444;
+}
+
+/* Note Controls */
+.note-controls {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.add-note-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.add-note-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.add-note-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.add-note-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.clear-note-btn {
+    padding: 10px 16px;
+    background: white;
+    border: 2px solid #e1e1e1;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.clear-note-btn:hover {
+    background: #f8f9fa;
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+/* Notes List */
+.notes-list-container {
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.notes-list-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notes-list-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.notes-list-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.notes-list-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.note-item {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.note-item:hover {
+    background: white;
+    border-color: #0073aa;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.note-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 12px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.note-item-header:hover {
+    background: rgba(0, 115, 170, 0.05);
+}
+
+.note-item-meta {
+    flex: 1;
+}
+
+.note-item-timestamp {
+    font-size: 12px;
+    color: #6c757d;
+    margin-bottom: 4px;
+}
+
+.note-item-author {
+    font-size: 13px;
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 4px;
+}
+
+.note-item-preview {
+    font-size: 14px;
+    color: #495057;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.note-item-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.note-action-btn {
+    padding: 4px 8px;
+    background: white;
+    border: 1px solid #e1e1e1;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.note-action-btn:hover {
+    background: #f8f9fa;
+    border-color: #0073aa;
+    color: #0073aa;
+}
+
+.note-action-btn.delete:hover {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+/* Expanded Note Content */
+.note-item-content {
+    padding: 0 12px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.note-item.expanded .note-item-content {
+    padding: 0 12px 12px;
+    max-height: 500px;
+}
+
+.note-full-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #495057;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.note-expand-indicator {
+    display: inline-block;
+    margin-left: 8px;
+    transition: transform 0.3s ease;
+}
+
+.note-item.expanded .note-expand-indicator {
+    transform: rotate(180deg);
+}
+
+/* Empty State */
+.notes-empty-state {
+    text-align: center;
+    padding: 40px;
+}
+
+.notes-empty-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.notes-empty-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+.notes-empty-description {
+    font-size: 14px;
+    color: #6c757d;
+}
+
+/* Loading State */
+.notes-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 40px;
+}
+
+.notes-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid #e1e1e1;
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.notes-loading-text {
+    font-size: 14px;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+/* Success/Error Messages */
+.note-message {
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideDown 0.3s ease;
+}
+
+.note-message.success {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.note-message.error {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+/* ============================================
+   POST HISTORY TRACKER
+   ============================================ */
+.history-tracker-panel {
+    position: relative;
+}
+
+/* History Table */
+.history-table-container {
+    overflow-x: auto;
+    border: 1px solid #e1e1e1;
+    border-radius: 6px;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.history-table thead {
+    background: #f8f9fa;
+    border-bottom: 2px solid #e1e1e1;
+}
+
+.history-table th {
+    padding: 12px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    color: #495057;
+    white-space: nowrap;
+}
+
+.history-table tbody tr {
+    border-bottom: 1px solid #e9ecef;
+    transition: background 0.2s ease;
+}
+
+.history-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.history-table td {
+    padding: 12px;
+    font-size: 14px;
+    color: #495057;
+}
+
+.history-timestamp {
+    position: relative;
+    cursor: help;
+}
+
+.history-timestamp-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 10px;
+    background: #333;
+    color: white;
+    font-size: 12px;
+    border-radius: 4px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.history-timestamp:hover .history-timestamp-tooltip {
+    opacity: 1;
+}
+
+.history-timestamp-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: #333;
+}
+
+.history-editor-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #e8f4fd;
+    color: #0073aa;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.history-summary {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* History Filters */
+.history-filters {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.history-filter-input {
+    padding: 8px 12px;
+    border: 2px solid #e1e1e1;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.history-filter-input:focus {
+    outline: none;
+    border-color: #0073aa;
+    box-shadow: 0 0 0 3px rgba(0, 115, 170, 0.1);
+}
+
+.history-filter-select {
+    padding: 8px 12px;
+    border: 2px solid #e1e1e1;
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.history-filter-select:focus {
+    outline: none;
+    border-color: #0073aa;
+    box-shadow: 0 0 0 3px rgba(0, 115, 170, 0.1);
+}
+
+/* History Empty State */
+.history-empty-state {
+    text-align: center;
+    padding: 40px;
+}
+
+.history-empty-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.history-empty-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+.history-empty-description {
+    font-size: 14px;
+    color: #6c757d;
+}
+
+/* ============================================
+   DARK MODE SUPPORT
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+    #tab-notes-history .almaseo-field-group {
+        background: #1a1a1a;
+        border-color: #333;
+    }
+    
+    #tab-notes-history .panel-title {
+        color: #e8e8e8;
+    }
+    
+    #tab-notes-history .panel-header {
+        border-bottom-color: #333;
+    }
+    
+    .notes-search-input,
+    .notes-sort-select,
+    .note-textarea,
+    .history-filter-input,
+    .history-filter-select {
+        background: #2a2a2a;
+        border-color: #444;
+        color: #e8e8e8;
+    }
+    
+    .notes-search-input:focus,
+    .notes-sort-select:focus,
+    .note-textarea:focus,
+    .history-filter-input:focus,
+    .history-filter-select:focus {
+        border-color: #4a9eff;
+        box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.2);
+    }
+    
+    .note-item {
+        background: #2a2a2a;
+        border-color: #444;
+    }
+    
+    .note-item:hover {
+        background: #333;
+        border-color: #4a9eff;
+    }
+    
+    .note-item-preview,
+    .note-full-text {
+        color: #b8b8b8;
+    }
+    
+    .note-action-btn {
+        background: #2a2a2a;
+        border-color: #444;
+        color: #e8e8e8;
+    }
+    
+    .note-action-btn:hover {
+        background: #333;
+        border-color: #4a9eff;
+        color: #4a9eff;
+    }
+    
+    .history-table {
+        background: #1a1a1a;
+    }
+    
+    .history-table thead {
+        background: #2a2a2a;
+        border-bottom-color: #444;
+    }
+    
+    .history-table th {
+        color: #e8e8e8;
+    }
+    
+    .history-table tbody tr {
+        border-bottom-color: #333;
+    }
+    
+    .history-table tbody tr:hover {
+        background: #2a2a2a;
+    }
+    
+    .history-table td {
+        color: #b8b8b8;
+    }
+    
+    .history-timestamp-tooltip {
+        background: #1a1a1a;
+        border: 1px solid #444;
+    }
+    
+    .history-editor-badge {
+        background: #2a3f5f;
+        color: #4a9eff;
+    }
+    
+    .notes-empty-title,
+    .history-empty-title {
+        color: #e8e8e8;
+    }
+    
+    .notes-empty-description,
+    .history-empty-description {
+        color: #b8b8b8;
+    }
+    
+    .clear-note-btn {
+        background: #2a2a2a;
+        border-color: #444;
+        color: #e8e8e8;
+    }
+    
+    .clear-note-btn:hover {
+        background: #333;
+        border-color: #ef4444;
+        color: #ef4444;
+    }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 768px) {
+    #tab-notes-history .almaseo-field-group {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .notes-toolbar {
+        flex-direction: column;
+    }
+    
+    .notes-search-container,
+    .notes-sort-container {
+        width: 100%;
+    }
+    
+    .note-controls {
+        flex-direction: column;
+    }
+    
+    .add-note-btn,
+    .clear-note-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .history-filters {
+        flex-direction: column;
+    }
+    
+    .history-filter-input,
+    .history-filter-select {
+        width: 100%;
+    }
+    
+    .history-table {
+        font-size: 12px;
+    }
+    
+    .history-table th,
+    .history-table td {
+        padding: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    #tab-notes-history .panel-title {
+        font-size: 14px;
+    }
+    
+    .note-textarea {
+        min-height: 80px;
+        font-size: 13px;
+    }
+    
+    .note-item-header {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .note-item-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
+    .history-summary {
+        max-width: 150px;
+    }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+#tab-notes-history [role="button"] {
+    cursor: pointer;
+}
+
+#tab-notes-history [aria-live="polite"] {
+    position: relative;
+}
+
+#tab-notes-history .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+#tab-notes-history :focus-visible {
+    outline: 2px solid #0073aa;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    #tab-notes-history .almaseo-field-group {
+        border-width: 2px;
+    }
+    
+    .add-note-btn {
+        border: 2px solid currentColor;
+    }
+    
+    .note-item {
+        border-width: 2px;
+    }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 100px;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+@media print {
+    #tab-notes-history .notes-toolbar,
+    #tab-notes-history .note-controls,
+    #tab-notes-history .note-item-actions,
+    #tab-notes-history .history-filters {
+        display: none;
+    }
+    
+    .note-item {
+        page-break-inside: avoid;
+    }
+    
+    .note-item.expanded .note-item-content {
+        max-height: none;
+    }
+}

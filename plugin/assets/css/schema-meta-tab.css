@@ -1,0 +1,547 @@
+/**
+ * Schema & Meta Tab Styles
+ * AlmaSEO Plugin v2.8.0
+ */
+
+/* Tab Header */
+.almaseo-schema-meta-header {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f0f0f1;
+}
+
+/* Locked Schema Options */
+.almaseo-select option.is-locked,
+.almaseo-select option[disabled] {
+    color: #a0a5aa;
+    background-color: #f6f7f7;
+    cursor: not-allowed;
+}
+
+.almaseo-select option.is-locked::after {
+    content: " 🔒";
+}
+
+/* Connection Notice */
+.almaseo-connection-notice {
+    animation: slideDown 0.3s ease;
+}
+
+.almaseo-connection-status {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Collapsible Sections */
+.almaseo-collapsible {
+    margin-top: 20px;
+}
+
+.almaseo-collapsible-toggle {
+    width: 100%;
+    text-align: left;
+    padding: 10px 15px;
+    background: #f6f7f7;
+    border: 1px solid #c3c4c7;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1d2327;
+    transition: all 0.2s ease;
+}
+
+.almaseo-collapsible-toggle:hover {
+    background: #f0f0f1;
+    border-color: #8c8f94;
+}
+
+.almaseo-collapsible-toggle:focus {
+    outline: 2px solid #2271b1;
+    outline-offset: -2px;
+}
+
+.almaseo-collapsible-toggle .dashicons {
+    margin-right: 5px;
+    vertical-align: middle;
+    transition: transform 0.2s ease;
+}
+
+.almaseo-collapsible-content {
+    margin-top: 10px;
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Schema Preview Styles */
+#schema-preview-content {
+    background: #2c3338;
+    border-radius: 3px;
+    padding: 15px;
+    position: relative;
+}
+
+#schema-json-preview {
+    color: #50fa7b;
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    overflow-x: auto;
+    margin: 0;
+    white-space: pre;
+}
+
+.copy-json-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 12px;
+    background: #2271b1;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.2s ease;
+}
+
+.copy-json-btn:hover {
+    background: #135e96;
+}
+
+/* Social Preview Styles */
+#social-preview-content {
+    background: #f6f7f7;
+    border: 1px solid #c3c4c7;
+    border-radius: 3px;
+    padding: 15px;
+}
+
+#social-tags-preview {
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* Schema Fallback Hints */
+.schema-fallback-hint {
+    margin-top: 10px;
+    padding: 10px;
+    background: #f0f6fc;
+    border-left: 3px solid #2271b1;
+    border-radius: 3px;
+}
+
+.schema-fallback-hint small {
+    color: #2c3338;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* Locked Schema Notice */
+#schema-locked-notice {
+    margin-top: 10px;
+    padding: 10px;
+    background: #fff8e5;
+    border-left: 3px solid #dba617;
+    border-radius: 3px;
+    animation: slideDown 0.2s ease;
+}
+
+#schema-locked-notice small {
+    color: #2c3338;
+    font-size: 13px;
+}
+
+#schema-locked-notice a {
+    color: #2271b1;
+    text-decoration: none;
+}
+
+#schema-locked-notice a:hover {
+    text-decoration: underline;
+}
+
+/* Locked Option Styles */
+.almaseo-select option[data-locked="1"] {
+    color: #8c8f94;
+    font-style: italic;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .almaseo-collapsible-toggle {
+        background: #2c3338;
+        border-color: #50575e;
+        color: #f0f0f1;
+    }
+    
+    .almaseo-collapsible-toggle:hover {
+        background: #3c434a;
+        border-color: #646970;
+    }
+    
+    #social-preview-content {
+        background: #2c3338;
+        border-color: #50575e;
+    }
+    
+    #social-tags-preview {
+        color: #f0f0f1;
+    }
+    
+    .schema-fallback-hint {
+        background: #1d2327;
+        border-color: #2271b1;
+    }
+    
+    .schema-fallback-hint small,
+    #schema-locked-notice small {
+        color: #f0f0f1;
+    }
+    
+    #schema-locked-notice {
+        background: #3c434a;
+        border-color: #dba617;
+    }
+}
+
+.almaseo-schema-meta-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1d2327;
+    margin: 0 0 8px 0;
+}
+
+.almaseo-schema-meta-subtitle {
+    font-size: 14px;
+    color: #646970;
+    margin: 0;
+}
+
+/* Cards */
+.almaseo-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+}
+
+.almaseo-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.almaseo-card-header {
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-bottom: 1px solid #f0f0f1;
+}
+
+.almaseo-card-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1d2327;
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-icon {
+    font-size: 20px;
+}
+
+.almaseo-card-description {
+    font-size: 13px;
+    color: #646970;
+    margin: 0;
+}
+
+.almaseo-card-body {
+    padding: 20px;
+}
+
+/* Meta Robots Grid */
+.almaseo-meta-robots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.meta-robots-option {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+}
+
+/* Toggle Switch */
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    margin-bottom: 8px;
+}
+
+.toggle-label input[type="checkbox"] {
+    display: none;
+}
+
+.toggle-slider {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: #ccc;
+    border-radius: 24px;
+    transition: background 0.3s;
+}
+
+.toggle-slider::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.3s;
+}
+
+.toggle-label input[type="checkbox"]:checked + .toggle-slider {
+    background: #667eea;
+}
+
+.toggle-label input[type="checkbox"]:checked + .toggle-slider::after {
+    transform: translateX(20px);
+}
+
+.toggle-text {
+    font-weight: 500;
+    color: #1d2327;
+}
+
+.option-description {
+    font-size: 12px;
+    color: #646970;
+    margin: 0;
+    padding-left: 56px;
+}
+
+/* Meta Robots Preview */
+.meta-robots-preview {
+    padding: 15px;
+    background: #f0f8ff;
+    border: 1px solid #d1e4f3;
+    border-radius: 6px;
+}
+
+.meta-robots-preview h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.meta-robots-preview code {
+    display: block;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    color: #2c3338;
+    word-break: break-all;
+}
+
+/* Form Fields */
+.almaseo-field-group {
+    margin-bottom: 20px;
+}
+
+.almaseo-field-group label {
+    display: block;
+    font-weight: 500;
+    color: #1d2327;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.almaseo-input,
+.almaseo-select,
+.almaseo-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #2c3338;
+    background: #fff;
+    transition: border-color 0.2s;
+}
+
+.almaseo-input:focus,
+.almaseo-select:focus,
+.almaseo-textarea:focus {
+    border-color: #667eea;
+    outline: none;
+    box-shadow: 0 0 0 1px #667eea;
+}
+
+.almaseo-textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.field-hint {
+    font-size: 12px;
+    color: #646970;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+.upgrade-hint {
+    color: #d63638;
+}
+
+.upgrade-hint a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.upgrade-hint a:hover {
+    text-decoration: underline;
+}
+
+/* Social Sections */
+.social-section {
+    margin-bottom: 30px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #f0f0f1;
+}
+
+.social-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.social-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1d2327;
+    margin: 0 0 20px 0;
+    padding-left: 25px;
+    position: relative;
+}
+
+.social-section-title::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 2px;
+}
+
+/* Schema Article Fields */
+.schema-article-fields {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #f0f0f1;
+}
+
+/* Dark Mode Support */
+body.admin-color-modern .almaseo-card,
+body.admin-color-midnight .almaseo-card {
+    background: #1e1e1e;
+    border-color: #3c3c3c;
+}
+
+body.admin-color-modern .almaseo-card-header,
+body.admin-color-midnight .almaseo-card-header {
+    background: linear-gradient(135deg, #2c2c2c 0%, #1e1e1e 100%);
+    border-bottom-color: #3c3c3c;
+}
+
+body.admin-color-modern .almaseo-schema-meta-title,
+body.admin-color-modern .almaseo-card-title,
+body.admin-color-modern .toggle-text,
+body.admin-color-modern .almaseo-field-group label,
+body.admin-color-midnight .almaseo-schema-meta-title,
+body.admin-color-midnight .almaseo-card-title,
+body.admin-color-midnight .toggle-text,
+body.admin-color-midnight .almaseo-field-group label {
+    color: #e0e0e0;
+}
+
+body.admin-color-modern .almaseo-schema-meta-subtitle,
+body.admin-color-modern .almaseo-card-description,
+body.admin-color-modern .option-description,
+body.admin-color-modern .field-hint,
+body.admin-color-midnight .almaseo-schema-meta-subtitle,
+body.admin-color-midnight .almaseo-card-description,
+body.admin-color-midnight .option-description,
+body.admin-color-midnight .field-hint {
+    color: #a0a0a0;
+}
+
+body.admin-color-modern .meta-robots-option,
+body.admin-color-midnight .meta-robots-option {
+    background: #2c2c2c;
+    border-color: #3c3c3c;
+}
+
+body.admin-color-modern .almaseo-input,
+body.admin-color-modern .almaseo-select,
+body.admin-color-modern .almaseo-textarea,
+body.admin-color-midnight .almaseo-input,
+body.admin-color-midnight .almaseo-select,
+body.admin-color-midnight .almaseo-textarea {
+    background: #2c2c2c;
+    border-color: #3c3c3c;
+    color: #e0e0e0;
+}
+
+body.admin-color-modern .meta-robots-preview,
+body.admin-color-midnight .meta-robots-preview {
+    background: #2c2c2c;
+    border-color: #3c3c3c;
+}
+
+body.admin-color-modern .meta-robots-preview code,
+body.admin-color-midnight .meta-robots-preview code {
+    background: #1e1e1e;
+    border-color: #3c3c3c;
+    color: #e0e0e0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .almaseo-meta-robots-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,748 @@
+/**
+ * AlmaSEO SEO Playground - New Features Styles
+ * Version: 2.2.1
+ * Description: Styles for Evergreen Tracker, SEO Health Score, Metadata History, Static Keyword Intelligence, and Upsell Screen
+ */
+
+/* ============================================
+   OVERVIEW HEADER WITH EVERGREEN & HEALTH SCORE
+   ============================================ */
+.almaseo-overview-header {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+/* Evergreen Tracker / Content Age Badge */
+.almaseo-content-age-badge {
+    flex: 1;
+    background: var(--almaseo-bg-light);
+    border-radius: var(--almaseo-radius-lg);
+    padding: 15px;
+    border: 1px solid var(--almaseo-border-light);
+}
+
+.content-age-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.content-age-indicator.fresh {
+    color: var(--almaseo-success);
+}
+
+.content-age-indicator.aging {
+    color: var(--almaseo-warning);
+}
+
+.content-age-indicator.stale {
+    color: var(--almaseo-danger);
+}
+
+.freshness-icon {
+    font-size: 20px;
+}
+
+.days-count {
+    font-weight: 400;
+    color: var(--almaseo-text-muted);
+    font-size: 13px;
+}
+
+.update-reminder-toggle {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--almaseo-border-light);
+}
+
+.update-reminder-toggle label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--almaseo-text-secondary);
+}
+
+.update-reminder-toggle input[type="number"] {
+    width: 60px;
+    padding: 3px 5px;
+    border: 1px solid var(--almaseo-border-gray);
+    border-radius: var(--almaseo-radius-sm);
+}
+
+/* SEO Health Score */
+.almaseo-seo-health-score {
+    flex: 1;
+    background: var(--almaseo-bg-light);
+    border-radius: var(--almaseo-radius-lg);
+    padding: 15px;
+    border: 1px solid var(--almaseo-border-light);
+}
+
+.health-score-container {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.health-score-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border: 4px solid var(--almaseo-border-gray);
+    position: relative;
+    flex-shrink: 0;
+}
+
+.health-score-circle.excellent {
+    border-color: var(--almaseo-success);
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+}
+
+.health-score-circle.good {
+    border-color: #ffc107;
+    background: linear-gradient(135deg, #fff3cd, #ffe69c);
+}
+
+.health-score-circle.needs-work {
+    border-color: var(--almaseo-warning);
+    background: linear-gradient(135deg, #ffe4b5, #ffd700);
+}
+
+.health-score-circle.poor {
+    border-color: var(--almaseo-danger);
+    background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+}
+
+.score-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--almaseo-text-primary);
+}
+
+.score-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--almaseo-text-muted);
+    font-weight: 600;
+}
+
+.health-breakdown {
+    flex: 1;
+}
+
+.health-breakdown h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: var(--almaseo-text-primary);
+}
+
+.health-breakdown ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.breakdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 13px;
+}
+
+.breakdown-item.pass {
+    color: var(--almaseo-success);
+}
+
+.breakdown-item.fail {
+    color: var(--almaseo-text-muted);
+}
+
+.breakdown-icon {
+    font-size: 14px;
+}
+
+/* ============================================
+   STATIC KEYWORD INTELLIGENCE
+   ============================================ */
+.almaseo-keyword-suggestions {
+    margin-top: 20px;
+    padding: 15px;
+    background: var(--almaseo-bg-light);
+    border-radius: var(--almaseo-radius-lg);
+    border: 1px solid var(--almaseo-border-light);
+}
+
+.almaseo-keyword-suggestions label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-weight: 600;
+    color: var(--almaseo-text-primary);
+}
+
+.ai-upgrade-badge {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.keyword-suggestions-box {
+    background: white;
+    padding: 12px;
+    border-radius: var(--almaseo-radius-md);
+    border: 1px solid var(--almaseo-border-light);
+}
+
+.keyword-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.keyword-chip {
+    background: var(--almaseo-bg-gray);
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 13px;
+    color: var(--almaseo-text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid var(--almaseo-border-light);
+}
+
+.keyword-chip:hover {
+    background: var(--almaseo-primary);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: var(--almaseo-shadow-sm);
+}
+
+.suggestion-hint {
+    font-size: 12px;
+    color: var(--almaseo-text-muted);
+    margin: 0;
+}
+
+.no-suggestions {
+    color: var(--almaseo-text-muted);
+    font-style: italic;
+    margin: 0;
+}
+
+.ai-upsell-note {
+    margin-top: 12px;
+    padding: 10px;
+    background: linear-gradient(135deg, #f6f8fb, #e9ecef);
+    border-radius: var(--almaseo-radius-md);
+    border-left: 3px solid var(--almaseo-primary);
+    font-size: 13px;
+    color: var(--almaseo-text-secondary);
+}
+
+.ai-upsell-note a {
+    color: var(--almaseo-primary);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.ai-upsell-note a:hover {
+    text-decoration: underline;
+}
+
+/* ============================================
+   METADATA HISTORY TRACKER
+   ============================================ */
+.almaseo-metadata-history {
+    margin-top: 20px;
+    background: var(--almaseo-bg-light);
+    border-radius: var(--almaseo-radius-lg);
+    padding: 15px;
+    border: 1px solid var(--almaseo-border-light);
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.history-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: var(--almaseo-text-primary);
+}
+
+.history-toggle-btn {
+    background: white;
+    border: 1px solid var(--almaseo-border-gray);
+    padding: 6px 12px;
+    border-radius: var(--almaseo-radius-md);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    color: var(--almaseo-text-secondary);
+    transition: all 0.2s ease;
+}
+
+.history-toggle-btn:hover {
+    background: var(--almaseo-bg-gray);
+}
+
+.toggle-icon {
+    transition: transform 0.2s ease;
+}
+
+.history-toggle-btn.active .toggle-icon {
+    transform: rotate(180deg);
+}
+
+.metadata-history-content {
+    background: white;
+    border-radius: var(--almaseo-radius-md);
+    padding: 15px;
+    border: 1px solid var(--almaseo-border-light);
+}
+
+.no-history {
+    color: var(--almaseo-text-muted);
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+    margin: 0;
+}
+
+.history-timeline {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.history-entry {
+    border-left: 3px solid var(--almaseo-border-gray);
+    padding-left: 20px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.history-entry::before {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: 5px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--almaseo-primary);
+    border: 2px solid white;
+}
+
+.history-date {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--almaseo-text-muted);
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.date-icon {
+    font-size: 14px;
+}
+
+.history-fields {
+    background: var(--almaseo-bg-light);
+    padding: 10px;
+    border-radius: var(--almaseo-radius-md);
+    margin-bottom: 10px;
+}
+
+.history-field {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--almaseo-border-light);
+}
+
+.history-field:last-child {
+    border-bottom: none;
+}
+
+.history-field strong {
+    color: var(--almaseo-text-primary);
+    font-size: 12px;
+    min-width: 100px;
+}
+
+.field-value {
+    flex: 1;
+    color: var(--almaseo-text-secondary);
+    font-size: 13px;
+    word-break: break-word;
+}
+
+.restore-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 2px 6px;
+    border-radius: var(--almaseo-radius-sm);
+    transition: background 0.2s ease;
+}
+
+.restore-btn:hover {
+    background: var(--almaseo-bg-gray);
+}
+
+.history-meta {
+    margin-top: 5px;
+    font-size: 11px;
+    color: var(--almaseo-text-light);
+}
+
+.history-actions {
+    margin-top: 10px;
+}
+
+.restore-all-btn {
+    background: var(--almaseo-primary);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: var(--almaseo-radius-md);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.restore-all-btn:hover {
+    background: var(--almaseo-primary-dark);
+    transform: translateY(-1px);
+}
+
+/* ============================================
+   AI TOOLS UPSELL SCREEN
+   ============================================ */
+.almaseo-ai-upsell-screen {
+    padding: 30px;
+    background: linear-gradient(135deg, #f6f8fb, #ffffff);
+    border-radius: var(--almaseo-radius-xl);
+}
+
+.upsell-hero {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.upsell-hero h2 {
+    font-size: 32px;
+    color: var(--almaseo-text-primary);
+    margin: 0 0 10px 0;
+}
+
+.upsell-subtitle {
+    font-size: 16px;
+    color: var(--almaseo-text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.locked-features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.locked-feature {
+    background: white;
+    border: 2px solid var(--almaseo-border-light);
+    border-radius: var(--almaseo-radius-lg);
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.locked-feature:hover {
+    border-color: var(--almaseo-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--almaseo-shadow-md);
+}
+
+.feature-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+    opacity: 0.3;
+}
+
+.locked-feature h3 {
+    font-size: 18px;
+    margin: 10px 0;
+    color: var(--almaseo-text-primary);
+}
+
+.locked-feature p {
+    font-size: 13px;
+    color: var(--almaseo-text-secondary);
+    margin: 0 0 10px 0;
+}
+
+.feature-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.upsell-benefits {
+    background: white;
+    border-radius: var(--almaseo-radius-lg);
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+.upsell-benefits h3 {
+    font-size: 20px;
+    margin: 0 0 15px 0;
+    color: var(--almaseo-text-primary);
+}
+
+.benefits-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.benefits-list li {
+    padding: 8px 0;
+    font-size: 14px;
+    color: var(--almaseo-text-secondary);
+}
+
+.upsell-cta-section {
+    text-align: center;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.cta-btn-primary,
+.cta-btn-secondary {
+    padding: 12px 24px;
+    border-radius: var(--almaseo-radius-md);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cta-btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+}
+
+.cta-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--almaseo-shadow-lg);
+}
+
+.cta-btn-secondary {
+    background: white;
+    color: var(--almaseo-primary);
+    border: 2px solid var(--almaseo-primary);
+}
+
+.cta-btn-secondary:hover {
+    background: var(--almaseo-bg-light);
+}
+
+.already-connected {
+    margin-top: 15px;
+    font-size: 14px;
+    color: var(--almaseo-text-secondary);
+}
+
+.already-connected a {
+    color: var(--almaseo-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.already-connected a:hover {
+    text-decoration: underline;
+}
+
+.upsell-testimonial {
+    background: var(--almaseo-bg-light);
+    border-left: 4px solid var(--almaseo-primary);
+    padding: 20px;
+    border-radius: var(--almaseo-radius-md);
+    margin-top: 30px;
+}
+
+.upsell-testimonial blockquote {
+    margin: 0;
+    font-style: italic;
+    color: var(--almaseo-text-secondary);
+}
+
+.upsell-testimonial cite {
+    display: block;
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--almaseo-text-muted);
+    font-style: normal;
+}
+
+/* ============================================
+   DARK MODE SUPPORT
+   ============================================ */
+body.almaseo-dark-mode .almaseo-content-age-badge,
+body.almaseo-dark-mode .almaseo-seo-health-score,
+body.almaseo-dark-mode .almaseo-keyword-suggestions,
+body.almaseo-dark-mode .almaseo-metadata-history {
+    background: #2d3748;
+    border-color: #4a5568;
+}
+
+body.almaseo-dark-mode .health-score-circle {
+    background: #1a202c;
+    border-color: #4a5568;
+}
+
+body.almaseo-dark-mode .keyword-suggestions-box,
+body.almaseo-dark-mode .metadata-history-content {
+    background: #1a202c;
+    border-color: #4a5568;
+}
+
+body.almaseo-dark-mode .keyword-chip {
+    background: #4a5568;
+    color: #e2e8f0;
+    border-color: #718096;
+}
+
+body.almaseo-dark-mode .keyword-chip:hover {
+    background: var(--almaseo-primary);
+    color: white;
+}
+
+body.almaseo-dark-mode .history-toggle-btn {
+    background: #2d3748;
+    border-color: #4a5568;
+    color: #e2e8f0;
+}
+
+body.almaseo-dark-mode .history-toggle-btn:hover {
+    background: #4a5568;
+}
+
+body.almaseo-dark-mode .history-fields {
+    background: #2d3748;
+}
+
+body.almaseo-dark-mode .locked-feature {
+    background: #2d3748;
+    border-color: #4a5568;
+}
+
+body.almaseo-dark-mode .upsell-benefits {
+    background: #2d3748;
+}
+
+body.almaseo-dark-mode .almaseo-ai-upsell-screen {
+    background: linear-gradient(135deg, #1a202c, #2d3748);
+}
+
+body.almaseo-dark-mode .upsell-hero h2,
+body.almaseo-dark-mode .locked-feature h3,
+body.almaseo-dark-mode .upsell-benefits h3 {
+    color: #e2e8f0;
+}
+
+body.almaseo-dark-mode .upsell-subtitle,
+body.almaseo-dark-mode .locked-feature p,
+body.almaseo-dark-mode .benefits-list li {
+    color: #a0aec0;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 768px) {
+    .almaseo-overview-header {
+        flex-direction: column;
+    }
+    
+    .health-score-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .locked-features-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+    }
+    
+    .cta-btn-primary,
+    .cta-btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .keyword-chips {
+        flex-direction: column;
+    }
+    
+    .keyword-chip {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .health-breakdown {
+        font-size: 12px;
+    }
+    
+    .upsell-hero h2 {
+        font-size: 24px;
+    }
+}

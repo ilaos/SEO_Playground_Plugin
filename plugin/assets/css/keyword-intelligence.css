@@ -1,0 +1,422 @@
+/**
+ * AlmaSEO Keyword Intelligence - Styles
+ * 
+ * @package AlmaSEO
+ * @since 7.0.0
+ */
+
+/* Tab Navigation */
+.ki-tabs {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.ki-tabs .components-button {
+    flex: 1;
+    justify-content: center;
+}
+
+/* Tab Content */
+.ki-tab-content {
+    padding-top: 10px;
+}
+
+/* Usage Meter */
+.ki-usage {
+    margin-top: 10px;
+    font-size: 12px;
+}
+
+.ki-usage progress {
+    width: 100%;
+    height: 8px;
+    margin-top: 5px;
+}
+
+.ki-usage progress::-webkit-progress-bar {
+    background-color: #f0f0f0;
+    border-radius: 4px;
+}
+
+.ki-usage progress::-webkit-progress-value {
+    background-color: #007cba;
+    border-radius: 4px;
+}
+
+/* Metrics List */
+.ki-metrics-list {
+    margin-top: 15px;
+}
+
+.ki-metrics-list h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e1e1e;
+}
+
+.ki-metric-item {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 8px;
+}
+
+.ki-metric-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.ki-metric-header strong {
+    font-size: 14px;
+    color: #1e1e1e;
+}
+
+.ki-metric-data {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    font-size: 12px;
+}
+
+.ki-volume {
+    color: #666;
+}
+
+.ki-difficulty {
+    font-weight: 600;
+}
+
+.ki-cached {
+    font-size: 14px;
+    opacity: 0.7;
+    title: "Cached data";
+}
+
+/* Suggestions List */
+.ki-suggestions-list {
+    margin-top: 15px;
+}
+
+.ki-suggestions-list h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e1e1e;
+}
+
+.ki-suggestion-item {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ki-suggestion-data {
+    flex: 1;
+}
+
+.ki-suggestion-data strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 4px;
+    color: #1e1e1e;
+}
+
+.ki-suggestion-metrics {
+    display: flex;
+    gap: 10px;
+    font-size: 11px;
+    color: #666;
+}
+
+.ki-suggestion-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.ki-suggestion-actions .components-button {
+    min-width: auto;
+    padding: 4px 8px;
+}
+
+/* Trends List */
+.ki-trends-list {
+    margin-top: 15px;
+}
+
+.ki-trends-list h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e1e1e;
+}
+
+.ki-trend-item {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ki-trend-data {
+    flex: 1;
+}
+
+.ki-trend-data strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 4px;
+    color: #1e1e1e;
+}
+
+.ki-trend-change {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin: 4px 0;
+}
+
+.ki-trend-arrow {
+    font-size: 16px;
+}
+
+.ki-trend-arrow.up {
+    color: #4caf50;
+}
+
+.ki-trend-arrow.down {
+    color: #f44336;
+}
+
+.ki-trend-percent {
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.ki-trend-volumes {
+    display: flex;
+    gap: 10px;
+    font-size: 11px;
+    color: #666;
+}
+
+/* Keyword Actions */
+.ki-keyword-actions {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.ki-keyword-action-group {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 8px;
+}
+
+.ki-keyword-action-group .components-button {
+    flex: 1;
+    font-size: 12px;
+    padding: 6px 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 782px) {
+    .ki-tabs {
+        flex-direction: column;
+    }
+    
+    .ki-suggestion-item,
+    .ki-trend-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .ki-suggestion-actions,
+    .ki-trend-actions {
+        margin-top: 8px;
+        width: 100%;
+    }
+    
+    .ki-suggestion-actions .components-button {
+        flex: 1;
+    }
+}
+
+/* Loading State */
+.ki-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: #666;
+}
+
+.ki-loading .components-spinner {
+    margin-right: 8px;
+}
+
+/* Error State */
+.ki-error {
+    background: #fff5f5;
+    border: 1px solid #ffdddd;
+    border-radius: 4px;
+    padding: 10px;
+    color: #d63638;
+    font-size: 13px;
+}
+
+/* Empty State */
+.ki-empty {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-size: 13px;
+}
+
+.ki-empty-icon {
+    font-size: 32px;
+    opacity: 0.3;
+    margin-bottom: 10px;
+}
+
+/* History Graph */
+.ki-history-graph {
+    margin-top: 15px;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+}
+
+.ki-history-graph canvas {
+    max-width: 100%;
+    height: 150px;
+}
+
+/* Tooltips */
+.ki-tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+}
+
+.ki-tooltip:hover .ki-tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+.ki-tooltip-text {
+    visibility: hidden;
+    width: 200px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 4px;
+    padding: 8px;
+    position: absolute;
+    z-index: 1000;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -100px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.ki-tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+}
+
+/* Keyword Chips */
+.ki-keyword-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.ki-keyword-chip {
+    background: #e0e0e0;
+    border-radius: 16px;
+    padding: 4px 12px;
+    font-size: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.ki-keyword-chip.pinned {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+}
+
+.ki-keyword-chip.ignored {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    opacity: 0.7;
+}
+
+.ki-keyword-chip-remove {
+    cursor: pointer;
+    color: #666;
+    font-weight: bold;
+}
+
+.ki-keyword-chip-remove:hover {
+    color: #d63638;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .ki-metric-item,
+    .ki-suggestion-item,
+    .ki-trend-item {
+        background: #2c3338;
+        border-color: #3c434a;
+    }
+    
+    .ki-metric-header strong,
+    .ki-suggestion-data strong,
+    .ki-trend-data strong {
+        color: #f0f0f0;
+    }
+    
+    .ki-metrics-list h4,
+    .ki-suggestions-list h4,
+    .ki-trends-list h4 {
+        color: #f0f0f0;
+    }
+    
+    .ki-volume,
+    .ki-suggestion-metrics,
+    .ki-trend-volumes {
+        color: #a7aaad;
+    }
+    
+    .ki-tabs {
+        border-bottom-color: #3c434a;
+    }
+}

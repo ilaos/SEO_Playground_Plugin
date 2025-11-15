@@ -1,0 +1,572 @@
+/**
+ * AlmaSEO SEO Overview Tab - Panel Polish Styles
+ * Consistent styling for all panels in the SEO Overview tab
+ */
+
+/* ========================================
+   Base Panel Styles
+   ======================================== */
+
+.almaseo-seo-playground .almaseo-field-group {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+/* Panel hover effect for better UX */
+.almaseo-seo-playground .almaseo-field-group:hover {
+    border-color: #c3c4c7;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* Focus state for keyboard navigation */
+.almaseo-seo-playground .almaseo-field-group:focus-within {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.1);
+}
+
+/* ========================================
+   Panel Headers - Consistent Formatting
+   ======================================== */
+
+.almaseo-field-group label[class*="-label"] {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #23282d;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+/* Consistent icon sizing */
+.almaseo-field-group label[class*="-label"] > span:first-child {
+    font-size: 18px;
+    line-height: 1;
+}
+
+/* Tooltip icon styling */
+.almaseo-field-group span[class*="-tooltip"] {
+    cursor: help;
+    color: #999;
+    font-size: 14px;
+    margin-left: auto;
+    transition: color 0.2s ease;
+}
+
+.almaseo-field-group span[class*="-tooltip"]:hover {
+    color: #0073aa;
+}
+
+/* ========================================
+   Container Styles
+   ======================================== */
+
+div[class*="-container"]:not(.almaseo-container) {
+    position: relative;
+    min-height: 100px;
+}
+
+/* ========================================
+   Empty States - Consistent Design
+   ======================================== */
+
+div[class*="-empty"] {
+    text-align: center;
+    padding: 30px 20px;
+    color: #666;
+}
+
+div[class*="-empty"] .empty-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+div[class*="-empty"] .empty-text {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+div[class*="-empty"] .empty-hint {
+    font-size: 13px;
+    color: #999;
+}
+
+/* ========================================
+   Loading States - Unified Design
+   ======================================== */
+
+div[class*="-loading"] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    min-height: 150px;
+}
+
+div[class*="-loading-spinner"] {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #f0f0f0;
+    border-top-color: #0073aa;
+    border-radius: 50%;
+    animation: almaseoSpin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes almaseoSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+div[class*="-loading-text"] {
+    font-size: 13px;
+    color: #666;
+    text-align: center;
+}
+
+/* ========================================
+   Button Styles - AlmaSEO Design System
+   ======================================== */
+
+.almaseo-field-group button[class*="-btn"] {
+    background: #0073aa;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.almaseo-field-group button[class*="-btn"]:hover:not(:disabled) {
+    background: #005a87;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.almaseo-field-group button[class*="-btn"]:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.almaseo-field-group button[class*="-btn"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.almaseo-field-group button[class*="-btn"]:focus {
+    outline: 2px solid #0073aa;
+    outline-offset: 2px;
+}
+
+/* ========================================
+   Timestamp Formatting
+   ======================================== */
+
+div[class*="-timestamp"] {
+    font-size: 11px;
+    color: #999;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #f0f0f0;
+}
+
+div[class*="-timestamp"] small {
+    display: block;
+}
+
+/* ========================================
+   Error States
+   ======================================== */
+
+div[class*="-error"]:not(.error-icon):not(.error-text) {
+    background: #fff5f5;
+    border: 1px solid #ffcccb;
+    border-radius: 4px;
+    padding: 15px;
+    margin-top: 15px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+div[class*="-error"] .error-icon {
+    font-size: 20px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+div[class*="-error"] .error-text {
+    font-size: 13px;
+    color: #dc3232;
+    flex: 1;
+}
+
+/* ========================================
+   Success States
+   ======================================== */
+
+div[class*="-success"]:not(.success-icon):not(.success-text) {
+    background: #f0f8f0;
+    border: 1px solid #c3e6c3;
+    border-radius: 4px;
+    padding: 15px;
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+div[class*="-success"] .success-icon {
+    font-size: 20px;
+    line-height: 1;
+    color: #46b450;
+}
+
+div[class*="-success"] .success-text {
+    font-size: 13px;
+    color: #46b450;
+}
+
+/* ========================================
+   Focus Keyword Suggestions Panel Polish
+   ======================================== */
+
+.almaseo-focus-suggestions-section .focus-suggestions-container {
+    background: #f9fafb;
+    border-radius: 4px;
+    padding: 15px;
+}
+
+.focus-suggestions-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.focus-suggestion-item {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.focus-suggestion-item:hover {
+    background: #0073aa;
+    color: white;
+    border-color: #0073aa;
+    transform: translateY(-1px);
+}
+
+/* ========================================
+   Post Intelligence Panel Polish
+   ======================================== */
+
+.almaseo-post-intelligence-section .post-intelligence-textarea {
+    background: #f9fafb;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 12px;
+    min-height: 100px;
+    font-size: 13px;
+    line-height: 1.6;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+}
+
+.almaseo-post-intelligence-section .post-intelligence-textarea:focus {
+    border-color: #0073aa;
+    outline: none;
+    background: white;
+}
+
+.post-intelligence-controls {
+    margin-top: 12px;
+}
+
+/* ========================================
+   Content Aging Panel Polish
+   ======================================== */
+
+.almaseo-content-aging-section .content-age-display {
+    background: linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.almaseo-content-aging-section .age-text {
+    font-size: 24px;
+    font-weight: 600;
+    color: #23282d;
+    margin-bottom: 5px;
+}
+
+.almaseo-content-aging-section .age-subtitle {
+    font-size: 13px;
+    color: #666;
+}
+
+.content-aging-reminder {
+    background: #fff9e6;
+    border-left: 3px solid #ffb900;
+    padding: 12px 15px;
+    margin: 15px 0;
+    border-radius: 0 4px 4px 0;
+}
+
+.content-aging-reminder .reminder-icon {
+    display: inline-block;
+    margin-right: 8px;
+}
+
+/* ========================================
+   Meta Health Panel Polish
+   ======================================== */
+
+.almaseo-meta-health-section .meta-score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0073aa 0%, #005a87 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto;
+    box-shadow: 0 4px 12px rgba(0, 115, 170, 0.2);
+}
+
+.meta-score-circle .score-number {
+    font-size: 36px;
+    font-weight: bold;
+    color: white;
+    line-height: 1;
+}
+
+.meta-score-circle .score-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.9);
+    margin-top: 5px;
+}
+
+.meta-health-feedback {
+    background: #f9fafb;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.meta-health-feedback .feedback-text {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #555;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+@media (max-width: 768px) {
+    .almaseo-seo-playground .almaseo-field-group {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .almaseo-field-group label[class*="-label"] {
+        font-size: 14px;
+    }
+    
+    div[class*="-empty"] .empty-icon {
+        font-size: 36px;
+    }
+    
+    .meta-score-circle {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .meta-score-circle .score-number {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 480px) {
+    .almaseo-seo-playground .almaseo-field-group {
+        padding: 12px;
+        border-radius: 6px;
+    }
+    
+    .focus-suggestion-item {
+        font-size: 12px;
+        padding: 4px 10px;
+    }
+}
+
+/* ========================================
+   Dark Mode Support
+   ======================================== */
+
+@media (prefers-color-scheme: dark) {
+    .almaseo-seo-playground .almaseo-field-group {
+        background: #1e1e1e;
+        border-color: #444;
+    }
+    
+    .almaseo-field-group label[class*="-label"] {
+        color: #e0e0e0;
+    }
+    
+    .almaseo-field-group:hover {
+        border-color: #555;
+        box-shadow: 0 2px 8px rgba(255, 255, 255, 0.02);
+    }
+    
+    div[class*="-empty"] .empty-text {
+        color: #aaa;
+    }
+    
+    .post-intelligence-textarea {
+        background: #2a2a2a;
+        color: #e0e0e0;
+        border-color: #444;
+    }
+    
+    .focus-suggestion-item {
+        background: #2a2a2a;
+        color: #e0e0e0;
+        border-color: #444;
+    }
+    
+    .focus-suggestion-item:hover {
+        background: #0073aa;
+        color: white;
+    }
+    
+    .content-age-display {
+        background: linear-gradient(135deg, #2a2a2a 0%, #333 100%);
+    }
+    
+    .age-text {
+        color: #e0e0e0;
+    }
+}
+
+/* ========================================
+   Accessibility Enhancements
+   ======================================== */
+
+/* Screen reader only text */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Focus visible for keyboard navigation */
+.almaseo-field-group *:focus-visible {
+    outline: 2px solid #0073aa;
+    outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ========================================
+   Back to Top Button
+   ======================================== */
+
+.almaseo-back-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 40px;
+    height: 40px;
+    background: #0073aa;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.almaseo-back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.almaseo-back-to-top:hover {
+    background: #005a87;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.almaseo-back-to-top svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* ========================================
+   Panel Border Glow on Focus
+   ======================================== */
+
+.almaseo-field-group.panel-focused {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 3px rgba(0, 115, 170, 0.1);
+}
+
+/* Subtle animation for panel entry */
+.almaseo-field-group {
+    animation: panelEntry 0.4s ease;
+}
+
+@keyframes panelEntry {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

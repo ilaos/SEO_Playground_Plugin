@@ -1,0 +1,1396 @@
+/**
+ * AlmaSEO Sitemaps Admin Styles
+ * Modern UI with AlmaSEO design system
+ */
+
+/* Admin Wrap */
+.almaseo-admin-wrap {
+    max-width: 1200px;
+    margin: 20px 20px 20px 0;
+}
+
+/* Header */
+.almaseo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.almaseo-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.almaseo-logo-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
+}
+
+.almaseo-separator {
+    color: #9ca3af;
+    font-weight: 300;
+}
+
+/* Cards */
+.almaseo-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.2s;
+}
+
+.almaseo-card:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+}
+
+.almaseo-card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #f3f4f6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.almaseo-card-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.almaseo-card-body {
+    padding: 24px;
+}
+
+/* Overview Card */
+.almaseo-overview-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+}
+
+.almaseo-overview-card .almaseo-card-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.almaseo-overview-card h2 {
+    color: white;
+}
+
+/* Chips */
+.almaseo-chips {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.almaseo-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    font-size: 13px;
+    color: white;
+    backdrop-filter: blur(10px);
+}
+
+.almaseo-chip strong {
+    font-weight: 600;
+}
+
+.almaseo-chip-success {
+    background: rgba(16, 185, 129, 0.3);
+}
+
+.almaseo-chip-error {
+    background: rgba(239, 68, 68, 0.3);
+}
+
+/* Sitemap URL */
+.almaseo-sitemap-url {
+    margin-top: 20px;
+}
+
+.almaseo-sitemap-url label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.almaseo-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.almaseo-input {
+    flex: 1;
+    min-width: 300px;
+    padding: 10px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    background: white;
+    transition: all 0.2s;
+}
+
+.almaseo-overview-card .almaseo-input {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.almaseo-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.almaseo-input[readonly] {
+    background: #f9fafb;
+    cursor: default;
+}
+
+.almaseo-overview-card .almaseo-input[readonly] {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.almaseo-input-small {
+    max-width: 150px;
+}
+
+/* Buttons */
+.almaseo-button-group {
+    display: flex;
+    gap: 8px;
+}
+
+.button.almaseo-button-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.button.almaseo-button-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.button.almaseo-button-secondary {
+    background: white;
+    border: 1px solid #e5e7eb;
+    color: #4b5563;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.button.almaseo-button-secondary:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+.almaseo-overview-card .button.almaseo-button-secondary {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.almaseo-overview-card .button.almaseo-button-secondary:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Toggles */
+.almaseo-master-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.almaseo-switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+}
+
+.almaseo-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.almaseo-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e1;
+    transition: .3s;
+    border-radius: 24px;
+}
+
+.almaseo-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .3s;
+    border-radius: 50%;
+}
+
+.almaseo-switch input:checked + .almaseo-switch-slider {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.almaseo-switch input:checked + .almaseo-switch-slider:before {
+    transform: translateX(24px);
+}
+
+/* Toggle Group */
+.almaseo-toggle-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.almaseo-toggle-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.almaseo-toggle-item:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.almaseo-toggle-item input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+.almaseo-toggle-item span {
+    font-weight: 500;
+    color: #374151;
+}
+
+.almaseo-toggle-item small {
+    color: #6b7280;
+    margin-left: 4px;
+}
+
+/* Form Groups */
+.almaseo-form-group {
+    margin-bottom: 24px;
+}
+
+.almaseo-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.almaseo-form-group .description {
+    margin-top: 6px;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+/* Disabled Sections */
+.almaseo-disabled-section {
+    opacity: 0.6;
+    position: relative;
+}
+
+.almaseo-disabled-section h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 16px;
+}
+
+.almaseo-placeholder-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.almaseo-form-group.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.almaseo-helper-text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #fef3c7;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    color: #92400e;
+    font-size: 13px;
+}
+
+.almaseo-helper-text .dashicons {
+    color: #f59e0b;
+}
+
+/* Empty State */
+.almaseo-empty-state {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.almaseo-empty-state .dashicons {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #d1d5db;
+    margin-bottom: 16px;
+}
+
+.almaseo-empty-state p {
+    color: #6b7280;
+    margin: 0;
+}
+
+/* Two Column Layout */
+.almaseo-two-column {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+@media (max-width: 768px) {
+    .almaseo-two-column {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Tools Grid */
+.almaseo-tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+}
+
+.almaseo-tool-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.almaseo-tool-button:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.almaseo-tool-button .dashicons {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    color: #6b7280;
+}
+
+.almaseo-tool-button[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 12px;
+    background: #1f2937;
+    color: white;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    margin-bottom: 8px;
+    z-index: 1000;
+}
+
+/* Toast Notifications */
+.almaseo-toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 12px 20px;
+    background: #1f2937;
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    display: none;
+    align-items: center;
+    gap: 10px;
+    z-index: 10000;
+    animation: slideUp 0.3s ease;
+}
+
+.almaseo-toast.show {
+    display: flex;
+}
+
+.almaseo-toast.success {
+    background: #10b981;
+}
+
+.almaseo-toast.error {
+    background: #ef4444;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Loading States */
+.almaseo-loading {
+    position: relative;
+    pointer-events: none;
+}
+
+.almaseo-loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid #667eea;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+/* Disabled Buttons */
+.button.disabled,
+.button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .almaseo-input-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .almaseo-input {
+        min-width: 100%;
+    }
+    
+    .almaseo-button-group {
+        width: 100%;
+        justify-content: stretch;
+    }
+    
+    .almaseo-button-group .button {
+        flex: 1;
+    }
+}/**
+ * AlmaSEO Sitemaps Phase 2 CSS Updates
+ * 
+ * Add these styles to sitemaps.css
+ */
+
+/* Status Chips */
+.almaseo-chip-info {
+    background: rgba(59, 130, 246, 0.3);
+}
+
+.almaseo-chip-warning {
+    background: rgba(245, 158, 11, 0.3);
+}
+
+/* Health Status */
+.almaseo-health-status {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.almaseo-health-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.almaseo-health-pass {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.almaseo-health-pass .dashicons {
+    color: #10b981;
+}
+
+.almaseo-health-warn {
+    background: #fed7aa;
+    color: #92400e;
+    border: 1px solid #fdba74;
+}
+
+.almaseo-health-warn .dashicons {
+    color: #f97316;
+}
+
+.almaseo-health-fail {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+.almaseo-health-fail .dashicons {
+    color: #ef4444;
+}
+
+.almaseo-health-info {
+    background: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #93c5fd;
+}
+
+.almaseo-health-info .dashicons {
+    color: #3b82f6;
+}
+
+.almaseo-health-tip {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+}
+
+.almaseo-health-tip .dashicons {
+    color: #f59e0b;
+}
+
+.almaseo-health-meta {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #e5e7eb;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+/* Conflict Warning */
+.almaseo-conflict-warning {
+    margin-top: 12px;
+    padding: 12px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    color: #991b1b;
+}
+
+.almaseo-conflict-warning .dashicons {
+    color: #ef4444;
+    margin-right: 4px;
+}
+
+.almaseo-conflict-warning ul {
+    margin: 8px 0 0 24px;
+    list-style: disc;
+}
+
+.almaseo-conflict-warning li {
+    margin: 4px 0;
+    font-size: 13px;
+}
+
+/* Modal Styles */
+.almaseo-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100000;
+}
+
+.almaseo-modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.almaseo-modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.almaseo-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.almaseo-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.almaseo-modal-close:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+.almaseo-modal-body {
+    padding: 24px;
+}
+
+.almaseo-modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* Tool buttons active state */
+.almaseo-tool-button:not([disabled]) {
+    cursor: pointer;
+    background: white;
+}
+
+.almaseo-tool-button:not([disabled]):hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    border-color: #667eea;
+}
+
+.almaseo-tool-button:not([disabled]) .dashicons {
+    color: #667eea;
+}
+
+/* Active/Processing states */
+.almaseo-processing {
+    position: relative;
+    overflow: hidden;
+}
+
+.almaseo-processing::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #667eea, transparent);
+    animation: processing 1.5s linear infinite;
+}
+
+@keyframes processing {
+    to {
+        left: 100%;
+    }
+}
+
+/* IndexNow Status */
+.almaseo-indexnow-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    background: #f3f4f6;
+    border-radius: 6px;
+    font-size: 12px;
+    margin-left: 8px;
+}
+
+.almaseo-indexnow-status.success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.almaseo-indexnow-status.error {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Takeover indicator */
+.almaseo-takeover-active {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #667eea;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}/**
+ * AlmaSEO Sitemaps Phase 3 CSS
+ * 
+ * Styles for Additional URLs, Conflict Scanner, and Diff Report
+ * 
+ * @package AlmaSEO
+ * @since 4.7.0
+ */
+
+/* Progress Bar */
+.almaseo-progress-bar {
+    width: 100%;
+    height: 20px;
+    background: #f3f4f6;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 12px 0;
+}
+
+.almaseo-progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transition: width 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.almaseo-progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Scan Results */
+.almaseo-scan-progress {
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.almaseo-scan-progress p {
+    margin: 8px 0 0;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.almaseo-scan-results {
+    padding: 16px;
+}
+
+.almaseo-scan-results .button {
+    margin-top: 16px;
+}
+
+/* URL List */
+.almaseo-urls-list {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    margin: 16px 0;
+}
+
+.almaseo-urls-list table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.almaseo-urls-list th {
+    background: #f9fafb;
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6b7280;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.almaseo-urls-list td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 14px;
+}
+
+.almaseo-urls-list tr:hover td {
+    background: #f9fafb;
+}
+
+.almaseo-urls-list .url-actions {
+    text-align: right;
+}
+
+.almaseo-urls-list .url-actions button {
+    padding: 4px 8px;
+    font-size: 12px;
+    margin-left: 4px;
+}
+
+/* Diff Summary */
+.almaseo-diff-summary {
+    padding: 16px;
+}
+
+.almaseo-diff-summary .almaseo-button-group {
+    margin-top: 16px;
+}
+
+/* Color Utilities */
+.almaseo-text-success {
+    color: #10b981;
+}
+
+.almaseo-text-danger {
+    color: #ef4444;
+}
+
+.almaseo-text-warning {
+    color: #f59e0b;
+}
+
+.almaseo-text-info {
+    color: #3b82f6;
+}
+
+/* Modal Tabs */
+.almaseo-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.almaseo-tab {
+    padding: 10px 16px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: #6b7280;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+}
+
+.almaseo-tab:hover {
+    color: #1f2937;
+}
+
+.almaseo-tab.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+}
+
+/* URL List */
+.almaseo-url-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.almaseo-url-list li {
+    padding: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    background: #fff;
+    transition: all 0.2s;
+}
+
+.almaseo-url-list li:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+.almaseo-url-list li small {
+    color: #6b7280;
+    font-size: 12px;
+    display: block;
+    margin-top: 4px;
+}
+
+/* Modal Form Styles */
+.almaseo-modal-body label {
+    display: block;
+    margin-bottom: 16px;
+}
+
+.almaseo-modal-body label span {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 500;
+    color: #374151;
+    font-size: 14px;
+}
+
+.almaseo-modal-body input[type="url"],
+.almaseo-modal-body input[type="number"],
+.almaseo-modal-body select,
+.almaseo-modal-body textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.almaseo-modal-body input:focus,
+.almaseo-modal-body select:focus,
+.almaseo-modal-body textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Conflict Table */
+#conflicts-list table {
+    margin-top: 0;
+}
+
+#conflicts-list table th {
+    background: #f9fafb;
+    font-weight: 600;
+}
+
+#conflicts-list table td {
+    font-size: 13px;
+    word-break: break-word;
+}
+
+#conflicts-list table tr:nth-child(even) {
+    background: #f9fafb;
+}
+
+/* Empty States for Phase 3 */
+.almaseo-empty-state .dashicons-shield {
+    color: #9ca3af;
+}
+
+.almaseo-empty-state .dashicons-chart-line {
+    color: #9ca3af;
+}
+
+/* Stat Grid */
+.almaseo-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.almaseo-stat {
+    text-align: center;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 8px;
+}
+
+.almaseo-stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.almaseo-stat-label {
+    font-size: 12px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Button Group */
+.almaseo-button-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+}
+
+.almaseo-button-group .button {
+    flex: 0 0 auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 782px) {
+    .almaseo-stat-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .almaseo-tabs {
+        flex-wrap: wrap;
+    }
+    
+    .almaseo-modal-content {
+        width: 95%;
+        margin: 20px auto;
+    }
+}
+/* ============================================
+   Statistics & Health Sections - Added v5.5.1
+   ============================================ */
+
+/* Statistics Card Styles */
+.almaseo-stats-card {
+    padding: 0;
+    overflow: hidden;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 24px;
+    border-right: 1px solid #e5e7eb;
+}
+
+.stat-item:last-child {
+    border-right: none;
+}
+
+.stat-icon {
+    font-size: 32px;
+    color: #667eea;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1f2937;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Status Grid Styles */
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 24px;
+}
+
+.status-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.status-label {
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-value {
+    font-size: 14px;
+    color: #1f2937;
+    font-weight: 500;
+}
+
+.status-value.status-enabled {
+    color: #10b981;
+}
+
+.status-value.status-disabled {
+    color: #ef4444;
+}
+
+.status-url {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.status-url code {
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    background: #f3f4f6;
+    padding: 2px 6px;
+    border-radius: 4px;
+    word-break: break-all;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.status-takeover {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+/* Health Summary Styles */
+
+/* Health Chips Section */
+.health-chips {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.health-chip {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
+}
+
+.health-chip:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.health-chip .dashicons {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    color: #10b981;
+}
+
+.health-chip.has-issues .dashicons {
+    color: #f59e0b;
+}
+
+.chip-content {
+    flex: 1;
+}
+
+.chip-label {
+    font-size: 12px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.chip-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+/* Health Issues Section */
+.health-issues {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.health-status {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.health-status.health-good {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.health-status.health-warning {
+    background: #fed7aa;
+    color: #c2410c;
+}
+
+.health-status.health-info {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.health-status .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+}
+
+.health-status.health-good .dashicons:before {
+    content: "\f147";
+}
+
+/* Statistics Responsive */
+@media (max-width: 1200px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .stat-item:nth-child(2n) {
+        border-right: none;
+    }
+    
+    .stat-item:nth-child(n+3) {
+        border-top: 1px solid #e5e7eb;
+    }
+}
+
+@media (max-width: 782px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-item {
+        border-right: none;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .stat-item:last-child {
+        border-bottom: none;
+    }
+    
+    .status-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-icon {
+        font-size: 24px;
+        width: 32px;
+        height: 32px;
+    }
+    
+    .stat-value {
+        font-size: 20px;
+    }
+    
+    .health-chips {
+        grid-template-columns: 1fr;
+    }
+}

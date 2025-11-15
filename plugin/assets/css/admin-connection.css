@@ -1,0 +1,295 @@
+/**
+ * AlmaSEO Admin Connection Interface Styles
+ */
+
+/* Connection Status Badge */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+
+.status-badge.connected {
+    background: #e7f5e7;
+    color: #46b450;
+    border: 1px solid #46b450;
+}
+
+.status-badge.disconnected {
+    background: #fff5f5;
+    color: #dc3232;
+    border: 1px solid #dc3232;
+}
+
+.status-badge .dashicons {
+    margin-right: 5px;
+    font-size: 18px;
+    line-height: 18px;
+}
+
+/* Connection Details Box */
+.connection-details {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.detail-item {
+    padding: 8px 0;
+    font-size: 14px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.detail-item:last-child {
+    border-bottom: none;
+}
+
+.detail-item strong {
+    color: #333;
+    margin-right: 10px;
+}
+
+/* Test Connection Button Animation */
+.test-connection-btn {
+    transition: all 0.3s ease;
+}
+
+.test-connection-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.test-connection-btn.updating-message {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.test-connection-btn .dashicons-update {
+    transition: transform 0.3s ease;
+}
+
+.test-connection-btn.updating-message .dashicons-update {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Connection Test Result */
+.connection-test-result {
+    font-size: 14px;
+    font-weight: 500;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* Setup Steps */
+.setup-step {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 20px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.setup-step.active {
+    border-color: #0073aa;
+    box-shadow: 0 2px 8px rgba(0, 115, 170, 0.1);
+}
+
+.setup-step.completed {
+    border-color: #46b450;
+    background: #f7fff7;
+}
+
+.step-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.step-number {
+    width: 32px;
+    height: 32px;
+    background: #0073aa;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 15px;
+}
+
+.setup-step.completed .step-number {
+    background: #46b450;
+}
+
+.step-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #23282d;
+}
+
+/* Password Input Group */
+.password-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.password-input-group input {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: monospace;
+    transition: border-color 0.3s ease;
+}
+
+.password-input-group input:focus {
+    border-color: #0073aa;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.1);
+}
+
+#password-feedback {
+    font-size: 13px;
+    margin-top: 5px;
+    padding: 5px 10px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+#password-feedback span {
+    font-weight: 500;
+}
+
+/* Copy Button */
+.copy-btn, .copy-password-btn {
+    padding: 5px 12px;
+    margin-left: 10px;
+    background: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s ease;
+}
+
+.copy-btn:hover, .copy-password-btn:hover {
+    background: #0073aa;
+    color: white;
+    border-color: #0073aa;
+}
+
+/* Connection Details Display */
+.connection-detail-input {
+    font-family: monospace;
+    background: #f9f9f9;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    width: calc(100% - 80px);
+}
+
+.detail-value {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+}
+
+/* Help Notes */
+.help-note {
+    background: #fff9e6;
+    border-left: 3px solid #ffb900;
+    padding: 10px 15px;
+    margin-top: 15px;
+    font-size: 13px;
+    border-radius: 3px;
+}
+
+.help-note .dashicons {
+    color: #ffb900;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+/* Advanced Options Toggle */
+.toggle-advanced {
+    color: #0073aa;
+    text-decoration: none;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.toggle-advanced:hover {
+    text-decoration: underline;
+}
+
+.toggle-advanced .dashicons {
+    font-size: 16px;
+    margin-left: 5px;
+}
+
+.advanced-options {
+    display: none;
+    margin-top: 20px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 5px;
+}
+
+/* Success/Error Animations */
+.almaseo-success-notice {
+    animation: slideDown 0.5s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .setup-step {
+        padding: 15px;
+    }
+    
+    .detail-value {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .copy-btn, .copy-password-btn {
+        margin-left: 0;
+        margin-top: 5px;
+        width: 100%;
+    }
+    
+    .connection-detail-input {
+        width: 100%;
+    }
+}

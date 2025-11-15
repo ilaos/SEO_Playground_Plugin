@@ -1,0 +1,296 @@
+/**
+ * AlmaSEO Unified Health Score - Styles
+ * 
+ * @package AlmaSEO
+ * @since 6.8.2
+ */
+
+/* Health Summary Section */
+.almaseo-health-summary {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 8px;
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+.health-summary-container {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+.health-gauge-wrapper {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    flex-shrink: 0;
+}
+
+#almaseo-health-gauge {
+    width: 100%;
+    height: 100%;
+}
+
+.health-score-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    margin-top: 20px;
+}
+
+.health-score-text .score-number {
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1;
+    display: block;
+}
+
+.health-score-text .score-label {
+    font-size: 14px;
+    opacity: 0.7;
+    display: block;
+    margin-top: 5px;
+}
+
+/* Score colors */
+.health-score-text.excellent,
+.health-status.health-excellent {
+    color: #00a32a;
+}
+
+.health-score-text.good,
+.health-status.health-good {
+    color: #dba617;
+}
+
+.health-score-text.poor,
+.health-status.health-poor {
+    color: #d63638;
+}
+
+/* Health Info */
+.health-info {
+    flex: 1;
+}
+
+.health-info h3 {
+    margin: 0 0 10px 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.health-status {
+    font-size: 16px;
+    margin: 0 0 20px 0;
+}
+
+.health-stats {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 20px;
+}
+
+.health-stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.health-stat .stat-icon {
+    font-size: 18px;
+}
+
+.health-stat strong {
+    font-size: 18px;
+}
+
+/* Signals Section */
+.almaseo-health-signals {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 8px;
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+.almaseo-health-signals h4 {
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* Individual Signal */
+.almaseo-health-signal {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    border-left: 4px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.almaseo-health-signal:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.almaseo-health-signal.pass {
+    border-left-color: #00a32a;
+}
+
+.almaseo-health-signal.fail {
+    border-left-color: #d63638;
+}
+
+/* Signal Header */
+.signal-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.signal-icon {
+    font-size: 18px;
+    margin-right: 10px;
+}
+
+.signal-label {
+    font-weight: 600;
+    flex: 1;
+}
+
+.signal-goto-btn {
+    background: #2271b1;
+    color: #fff;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.2s;
+}
+
+.signal-goto-btn:hover {
+    background: #135e96;
+}
+
+/* Signal Bar */
+.signal-bar-wrapper {
+    margin-bottom: 8px;
+}
+
+.signal-bar {
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.signal-bar-fill {
+    height: 100%;
+    transition: width 0.5s ease;
+    border-radius: 4px;
+}
+
+.signal-bar-fill.pass {
+    background: linear-gradient(90deg, #00a32a, #00c851);
+}
+
+.signal-bar-fill.fail {
+    background: #e0e0e0;
+}
+
+/* Signal Note */
+.signal-note {
+    font-size: 13px;
+    color: #666;
+}
+
+/* SEO Fields Section */
+.almaseo-seo-fields {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 8px;
+    padding: 30px;
+}
+
+.almaseo-seo-fields h4 {
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* Recalculate button */
+#almaseo-health-recalculate {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+#almaseo-health-recalculate.updating {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .health-summary-container {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .health-info {
+        width: 100%;
+    }
+    
+    .health-stats {
+        justify-content: center;
+    }
+    
+    .signal-header {
+        flex-wrap: wrap;
+    }
+    
+    .signal-goto-btn {
+        margin-top: 5px;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .almaseo-health-summary,
+    .almaseo-health-signals,
+    .almaseo-seo-fields {
+        background: #1d2327;
+        border-color: #3c434a;
+    }
+    
+    .almaseo-health-signal {
+        background: #2c3338;
+        border-color: #3c434a;
+    }
+    
+    .signal-note {
+        color: #c3c4c7;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.almaseo-health-signal {
+    animation: fadeIn 0.3s ease;
+}

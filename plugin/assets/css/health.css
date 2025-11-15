@@ -1,0 +1,759 @@
+/**
+ * AlmaSEO Health Score - Styles
+ * 
+ * @package AlmaSEO
+ * @since 6.8.2
+ */
+
+/* Container */
+.almaseo-health-container {
+    padding: 20px;
+    background: #fff;
+}
+
+/* Score Tooltip */
+.score-tooltip {
+    display: inline-block;
+    margin-left: 5px;
+    cursor: help;
+    color: #999;
+    font-size: 16px;
+}
+
+.score-tooltip:hover {
+    color: #2271b1;
+}
+
+/* Signal Weight Tooltip */
+.signal-weight {
+    color: #666;
+    font-size: 12px;
+    cursor: help;
+}
+
+.signal-weight:hover {
+    color: #2271b1;
+}
+
+/* Compact View */
+.almaseo-health-compact {
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.health-compact-container {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.health-compact-gauge {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    flex-shrink: 0;
+}
+
+.health-compact-score {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    margin-top: 10px;
+}
+
+.health-compact-score .score-value {
+    font-size: 28px;
+    font-weight: 700;
+    display: block;
+}
+
+.health-compact-score .score-max {
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+.health-compact-score.excellent {
+    color: #00a32a;
+}
+
+.health-compact-score.good {
+    color: #dba617;
+}
+
+.health-compact-score.poor {
+    color: #d63638;
+}
+
+.health-compact-summary {
+    flex: 1;
+}
+
+.health-compact-summary h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+}
+
+.health-status-text {
+    margin: 0 0 15px 0;
+    font-size: 14px;
+}
+
+.health-compact-stats {
+    display: flex;
+    gap: 20px;
+}
+
+.health-stat {
+    text-align: center;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    min-width: 80px;
+}
+
+.health-stat .stat-icon {
+    display: block;
+    font-size: 20px;
+    margin-bottom: 5px;
+}
+
+.health-stat .stat-value {
+    display: block;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.health-stat .stat-label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+}
+
+/* Gauge Section */
+.almaseo-health-gauge-section {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 30px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.almaseo-health-gauge-wrapper {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    flex-shrink: 0;
+}
+
+#almaseo-health-gauge {
+    width: 100%;
+    height: 100%;
+}
+
+.almaseo-health-score-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    margin-top: 20px;
+}
+
+.almaseo-health-score-text .score-number {
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1;
+    display: block;
+}
+
+.almaseo-health-score-text .score-label {
+    font-size: 18px;
+    opacity: 0.7;
+    display: block;
+    margin-top: 5px;
+}
+
+/* Score colors */
+.almaseo-health-score-text.green {
+    color: #00a32a;
+}
+
+.almaseo-health-score-text.yellow {
+    color: #dba617;
+}
+
+.almaseo-health-score-text.red {
+    color: #d63638;
+}
+
+/* Gauge info */
+.almaseo-health-gauge-info {
+    flex: 1;
+}
+
+.almaseo-health-gauge-info h3 {
+    margin: 0 0 10px 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.health-status {
+    font-size: 16px;
+    margin: 0;
+}
+
+.health-green {
+    color: #00a32a;
+}
+
+.health-yellow {
+    color: #856404;
+}
+
+.health-red {
+    color: #d63638;
+}
+
+/* Signals Section */
+.almaseo-health-signals {
+    margin-bottom: 20px;
+}
+
+.almaseo-health-signals h4 {
+    margin: 0 0 20px 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* Individual Signal */
+.almaseo-health-signal {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.almaseo-health-signal:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.almaseo-health-signal.pass {
+    border-left: 4px solid #00a32a;
+}
+
+.almaseo-health-signal.fail {
+    border-left: 4px solid #d63638;
+}
+
+/* Signal Header */
+.signal-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.signal-icon {
+    font-size: 18px;
+    margin-right: 10px;
+}
+
+.signal-label {
+    font-weight: 600;
+    flex: 1;
+}
+
+/* Signal description styling */
+.signal-description {
+    color: #666;
+    font-weight: normal;
+    font-size: 12px;
+    margin-left: 8px;
+}
+
+@media (max-width: 1200px) {
+    .signal-description {
+        display: block;
+        margin-left: 0;
+        margin-top: 4px;
+    }
+}
+
+.signal-weight {
+    opacity: 0.6;
+    font-weight: normal;
+    margin-left: 5px;
+}
+
+.signal-fix-btn {
+    background: #2271b1;
+    color: #fff;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.2s;
+}
+
+.signal-fix-btn:hover {
+    background: #135e96;
+}
+
+/* Signal Bar */
+.signal-bar-wrapper {
+    margin-bottom: 8px;
+}
+
+.signal-bar {
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.signal-bar-fill {
+    height: 100%;
+    transition: width 0.5s ease;
+    border-radius: 4px;
+}
+
+.signal-bar-fill.pass {
+    background: linear-gradient(90deg, #00a32a, #00c851);
+}
+
+.signal-bar-fill.fail {
+    background: #e0e0e0;
+}
+
+/* Signal Note */
+.signal-note {
+    font-size: 13px;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.signal-help {
+    cursor: help;
+    opacity: 0.7;
+    font-size: 14px;
+}
+
+.signal-help:hover {
+    opacity: 1;
+}
+
+/* Fix Helper */
+.signal-fix-helper {
+    margin-top: 15px;
+    padding: 15px;
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+}
+
+.signal-fix-helper p {
+    margin: 0 0 10px 0;
+    color: #50575e;
+}
+
+.signal-fix-helper p.description {
+    font-size: 13px;
+    font-style: italic;
+    color: #787c82;
+}
+
+.signal-fix-helper .button {
+    margin-right: 10px;
+    margin-bottom: 5px;
+}
+
+/* Google Search Preview */
+.almaseo-search-preview,
+.almaseo-serp-preview {
+    margin: 30px 0;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.almaseo-search-preview h4,
+.almaseo-serp-preview h4 {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #23282d;
+}
+
+.serp-preview,
+.serp-preview-container {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    font-family: arial, sans-serif;
+    max-width: 600px;
+}
+
+.serp-preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.serp-preview-header h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #23282d;
+}
+
+.serp-toggle {
+    display: flex;
+    gap: 5px;
+}
+
+.serp-toggle-btn {
+    padding: 5px 10px;
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.serp-toggle-btn.active {
+    background: #0073aa;
+    color: white;
+    border-color: #0073aa;
+}
+
+.serp-result {
+    padding: 10px;
+}
+
+.serp-url {
+    color: #202124;
+    font-size: 14px;
+    line-height: 1.3;
+    margin-bottom: 3px;
+}
+
+.serp-title {
+    color: #1a0dab;
+    font-size: 20px;
+    line-height: 1.3;
+    margin-bottom: 3px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.serp-title:hover {
+    text-decoration: underline;
+}
+
+.serp-description {
+    color: #4d5156;
+    font-size: 14px;
+    line-height: 1.58;
+}
+
+.serp-caption {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #999;
+    font-style: italic;
+}
+
+.serp-info-tooltip {
+    display: inline-block;
+    cursor: help;
+    margin-left: 5px;
+    color: #999;
+}
+
+/* Mobile/Desktop view styling */
+.serp-preview-container.mobile-view {
+    max-width: 400px;
+}
+
+.serp-preview-container.desktop-view .serp-title {
+    font-size: 20px;
+}
+
+.serp-preview-container.mobile-view .serp-title {
+    font-size: 18px;
+}
+
+/* Keyword Suggestions */
+.almaseo-keyword-suggestions {
+    margin: 30px 0;
+    padding: 20px;
+    background: #f0f8ff;
+    border-radius: 8px;
+    border: 1px solid #b3d9ff;
+}
+
+.almaseo-keyword-suggestions h4 {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #23282d;
+}
+
+.keyword-suggestions-content,
+.keyword-suggestions-placeholder {
+    font-size: 14px;
+}
+
+.keyword-suggestions-placeholder ul {
+    margin: 10px 0 15px 20px;
+}
+
+.keyword-suggestions-placeholder li {
+    margin-bottom: 5px;
+}
+
+#keyword-suggestions-list {
+    padding: 10px;
+    background: #fff;
+    border-radius: 4px;
+    min-height: 50px;
+}
+
+#keyword-suggestions-list .spinner {
+    float: none;
+    margin: 0 5px 0 0;
+}
+
+.keyword-suggestions-box {
+    background: #fff;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.keyword-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.keyword-chip {
+    display: inline-block;
+    padding: 5px 10px;
+    background: #e8f4fd;
+    border: 1px solid #b3d9ff;
+    border-radius: 15px;
+    font-size: 13px;
+    color: #0073aa;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.keyword-chip:hover {
+    background: #0073aa;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.no-suggestions {
+    color: #666;
+    font-style: italic;
+}
+
+.suggestion-hint {
+    font-size: 12px;
+    color: #666;
+    margin-top: 10px;
+}
+
+.ai-upsell-note {
+    margin-top: 15px;
+    padding: 10px;
+    background: #fffbf0;
+    border-left: 3px solid #ffb900;
+    font-size: 13px;
+}
+
+/* Footer */
+.almaseo-health-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.almaseo-health-updated {
+    color: #787c82;
+    font-size: 13px;
+}
+
+.updated-time {
+    font-weight: 600;
+}
+
+/* Recalculate button */
+#almaseo-health-recalculate {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+#almaseo-health-recalculate.updating {
+    opacity: 0.7;
+    cursor: wait;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .almaseo-health-gauge-section {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .signal-header {
+        flex-wrap: wrap;
+    }
+    
+    .signal-fix-btn {
+        margin-top: 5px;
+    }
+    
+    .almaseo-health-footer {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.almaseo-health-signal {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Unsaved Changes Indicators */
+.almaseo-unsaved-banner {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.almaseo-unsaved-banner .dashicons {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.unsaved-indicator {
+    display: inline-block;
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Field with unsaved changes */
+input[type="text"].has-unsaved-changes,
+textarea.has-unsaved-changes {
+    border-color: #2271b1 !important;
+    box-shadow: 0 0 0 1px #2271b1 !important;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+/* Dismiss button hover */
+.almaseo-unsaved-banner .dismiss-unsaved:hover {
+    background: #f0f0f1;
+    border-color: #0a4b78;
+    color: #0a4b78;
+}
+
+/* Search Engine Blocking Warning Animations */
+@keyframes pulse-red {
+    0%, 100% {
+        box-shadow: 0 2px 8px rgba(220,50,50,0.3);
+    }
+    50% {
+        box-shadow: 0 2px 16px rgba(220,50,50,0.5);
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-2px);
+    }
+    75% {
+        transform: translateX(2px);
+    }
+}
+
+.almaseo-search-engine-critical-warning {
+    animation: pulse-red 2s infinite;
+}
+
+.almaseo-search-engine-critical-warning .dashicons-warning {
+    animation: shake 0.5s infinite;
+}
+
+/* Make robots signal stand out when blocked */
+.almaseo-health-signal.robots-blocked {
+    border: 2px solid #dc3232 !important;
+    background: #fff5f5 !important;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+/* Print Styles */
+@media print {
+    .signal-fix-btn,
+    .signal-fix-helper,
+    #almaseo-health-recalculate,
+    .almaseo-unsaved-banner {
+        display: none !important;
+    }
+    
+    .almaseo-health-gauge-section {
+        page-break-inside: avoid;
+    }
+}

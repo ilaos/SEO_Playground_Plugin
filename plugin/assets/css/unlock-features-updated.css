@@ -1,0 +1,129 @@
+/**
+ * AlmaSEO SEO Playground - Unlock Features Updated Styles
+ * Version: 2.6.0
+ * Description: Styles for row labels and explainer section
+ */
+
+/* ============================================
+   ROW LABELS
+   ============================================ */
+.row-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+    margin-top: 30px;
+    padding-left: 5px;
+}
+
+.row-label:first-of-type {
+    margin-top: 0;
+}
+
+/* Ensure proper grid separation */
+.locked-features-grid + .row-label {
+    margin-top: 40px;
+}
+
+.locked-features-grid-plugin {
+    margin-bottom: 0;
+}
+
+/* ============================================
+   EXPLAINER SECTION
+   ============================================ */
+.unlock-explainer-section {
+    padding: 40px;
+    background: linear-gradient(135deg, #f8f9fa, #ffffff);
+    border: 1px solid #e1e5eb;
+    border-radius: 12px;
+    margin: 60px auto 40px;
+    max-width: 900px;
+    text-align: center;
+}
+
+.explainer-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0 0 15px 0;
+}
+
+.explainer-text {
+    font-size: 16px;
+    line-height: 1.7;
+    color: #6c757d;
+    margin: 0;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* ============================================
+   FEATURE STATS UPDATE
+   ============================================ */
+.feature-stats .stat-item {
+    background: #f0f2f5;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #667eea;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+/* Remove emoji indicators from stat items */
+.feature-stats .stat-item::before {
+    content: none;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 768px) {
+    .row-label {
+        font-size: 13px;
+        margin-top: 25px;
+        margin-bottom: 15px;
+    }
+    
+    .unlock-explainer-section {
+        padding: 30px 20px;
+        margin: 40px 20px;
+    }
+    
+    .explainer-title {
+        font-size: 20px;
+    }
+    
+    .explainer-text {
+        font-size: 15px;
+    }
+}
+
+/* ============================================
+   DARK MODE SUPPORT
+   ============================================ */
+body.almaseo-dark-mode .row-label {
+    color: #a0aec0;
+}
+
+body.almaseo-dark-mode .unlock-explainer-section {
+    background: linear-gradient(135deg, #2d3748, #1a202c);
+    border-color: #4a5568;
+}
+
+body.almaseo-dark-mode .explainer-title {
+    color: #e2e8f0;
+}
+
+body.almaseo-dark-mode .explainer-text {
+    color: #a0aec0;
+}
+
+body.almaseo-dark-mode .feature-stats .stat-item {
+    background: #2d3748;
+    color: #9f7aea;
+}

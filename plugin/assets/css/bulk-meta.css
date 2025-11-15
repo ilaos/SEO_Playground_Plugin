@@ -1,0 +1,872 @@
+/**
+ * AlmaSEO Bulk Metadata Editor Styles
+ * 
+ * @package AlmaSEO
+ * @since 6.3.0
+ */
+
+.almaseo-bulk-meta {
+    max-width: 100%;
+}
+
+.almaseo-bulk-meta h1 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.almaseo-bulk-meta .description {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e5e7eb;
+    color: #666;
+    font-size: 14px;
+}
+
+/* Filters - Responsive Grid Layout */
+.tablenav {
+    margin: 20px 0;
+    clear: both;
+    position: relative;
+}
+
+.tablenav.top {
+    padding-bottom: 15px;
+    margin-bottom: 40px;
+    overflow: visible;
+}
+
+#almaseo-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    align-items: center;
+    padding: 20px 15px;
+    background: #f9fafb;
+    border-radius: 4px;
+    margin: 15px 0 30px 0;
+    position: relative;
+    z-index: 1;
+}
+
+/* Clear any floats after filters */
+#almaseo-filters::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* Wide screens: specific column layout optimized for spacing */
+@media (min-width: 1200px) {
+    #almaseo-filters {
+        grid-template-columns: 160px 200px 220px 1fr 130px 130px;
+    }
+}
+
+/* Medium-wide screens */
+@media (min-width: 1000px) and (max-width: 1199px) {
+    #almaseo-filters {
+        grid-template-columns: 160px 200px 220px 1fr 110px 130px;
+    }
+    
+    #almaseo-filters .missing-toggle {
+        justify-self: start;
+    }
+    
+    #almaseo-filters #search-box {
+        justify-self: end;
+    }
+}
+
+/* Medium screens: 3 columns */
+@media (min-width: 768px) and (max-width: 999px) {
+    #almaseo-filters {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Ensure form controls take full width in grid cells */
+#almaseo-filters .button,
+#almaseo-filters select,
+#almaseo-filters input[type="date"],
+#almaseo-filters input[type="search"] {
+    width: 100%;
+    max-width: 100%;
+    padding: 8px 12px;
+    height: 36px;
+    line-height: 1.5;
+}
+
+/* Search box specific styling */
+#almaseo-filters #search-box {
+    padding-left: 35px;
+    background: white url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23999" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>') 10px center no-repeat;
+    background-size: 16px 16px;
+}
+
+/* Button styling */
+#almaseo-filters .button {
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+#almaseo-filters .button-primary {
+    font-weight: 600;
+}
+
+.missing-toggle {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: #f0f0f1;
+    padding: 5px 10px;
+    border-radius: 3px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.missing-toggle input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+}
+
+/* Bulk Actions */
+.bulk-actions-wrapper {
+    background: #f0f0f1;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 30px 0 25px 0;
+}
+
+.bulk-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+#bulk-options {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.bulk-help {
+    font-size: 12px;
+    color: #666;
+    font-style: italic;
+}
+
+.selected-count {
+    margin-left: auto;
+    font-weight: 600;
+    color: #2271b1;
+}
+
+/* Table Responsive Wrapper */
+.almaseo-bulkmeta-wrapper {
+    overflow-x: auto;
+    overflow-y: hidden;
+    margin: 50px 0 30px 0;
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    clear: both;
+    position: relative;
+    z-index: 0;
+}
+
+.almaseo-bulkmeta-wrapper table {
+    width: 100%;
+    min-width: 900px; /* Ensures structure on small screens */
+    margin: 0;
+    border: none;
+}
+
+/* Override WordPress default table styles for our wrapper */
+.almaseo-bulkmeta-wrapper .wp-list-table {
+    border: none;
+    box-shadow: none;
+}
+
+.almaseo-bulkmeta-wrapper .wp-list-table thead th,
+.almaseo-bulkmeta-wrapper .wp-list-table thead td {
+    border-bottom: 1px solid #c3c4c7;
+}
+
+.almaseo-bulkmeta-wrapper .wp-list-table tfoot th,
+.almaseo-bulkmeta-wrapper .wp-list-table tfoot td {
+    border-top: 1px solid #c3c4c7;
+    border-bottom: none;
+}
+
+/* Table Column Widths */
+.wp-list-table .column-cb {
+    width: 2.2em;
+}
+
+.wp-list-table .column-title {
+    width: 25%;
+    min-width: 200px;
+}
+
+.wp-list-table .column-type {
+    width: 10%;
+    min-width: 80px;
+}
+
+.wp-list-table .column-status {
+    width: 10%;
+    min-width: 80px;
+}
+
+.wp-list-table .column-seo-title {
+    width: 25%;
+    min-width: 200px;
+}
+
+.wp-list-table .column-meta-description {
+    width: 25%;
+    min-width: 200px;
+}
+
+.wp-list-table .column-actions {
+    width: 10%;
+    min-width: 100px;
+}
+
+/* Editable Cells */
+.editable-cell {
+    position: relative;
+}
+
+.cell-value {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.value-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.edit-button {
+    opacity: 0;
+    transition: opacity 0.2s;
+    cursor: pointer;
+    color: #2271b1;
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 16px;
+}
+
+tr:hover .edit-button {
+    opacity: 0.7;
+}
+
+.edit-button:hover {
+    opacity: 1 !important;
+    color: #135e96;
+}
+
+.cell-editor {
+    width: 100%;
+}
+
+.meta-title-input,
+.meta-description-input {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #8c8f94;
+    border-radius: 3px;
+    font-size: 13px;
+}
+
+.meta-title-input:focus,
+.meta-description-input:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: none;
+}
+
+.meta-description-input {
+    resize: vertical;
+    min-height: 60px;
+}
+
+/* Field Counter */
+.field-counter {
+    margin-top: 5px;
+    font-size: 11px;
+    color: #666;
+}
+
+.field-counter.warning {
+    color: #d63638;
+    font-weight: 600;
+}
+
+/* Cell States */
+.editable-cell.saving {
+    opacity: 0.6;
+    position: relative;
+}
+
+.editable-cell.saving::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    width: 16px;
+    height: 16px;
+    margin-top: -8px;
+    border: 2px solid #f0f0f1;
+    border-top-color: #2271b1;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.editable-cell.saved {
+    background: #d4edda;
+    transition: background 0.3s;
+}
+
+.editable-cell.error {
+    background: #f8d7da;
+    transition: background 0.3s;
+}
+
+/* Status Badge */
+.post-status {
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-publish {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-draft {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-pending {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.status-private {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Actions */
+.column-actions {
+    white-space: nowrap;
+}
+
+.column-actions .button-small {
+    margin: 0 2px;
+    padding: 2px 8px;
+    font-size: 11px;
+}
+
+/* Pagination */
+.tablenav-pages {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.pagination-links {
+    display: flex;
+    gap: 5px;
+}
+
+.pagination-links .button {
+    min-width: 30px;
+    text-align: center;
+    padding: 3px 8px;
+}
+
+.pagination-links .current {
+    background: #2271b1;
+    color: white;
+    border-color: #2271b1;
+    cursor: default;
+}
+
+.pagination-links .dots {
+    padding: 0 5px;
+    color: #666;
+}
+
+/* Toast Notifications */
+#toast-container {
+    position: fixed;
+    top: 40px;
+    right: 20px;
+    z-index: 100000;
+}
+
+.toast {
+    background: white;
+    border-left: 4px solid #72aee6;
+    padding: 12px 20px;
+    margin-bottom: 10px;
+    border-radius: 3px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    animation: slideIn 0.3s ease;
+}
+
+.toast-success {
+    border-color: #00a32a;
+    background: #d4edda;
+}
+
+.toast-error {
+    border-color: #d63638;
+    background: #f8d7da;
+}
+
+.toast-warning {
+    border-color: #dba617;
+    background: #fff3cd;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Loading Overlay */
+/* Default hidden to prevent page trap if JS errors before init */
+#loading-overlay,
+#almaseo-bulkmeta-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    z-index: 99999;
+    display: none; /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+}
+
+/* Show overlay only when body has loading class */
+body.almaseo-loading #loading-overlay,
+body.almaseo-loading #almaseo-bulkmeta-overlay {
+    display: flex;
+}
+
+.spinner {
+    border: 3px solid #f0f0f1;
+    border-top: 3px solid #2271b1;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* No Items */
+.no-items {
+    text-align: center;
+    padding: 40px 20px !important;
+    color: #666;
+    font-size: 14px;
+}
+
+/* Info Icons */
+.dashicons-info {
+    color: #72aee6;
+    cursor: help;
+    font-size: 16px;
+    vertical-align: middle;
+}
+
+/* Responsive */
+@media screen and (max-width: 1200px) {
+    .almaseo-bulkmeta-wrapper table {
+        min-width: 1000px; /* Force horizontal scroll on smaller screens */
+    }
+    
+    .wp-list-table .column-title {
+        width: 20%;
+    }
+    
+    .wp-list-table .column-seo-title,
+    .wp-list-table .column-meta-description {
+        width: 28%;
+    }
+}
+
+@media screen and (max-width: 782px) {
+    .almaseo-bulkmeta-wrapper {
+        margin: 10px -20px; /* Full width on mobile */
+        border-left: none;
+        border-right: none;
+        border-radius: 0;
+    }
+    
+    .almaseo-bulkmeta-wrapper table {
+        min-width: 1200px; /* Ensure all columns remain visible with scroll */
+    }
+    
+    /* On mobile, filters stack in single column */
+    #almaseo-filters {
+        grid-template-columns: 1fr;
+    }
+    
+    .bulk-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    #bulk-options {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .selected-count {
+        margin-left: 0;
+        margin-top: 10px;
+    }
+    
+    .wp-list-table {
+        font-size: 12px;
+    }
+    
+    .wp-list-table .column-updated {
+        display: none;
+    }
+    
+    .column-actions .button-small {
+        display: block;
+        width: 100%;
+        margin: 2px 0;
+    }
+}
+
+/* Accessibility */
+.screen-reader-text {
+    position: absolute !important;
+    clip: rect(1px, 1px, 1px, 1px);
+    padding: 0 !important;
+    border: 0 !important;
+    height: 1px !important;
+    width: 1px !important;
+    overflow: hidden;
+}
+
+*:focus {
+    outline: 2px solid #2271b1;
+    outline-offset: 2px;
+}
+
+button:focus,
+.button:focus {
+    box-shadow: 0 0 0 2px #2271b1;
+    outline: none;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .almaseo-bulk-meta {
+        background: #1e1e1e;
+        color: #fff;
+    }
+    
+    .bulk-actions-wrapper {
+        background: #2c3338;
+        border-color: #3f4346;
+    }
+    
+    .missing-toggle {
+        background: #2c3338;
+        color: #fff;
+    }
+    
+    .wp-list-table {
+        background: #1e1e1e;
+        color: #fff;
+    }
+    
+    .wp-list-table thead th,
+    .wp-list-table tfoot th {
+        background: #2c3338;
+        color: #fff;
+    }
+    
+    .wp-list-table tbody tr:hover {
+        background: #2c3338;
+    }
+    
+    .meta-title-input,
+    .meta-description-input {
+        background: #2c3338;
+        color: #fff;
+        border-color: #3f4346;
+    }
+    
+    #loading-overlay {
+        background: rgba(0, 0, 0, 0.9);
+    }
+}
+
+/* Visual Indicators for SEO Metrics */
+.almabar {
+    display: inline-block;
+    width: 96px;
+    height: 2px;
+    background: #e5e7eb;
+    position: relative;
+    margin-right: 6px;
+}
+
+.almabar::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--pct);
+    background: #94a3b8;
+}
+
+.almabar.ideal::after {
+    background: #10b981;
+}
+
+.almabar.warn::after {
+    background: #f59e0b;
+}
+
+.chip {
+    display: inline-block;
+    font-size: 11px;
+    line-height: 16px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #f3f4f6;
+    margin-left: 6px;
+}
+
+.chip.warn {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+.signals {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+/* ===== Clearer Visual Indicators ===== */
+
+/* Gauges */
+.alma-gauge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin: 4px 0 0;
+}
+
+.alma-gauge .bar {
+    display: block;
+    width: 96px;
+    height: 4px;
+    background: #e5e7eb;
+    position: relative;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.alma-gauge .bar::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--w);
+    background: #94a3b8;
+}
+
+.alma-gauge.low .bar::after {
+    background: #60a5fa;
+}
+
+.alma-gauge.ideal .bar::after {
+    background: #10b981;
+}
+
+.alma-gauge.over .bar::after {
+    background: #f59e0b;
+}
+
+.alma-gauge .num {
+    font-size: 11px;
+    color: #6b7280;
+}
+
+/* Badges */
+.alma-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    line-height: 18px;
+    padding: 0 8px;
+    border-radius: 999px;
+    margin-left: 6px;
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.alma-badge.good {
+    background: #E7F8F1;
+    color: #065F46;
+}
+
+.alma-badge.warn {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+.alma-badge.risk {
+    background: #FEE2E2;
+    color: #991B1B;
+}
+
+.alma-badge.info {
+    background: #E5E7EB;
+    color: #374151;
+}
+
+.alma-badge .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+}
+
+/* Lightweight tooltips using data-tip */
+.alma-badge[data-tip], 
+.alma-gauge[data-tip] {
+    position: relative;
+    cursor: help;
+}
+
+.alma-badge[data-tip]:hover::after, 
+.alma-gauge[data-tip]:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    left: 0;
+    top: 120%;
+    background: #111827;
+    color: #fff;
+    font-size: 11px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    z-index: 10;
+    box-shadow: 0 6px 18px rgba(0,0,0,.25);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* Meta field text */
+.meta-field {
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+/* Signals container */
+.signals {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .alma-gauge .bar {
+        width: 80px;
+    }
+    
+    .alma-badge span:last-child {
+        display: none;
+    }
+    
+    .alma-badge {
+        padding: 2px 4px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .alma-gauge .bar {
+        background: #374151;
+    }
+    
+    .alma-gauge .num {
+        color: #9ca3af;
+    }
+    
+    .alma-badge.good {
+        background: #064e3b;
+        color: #6ee7b7;
+    }
+    
+    .alma-badge.warn {
+        background: #78350f;
+        color: #fcd34d;
+    }
+    
+    .alma-badge.risk {
+        background: #7f1d1d;
+        color: #fca5a5;
+    }
+    
+    .alma-badge.info {
+        background: #1e3a8a;
+        color: #93c5fd;
+    }
+}

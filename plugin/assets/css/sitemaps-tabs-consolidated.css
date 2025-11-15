@@ -1,0 +1,579 @@
+/**
+ * AlmaSEO Sitemaps Tabbed Interface V2 - With Branding
+ * 
+ * @package AlmaSEO
+ */
+
+/* Branded Header */
+#almaseo-admin .alma-header {
+    position: sticky;
+    top: 32px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    padding: 16px 20px;
+    border-radius: 14px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04), 0 1px 0 rgba(0,0,0,0.06);
+    margin-bottom: 20px;
+    border: 1px solid #e5e7eb;
+}
+
+/* Brand Section */
+#almaseo-admin .brand {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+#almaseo-admin .logo-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+    box-shadow: 0 2px 4px rgba(147, 51, 234, 0.3);
+}
+
+#almaseo-admin .brand-name {
+    color: #6b21a8;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+}
+
+#almaseo-admin .divider {
+    opacity: 0.3;
+    color: #9ca3af;
+}
+
+#almaseo-admin .screen-title {
+    color: #374151;
+    font-weight: 600;
+}
+
+/* Quick Actions */
+#almaseo-admin .quick-actions {
+    display: flex;
+    gap: 8px;
+}
+
+#almaseo-admin .quick-actions .button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+#almaseo-admin .quick-actions .button .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+}
+
+#almaseo-admin .quick-actions .button-primary {
+    background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+    border: none;
+    color: white;
+    box-shadow: 0 2px 4px rgba(147, 51, 234, 0.2);
+}
+
+#almaseo-admin .quick-actions .button-primary:hover {
+    box-shadow: 0 4px 8px rgba(147, 51, 234, 0.3);
+    transform: translateY(-1px);
+}
+
+/* Status Bar */
+#almaseo-admin .alma-status-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    padding: 0 4px;
+}
+
+#almaseo-admin .chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    line-height: 1;
+}
+
+#almaseo-admin .chip-success {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+#almaseo-admin .chip-info {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+#almaseo-admin .chip-warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+#almaseo-admin .chip-muted {
+    background: rgba(107, 114, 128, 0.1);
+    color: #6b7280;
+}
+
+#almaseo-admin .chip-default {
+    background: #f3f4f6;
+    color: #4b5563;
+}
+
+/* Tabs Navigation */
+#almaseo-admin .alma-tabs {
+    display: flex;
+    gap: 2px;
+    background: #f9fafb;
+    padding: 4px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+    border: 1px solid #e5e7eb;
+    overflow-x: auto;
+}
+
+#almaseo-admin .alma-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+#almaseo-admin .alma-tab:hover {
+    background: white;
+    color: #374151;
+}
+
+#almaseo-admin .alma-tab.active {
+    background: white;
+    color: #7c3aed;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+#almaseo-admin .alma-tab .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#almaseo-admin .alma-tab .dashicons:before {
+    font-family: dashicons;
+    display: inline-block;
+    line-height: 1;
+    font-weight: 400;
+    font-style: normal;
+    speak: never;
+    text-decoration: inherit;
+    text-transform: none;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+    vertical-align: middle;
+    text-align: center;
+}
+
+#almaseo-admin .alma-tab:focus {
+    outline: 2px solid #7c3aed;
+    outline-offset: 2px;
+}
+
+/* Tab Panels */
+#almaseo-admin .alma-panels {
+    min-height: 420px;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    padding: 24px;
+}
+
+#almaseo-admin .alma-tabpanel[hidden] {
+    display: none;
+}
+
+/* Loading Skeleton */
+#almaseo-admin .alma-skel {
+    height: 220px;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #f6f7f8 25%, #edeef1 37%, #f6f7f8 63%);
+    background-size: 400% 100%;
+    animation: almaShimmer 1.4s ease infinite;
+}
+
+@keyframes almaShimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Empty State */
+#almaseo-admin .alma-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+#almaseo-admin .alma-empty::before {
+    content: "";
+    display: block;
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 16px;
+    background: #f3f4f6;
+    border-radius: 12px;
+}
+
+/* Cards within panels */
+#almaseo-admin .almaseo-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+#almaseo-admin .almaseo-card h2 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+#almaseo-admin .almaseo-card h3 {
+    margin-top: 20px;
+    margin-bottom: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #374151;
+}
+
+/* Toast Notifications */
+#almaseo-toast-container {
+    position: fixed;
+    top: 52px;
+    right: 20px;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.almaseo-toast {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 200px;
+    max-width: 400px;
+    pointer-events: auto;
+    animation: slideIn 0.3s ease;
+    transition: opacity 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.almaseo-toast.success {
+    border-left: 3px solid #10b981;
+}
+
+.almaseo-toast.error {
+    border-left: 3px solid #ef4444;
+}
+
+.almaseo-toast.info {
+    border-left: 3px solid #3b82f6;
+}
+
+/* Spinning animation for rebuild button */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.dashicons.spinning {
+    animation: spin 1s linear infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #almaseo-admin .alma-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: stretch;
+    }
+    
+    #almaseo-admin .brand {
+        justify-content: center;
+    }
+    
+    #almaseo-admin .quick-actions {
+        justify-content: center;
+    }
+    
+    #almaseo-admin .alma-tabs {
+        flex-direction: column;
+    }
+    
+    #almaseo-admin .alma-tab {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Accessibility */
+.screen-reader-text {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+/* Forms within panels */
+#almaseo-admin .almaseo-form-row {
+    margin-bottom: 20px;
+}
+
+#almaseo-admin .almaseo-form-row label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #374151;
+    font-size: 14px;
+}
+
+#almaseo-admin .almaseo-form-row input[type="text"],
+#almaseo-admin .almaseo-form-row input[type="number"],
+#almaseo-admin .almaseo-form-row select,
+#almaseo-admin .almaseo-form-row textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+#almaseo-admin .almaseo-form-row input:focus,
+#almaseo-admin .almaseo-form-row select:focus,
+#almaseo-admin .almaseo-form-row textarea:focus {
+    border-color: #7c3aed;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+/* Tables */
+#almaseo-admin .almaseo-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+}
+
+#almaseo-admin .almaseo-table th {
+    background: #f9fafb;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 2px solid #e5e7eb;
+    font-size: 13px;
+}
+
+#almaseo-admin .almaseo-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 14px;
+}
+
+#almaseo-admin .almaseo-table tr:hover {
+    background: #f9fafb;
+}
+
+/* Buttons */
+#almaseo-admin .button {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+#almaseo-admin .button-primary {
+    background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+    border: none;
+    color: white;
+    box-shadow: 0 2px 4px rgba(147, 51, 234, 0.2);
+}
+
+#almaseo-admin .button-primary:hover {
+    box-shadow: 0 4px 8px rgba(147, 51, 234, 0.3);
+    transform: translateY(-1px);
+}
+
+/* Icon and chip polish */
+#almaseo-admin .dashicons{font-family:dashicons!important;font-weight:400;font-style:normal;line-height:1;width:20px;height:20px;display:inline-block;vertical-align:-3px;margin-right:6px;opacity:.85}
+#almaseo-admin .alma-tabs [role="tab"][aria-selected="true"] .dashicons{opacity:1}
+#almaseo-admin .alma-header .chip{display:inline-flex;gap:6px;align-items:center}
+#almaseo-admin .alma-header .chip .num{font-weight:600}
+
+/* ===== CRITICAL GRID STYLES FROM TABS.CSS ===== */
+
+/* Metrics Grid */
+#almaseo-admin .alma-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+}
+
+#almaseo-admin .alma-metrics .metric {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+}
+
+#almaseo-admin .alma-metrics .metric .dashicons {
+    font-size: 18px;
+    opacity: 0.75;
+    line-height: 1;
+    vertical-align: -3px;
+}
+
+#almaseo-admin .alma-metrics .metric .num {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+#almaseo-admin .alma-metrics .metric .label {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+/* Health Chips */
+#almaseo-admin .alma-healthchips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+#almaseo-admin .hchip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    text-decoration: none;
+}
+
+#almaseo-admin .hchip:hover {
+    border-color: #d1d5db;
+    background: #f9fafb;
+}
+
+#almaseo-admin .hchip .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: #9ca3af;
+}
+
+#almaseo-admin .hchip.ok .dot {
+    background: #22c55e;
+}
+
+#almaseo-admin .hchip.warn .dot {
+    background: #f59e0b;
+}
+
+#almaseo-admin .hchip.muted .dot {
+    background: #9ca3af;
+}
+
+#almaseo-admin .hchip .title {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+#almaseo-admin .hchip .value {
+    font-weight: 600;
+    color: #111827;
+}
+
+/* Notes */
+#almaseo-admin .alma-notes {
+    margin-top: 10px;
+}
+
+#almaseo-admin .alma-notes .note {
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #92400e;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    #almaseo-admin .alma-metrics {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Dashicons alignment fix */
+.dashicons {
+    line-height: 1;
+    vertical-align: -3px;
+    margin-right: 6px;
+}

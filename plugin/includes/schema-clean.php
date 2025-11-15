@@ -1,0 +1,222 @@
+<?php
+/**
+ * AlmaSEO Schema Clean Implementation
+ * 
+ * @package AlmaSEO
+ * @version 4.0.0
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * Check if AIOSEO is active
+ */
+function almaseo_is_aioseo_active() {
+    return defined('AIOSEO_VERSION') || class_exists('AIOSEO\\Plugin\\AIOSEO');
+}
+
+/**
+ * Output schema JSON-LD
+ */
+if (!function_exists('almaseo_output_schema_jsonld')) {
+function almaseo_output_schema_jsonld() {
+    // Skip if AIOSEO is active to avoid conflicts
+    if (almaseo_is_aioseo_active()) {
+        echo "<!-- AlmaSEO Schema: Disabled (AIOSEO detected) -->\n";
+        return;
+    }
+    
+    // Skip admin, feeds, archives, search
+    if (is_admin() || is_feed() || is_archive() || is_search()) {
+        return;
+    }
+    
+    // Only output on singular pages (posts, pages, custom post types)
+    if (!is_singular()) {
+        return;
+    }
+    
+    global $post;
+    if (!$post) {
+        return;
+    }
+    
+    // Check if schema is enabled for this post
+    $schema_enabled = get_post_meta($post->ID, '_almaseo_schema_enabled', true);
+    if ($schema_enabled === 'disabled') {
+        echo "<!-- AlmaSEO Schema: Disabled for this post -->\n";
+        return;
+    }
+    
+    // Get schema type
+    $schema_type = get_post_meta($post->ID, '_almaseo_schema_type', true);
+    if (empty($schema_type)) {
+        $schema_type = 'Article'; // Default
+    }
+    
+    // Build schema data
+    $schema = array(
+        '@context' => 'https://schema.org',
+        '@type' => $schema_type
+    );
+    
+    // Add common properties
+    $schema['headline'] = get_the_title($post->ID);
+    $schema['description'] = get_the_excerpt($post->ID);
+    $schema['datePublished'] = get_the_date('c', $post->ID);
+    $schema['dateModified'] = get_the_modified_date('c', $post->ID);
+    
+    // Add author
+    $author_id = $post->post_author;
+    $author_name = get_the_author_meta('display_name', $author_id);
+    $schema['author'] = array(
+        '@type' => 'Person',
+        'name' => $author_name
+    );
+    
+    // Add publisher (Organization)
+    $schema['publisher'] = array(
+        '@type' => 'Organization',
+        'name' => get_bloginfo('name'),
+        'url' => home_url()
+    );
+    
+    // Add image if available
+    if (has_post_thumbnail($post->ID)) {
+        $image_id = get_post_thumbnail_id($post->ID);
+        $image_url = wp_get_attachment_image_src($image_id, 'full');
+        if ($image_url) {
+            $schema['image'] = $image_url[0];
+        }
+    }
+    
+    // Add URL
+    $schema['url'] = get_permalink($post->ID);
+    
+    // Add custom schema data if set
+    $custom_schema = get_post_meta($post->ID, '_almaseo_schema_custom', true);
+    if (!empty($custom_schema) && is_array($custom_schema)) {
+        $schema = array_merge($schema, $custom_schema);
+    }
+    
+    // Allow filtering
+    $schema = apply_filters('almaseo_schema_output', $schema, $post);
+    
+    // Static flag to prevent duplicate output
+    static $schema_output = false;
+    if ($schema_output) {
+        return;
+    }
+    $schema_output = true;
+    
+    // Output schema with proper markers for exclusive mode
+    echo "<!-- AlmaSEO Schema -->\n";
+    echo '<script type="application/ld+json" id="almaseo-jsonld" data-almaseo="1">' . "\n";
+    echo wp_json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    echo "\n</script>\n";
+    echo "<!-- /AlmaSEO Schema -->\n";
+}
+} // End function_exists check
+
+/**
+ * Initialize schema output
+ */
+function almaseo_init_schema() {
+    // Only add hook if not in admin
+    if (!is_admin()) {
+        add_action('wp_head', 'almaseo_output_schema_jsonld', 5);
+    }
+}
+add_action('init', 'almaseo_init_schema');
+
+/**
+ * Add schema meta box
+ */
+function almaseo_add_schema_meta_box() {
+    add_meta_box(
+        'almaseo_schema',
+        __('Schema Settings', 'almaseo'),
+        'almaseo_schema_meta_box_content',
+        array('post', 'page'),
+        'side',
+        'default'
+    );
+}
+add_action('add_meta_boxes', 'almaseo_add_schema_meta_box');
+
+/**
+ * Schema meta box content
+ */
+function almaseo_schema_meta_box_content($post) {
+    wp_nonce_field('almaseo_schema_meta', 'almaseo_schema_nonce');
+    
+    $schema_enabled = get_post_meta($post->ID, '_almaseo_schema_enabled', true);
+    $schema_type = get_post_meta($post->ID, '_almaseo_schema_type', true);
+    
+    if (empty($schema_type)) {
+        $schema_type = 'Article';
+    }
+    ?>
+    <p>
+        <label>
+            <input type="checkbox" name="almaseo_schema_enabled" value="enabled" 
+                   <?php checked($schema_enabled !== 'disabled'); ?>>
+            <?php _e('Enable Schema Markup', 'almaseo'); ?>
+        </label>
+    </p>
+    
+    <p>
+        <label for="almaseo_schema_type"><?php _e('Schema Type:', 'almaseo'); ?></label>
+        <select name="almaseo_schema_type" id="almaseo_schema_type" style="width: 100%;">
+            <option value="Article" <?php selected($schema_type, 'Article'); ?>>Article</option>
+            <option value="BlogPosting" <?php selected($schema_type, 'BlogPosting'); ?>>Blog Post</option>
+            <option value="NewsArticle" <?php selected($schema_type, 'NewsArticle'); ?>>News Article</option>
+            <option value="WebPage" <?php selected($schema_type, 'WebPage'); ?>>Web Page</option>
+            <option value="Product" <?php selected($schema_type, 'Product'); ?>>Product</option>
+            <option value="Review" <?php selected($schema_type, 'Review'); ?>>Review</option>
+            <option value="Recipe" <?php selected($schema_type, 'Recipe'); ?>>Recipe</option>
+            <option value="HowTo" <?php selected($schema_type, 'HowTo'); ?>>How To</option>
+            <option value="FAQPage" <?php selected($schema_type, 'FAQPage'); ?>>FAQ Page</option>
+        </select>
+    </p>
+    
+    <?php if (almaseo_is_aioseo_active()): ?>
+    <p style="color: #d63638; font-style: italic;">
+        <?php _e('Note: AIOSEO is active. AlmaSEO schema output is disabled to prevent conflicts.', 'almaseo'); ?>
+    </p>
+    <?php endif; ?>
+    <?php
+}
+
+/**
+ * Save schema meta box data
+ */
+function almaseo_save_schema_meta($post_id) {
+    // Check nonce
+    if (!isset($_POST['almaseo_schema_nonce']) || 
+        !wp_verify_nonce($_POST['almaseo_schema_nonce'], 'almaseo_schema_meta')) {
+        return;
+    }
+    
+    // Check autosave
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+    
+    // Check permissions
+    if (!current_user_can('edit_post', $post_id)) {
+        return;
+    }
+    
+    // Save enabled state
+    $enabled = isset($_POST['almaseo_schema_enabled']) ? 'enabled' : 'disabled';
+    update_post_meta($post_id, '_almaseo_schema_enabled', $enabled);
+    
+    // Save schema type
+    if (isset($_POST['almaseo_schema_type'])) {
+        update_post_meta($post_id, '_almaseo_schema_type', sanitize_text_field($_POST['almaseo_schema_type']));
+    }
+}
+add_action('save_post', 'almaseo_save_schema_meta');

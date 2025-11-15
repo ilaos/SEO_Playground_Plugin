@@ -1,0 +1,626 @@
+/**
+ * AlmaSEO Schema & Meta Tab - Polish Styles
+ * Consistent styling for Schema and Meta panels
+ */
+
+/* ========================================
+   Schema & Meta Panel Base
+   ======================================== */
+
+#tab-schema-meta .almaseo-field-group {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+#tab-schema-meta .almaseo-field-group:hover {
+    border-color: #c3c4c7;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+#tab-schema-meta .almaseo-field-group:focus-within {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.1);
+}
+
+/* ========================================
+   Panel Headers
+   ======================================== */
+
+#tab-schema-meta label[class*="-label"] {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #23282d;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+#tab-schema-meta label[class*="-label"] > span:first-child {
+    font-size: 18px;
+    line-height: 1;
+}
+
+#tab-schema-meta span[class*="-tooltip"] {
+    cursor: help;
+    color: #999;
+    font-size: 14px;
+    margin-left: auto;
+    transition: color 0.2s ease;
+}
+
+#tab-schema-meta span[class*="-tooltip"]:hover {
+    color: #0073aa;
+}
+
+/* ========================================
+   Meta Fields Styling
+   ======================================== */
+
+.almaseo-input,
+.almaseo-textarea,
+.almaseo-schema-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.almaseo-input:focus,
+.almaseo-textarea:focus,
+.almaseo-schema-select:focus {
+    border-color: #0073aa;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.1);
+    background: #fafafa;
+}
+
+.almaseo-textarea {
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.5;
+}
+
+/* Character counters */
+.almaseo-char-count {
+    text-align: right;
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+}
+
+.almaseo-char-count.warning {
+    color: #ffb900;
+    font-weight: 600;
+}
+
+.almaseo-char-count.danger {
+    color: #dc3232;
+    font-weight: 600;
+}
+
+/* ========================================
+   Schema Markup Viewer
+   ======================================== */
+
+.schema-preview-container {
+    margin-top: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.schema-preview-header {
+    background: #f9fafb;
+    padding: 12px 15px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.schema-preview-header strong {
+    font-size: 14px;
+    color: #23282d;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.schema-preview-note {
+    font-size: 12px;
+    color: #666;
+}
+
+.schema-preview-content {
+    padding: 0;
+    background: #1e1e1e;
+    position: relative;
+    max-height: 400px;
+    overflow: auto;
+}
+
+/* JSON-LD Code Display */
+.schema-json-display {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #abb2bf;
+    padding: 15px;
+    margin: 0;
+    white-space: pre;
+    overflow-x: auto;
+}
+
+/* JSON Syntax Highlighting */
+.json-key {
+    color: #e06c75;
+}
+
+.json-value {
+    color: #98c379;
+}
+
+.json-string {
+    color: #e5c07b;
+}
+
+.json-number {
+    color: #d19a66;
+}
+
+.json-boolean {
+    color: #56b6c2;
+}
+
+.json-null {
+    color: #c678dd;
+}
+
+/* Schema Actions */
+.schema-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 8px;
+}
+
+.schema-copy-btn,
+.schema-validate-btn,
+.schema-expand-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #abb2bf;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.schema-copy-btn:hover,
+.schema-validate-btn:hover,
+.schema-expand-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.schema-copy-btn:focus,
+.schema-validate-btn:focus,
+.schema-expand-btn:focus {
+    outline: 2px solid #0073aa;
+    outline-offset: 2px;
+}
+
+/* Copy Success Feedback */
+.copy-success {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #46b450;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+    pointer-events: none;
+    animation: copyFeedback 2s ease;
+}
+
+@keyframes copyFeedback {
+    0%, 100% { opacity: 0; }
+    20%, 80% { opacity: 1; }
+}
+
+/* ========================================
+   Schema Validation Badges
+   ======================================== */
+
+.schema-validation-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 10px;
+}
+
+.schema-validation-badge.valid {
+    background: #e7f5e7;
+    color: #46b450;
+    border: 1px solid #46b450;
+}
+
+.schema-validation-badge.invalid {
+    background: #fff5f5;
+    color: #dc3232;
+    border: 1px solid #dc3232;
+}
+
+.schema-validation-badge.checking {
+    background: #f0f8ff;
+    color: #0073aa;
+    border: 1px solid #0073aa;
+}
+
+/* ========================================
+   Schema Analyzer Section
+   ======================================== */
+
+.schema-analyzer-container {
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 15px;
+}
+
+.schema-analysis-info-box {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 15px;
+}
+
+.schema-analysis-info-box .analysis-icon {
+    font-size: 24px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.schema-analysis-info-box .analysis-text {
+    flex: 1;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #555;
+}
+
+.schema-analyzer-controls {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.schema-analyzer-btn {
+    background: #0073aa;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.schema-analyzer-btn:hover:not(:disabled) {
+    background: #005a87;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.schema-analyzer-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ========================================
+   Schema Suggestion
+   ======================================== */
+
+.schema-suggestion-container {
+    background: linear-gradient(135deg, #f0f8ff 0%, #e6f4ff 100%);
+    border: 1px solid #b3d9ff;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.schema-suggestion-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.suggestion-icon {
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+.suggestion-text {
+    flex: 1;
+    font-size: 14px;
+    color: #333;
+}
+
+.suggestion-text strong {
+    color: #0073aa;
+    font-weight: 600;
+}
+
+.use-suggestion-btn {
+    background: #0073aa;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.use-suggestion-btn:hover {
+    background: #005a87;
+}
+
+/* ========================================
+   Loading States
+   ======================================== */
+
+.schema-analyzer-loading,
+.schema-suggestion-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    min-height: 120px;
+}
+
+.schema-analyzer-loading-spinner,
+.suggestion-loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #f0f0f0;
+    border-top-color: #0073aa;
+    border-radius: 50%;
+    animation: schemaSpin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes schemaSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ========================================
+   Error States
+   ======================================== */
+
+.schema-analyzer-error,
+.schema-suggestion-error {
+    background: #fff5f5;
+    border: 1px solid #ffcccb;
+    border-radius: 4px;
+    padding: 15px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.error-icon {
+    font-size: 20px;
+    line-height: 1;
+}
+
+.error-text {
+    font-size: 13px;
+    color: #dc3232;
+    flex: 1;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+@media (max-width: 768px) {
+    #tab-schema-meta .almaseo-field-group {
+        padding: 15px;
+    }
+    
+    .schema-preview-content {
+        max-height: 300px;
+    }
+    
+    .schema-json-display {
+        font-size: 12px;
+    }
+    
+    .schema-actions {
+        position: static;
+        margin-top: 10px;
+        justify-content: center;
+    }
+    
+    .schema-preview-header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .almaseo-input,
+    .almaseo-textarea,
+    .almaseo-schema-select {
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+    
+    .schema-analyzer-controls {
+        flex-direction: column;
+    }
+    
+    .schema-analyzer-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .schema-suggestion-content {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .use-suggestion-btn {
+        width: 100%;
+    }
+}
+
+/* ========================================
+   Dark Mode Support
+   ======================================== */
+
+@media (prefers-color-scheme: dark) {
+    #tab-schema-meta .almaseo-field-group {
+        background: #1e1e1e;
+        border-color: #444;
+    }
+    
+    #tab-schema-meta label[class*="-label"] {
+        color: #e0e0e0;
+    }
+    
+    .almaseo-input,
+    .almaseo-textarea,
+    .almaseo-schema-select {
+        background: #2a2a2a;
+        border-color: #444;
+        color: #e0e0e0;
+    }
+    
+    .almaseo-input:focus,
+    .almaseo-textarea:focus,
+    .almaseo-schema-select:focus {
+        background: #333;
+        border-color: #0073aa;
+    }
+    
+    .schema-preview-container {
+        border-color: #444;
+    }
+    
+    .schema-preview-header {
+        background: #2a2a2a;
+        border-bottom-color: #444;
+    }
+    
+    .schema-preview-header strong {
+        color: #e0e0e0;
+    }
+    
+    .schema-analyzer-container {
+        background: #2a2a2a;
+    }
+    
+    .schema-analysis-info-box {
+        background: #333;
+        border-color: #444;
+    }
+    
+    .schema-analysis-info-box .analysis-text {
+        color: #ccc;
+    }
+    
+    .schema-suggestion-container {
+        background: linear-gradient(135deg, #1a2633 0%, #1e3045 100%);
+        border-color: #3a5f8a;
+    }
+    
+    .suggestion-text {
+        color: #e0e0e0;
+    }
+}
+
+/* ========================================
+   Accessibility
+   ======================================== */
+
+#tab-schema-meta *:focus-visible {
+    outline: 2px solid #0073aa;
+    outline-offset: 2px;
+}
+
+/* Screen reader only */
+.schema-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Skip to first error */
+.schema-error-jump {
+    position: fixed;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #dc3232;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    z-index: 10000;
+    display: none;
+}
+
+.schema-error-jump.visible {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}

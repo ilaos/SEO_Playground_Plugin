@@ -1,0 +1,150 @@
+/**
+ * Admin Hardening CSS for AlmaSEO v4
+ * Purpose: Neutralize legacy CSS from older plugin versions
+ * Ensures v4 displays correctly even if old CSS is loaded
+ */
+
+/* Neutralize legacy emoji injection and forced headers from older builds */
+#almaseo_seo_playground .hndle::before {
+    content: none !important;
+}
+
+/* Restore core postbox header visuals (guard against any legacy bg overrides) */
+#almaseo_seo_playground.postbox .postbox-header,
+#almaseo_seo_playground.postbox .hndle {
+    background: transparent !important;
+    box-shadow: none !important;
+    color: inherit !important;
+}
+
+/* Left-align title and keep normal sizing */
+#almaseo_seo_playground.postbox .hndle {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: 12px;
+}
+
+/* Consistent top spacing under tab row on Overview */
+.almaseo-tab-panel#tab-seo-overview {
+    padding-top: 24px;
+}
+
+/* Standard vertical rhythm between sections */
+.almaseo-tab-panel .almaseo-field-group {
+    margin-top: 20px;
+}
+
+/* First field group should not have top margin */
+.almaseo-tab-panel .almaseo-field-group:first-child {
+    margin-top: 0;
+}
+
+/* Skeleton loader for initial load */
+.almaseo-skeleton-loader {
+    padding: 20px;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.almaseo-skeleton-loader .skeleton-line {
+    height: 12px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s ease-in-out infinite;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+.almaseo-skeleton-loader .skeleton-line.title {
+    width: 40%;
+    height: 16px;
+    margin-bottom: 15px;
+}
+
+.almaseo-skeleton-loader .skeleton-line.short {
+    width: 60%;
+}
+
+.almaseo-skeleton-loader .skeleton-line.medium {
+    width: 80%;
+}
+
+.almaseo-skeleton-loader .skeleton-line.long {
+    width: 100%;
+}
+
+@keyframes loading {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Remove any yellow banner that might appear in SEO Overview */
+#tab-seo-overview .almaseo-connection-banner {
+    display: none !important;
+}
+
+/* Character Progress Bars */
+.almaseo-char-bar {
+    margin-top: 8px;
+    margin-bottom: 5px;
+}
+
+.char-bar-track {
+    position: relative;
+    height: 6px;
+    background: #f0f0f0;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.char-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.char-bar-fill.good {
+    background: #46b450;
+}
+
+.char-bar-fill.caution {
+    background: #f0ad4e;
+}
+
+.char-bar-fill.too-long,
+.char-bar-fill.too-short {
+    background: #dc3545;
+}
+
+.char-bar-marker {
+    position: absolute;
+    top: 0;
+    width: 1px;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+}
+
+/* Dark mode support for character bars */
+@media (prefers-color-scheme: dark) {
+    .char-bar-track {
+        background: #2c3338;
+    }
+    
+    .char-bar-marker {
+        background: rgba(255, 255, 255, 0.2);
+    }
+}

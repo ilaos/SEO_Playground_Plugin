@@ -1,0 +1,344 @@
+/**
+ * AlmaSEO Health Score - Namespaced Styles
+ * All styles scoped under .almaseo-health to prevent leaks
+ * 
+ * @package AlmaSEO
+ * @since 4.2.4
+ */
+
+/* Container - all health styles namespaced */
+.almaseo-health-container {
+    padding: 20px;
+    background: #fff;
+    position: relative;
+}
+
+.almaseo-health-container.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* Score Tooltip */
+.almaseo-health-container .almaseo-health-score-text {
+    cursor: help;
+}
+
+/* Gauge Section */
+.almaseo-health-container .almaseo-health-gauge-section {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.almaseo-health-container .almaseo-health-gauge-wrapper {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    flex-shrink: 0;
+}
+
+.almaseo-health-container #almaseo-health-gauge {
+    width: 200px;
+    height: 200px;
+}
+
+.almaseo-health-container .almaseo-health-score-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    margin-top: 15px;
+    pointer-events: none; /* Allow hover to pass through to parent */
+}
+
+.almaseo-health-container .score-number {
+    font-size: 36px;
+    font-weight: 700;
+    display: block;
+}
+
+.almaseo-health-container .score-label {
+    font-size: 18px;
+    opacity: 0.7;
+}
+
+/* Color classes */
+.almaseo-health-container .almaseo-health-score-text.excellent .score-number {
+    color: #00a32a;
+}
+
+.almaseo-health-container .almaseo-health-score-text.good .score-number {
+    color: #dba617;
+}
+
+.almaseo-health-container .almaseo-health-score-text.poor .score-number {
+    color: #d63638;
+}
+
+/* Gauge Info */
+.almaseo-health-container .almaseo-health-gauge-info {
+    flex: 1;
+}
+
+.almaseo-health-container .almaseo-health-gauge-info h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.almaseo-health-container .health-status {
+    font-size: 14px;
+    margin: 0 0 15px 0;
+}
+
+.almaseo-health-container .health-status.health-excellent {
+    color: #00a32a;
+}
+
+.almaseo-health-container .health-status.health-good {
+    color: #856404;
+}
+
+.almaseo-health-container .health-status.health-poor {
+    color: #d63638;
+}
+
+/* Quick Stats */
+.almaseo-health-container .health-quick-stats {
+    display: flex;
+    gap: 20px;
+    margin: 15px 0;
+}
+
+.almaseo-health-container .health-stat-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+/* Signals Section */
+.almaseo-health-container .almaseo-health-signals {
+    margin: 30px 0;
+}
+
+.almaseo-health-container .almaseo-health-signals h4 {
+    margin: 0 0 20px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #23282d;
+}
+
+.almaseo-health-container .almaseo-health-signal {
+    padding: 15px;
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.almaseo-health-container .almaseo-health-signal:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.almaseo-health-container .almaseo-health-signal.pass {
+    border-left: 4px solid #00a32a;
+}
+
+.almaseo-health-container .almaseo-health-signal.fail {
+    border-left: 4px solid #d63638;
+}
+
+.almaseo-health-container .signal-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.almaseo-health-container .signal-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.almaseo-health-container .signal-label {
+    flex: 1;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.almaseo-health-container .signal-weight {
+    color: #666;
+    font-size: 12px;
+    font-weight: normal;
+    margin-left: 5px;
+}
+
+.almaseo-health-container .signal-fix-btn {
+    background: #f0f0f1;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.almaseo-health-container .signal-fix-btn:hover {
+    background: #e0e0e0;
+}
+
+.almaseo-health-container .signal-bar-wrapper {
+    margin: 10px 0;
+}
+
+.almaseo-health-container .signal-bar {
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.almaseo-health-container .signal-bar-fill {
+    height: 100%;
+    transition: width 0.5s ease;
+    border-radius: 4px;
+}
+
+.almaseo-health-container .signal-bar-fill.pass {
+    background: linear-gradient(90deg, #00a32a, #00c851);
+}
+
+.almaseo-health-container .signal-bar-fill.fail {
+    background: #e0e0e0;
+}
+
+.almaseo-health-container .signal-note {
+    font-size: 13px;
+    color: #666;
+}
+
+.almaseo-health-container .signal-fix-helper {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+/* SERP Preview */
+.almaseo-health-container .almaseo-search-preview {
+    margin: 30px 0;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.almaseo-health-container .serp-preview {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    font-family: arial, sans-serif;
+    max-width: 600px;
+}
+
+.almaseo-health-container .serp-url {
+    color: #202124;
+    font-size: 14px;
+    line-height: 1.3;
+    margin-bottom: 3px;
+}
+
+.almaseo-health-container .serp-title {
+    color: #1a0dab;
+    font-size: 20px;
+    line-height: 1.3;
+    margin-bottom: 3px;
+}
+
+.almaseo-health-container .serp-description {
+    color: #4d5156;
+    font-size: 14px;
+    line-height: 1.58;
+}
+
+/* Keyword Suggestions */
+.almaseo-health-container .almaseo-keyword-suggestions {
+    margin: 30px 0;
+    padding: 20px;
+    background: #f0f8ff;
+    border-radius: 8px;
+    border: 1px solid #b3d9ff;
+}
+
+.almaseo-health-container .keyword-chip {
+    display: inline-block;
+    background: #e0f2ff;
+    border: 1px solid #0073aa;
+    border-radius: 15px;
+    padding: 4px 12px;
+    margin: 2px;
+    font-size: 13px;
+}
+
+.almaseo-health-container .keyword-chip small {
+    color: #666;
+    font-size: 11px;
+}
+
+/* Footer */
+.almaseo-health-container .almaseo-health-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.almaseo-health-container .almaseo-health-updated {
+    color: #787c82;
+    font-size: 13px;
+}
+
+/* Error banner */
+.almaseo-health-container .almaseo-health-error {
+    background: #fff;
+    border-left: 4px solid #d63638;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+/* Unsaved banner */
+.almaseo-health-container .almaseo-unsaved-banner {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+}
+
+.almaseo-health-container .almaseo-unsaved-banner.hidden {
+    display: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .almaseo-health-container .almaseo-health-gauge-section {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .almaseo-health-container .health-quick-stats {
+        flex-direction: column;
+    }
+    
+    .almaseo-health-container .almaseo-health-footer {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
