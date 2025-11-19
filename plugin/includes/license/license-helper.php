@@ -48,6 +48,7 @@ function almaseo_is_pro_active() {
  * - 'redirects': 301/302 redirect management
  * - 'bulkmeta': Bulk metadata editor
  * - 'woocommerce': WooCommerce SEO enhancements
+ * - 'llm_optimization': LLM Optimization advanced features
  * - 'evergreen_advanced': Advanced evergreen content filters
  * - 'schema_advanced': Advanced schema markup options
  * - '404_advanced': Advanced 404 tracking and analytics
@@ -73,6 +74,7 @@ function almaseo_feature_available( $feature ) {
         'redirects',              // Redirect manager
         'bulkmeta',               // Bulk metadata editor
         'woocommerce',            // WooCommerce SEO
+        'llm_optimization',       // LLM Optimization advanced features
         'evergreen_advanced',     // Advanced evergreen filters
         'schema_advanced',        // Advanced schema options
         '404_advanced',           // Advanced 404 analytics
@@ -172,6 +174,7 @@ function almaseo_get_pro_features() {
         'redirects',
         'bulkmeta',
         'woocommerce',
+        'llm_optimization',
         'evergreen_advanced',
         'schema_advanced',
         '404_advanced',

@@ -1,0 +1,702 @@
+/**
+ * LLM Optimization Panel Styles
+ *
+ * @package AlmaSEO
+ * @subpackage LLM
+ * @since 6.5.0
+ */
+
+/* === Panel Container === */
+.almaseo-llm-panel {
+    padding: 20px;
+}
+
+/* === Header === */
+.almaseo-llm-header {
+    margin-bottom: 24px;
+}
+
+.almaseo-llm-header h2 {
+    font-size: 22px;
+    color: #1e293b;
+    margin: 0 0 8px 0;
+    font-weight: 700;
+}
+
+.almaseo-llm-header p {
+    color: #64748b;
+    font-size: 14px;
+    margin: 0;
+}
+
+/* === Connection Notice === */
+.almaseo-llm-connection-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #fef3c7;
+    border: 1px solid #fbbf24;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+}
+
+.almaseo-llm-connection-notice .dashicons {
+    color: #f59e0b;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.almaseo-llm-connection-notice strong {
+    color: #92400e;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.almaseo-llm-connection-notice p {
+    color: #78350f;
+    margin: 0;
+    font-size: 13px;
+}
+
+.almaseo-llm-connection-notice a {
+    color: #92400e;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.almaseo-llm-connection-notice a:hover {
+    text-decoration: underline;
+}
+
+/* === Grid Layout === */
+.almaseo-llm-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+@media (max-width: 900px) {
+    .almaseo-llm-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.almaseo-llm-column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* === Cards === */
+.almaseo-llm-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.almaseo-llm-card h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0 0 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.almaseo-llm-card h3 .dashicons {
+    color: #667eea;
+}
+
+.almaseo-llm-card-highlight {
+    border-color: #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.03) 0%, rgba(118, 75, 162, 0.03) 100%);
+}
+
+/* === Loading States === */
+.almaseo-llm-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80px;
+    color: #94a3b8;
+    gap: 12px;
+}
+
+.almaseo-llm-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid #e2e8f0;
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: almaseo-llm-spin 0.8s linear infinite;
+}
+
+@keyframes almaseo-llm-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* === Summary === */
+.almaseo-llm-summary-text p {
+    color: #475569;
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* === Entities === */
+.almaseo-llm-entities-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.almaseo-llm-entity {
+    padding: 8px 12px;
+    background: #f8fafc;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.almaseo-llm-entity strong {
+    color: #1e293b;
+}
+
+.almaseo-llm-entity-type {
+    font-size: 12px;
+    color: #94a3b8;
+    background: #e2e8f0;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+/* === Clarity/Ambiguities === */
+.almaseo-llm-ambiguities-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.almaseo-llm-clarity-item {
+    padding: 12px;
+    background: #fef3c7;
+    border-left: 3px solid #f59e0b;
+    border-radius: 4px;
+    margin-bottom: 12px;
+}
+
+.almaseo-llm-clarity-excerpt {
+    display: block;
+    font-style: italic;
+    color: #78350f;
+    margin-bottom: 6px;
+    font-size: 13px;
+}
+
+.almaseo-llm-clarity-note {
+    display: block;
+    color: #92400e;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* === Scores === */
+.almaseo-llm-scores {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.almaseo-llm-score-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.almaseo-llm-score-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.almaseo-llm-score-value {
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.almaseo-llm-score-bar {
+    width: 100%;
+    height: 12px;
+    background: #e2e8f0;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.almaseo-llm-score-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.6s ease;
+}
+
+.almaseo-llm-score-status {
+    margin: 12px 0 0 0;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.almaseo-llm-score-status .dashicons {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+}
+
+/* === Insights === */
+.almaseo-llm-insights {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.almaseo-llm-insight-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    background: #f8fafc;
+    border-radius: 8px;
+}
+
+.almaseo-llm-insight-item .dashicons {
+    color: #667eea;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.almaseo-llm-insight-item strong {
+    display: block;
+    color: #1e293b;
+    margin-bottom: 4px;
+}
+
+.almaseo-llm-insight-item p {
+    color: #475569;
+    margin: 0;
+    font-size: 13px;
+}
+
+.almaseo-llm-cluster-list {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0 0;
+}
+
+.almaseo-llm-cluster-list li {
+    padding: 6px 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.almaseo-llm-cluster-list li:last-child {
+    border-bottom: none;
+}
+
+.almaseo-llm-cluster-list a {
+    color: #667eea;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.almaseo-llm-cluster-list a:hover {
+    text-decoration: underline;
+}
+
+/* === Lock Card (Free Tier) === */
+.almaseo-llm-lock-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 2px dashed #cbd5e1;
+    text-align: center;
+    padding: 32px 24px;
+}
+
+.almaseo-llm-lock-icon {
+    margin-bottom: 16px;
+}
+
+.almaseo-llm-lock-icon .dashicons {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #94a3b8;
+}
+
+.almaseo-llm-lock-card h3 {
+    font-size: 18px;
+    margin-bottom: 4px;
+    color: #1e293b;
+    justify-content: center;
+}
+
+.almaseo-llm-lock-subtitle {
+    color: #64748b;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.almaseo-llm-lock-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px 0;
+    text-align: left;
+}
+
+.almaseo-llm-lock-features li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    color: #475569;
+    font-size: 14px;
+}
+
+.almaseo-llm-lock-features li .dashicons {
+    color: #10b981;
+    flex-shrink: 0;
+}
+
+.almaseo-llm-upgrade-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.almaseo-llm-upgrade-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+    color: #fff;
+}
+
+.almaseo-llm-upgrade-btn .dashicons {
+    color: #fff;
+}
+
+.almaseo-llm-lock-note {
+    margin: 16px 0 0 0;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+/* === Footer === */
+.almaseo-llm-footer {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.almaseo-llm-refresh {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.almaseo-llm-refresh .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.almaseo-llm-status {
+    color: #64748b;
+    font-size: 13px;
+    font-style: italic;
+}
+
+/* === Summary Style Selector === */
+.almaseo-llm-style-selector {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.almaseo-llm-style-selector label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-size: 14px;
+    color: #475569;
+}
+
+.almaseo-llm-style-selector label .dashicons {
+    color: #667eea;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+.almaseo-llm-style-dropdown {
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: #fff;
+    color: #1e293b;
+    font-size: 14px;
+    min-width: 180px;
+    cursor: pointer;
+}
+
+.almaseo-llm-style-dropdown:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* === Entity Confidence Bars === */
+.almaseo-llm-entity {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.almaseo-llm-entity-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.almaseo-llm-entity-confidence {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.almaseo-llm-entity-confidence-label {
+    font-size: 11px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.almaseo-llm-entity-confidence-bar {
+    width: 100%;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.almaseo-llm-entity-confidence-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.4s ease;
+}
+
+/* === Section Analysis === */
+.almaseo-llm-sections-container {
+    margin-top: 24px;
+}
+
+.almaseo-llm-sections-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.almaseo-llm-section-item {
+    padding: 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.almaseo-llm-section-item:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.almaseo-llm-section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.almaseo-llm-section-header strong {
+    color: #1e293b;
+    font-size: 15px;
+}
+
+.almaseo-llm-section-type {
+    font-size: 11px;
+    color: #64748b;
+    background: #e2e8f0;
+    padding: 2px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.almaseo-llm-section-wordcount {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-left: auto;
+}
+
+.almaseo-llm-section-excerpt {
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 12px;
+    font-style: italic;
+}
+
+/* === Section Score Pills === */
+.almaseo-llm-section-scores {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.almaseo-llm-section-score-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #fff;
+    border: 2px solid;
+    border-radius: 16px;
+    font-size: 13px;
+}
+
+.almaseo-llm-section-score-pill .label {
+    color: #64748b;
+    font-weight: 600;
+}
+
+.almaseo-llm-section-score-pill .value {
+    font-weight: 700;
+}
+
+.almaseo-llm-section-score-pill-locked {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    background: #f1f5f9;
+    border: 2px dashed #cbd5e1;
+    border-radius: 16px;
+    font-size: 13px;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.almaseo-llm-section-score-pill-locked .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+}
+
+/* === Section Flags === */
+.almaseo-llm-section-flags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.almaseo-llm-section-flag {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fbbf24;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+/* === Responsive === */
+@media (max-width: 600px) {
+    .almaseo-llm-panel {
+        padding: 16px;
+    }
+
+    .almaseo-llm-header h2 {
+        font-size: 18px;
+    }
+
+    .almaseo-llm-score-value {
+        font-size: 32px;
+    }
+
+    .almaseo-llm-card {
+        padding: 16px;
+    }
+
+    .almaseo-llm-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .almaseo-llm-style-selector {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .almaseo-llm-style-dropdown {
+        width: 100%;
+    }
+
+    .almaseo-llm-section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .almaseo-llm-section-wordcount {
+        margin-left: 0;
+    }
+}

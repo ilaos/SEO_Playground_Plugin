@@ -62,6 +62,50 @@ function almaseo_register_schema_meta_fields() {
                 return current_user_can('edit_posts');
             }
         ));
+
+        // Advanced Schema - Primary Type (Pro)
+        register_post_meta($post_type, '_almaseo_schema_primary_type', array(
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'string',
+            'default' => '',
+            'auth_callback' => function() {
+                return current_user_can('edit_posts');
+            }
+        ));
+
+        // Advanced Schema - FAQPage toggle (Pro)
+        register_post_meta($post_type, '_almaseo_schema_is_faqpage', array(
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'boolean',
+            'default' => false,
+            'auth_callback' => function() {
+                return current_user_can('edit_posts');
+            }
+        ));
+
+        // Advanced Schema - HowTo toggle (Pro)
+        register_post_meta($post_type, '_almaseo_schema_is_howto', array(
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'boolean',
+            'default' => false,
+            'auth_callback' => function() {
+                return current_user_can('edit_posts');
+            }
+        ));
+
+        // Advanced Schema - Disable toggle (Pro)
+        register_post_meta($post_type, '_almaseo_schema_disable', array(
+            'show_in_rest' => true,
+            'single' => true,
+            'type' => 'boolean',
+            'default' => false,
+            'auth_callback' => function() {
+                return current_user_can('edit_posts');
+            }
+        ));
     }
 }
 add_action('init', 'almaseo_register_schema_meta_fields');

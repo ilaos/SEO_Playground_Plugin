@@ -81,6 +81,13 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/schema-meta-registration.p
     require_once plugin_dir_path(__FILE__) . 'includes/schema-meta-registration.php';
 }
 
+// Include Advanced Schema (Pro feature)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/schema/schema-advanced-output.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/schema/schema-advanced-output.php';
+    // Hook advanced schema output into wp_head (priority 40 to run after basic schema)
+    add_action('wp_head', 'almaseo_output_advanced_schema', 40);
+}
+
 // Include Evergreen feature (using minimal safe loader to prevent crashes)
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/evergreen/evergreen-loader-minimal-safe.php')) {
     // Only load if not during activation
@@ -115,6 +122,11 @@ if (!$is_activating && file_exists(plugin_dir_path(__FILE__) . 'includes/optimiz
 // Include WooCommerce SEO features (Pro tier only)
 if (!$is_activating && file_exists(plugin_dir_path(__FILE__) . 'includes/woo/woo-loader.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/woo/woo-loader.php';
+}
+
+// Include LLM Optimization REST API (v6.5.0+)
+if (!$is_activating && file_exists(plugin_dir_path(__FILE__) . 'includes/llm/llm-rest.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/llm/llm-rest.php';
 }
 
 // Include new Sitemap module (Phase 0)
@@ -1210,11 +1222,11 @@ function almaseo_connector_settings_page() {
     echo '<div class="header-content">';
     echo '<div class="header-text">';
     echo '<h1>SEO Playground by AlmaSEO - Connection Settings</h1>';
-    echo '<p>Connect your WordPress site to AlmaSEO AI for automated content creation</p>';
+    echo '<p>Connect your WordPress site to AlmaSEO AI for automated content creation and deeper LLM optimization analysis</p>';
     // Add help text for Connection
     if (function_exists('almaseo_render_help')) {
         almaseo_render_help(
-            __('Connect to AlmaSEO Dashboard to unlock AI tools and enhanced data sources. Core features work without it.', 'almaseo')
+            __('Connect to AlmaSEO Dashboard to unlock AI tools, deeper LLM optimization analysis (more accurate summaries, entities, and trust signals), and enhanced data sources. Core features work without it.', 'almaseo')
         );
     }
     echo '</div>';
@@ -3241,6 +3253,7 @@ function almaseo_enqueue_seo_playground_styles() {
             
             // Tab-specific styles (only load what's needed)
             $tab_styles = array(
+                'llm-optimization', // LLM Optimization panel CSS
                 'health', // Health and SERP preview styles
                 'unified-tabs', // Unified tab styles with emojis
                 'unified-health', // Unified health score styles
@@ -3330,6 +3343,143 @@ function almaseo_enqueue_seo_playground_styles() {
 }
 add_action('admin_enqueue_scripts', 'almaseo_enqueue_seo_playground_styles');
 
+/**
+ * Render LLM Optimization Panel
+ *
+ * @param WP_Post $post The post object
+ */
+function almaseo_render_llm_optimization_panel($post) {
+    $is_pro = almaseo_feature_available('llm_optimization');
+    $is_connected = seo_playground_is_alma_connected();
+    ?>
+    <div class="almaseo-llm-panel" data-post-id="<?php echo esc_attr($post->ID); ?>" data-is-pro-llm="<?php echo $is_pro ? '1' : '0'; ?>">
+        <div class="almaseo-llm-header">
+            <h2>🤖 LLM Optimization (AI-Ready Content)</h2>
+            <p>See how AI systems like ChatGPT, Gemini, and Claude understand this page — and how to make it more reliable as a source.</p>
+        </div>
+
+        <?php if (!$is_connected): ?>
+            <div class="almaseo-llm-connection-notice">
+                <span class="dashicons dashicons-warning"></span>
+                <div>
+                    <strong>Connect to AlmaSEO for Enhanced LLM Analysis</strong>
+                    <p>Get deeper insights powered by our AI engine. <a href="<?php echo admin_url('admin.php?page=seo-playground-connection'); ?>">Connect now &rarr;</a></p>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <!-- Summary Style Selector -->
+        <div class="almaseo-llm-style-selector">
+            <label for="almaseo-llm-summary-style">
+                <span class="dashicons dashicons-admin-appearance"></span>
+                <strong>Summary Style:</strong>
+            </label>
+            <select id="almaseo-llm-summary-style" class="almaseo-llm-style-dropdown">
+                <option value="concise">Concise</option>
+                <option value="detailed">Detailed</option>
+                <option value="business">Business</option>
+                <option value="technical">Technical</option>
+                <option value="creative">Creative</option>
+                <option value="academic">Academic</option>
+                <option value="qa" <?php echo !$is_pro ? 'disabled' : ''; ?>>Q&A Format <?php echo !$is_pro ? '(Pro)' : ''; ?></option>
+                <option value="ai_answer" <?php echo !$is_pro ? 'disabled' : ''; ?>>AI Answer <?php echo !$is_pro ? '(Pro)' : ''; ?></option>
+            </select>
+        </div>
+
+        <div class="almaseo-llm-grid">
+            <!-- Left Column: Free Insights -->
+            <div class="almaseo-llm-column almaseo-llm-column-left">
+                <div class="almaseo-llm-card" data-section="summary">
+                    <h3><span class="dashicons dashicons-media-document"></span> LLM Summary Preview</h3>
+                    <div class="almaseo-llm-summary-text almaseo-llm-loading">
+                        <div class="almaseo-llm-spinner"></div>
+                        <span>Loading summary...</span>
+                    </div>
+                </div>
+
+                <div class="almaseo-llm-card" data-section="entities">
+                    <h3><span class="dashicons dashicons-tag"></span> Key Entities</h3>
+                    <ul class="almaseo-llm-entities-list almaseo-llm-loading">
+                        <div class="almaseo-llm-spinner"></div>
+                        <span>Extracting entities...</span>
+                    </ul>
+                </div>
+
+                <div class="almaseo-llm-card" data-section="clarity">
+                    <h3><span class="dashicons dashicons-visibility"></span> Clarity & Ambiguity</h3>
+                    <ul class="almaseo-llm-ambiguities-list almaseo-llm-loading">
+                        <div class="almaseo-llm-spinner"></div>
+                        <span>Analyzing clarity...</span>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right Column: Pro Insights or Lock Card -->
+            <div class="almaseo-llm-column almaseo-llm-column-right">
+                <?php if ($is_pro): ?>
+                    <!-- Pro Features: Scores and Insights -->
+                    <div class="almaseo-llm-card almaseo-llm-card-highlight" data-section="scores">
+                        <h3><span class="dashicons dashicons-chart-area"></span> LLM Optimization Scores</h3>
+                        <div class="almaseo-llm-scores almaseo-llm-loading">
+                            <div class="almaseo-llm-spinner"></div>
+                            <span>Calculating scores...</span>
+                        </div>
+                    </div>
+
+                    <div class="almaseo-llm-card" data-section="schema">
+                        <h3><span class="dashicons dashicons-admin-links"></span> Advanced Insights</h3>
+                        <div class="almaseo-llm-insights almaseo-llm-loading">
+                            <div class="almaseo-llm-spinner"></div>
+                            <span>Loading insights...</span>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <!-- Free Tier: Lock Card -->
+                    <div class="almaseo-llm-card almaseo-llm-lock-card">
+                        <div class="almaseo-llm-lock-icon">
+                            <span class="dashicons dashicons-lock"></span>
+                        </div>
+                        <h3>Advanced LLM Insights</h3>
+                        <p class="almaseo-llm-lock-subtitle">Pro unlocks deeper AI-focused analysis so your content becomes a trusted source for LLMs.</p>
+                        <ul class="almaseo-llm-lock-features">
+                            <li><span class="dashicons dashicons-yes"></span> <strong>LLM Optimization Score (0–100)</strong></li>
+                            <li><span class="dashicons dashicons-yes"></span> <strong>Answerability Score</strong> — how usable this page is as an AI answer source</li>
+                            <li><span class="dashicons dashicons-yes"></span> <strong>Schema enhancement suggestions</strong> for AI grounding</li>
+                            <li><span class="dashicons dashicons-yes"></span> <strong>Internal link suggestions</strong> to strengthen topic clusters</li>
+                            <li><span class="dashicons dashicons-yes"></span> Advanced clarity analysis</li>
+                        </ul>
+                        <a href="https://almaseo.com/pricing" target="_blank" class="almaseo-llm-upgrade-btn">
+                            <span class="dashicons dashicons-star-filled"></span>
+                            Upgrade to Pro for Full LLM Insights
+                        </a>
+                        <p class="almaseo-llm-lock-note">Get 30+ advanced SEO features with Pro</p>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <!-- Section-Level Analysis (Pro or Limited Free) -->
+        <div class="almaseo-llm-sections-container" style="display:none;">
+            <div class="almaseo-llm-card">
+                <h3><span class="dashicons dashicons-editor-alignleft"></span> Section-Level Analysis</h3>
+                <p class="description">See how each section of your content performs for LLM understanding.</p>
+                <div class="almaseo-llm-sections-list">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <div class="almaseo-llm-footer">
+            <button type="button" class="button button-primary almaseo-llm-refresh">
+                <span class="dashicons dashicons-update"></span>
+                Refresh LLM Analysis
+            </button>
+            <span class="almaseo-llm-status"></span>
+        </div>
+    </div>
+    <?php
+}
+
 // SEO Playground meta box callback
 function almaseo_seo_playground_meta_box_callback($post) {
     // Add nonce for security
@@ -3380,7 +3530,12 @@ function almaseo_seo_playground_meta_box_callback($post) {
         <!-- Tab Navigation Bar -->
         <div class="almaseo-tab-navigation" id="almaseo-tab-navigation">
             <div class="almaseo-tab-scroll-wrapper">
-                <button class="almaseo-tab-btn active" data-tab="seo-overview">
+                <button class="almaseo-tab-btn active" data-tab="llm-optimization">
+                    <span class="tab-icon">🤖</span>
+                    <span class="tab-label">LLM Optimization</span>
+                    <span class="tab-badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2px 6px; border-radius: 10px; font-size: 10px; margin-left: 4px;">BETA</span>
+                </button>
+                <button class="almaseo-tab-btn" data-tab="seo-overview">
                     <span class="tab-icon">🩺</span>
                     <span class="tab-label">SEO Health</span>
                 </button>
@@ -3393,7 +3548,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     <span class="tab-label">Schema & Meta</span>
                 </button>
                 <button class="almaseo-tab-btn" data-tab="ai-tools">
-                    <span class="tab-icon">🤖</span>
+                    <span class="tab-icon">✨</span>
                     <span class="tab-label">AI Tools</span>
                 </button>
                 <button class="almaseo-tab-btn" data-tab="notes-history">
@@ -3450,9 +3605,17 @@ function almaseo_seo_playground_meta_box_callback($post) {
         
         <!-- Tab Content Areas -->
         <div class="almaseo-tab-content" id="almaseo-tab-content">
-        
+
+        <!-- LLM Optimization Tab -->
+        <div class="almaseo-tab-panel active" id="tab-llm-optimization">
+            <?php
+            // Render LLM Optimization panel
+            almaseo_render_llm_optimization_panel($post);
+            ?>
+        </div>
+
         <!-- SEO Health Tab (Unified) -->
-        <div class="almaseo-tab-panel active" id="tab-seo-overview">
+        <div class="almaseo-tab-panel" id="tab-seo-overview">
         
         <?php
         // Check if search engines are discouraged and show warning
@@ -5262,9 +5425,86 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             </div>
                         </div>
                     </div>
+
+                    <!-- Advanced Schema (Pro) -->
+                    <div class="almaseo-field-group" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #dcdcde;">
+                        <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600; color: #1d2327;">
+                            Advanced Schema (Pro)
+                        </h4>
+
+                        <?php if (!almaseo_feature_available('schema_advanced')): ?>
+                            <!-- Free Tier: Lock Card -->
+                            <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 2px dashed #cbd5e1; border-radius: 8px; padding: 20px; text-align: center;">
+                                <span class="dashicons dashicons-lock" style="font-size: 36px; width: 36px; height: 36px; color: #94a3b8; margin-bottom: 10px;"></span>
+                                <p style="margin: 0 0 10px 0; font-weight: 600; color: #1e293b;">Advanced Schema Types</p>
+                                <p style="margin: 0 0 15px 0; color: #64748b; font-size: 13px;">
+                                    Unlock FAQPage, HowTo, Service, LocalBusiness, and more advanced schema types.
+                                </p>
+                                <a href="https://almaseo.com/pricing" target="_blank" class="button button-secondary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
+                                    Upgrade to Pro
+                                </a>
+                            </div>
+                        <?php else: ?>
+                            <!-- Pro Tier: Full Controls -->
+                            <?php
+                            $primary_type = get_post_meta($post->ID, '_almaseo_schema_primary_type', true);
+                            $is_faqpage = get_post_meta($post->ID, '_almaseo_schema_is_faqpage', true);
+                            $is_howto = get_post_meta($post->ID, '_almaseo_schema_is_howto', true);
+                            $disable_advanced = get_post_meta($post->ID, '_almaseo_schema_disable', true);
+                            ?>
+
+                            <div class="almaseo-field-group">
+                                <label for="almaseo_schema_primary_type">Primary Schema Type</label>
+                                <select id="almaseo_schema_primary_type"
+                                        name="almaseo_schema_primary_type"
+                                        class="almaseo-select">
+                                    <option value=""><?php _e('Use default for this post type', 'almaseo'); ?></option>
+                                    <option value="Article" <?php selected($primary_type, 'Article'); ?>>Article</option>
+                                    <option value="BlogPosting" <?php selected($primary_type, 'BlogPosting'); ?>>BlogPosting</option>
+                                    <option value="NewsArticle" <?php selected($primary_type, 'NewsArticle'); ?>>NewsArticle</option>
+                                    <option value="FAQPage" <?php selected($primary_type, 'FAQPage'); ?>>FAQPage</option>
+                                    <option value="HowTo" <?php selected($primary_type, 'HowTo'); ?>>HowTo</option>
+                                    <option value="Service" <?php selected($primary_type, 'Service'); ?>>Service</option>
+                                    <option value="LocalBusiness" <?php selected($primary_type, 'LocalBusiness'); ?>>LocalBusiness</option>
+                                </select>
+                                <p class="field-hint">Override the global default for this specific post</p>
+                            </div>
+
+                            <div class="almaseo-field-group">
+                                <label>
+                                    <input type="checkbox"
+                                           name="almaseo_schema_is_faqpage"
+                                           value="1"
+                                           <?php checked($is_faqpage, true); ?>>
+                                    <?php _e('Treat this page as FAQPage (when it contains Q&A content)', 'almaseo'); ?>
+                                </label>
+                            </div>
+
+                            <div class="almaseo-field-group">
+                                <label>
+                                    <input type="checkbox"
+                                           name="almaseo_schema_is_howto"
+                                           value="1"
+                                           <?php checked($is_howto, true); ?>>
+                                    <?php _e('Treat this page as HowTo (step-by-step instructions)', 'almaseo'); ?>
+                                </label>
+                            </div>
+
+                            <div class="almaseo-field-group">
+                                <label>
+                                    <input type="checkbox"
+                                           name="almaseo_schema_disable"
+                                           value="1"
+                                           <?php checked($disable_advanced, true); ?>>
+                                    <?php _e('Disable Advanced Schema for this post', 'almaseo'); ?>
+                                </label>
+                                <p class="field-hint">Turn off advanced schema output while keeping basic schema</p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
-            
+
             <!-- Social Metadata Card -->
             <div class="almaseo-card">
                 <div class="almaseo-card-header">
@@ -6452,11 +6692,380 @@ function almaseo_seo_playground_meta_box_callback($post) {
             var count = $(this).val().length;
             var countSpan = $('#description-count');
             countSpan.text(count);
-            
+
             countSpan.removeClass('warning danger');
             if (count > 140) countSpan.addClass('warning');
             if (count > 155) countSpan.addClass('danger');
         });
+
+        // ========== LLM Optimization Panel ==========
+
+        /**
+         * Fetch and render LLM analysis
+         */
+        function loadLLMAnalysis() {
+            var $panel = $('.almaseo-llm-panel');
+            var postId = $panel.data('post-id');
+            var selectedStyle = $('#almaseo-llm-summary-style').val() || 'concise';
+
+            if (!postId) return;
+
+            // Set loading state
+            $('.almaseo-llm-status').text('Loading analysis...');
+            $('.almaseo-llm-summary-text, .almaseo-llm-entities-list, .almaseo-llm-ambiguities-list, .almaseo-llm-scores, .almaseo-llm-insights').addClass('almaseo-llm-loading');
+
+            // Make AJAX request to REST endpoint
+            $.ajax({
+                url: '/wp-json/almaseo/v1/llm-analysis',
+                method: 'GET',
+                data: {
+                    post_id: postId,
+                    style: selectedStyle,
+                    include_sections: 1
+                },
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader('X-WP-Nonce', '<?php echo wp_create_nonce('wp_rest'); ?>');
+                },
+                success: function(response) {
+                    renderLLMAnalysis(response);
+                    $('.almaseo-llm-status').text('Analysis complete').fadeOut(3000);
+                },
+                error: function(xhr, status, error) {
+                    $('.almaseo-llm-status').text('Error loading analysis. Please try again.').css('color', '#dc3232');
+                    $('.almaseo-llm-summary-text').removeClass('almaseo-llm-loading').html('<p style="color: #666;">Could not load LLM analysis. Please refresh and try again.</p>');
+                    $('.almaseo-llm-entities-list, .almaseo-llm-ambiguities-list, .almaseo-llm-scores, .almaseo-llm-insights').removeClass('almaseo-llm-loading');
+                }
+            });
+        }
+
+        /**
+         * Render LLM analysis results
+         */
+        function renderLLMAnalysis(data) {
+            // Connection status banner (if not connected)
+            if (!data.connected && !$('.almaseo-llm-connection-notice').length) {
+                // Already shown in PHP, don't duplicate
+            }
+
+            // Summary
+            var $summary = $('.almaseo-llm-summary-text');
+            $summary.removeClass('almaseo-llm-loading');
+            if (data.summary) {
+                $summary.html('<p>' + escapeHtml(data.summary) + '</p>');
+            } else {
+                $summary.html('<p style="color: #999;">No summary available.</p>');
+            }
+
+            // Entities (with confidence bars if available)
+            var $entities = $('.almaseo-llm-entities-list');
+            $entities.removeClass('almaseo-llm-loading');
+            if (data.entities && data.entities.length > 0) {
+                var entitiesHtml = '';
+                data.entities.forEach(function(entity) {
+                    entitiesHtml += '<li class="almaseo-llm-entity">';
+                    entitiesHtml += '<div class="almaseo-llm-entity-header">';
+                    entitiesHtml += '<strong>' + escapeHtml(entity.name) + '</strong>';
+                    entitiesHtml += '<span class="almaseo-llm-entity-type">' + escapeHtml(entity.type) + '</span>';
+                    entitiesHtml += '</div>';
+
+                    // Show confidence bar if available
+                    if (entity.confidence !== undefined) {
+                        var confidence = entity.confidence;
+                        var confidenceColor = getScoreColor(confidence);
+                        entitiesHtml += '<div class="almaseo-llm-entity-confidence">';
+                        entitiesHtml += '<div class="almaseo-llm-entity-confidence-label">Confidence: ' + confidence + '%</div>';
+                        entitiesHtml += '<div class="almaseo-llm-entity-confidence-bar">';
+                        entitiesHtml += '<div class="almaseo-llm-entity-confidence-fill" style="width: ' + confidence + '%; background: ' + confidenceColor + '"></div>';
+                        entitiesHtml += '</div></div>';
+                    }
+
+                    entitiesHtml += '</li>';
+                });
+                $entities.html(entitiesHtml);
+            } else {
+                $entities.html('<li style="color: #999;">No entities detected.</li>');
+            }
+
+            // Ambiguities
+            var $ambiguities = $('.almaseo-llm-ambiguities-list');
+            $ambiguities.removeClass('almaseo-llm-loading');
+            var clarityItems = [];
+
+            if (data.ambiguities && data.ambiguities.length > 0) {
+                data.ambiguities.forEach(function(item) {
+                    clarityItems.push('<li class="almaseo-llm-clarity-item">' +
+                        '<span class="almaseo-llm-clarity-excerpt">' + escapeHtml(item.excerpt) + '</span>' +
+                        '<span class="almaseo-llm-clarity-note">' + escapeHtml(item.note) + '</span>' +
+                        '</li>');
+                });
+            }
+
+            if (data.consistency_issues && data.consistency_issues.length > 0) {
+                data.consistency_issues.forEach(function(item) {
+                    clarityItems.push('<li class="almaseo-llm-clarity-item">' +
+                        '<span class="almaseo-llm-clarity-excerpt">' + escapeHtml(item.excerpt) + '</span>' +
+                        '<span class="almaseo-llm-clarity-note">' + escapeHtml(item.note) + '</span>' +
+                        '</li>');
+                });
+            }
+
+            if (clarityItems.length > 0) {
+                $ambiguities.html(clarityItems.join(''));
+            } else {
+                $ambiguities.html('<li style="color: #10b981;"><span class="dashicons dashicons-yes-alt"></span> No clarity issues detected</li>');
+            }
+
+            // Pro Features: Scores
+            var $scores = $('.almaseo-llm-scores');
+            if ($scores.length) {
+                $scores.removeClass('almaseo-llm-loading');
+
+                var llmScore = data.llm_score || 0;
+                var answerabilityScore = data.answerability_score || 0;
+
+                var llmColor = getScoreColor(llmScore);
+                var answerColor = getScoreColor(answerabilityScore);
+
+                var scoresHtml = '<div class="almaseo-llm-score-item">' +
+                    '<div class="almaseo-llm-score-label">LLM Optimization Score</div>' +
+                    '<div class="almaseo-llm-score-value" style="color: ' + llmColor + '">' + llmScore + '</div>' +
+                    '<div class="almaseo-llm-score-bar"><div class="almaseo-llm-score-fill" style="width: ' + llmScore + '%; background: ' + llmColor + '"></div></div>' +
+                    '</div>' +
+                    '<div class="almaseo-llm-score-item">' +
+                    '<div class="almaseo-llm-score-label">Answerability Score</div>' +
+                    '<div class="almaseo-llm-score-value" style="color: ' + answerColor + '">' + answerabilityScore + '</div>' +
+                    '<div class="almaseo-llm-score-bar"><div class="almaseo-llm-score-fill" style="width: ' + answerabilityScore + '%; background: ' + answerColor + '"></div></div>' +
+                    '</div>';
+
+                // Status message
+                if (llmScore >= 75 && answerabilityScore >= 75) {
+                    scoresHtml += '<p class="almaseo-llm-score-status" style="color: #10b981;"><span class="dashicons dashicons-yes-alt"></span> Great for AI answers!</p>';
+                } else if (llmScore >= 50 || answerabilityScore >= 50) {
+                    scoresHtml += '<p class="almaseo-llm-score-status" style="color: #f59e0b;"><span class="dashicons dashicons-warning"></span> Needs improvement</p>';
+                } else {
+                    scoresHtml += '<p class="almaseo-llm-score-status" style="color: #dc3232;"><span class="dashicons dashicons-dismiss"></span> Needs structure</p>';
+                }
+
+                $scores.html(scoresHtml);
+            }
+
+            // Pro Features: Insights
+            var $insights = $('.almaseo-llm-insights');
+            if ($insights.length) {
+                $insights.removeClass('almaseo-llm-loading');
+
+                var insightsHtml = '';
+
+                // Schema hint
+                if (data.schema_hint) {
+                    insightsHtml += '<div class="almaseo-llm-insight-item">' +
+                        '<span class="dashicons dashicons-admin-site-alt3"></span>' +
+                        '<div>' +
+                        '<strong>Schema Suggestion</strong>' +
+                        '<p>' + escapeHtml(data.schema_hint) + '</p>' +
+                        '</div>' +
+                        '</div>';
+                }
+
+                // Cluster suggestions
+                if (data.cluster_suggestions && data.cluster_suggestions.length > 0) {
+                    insightsHtml += '<div class="almaseo-llm-insight-item">' +
+                        '<span class="dashicons dashicons-admin-links"></span>' +
+                        '<div>' +
+                        '<strong>Internal Link Opportunities</strong>' +
+                        '<ul class="almaseo-llm-cluster-list">';
+
+                    data.cluster_suggestions.forEach(function(suggestion) {
+                        insightsHtml += '<li>' +
+                            '<a href="' + suggestion.url + '" target="_blank">' + escapeHtml(suggestion.title) + '</a>' +
+                            '</li>';
+                    });
+
+                    insightsHtml += '</ul></div></div>';
+                }
+
+                if (insightsHtml) {
+                    $insights.html(insightsHtml);
+                } else {
+                    $insights.html('<p style="color: #999;">No additional insights available.</p>');
+                }
+            }
+
+            // Render sections if available
+            if (data.sections && data.sections.length > 0) {
+                renderLLMSections(data.sections);
+            }
+        }
+
+        /**
+         * Render section-level analysis
+         */
+        function renderLLMSections(sections) {
+            var $container = $('.almaseo-llm-sections-container');
+            var $list = $('.almaseo-llm-sections-list');
+            var $panel = $('.almaseo-llm-panel');
+            var isPro = $panel.data('is-pro-llm') === 1;
+
+            if (!sections || sections.length === 0) {
+                $container.hide();
+                return;
+            }
+
+            var sectionsHtml = '';
+
+            sections.forEach(function(section, index) {
+                var typeLabel = getSectionTypeLabel(section.type);
+                var clarityColor = getScoreColor(section.clarity_score);
+                var llmColor = getScoreColor(section.llm_readiness);
+                var answerColor = getScoreColor(section.answerability);
+
+                sectionsHtml += '<div class="almaseo-llm-section-item">';
+                sectionsHtml += '<div class="almaseo-llm-section-header">';
+                sectionsHtml += '<strong>' + escapeHtml(section.heading) + '</strong>';
+                sectionsHtml += '<span class="almaseo-llm-section-type">' + typeLabel + '</span>';
+                sectionsHtml += '<span class="almaseo-llm-section-wordcount">' + section.word_count + ' words</span>';
+                sectionsHtml += '</div>';
+
+                sectionsHtml += '<div class="almaseo-llm-section-excerpt">' + escapeHtml(section.excerpt) + '</div>';
+
+                // Scores
+                sectionsHtml += '<div class="almaseo-llm-section-scores">';
+
+                // Clarity (Free for all)
+                sectionsHtml += '<div class="almaseo-llm-section-score-pill" style="border-color: ' + clarityColor + ';">';
+                sectionsHtml += '<span class="label">Clarity:</span>';
+                sectionsHtml += '<span class="value" style="color: ' + clarityColor + ';">' + section.clarity_score + '</span>';
+                sectionsHtml += '</div>';
+
+                // LLM Readiness & Answerability (Pro only or show locked)
+                if (isPro) {
+                    sectionsHtml += '<div class="almaseo-llm-section-score-pill" style="border-color: ' + llmColor + ';">';
+                    sectionsHtml += '<span class="label">LLM:</span>';
+                    sectionsHtml += '<span class="value" style="color: ' + llmColor + ';">' + section.llm_readiness + '</span>';
+                    sectionsHtml += '</div>';
+
+                    sectionsHtml += '<div class="almaseo-llm-section-score-pill" style="border-color: ' + answerColor + ';">';
+                    sectionsHtml += '<span class="label">Answerability:</span>';
+                    sectionsHtml += '<span class="value" style="color: ' + answerColor + ';">' + section.answerability + '</span>';
+                    sectionsHtml += '</div>';
+                } else {
+                    sectionsHtml += '<div class="almaseo-llm-section-score-pill-locked">';
+                    sectionsHtml += '<span class="dashicons dashicons-lock"></span> Pro';
+                    sectionsHtml += '</div>';
+                }
+
+                sectionsHtml += '</div>';
+
+                // Flags (if any)
+                if (section.flags && section.flags.length > 0) {
+                    sectionsHtml += '<div class="almaseo-llm-section-flags">';
+                    section.flags.forEach(function(flag) {
+                        var flagLabel = getFlagLabel(flag);
+                        sectionsHtml += '<span class="almaseo-llm-section-flag">' + flagLabel + '</span>';
+                    });
+                    sectionsHtml += '</div>';
+                }
+
+                sectionsHtml += '</div>';
+            });
+
+            $list.html(sectionsHtml);
+            $container.show();
+        }
+
+        /**
+         * Get section type label
+         */
+        function getSectionTypeLabel(type) {
+            var labels = {
+                'title': 'Title',
+                'intro': 'Introduction',
+                'h2_section': 'Section',
+                'lists': 'Lists',
+                'conclusion': 'Conclusion'
+            };
+            return labels[type] || type;
+        }
+
+        /**
+         * Get flag label
+         */
+        function getFlagLabel(flag) {
+            var labels = {
+                'thin_content': 'Thin content',
+                'ambiguous_pronouns': 'Ambiguous pronouns',
+                'vague_language': 'Vague language',
+                'missing_specifics': 'Missing specifics'
+            };
+            return labels[flag] || flag;
+        }
+
+        /**
+         * Get color based on score
+         */
+        function getScoreColor(score) {
+            if (score >= 75) return '#10b981';
+            if (score >= 50) return '#f59e0b';
+            return '#dc3232';
+        }
+
+        /**
+         * Escape HTML to prevent XSS
+         */
+        function escapeHtml(text) {
+            var map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        // Refresh button
+        $(document).on('click', '.almaseo-llm-refresh', function(e) {
+            e.preventDefault();
+            loadLLMAnalysis();
+        });
+
+        // Style selector change handler
+        $(document).on('change', '#almaseo-llm-summary-style', function() {
+            var selectedStyle = $(this).val();
+            var $panel = $('.almaseo-llm-panel');
+            var isPro = $panel.data('is-pro-llm') === 1;
+
+            // Check if Pro style is selected but user is not Pro
+            if ((selectedStyle === 'qa' || selectedStyle === 'ai_answer') && !isPro) {
+                alert('This summary style requires Pro. Please upgrade to access Q&A Format and AI Answer styles.');
+                $(this).val('concise'); // Reset to concise
+                return;
+            }
+
+            // Reload analysis with new style
+            loadLLMAnalysis();
+        });
+
+        // Load analysis when LLM tab becomes active
+        $(document).on('click', '.almaseo-tab-btn[data-tab="llm-optimization"]', function() {
+            // Check if analysis has already been loaded
+            if (!$('.almaseo-llm-summary-text').hasClass('almaseo-llm-loading')) {
+                // Already loaded, don't reload
+                return;
+            }
+
+            // Wait a bit for tab transition
+            setTimeout(function() {
+                loadLLMAnalysis();
+            }, 300);
+        });
+
+        // Auto-load if LLM tab is active on page load
+        if ($('.almaseo-tab-btn[data-tab="llm-optimization"]').hasClass('active')) {
+            setTimeout(function() {
+                loadLLMAnalysis();
+            }, 500);
+        }
     });
     </script>
     
@@ -6620,7 +7229,33 @@ function almaseo_save_seo_playground_meta($post_id) {
         update_post_meta($post_id, '_almaseo_schema_type', sanitize_text_field($_POST['almaseo_schema_type']));
         update_post_meta($post_id, '_seo_playground_schema_type', sanitize_text_field($_POST['almaseo_schema_type'])); // Legacy
     }
-    
+
+    // Advanced Schema - Primary Type (Pro)
+    if (isset($_POST['almaseo_schema_primary_type'])) {
+        update_post_meta($post_id, '_almaseo_schema_primary_type', sanitize_text_field($_POST['almaseo_schema_primary_type']));
+    }
+
+    // Advanced Schema - FAQPage toggle (Pro)
+    if (isset($_POST['almaseo_schema_is_faqpage'])) {
+        update_post_meta($post_id, '_almaseo_schema_is_faqpage', true);
+    } else {
+        update_post_meta($post_id, '_almaseo_schema_is_faqpage', false);
+    }
+
+    // Advanced Schema - HowTo toggle (Pro)
+    if (isset($_POST['almaseo_schema_is_howto'])) {
+        update_post_meta($post_id, '_almaseo_schema_is_howto', true);
+    } else {
+        update_post_meta($post_id, '_almaseo_schema_is_howto', false);
+    }
+
+    // Advanced Schema - Disable toggle (Pro)
+    if (isset($_POST['almaseo_schema_disable'])) {
+        update_post_meta($post_id, '_almaseo_schema_disable', true);
+    } else {
+        update_post_meta($post_id, '_almaseo_schema_disable', false);
+    }
+
     // Article Author (for Article schema)
     if (isset($_POST['almaseo_article_author'])) {
         update_post_meta($post_id, '_almaseo_article_author', sanitize_text_field($_POST['almaseo_article_author']));
@@ -7719,10 +8354,10 @@ function seo_playground_render_overview_page() {
     if (!current_user_can('manage_options')) {
         wp_die(__('You do not have sufficient permissions to access this page.'));
     }
-    
+
     // Check if AlmaSEO is connected
     $is_connected = seo_playground_is_alma_connected();
-    
+
     // Get latest 25 posts
     $posts_query = new WP_Query(array(
         'post_type' => 'post',
@@ -7731,42 +8366,166 @@ function seo_playground_render_overview_page() {
         'orderby' => 'date',
         'order' => 'DESC'
     ));
-    
+
+    // Calculate key metrics
+    $total_posts = wp_count_posts('post')->publish;
+    $optimized_count = 0;
+    $needs_review_count = 0;
+
+    // Calculate optimization stats
+    if ($posts_query->have_posts()) {
+        $temp_query = new WP_Query(array(
+            'post_type' => 'post',
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'fields' => 'ids'
+        ));
+
+        foreach ($temp_query->posts as $temp_post_id) {
+            $seo_title = get_post_meta($temp_post_id, '_seo_playground_title', true);
+            $seo_description = get_post_meta($temp_post_id, '_seo_playground_description', true);
+            $schema_type = get_post_meta($temp_post_id, '_seo_playground_schema_type', true);
+            $keyword_suggestions = get_post_meta($temp_post_id, '_seo_playground_keyword_suggestions', true);
+            $internal_links = get_post_meta($temp_post_id, '_seo_playground_internal_links', true);
+            $rewrite_data = get_post_meta($temp_post_id, '_seo_playground_rewrite', true);
+            $reoptimize_flag = get_post_meta($temp_post_id, '_seo_playground_reoptimize_flag', true);
+
+            $scorecard_checks = array(
+                'seo_title' => !empty($seo_title),
+                'meta_description' => !empty($seo_description),
+                'focus_keywords' => !empty($keyword_suggestions),
+                'internal_links' => !empty($internal_links),
+                'schema_type' => !empty($schema_type) && $schema_type !== 'none',
+                'ai_rewrite' => !empty($rewrite_data),
+                'content_length' => true, // Assume true for performance
+                'reoptimization' => empty($reoptimize_flag)
+            );
+
+            $passed_checks = count(array_filter($scorecard_checks));
+
+            if ($passed_checks >= 6) {
+                $optimized_count++;
+            } elseif ($passed_checks >= 4) {
+                $needs_review_count++;
+            }
+        }
+        wp_reset_postdata();
+    }
+
+    // Calculate health score percentage
+    $health_score = $total_posts > 0 ? round(($optimized_count / $total_posts) * 100) : 0;
+
+    // Get 404 count if available
+    $error_404_count = 0;
+    if (function_exists('seo_playground_get_404_count')) {
+        $error_404_count = seo_playground_get_404_count();
+    }
+
+    // Check if Pro is active
+    $is_pro = almaseo_is_pro_active();
+
     ?>
-    <div class="wrap">
-        <h1>SEO Playground by AlmaSEO - Overview</h1>
-        
-        <?php if (!$is_connected): ?>
-        <div class="notice notice-warning">
-            <p><strong>🔒 AlmaSEO Not Connected:</strong> Connect to AlmaSEO to see AI-powered insights and optimization suggestions.</p>
-        </div>
-        <?php endif; ?>
-        
-        <div class="almaseo-overview-container">
-            <!-- Filter Controls -->
-            <div class="almaseo-overview-filters">
-                <select id="almaseo-status-filter" class="almaseo-filter-dropdown">
-                    <option value="all">Show All Posts</option>
-                    <option value="optimized">Fully Optimized</option>
-                    <option value="needs-review">Needs Review</option>
-                    <option value="missing-data">Missing Data</option>
-                </select>
+    <div class="wrap almaseo-overview-wrap">
+        <!-- Header / Hero Bar -->
+        <div class="almaseo-overview-header">
+            <div class="almaseo-overview-title-section">
+                <h1 class="almaseo-overview-title">AlmaSEO Overview</h1>
+                <p class="almaseo-overview-subtitle">A quick snapshot of your site's SEO health and activity.</p>
             </div>
-            
-            <!-- Posts Table -->
-            <div class="almaseo-overview-table-container">
-                <table class="almaseo-overview-table">
-                    <thead>
-                        <tr>
-                            <th>✅ Post Title</th>
-                            <th title="Based on how many SEO checks pass">📝 Status</th>
-                            <th>📈 Last AI Action</th>
-                            <th>🗂 Schema Type</th>
-                            <th title="Out of 8 SEO best practices">🟢 Scorecard</th>
-                            <th title="Click to auto-check post again for reoptimization">⚙️ Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+            <div class="almaseo-overview-connection-status">
+                <?php if ($is_connected): ?>
+                    <span class="almaseo-connection-pill almaseo-connected">
+                        <span class="almaseo-pill-icon">✓</span> Connected to AlmaSEO
+                    </span>
+                <?php else: ?>
+                    <span class="almaseo-connection-pill almaseo-disconnected">
+                        <span class="almaseo-pill-icon">⚠</span> Not Connected
+                    </span>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <!-- Key Metrics Row -->
+        <div class="almaseo-metrics-row">
+            <div class="almaseo-metric-card">
+                <div class="almaseo-metric-icon">
+                    <span class="dashicons dashicons-dashboard"></span>
+                </div>
+                <div class="almaseo-metric-content">
+                    <div class="almaseo-metric-value"><?php echo esc_html($health_score); ?>%</div>
+                    <div class="almaseo-metric-label">SEO Health Score</div>
+                    <div class="almaseo-metric-sublabel"><?php echo esc_html($optimized_count); ?> / <?php echo esc_html($total_posts); ?> posts optimized</div>
+                </div>
+            </div>
+
+            <div class="almaseo-metric-card">
+                <div class="almaseo-metric-icon">
+                    <span class="dashicons dashicons-admin-post"></span>
+                </div>
+                <div class="almaseo-metric-content">
+                    <div class="almaseo-metric-value"><?php echo esc_html($optimized_count); ?></div>
+                    <div class="almaseo-metric-label">Optimized Posts</div>
+                    <div class="almaseo-metric-sublabel">Fully SEO ready</div>
+                </div>
+            </div>
+
+            <div class="almaseo-metric-card">
+                <div class="almaseo-metric-icon">
+                    <span class="dashicons dashicons-warning"></span>
+                </div>
+                <div class="almaseo-metric-content">
+                    <div class="almaseo-metric-value"><?php echo esc_html($needs_review_count); ?></div>
+                    <div class="almaseo-metric-label">Need Review</div>
+                    <div class="almaseo-metric-sublabel">Requires attention</div>
+                </div>
+            </div>
+
+            <div class="almaseo-metric-card">
+                <div class="almaseo-metric-icon">
+                    <span class="dashicons dashicons-dismiss"></span>
+                </div>
+                <div class="almaseo-metric-content">
+                    <div class="almaseo-metric-value"><?php echo esc_html($error_404_count); ?></div>
+                    <div class="almaseo-metric-label">404 Errors</div>
+                    <div class="almaseo-metric-sublabel">
+                        <?php if (almaseo_feature_available('404_advanced')): ?>
+                            <a href="<?php echo admin_url('admin.php?page=almaseo-404-monitor'); ?>">View all &rarr;</a>
+                        <?php else: ?>
+                            Pro feature
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Two-Column Layout -->
+        <div class="almaseo-two-column-layout">
+            <!-- Left Column: Content & Optimization -->
+            <div class="almaseo-column almaseo-column-left">
+                <!-- Top Opportunities Card -->
+                <div class="almaseo-card almaseo-opportunities-card">
+                    <div class="almaseo-card-header">
+                        <h2 class="almaseo-card-title">Top Optimization Opportunities</h2>
+                        <select id="almaseo-status-filter" class="almaseo-filter-dropdown">
+                            <option value="all">Show All Posts</option>
+                            <option value="optimized">Fully Optimized</option>
+                            <option value="needs-review">Needs Review</option>
+                            <option value="missing-data">Missing Data</option>
+                        </select>
+                    </div>
+                    <div class="almaseo-card-body">
+                        <table class="almaseo-overview-table">
+                            <thead>
+                                <tr>
+                                    <th>Post Title</th>
+                                    <th>Status</th>
+                                    <th>Last AI Action</th>
+                                    <th>Schema</th>
+                                    <th>Score</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
                         <?php if ($posts_query->have_posts()): ?>
                             <?php while ($posts_query->have_posts()): $posts_query->the_post(); 
                                 $post_id = get_the_ID();
@@ -7871,11 +8630,146 @@ function seo_playground_render_overview_page() {
                                 </td>
                             </tr>
                         <?php endif; ?>
-                    </tbody>
-                </table>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Technical & Monitoring -->
+            <div class="almaseo-column almaseo-column-right">
+                <!-- Sitemaps & Indexing Card -->
+                <div class="almaseo-card almaseo-sitemap-card">
+                    <div class="almaseo-card-header">
+                        <h2 class="almaseo-card-title">
+                            <span class="dashicons dashicons-networking"></span> Sitemaps & Indexing
+                        </h2>
+                    </div>
+                    <div class="almaseo-card-body">
+                        <div class="almaseo-status-item">
+                            <span class="almaseo-status-dot almaseo-status-success"></span>
+                            <div class="almaseo-status-content">
+                                <div class="almaseo-status-label">XML Sitemap</div>
+                                <div class="almaseo-status-value">
+                                    <a href="<?php echo home_url('/sitemap.xml'); ?>" target="_blank">View Sitemap</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="almaseo-status-item">
+                            <span class="almaseo-status-dot almaseo-status-info"></span>
+                            <div class="almaseo-status-content">
+                                <div class="almaseo-status-label">Total Pages</div>
+                                <div class="almaseo-status-value"><?php echo esc_html($total_posts); ?> posts</div>
+                            </div>
+                        </div>
+                        <?php if ($is_connected): ?>
+                            <div class="almaseo-status-item">
+                                <span class="almaseo-status-dot almaseo-status-success"></span>
+                                <div class="almaseo-status-content">
+                                    <div class="almaseo-status-label">AlmaSEO Integration</div>
+                                    <div class="almaseo-status-value">Active</div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- Redirects & Logs Card -->
+                <div class="almaseo-card almaseo-redirects-card">
+                    <div class="almaseo-card-header">
+                        <h2 class="almaseo-card-title">
+                            <span class="dashicons dashicons-randomize"></span> Redirects & Monitoring
+                        </h2>
+                    </div>
+                    <div class="almaseo-card-body">
+                        <?php if (almaseo_feature_available('redirects')): ?>
+                            <div class="almaseo-quick-link">
+                                <a href="<?php echo admin_url('admin.php?page=almaseo-redirects'); ?>">
+                                    <span class="dashicons dashicons-randomize"></span>
+                                    Manage Redirects
+                                </a>
+                            </div>
+                        <?php else: ?>
+                            <div class="almaseo-pro-badge-small">
+                                <span class="dashicons dashicons-lock"></span> Redirects (Pro)
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if (almaseo_feature_available('404_advanced')): ?>
+                            <div class="almaseo-quick-link">
+                                <a href="<?php echo admin_url('admin.php?page=almaseo-404-monitor'); ?>">
+                                    <span class="dashicons dashicons-warning"></span>
+                                    404 Monitor (<?php echo esc_html($error_404_count); ?>)
+                                </a>
+                            </div>
+                        <?php else: ?>
+                            <div class="almaseo-pro-badge-small">
+                                <span class="dashicons dashicons-lock"></span> 404 Monitoring (Pro)
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="almaseo-quick-link">
+                            <a href="<?php echo admin_url('admin.php?page=almaseo-settings'); ?>">
+                                <span class="dashicons dashicons-admin-settings"></span>
+                                Plugin Settings
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions Card -->
+                <div class="almaseo-card almaseo-quick-actions-card">
+                    <div class="almaseo-card-header">
+                        <h2 class="almaseo-card-title">
+                            <span class="dashicons dashicons-admin-tools"></span> Quick Actions
+                        </h2>
+                    </div>
+                    <div class="almaseo-card-body">
+                        <?php if (!$is_connected): ?>
+                            <div class="almaseo-action-item almaseo-action-highlight">
+                                <a href="<?php echo admin_url('admin.php?page=almaseo-settings'); ?>">
+                                    <span class="dashicons dashicons-admin-plugins"></span>
+                                    Connect to AlmaSEO
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                        <div class="almaseo-action-item">
+                            <a href="<?php echo admin_url('admin.php?page=almaseo-bulk-meta'); ?>">
+                                <span class="dashicons dashicons-welcome-write-blog"></span>
+                                Bulk Meta Editor
+                            </a>
+                        </div>
+                        <div class="almaseo-action-item">
+                            <a href="<?php echo admin_url('admin.php?page=almaseo-schema'); ?>">
+                                <span class="dashicons dashicons-media-code"></span>
+                                Schema Manager
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        
+
+        <!-- Pro Feature Teaser Strip -->
+        <?php if (!$is_pro): ?>
+            <div class="almaseo-pro-teaser-strip">
+                <div class="almaseo-pro-teaser-content">
+                    <div class="almaseo-pro-teaser-icon">
+                        <span class="dashicons dashicons-star-filled"></span>
+                    </div>
+                    <div class="almaseo-pro-teaser-text">
+                        <h3>Unlock Advanced SEO Features with AlmaSEO Pro</h3>
+                        <p>Get access to <strong>LLM Optimization</strong> (optimize for ChatGPT & AI models), 301 Redirects, Bulk Meta Editor, WooCommerce SEO, Advanced Schema, 404 Monitoring, and more!</p>
+                    </div>
+                    <div class="almaseo-pro-teaser-action">
+                        <a href="https://almaseo.com/pricing" target="_blank" class="almaseo-pro-upgrade-btn">
+                            Upgrade to Pro &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <!-- View Meta Modal -->
         <div id="almaseo-view-meta-modal" class="almaseo-modal">
             <div class="almaseo-modal-content">
@@ -7889,7 +8783,652 @@ function seo_playground_render_overview_page() {
             </div>
         </div>
     </div>
-    
+
+    <style>
+        /* Overview Page Styles */
+        .almaseo-overview-wrap {
+            max-width: 1400px;
+        }
+
+        /* Header / Hero Bar */
+        .almaseo-overview-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .almaseo-overview-title {
+            color: #fff;
+            font-size: 32px;
+            margin: 0 0 8px 0;
+            font-weight: 700;
+        }
+
+        .almaseo-overview-subtitle {
+            color: rgba(255,255,255,0.9);
+            font-size: 16px;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        .almaseo-connection-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .almaseo-connection-pill.almaseo-connected {
+            background: rgba(76, 175, 80, 0.9);
+        }
+
+        .almaseo-connection-pill.almaseo-disconnected {
+            background: rgba(255, 152, 0, 0.9);
+        }
+
+        .almaseo-pill-icon {
+            font-weight: bold;
+        }
+
+        /* Metrics Row */
+        .almaseo-metrics-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .almaseo-metric-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .almaseo-metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .almaseo-metric-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .almaseo-metric-icon .dashicons {
+            color: #fff;
+            font-size: 28px;
+            width: 28px;
+            height: 28px;
+        }
+
+        .almaseo-metric-content {
+            flex: 1;
+        }
+
+        .almaseo-metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1.2;
+            margin-bottom: 4px;
+        }
+
+        .almaseo-metric-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .almaseo-metric-sublabel {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .almaseo-metric-sublabel a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .almaseo-metric-sublabel a:hover {
+            text-decoration: underline;
+        }
+
+        /* Two-Column Layout */
+        .almaseo-two-column-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .almaseo-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Card Styles */
+        .almaseo-card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .almaseo-card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .almaseo-card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .almaseo-card-title .dashicons {
+            color: #667eea;
+        }
+
+        .almaseo-card-body {
+            padding: 24px;
+        }
+
+        /* Filter Dropdown */
+        .almaseo-filter-dropdown {
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #475569;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        .almaseo-filter-dropdown:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Table Styles */
+        .almaseo-overview-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .almaseo-overview-table thead th {
+            background: #f8fafc;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .almaseo-overview-table tbody td {
+            padding: 16px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+            color: #334155;
+        }
+
+        .almaseo-overview-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .almaseo-overview-table tbody tr td:first-child a {
+            color: #1e293b;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .almaseo-overview-table tbody tr td:first-child a:hover {
+            color: #667eea;
+        }
+
+        /* Status Badges */
+        .almaseo-status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .almaseo-status-badge.status-optimized {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .almaseo-status-badge.status-review {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .almaseo-status-badge.status-missing {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Scorecard */
+        .almaseo-scorecard-summary {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .almaseo-scorecard-score {
+            font-weight: 600;
+            color: #1e293b;
+            min-width: 40px;
+        }
+
+        .almaseo-scorecard-bar {
+            flex: 1;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            max-width: 100px;
+        }
+
+        .almaseo-scorecard-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+            transition: width 0.3s ease;
+        }
+
+        /* Action Buttons */
+        .almaseo-action-buttons {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .almaseo-action-btn {
+            padding: 6px 12px;
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .almaseo-action-btn:hover {
+            background: #f8fafc;
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        /* Right Column Status Items */
+        .almaseo-status-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .almaseo-status-item:last-child {
+            border-bottom: none;
+        }
+
+        .almaseo-status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-top: 4px;
+            flex-shrink: 0;
+        }
+
+        .almaseo-status-dot.almaseo-status-success {
+            background: #10b981;
+        }
+
+        .almaseo-status-dot.almaseo-status-info {
+            background: #3b82f6;
+        }
+
+        .almaseo-status-dot.almaseo-status-warning {
+            background: #f59e0b;
+        }
+
+        .almaseo-status-content {
+            flex: 1;
+        }
+
+        .almaseo-status-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 2px;
+        }
+
+        .almaseo-status-value {
+            font-size: 14px;
+            color: #1e293b;
+        }
+
+        .almaseo-status-value a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .almaseo-status-value a:hover {
+            text-decoration: underline;
+        }
+
+        /* Quick Links */
+        .almaseo-quick-link {
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .almaseo-quick-link:last-child {
+            border-bottom: none;
+        }
+
+        .almaseo-quick-link a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #334155;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .almaseo-quick-link a:hover {
+            color: #667eea;
+        }
+
+        .almaseo-quick-link .dashicons {
+            color: #667eea;
+        }
+
+        /* Action Items */
+        .almaseo-action-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .almaseo-action-item:last-child {
+            border-bottom: none;
+        }
+
+        .almaseo-action-item a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #334155;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .almaseo-action-item a:hover {
+            color: #667eea;
+        }
+
+        .almaseo-action-item.almaseo-action-highlight {
+            background: #fef3c7;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+        }
+
+        .almaseo-action-item.almaseo-action-highlight a {
+            color: #92400e;
+            font-weight: 600;
+        }
+
+        .almaseo-action-item .dashicons {
+            color: #667eea;
+        }
+
+        /* Pro Badge Small */
+        .almaseo-pro-badge-small {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #94a3b8;
+            font-size: 13px;
+            padding: 8px 0;
+        }
+
+        .almaseo-pro-badge-small .dashicons {
+            color: #cbd5e1;
+        }
+
+        /* Pro Teaser Strip */
+        .almaseo-pro-teaser-strip {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border-radius: 12px;
+            padding: 30px 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+        }
+
+        .almaseo-pro-teaser-content {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .almaseo-pro-teaser-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .almaseo-pro-teaser-icon .dashicons {
+            color: #fff;
+            font-size: 32px;
+            width: 32px;
+            height: 32px;
+        }
+
+        .almaseo-pro-teaser-text {
+            flex: 1;
+        }
+
+        .almaseo-pro-teaser-text h3 {
+            color: #fff;
+            font-size: 22px;
+            margin: 0 0 8px 0;
+            font-weight: 700;
+        }
+
+        .almaseo-pro-teaser-text p {
+            color: rgba(255,255,255,0.95);
+            font-size: 15px;
+            margin: 0;
+        }
+
+        .almaseo-pro-teaser-action {
+            flex-shrink: 0;
+        }
+
+        .almaseo-pro-upgrade-btn {
+            display: inline-block;
+            padding: 14px 28px;
+            background: #fff;
+            color: #f59e0b;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transition: all 0.2s ease;
+        }
+
+        .almaseo-pro-upgrade-btn:hover {
+            background: #fef3c7;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Modal Styles */
+        .almaseo-modal {
+            display: none;
+            position: fixed;
+            z-index: 100000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .almaseo-modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .almaseo-modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .almaseo-modal-header h3 {
+            margin: 0;
+            color: #1e293b;
+            font-size: 18px;
+        }
+
+        .almaseo-modal-close {
+            color: #94a3b8;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .almaseo-modal-close:hover {
+            color: #1e293b;
+        }
+
+        .almaseo-modal-body {
+            padding: 24px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .almaseo-two-column-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .almaseo-column-right {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .almaseo-overview-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+                padding: 24px;
+            }
+
+            .almaseo-overview-title {
+                font-size: 24px;
+            }
+
+            .almaseo-overview-subtitle {
+                font-size: 14px;
+            }
+
+            .almaseo-metrics-row {
+                grid-template-columns: 1fr;
+            }
+
+            .almaseo-pro-teaser-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .almaseo-pro-teaser-text h3 {
+                font-size: 18px;
+            }
+
+            .almaseo-overview-table {
+                font-size: 12px;
+            }
+
+            .almaseo-action-buttons {
+                flex-direction: column;
+            }
+
+            .almaseo-action-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        /* No posts message */
+        .almaseo-no-posts {
+            text-align: center;
+            padding: 40px 20px;
+            color: #94a3b8;
+        }
+    </style>
+
     <script>
     jQuery(document).ready(function($) {
         // Filter functionality

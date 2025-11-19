@@ -79,6 +79,21 @@ class AlmaSEO_Settings {
             ),
             'sanitize_callback' => array($this, 'sanitize_schema_control')
         ));
+
+        // Advanced schema settings (Pro feature)
+        register_setting('almaseo_settings', 'almaseo_schema_advanced_settings', array(
+            'type' => 'array',
+            'default' => array(
+                'enabled' => false,
+                'site_represents' => 'organization',
+                'site_name' => '',
+                'site_logo_url' => '',
+                'site_social_profiles' => array(),
+                'default_schema_by_post_type' => array(),
+                'enable_breadcrumbs' => false
+            ),
+            'sanitize_callback' => array($this, 'sanitize_schema_advanced_settings')
+        ));
     }
     
     /**
@@ -86,13 +101,59 @@ class AlmaSEO_Settings {
      */
     public function sanitize_schema_control($input) {
         $sanitized = array();
-        
+
         $sanitized['keep_breadcrumbs'] = isset($input['keep_breadcrumbs']) ? (bool) $input['keep_breadcrumbs'] : false;
         $sanitized['keep_product'] = isset($input['keep_product']) ? (bool) $input['keep_product'] : false;
         $sanitized['amp_compatibility'] = isset($input['amp_compatibility']) ? (bool) $input['amp_compatibility'] : true;
         $sanitized['enable_logging'] = isset($input['enable_logging']) ? (bool) $input['enable_logging'] : true;
         $sanitized['log_limit'] = isset($input['log_limit']) ? absint($input['log_limit']) : 50;
-        
+
+        return $sanitized;
+    }
+
+    /**
+     * Sanitize advanced schema settings
+     */
+    public function sanitize_schema_advanced_settings($input) {
+        $sanitized = array();
+
+        $sanitized['enabled'] = isset($input['enabled']) ? (bool) $input['enabled'] : false;
+        $sanitized['site_represents'] = isset($input['site_represents']) && in_array($input['site_represents'], array('person', 'organization')) ? $input['site_represents'] : 'organization';
+        $sanitized['site_name'] = isset($input['site_name']) ? sanitize_text_field($input['site_name']) : '';
+        $sanitized['site_logo_url'] = isset($input['site_logo_url']) ? esc_url_raw($input['site_logo_url']) : '';
+
+        // Social profiles - convert from textarea (one per line) to array
+        $sanitized['site_social_profiles'] = array();
+        if (isset($input['site_social_profiles_raw']) && !empty($input['site_social_profiles_raw'])) {
+            $lines = explode("\n", $input['site_social_profiles_raw']);
+            foreach ($lines as $line) {
+                $url = esc_url_raw(trim($line));
+                if (!empty($url)) {
+                    $sanitized['site_social_profiles'][] = $url;
+                }
+            }
+        } elseif (isset($input['site_social_profiles']) && is_array($input['site_social_profiles'])) {
+            foreach ($input['site_social_profiles'] as $profile) {
+                $url = esc_url_raw(trim($profile));
+                if (!empty($url)) {
+                    $sanitized['site_social_profiles'][] = $url;
+                }
+            }
+        }
+
+        // Default schema by post type
+        $sanitized['default_schema_by_post_type'] = array();
+        if (isset($input['default_schema_by_post_type']) && is_array($input['default_schema_by_post_type'])) {
+            $valid_types = array('', 'Article', 'BlogPosting', 'NewsArticle', 'FAQPage', 'HowTo', 'Service', 'LocalBusiness');
+            foreach ($input['default_schema_by_post_type'] as $post_type => $schema_type) {
+                if (in_array($schema_type, $valid_types, true)) {
+                    $sanitized['default_schema_by_post_type'][sanitize_key($post_type)] = $schema_type;
+                }
+            }
+        }
+
+        $sanitized['enable_breadcrumbs'] = isset($input['enable_breadcrumbs']) ? (bool) $input['enable_breadcrumbs'] : false;
+
         return $sanitized;
     }
     
@@ -185,7 +246,10 @@ class AlmaSEO_Settings {
         ?>
         <div class="wrap almaseo-settings-wrap">
             <h1><?php _e('AlmaSEO Settings', 'almaseo'); ?></h1>
-            
+            <p class="description" style="margin-bottom: 20px; font-size: 14px;">
+                <?php _e('AlmaSEO is built for both search engines and AI models (LLMs), with a dedicated LLM Optimization panel in the editor.', 'almaseo'); ?>
+            </p>
+
             <form method="post" action="options.php">
                 <?php settings_fields('almaseo_settings'); ?>
                 
@@ -274,7 +338,158 @@ class AlmaSEO_Settings {
                         </tr>
                     </table>
                 </div>
-                
+
+                <!-- Advanced Schema Section (Pro) -->
+                <div class="almaseo-settings-section" style="margin-top: 30px;">
+                    <h2><?php _e('Advanced Schema (Pro)', 'almaseo'); ?></h2>
+
+                    <?php if (!almaseo_feature_available('schema_advanced')): ?>
+                        <!-- Free Tier: Lock Card -->
+                        <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 2px dashed #cbd5e1; border-radius: 8px; padding: 30px; text-align: center;">
+                            <div style="margin-bottom: 16px;">
+                                <span class="dashicons dashicons-lock" style="font-size: 48px; width: 48px; height: 48px; color: #94a3b8;"></span>
+                            </div>
+                            <h3 style="margin: 0 0 8px 0;"><?php _e('Advanced Schema Features', 'almaseo'); ?></h3>
+                            <p style="color: #64748b; margin-bottom: 20px;">
+                                <?php _e('Unlock Knowledge Graph, BreadcrumbList, FAQPage, HowTo, and advanced schema types to make your content stand out in search results.', 'almaseo'); ?>
+                            </p>
+                            <a href="https://almaseo.com/pricing" target="_blank" class="button button-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+                                <?php _e('Upgrade to Pro', 'almaseo'); ?>
+                            </a>
+                        </div>
+                    <?php else: ?>
+                        <!-- Pro Tier: Full Controls -->
+                        <?php
+                        $adv_settings = get_option('almaseo_schema_advanced_settings', array(
+                            'enabled' => false,
+                            'site_represents' => 'organization',
+                            'site_name' => '',
+                            'site_logo_url' => '',
+                            'site_social_profiles' => array(),
+                            'default_schema_by_post_type' => array(),
+                            'enable_breadcrumbs' => false
+                        ));
+                        ?>
+
+                        <table class="form-table">
+                            <tr>
+                                <th scope="row"><?php _e('Enable Advanced Schema', 'almaseo'); ?></th>
+                                <td>
+                                    <label>
+                                        <input type="checkbox"
+                                               name="almaseo_schema_advanced_settings[enabled]"
+                                               value="1"
+                                               <?php checked($adv_settings['enabled'], true); ?>>
+                                        <?php _e('Enable Advanced Schema Features', 'almaseo'); ?>
+                                    </label>
+                                    <p class="description">
+                                        <?php _e('When enabled, AlmaSEO will output richer structured data like Knowledge Graph, Breadcrumbs, and advanced type mappings.', 'almaseo'); ?>
+                                    </p>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th scope="row"><?php _e('Knowledge Graph', 'almaseo'); ?></th>
+                                <td>
+                                    <fieldset>
+                                        <p><strong><?php _e('This site represents:', 'almaseo'); ?></strong></p>
+                                        <label>
+                                            <input type="radio"
+                                                   name="almaseo_schema_advanced_settings[site_represents]"
+                                                   value="organization"
+                                                   <?php checked($adv_settings['site_represents'], 'organization'); ?>>
+                                            <?php _e('Organization', 'almaseo'); ?>
+                                        </label>
+                                        <br>
+                                        <label>
+                                            <input type="radio"
+                                                   name="almaseo_schema_advanced_settings[site_represents]"
+                                                   value="person"
+                                                   <?php checked($adv_settings['site_represents'], 'person'); ?>>
+                                            <?php _e('Person', 'almaseo'); ?>
+                                        </label>
+
+                                        <p style="margin-top: 15px;">
+                                            <label for="almaseo_site_name"><?php _e('Name:', 'almaseo'); ?></label><br>
+                                            <input type="text"
+                                                   id="almaseo_site_name"
+                                                   name="almaseo_schema_advanced_settings[site_name]"
+                                                   value="<?php echo esc_attr($adv_settings['site_name']); ?>"
+                                                   class="regular-text"
+                                                   placeholder="<?php echo esc_attr(get_bloginfo('name')); ?>">
+                                        </p>
+
+                                        <p>
+                                            <label for="almaseo_site_logo_url"><?php _e('Logo URL:', 'almaseo'); ?></label><br>
+                                            <input type="url"
+                                                   id="almaseo_site_logo_url"
+                                                   name="almaseo_schema_advanced_settings[site_logo_url]"
+                                                   value="<?php echo esc_attr($adv_settings['site_logo_url']); ?>"
+                                                   class="regular-text"
+                                                   placeholder="https://example.com/logo.png">
+                                        </p>
+
+                                        <p>
+                                            <label for="almaseo_social_profiles"><?php _e('Social Profiles (one per line):', 'almaseo'); ?></label><br>
+                                            <textarea id="almaseo_social_profiles"
+                                                      name="almaseo_schema_advanced_settings[site_social_profiles_raw]"
+                                                      rows="4"
+                                                      class="large-text"
+                                                      placeholder="https://twitter.com/yourhandle&#10;https://facebook.com/yourpage&#10;https://linkedin.com/company/yourcompany"><?php
+                                                echo esc_textarea(implode("\n", $adv_settings['site_social_profiles']));
+                                            ?></textarea>
+                                        </p>
+                                    </fieldset>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th scope="row"><?php _e('Default Schema Types', 'almaseo'); ?></th>
+                                <td>
+                                    <?php
+                                    $post_types = get_post_types(array('public' => true), 'objects');
+                                    foreach ($post_types as $pt):
+                                        $current = isset($adv_settings['default_schema_by_post_type'][$pt->name]) ? $adv_settings['default_schema_by_post_type'][$pt->name] : '';
+                                    ?>
+                                        <p>
+                                            <label for="schema_type_<?php echo esc_attr($pt->name); ?>">
+                                                <strong><?php echo esc_html($pt->label); ?>:</strong>
+                                            </label><br>
+                                            <select id="schema_type_<?php echo esc_attr($pt->name); ?>"
+                                                    name="almaseo_schema_advanced_settings[default_schema_by_post_type][<?php echo esc_attr($pt->name); ?>]">
+                                                <option value=""><?php _e('Use default (Article/WebPage)', 'almaseo'); ?></option>
+                                                <option value="Article" <?php selected($current, 'Article'); ?>>Article</option>
+                                                <option value="BlogPosting" <?php selected($current, 'BlogPosting'); ?>>BlogPosting</option>
+                                                <option value="NewsArticle" <?php selected($current, 'NewsArticle'); ?>>NewsArticle</option>
+                                                <option value="FAQPage" <?php selected($current, 'FAQPage'); ?>>FAQPage</option>
+                                                <option value="HowTo" <?php selected($current, 'HowTo'); ?>>HowTo</option>
+                                                <option value="Service" <?php selected($current, 'Service'); ?>>Service</option>
+                                                <option value="LocalBusiness" <?php selected($current, 'LocalBusiness'); ?>>LocalBusiness</option>
+                                            </select>
+                                        </p>
+                                    <?php endforeach; ?>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th scope="row"><?php _e('Breadcrumbs', 'almaseo'); ?></th>
+                                <td>
+                                    <label>
+                                        <input type="checkbox"
+                                               name="almaseo_schema_advanced_settings[enable_breadcrumbs]"
+                                               value="1"
+                                               <?php checked($adv_settings['enable_breadcrumbs'], true); ?>>
+                                        <?php _e('Enable BreadcrumbList schema', 'almaseo'); ?>
+                                    </label>
+                                    <p class="description">
+                                        <?php _e('Outputs a BreadcrumbList schema for posts and pages based on your site\'s hierarchy.', 'almaseo'); ?>
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    <?php endif; ?>
+                </div>
+
                 <?php submit_button(); ?>
             </form>
             
