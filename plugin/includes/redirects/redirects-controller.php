@@ -58,7 +58,13 @@ class AlmaSEO_Redirects_Controller {
         if (!current_user_can('manage_options')) {
             wp_die(__('You do not have sufficient permissions to access this page.', 'almaseo'));
         }
-        
+
+        // Check if redirects feature is available (Pro feature)
+        if ( ! almaseo_feature_available( 'redirects' ) ) {
+            almaseo_render_feature_locked( 'redirects' );
+            return;
+        }
+
         // Include the admin page template
         require_once plugin_dir_path(dirname(dirname(__FILE__))) . 'admin/pages/redirects.php';
     }
@@ -119,14 +125,15 @@ class AlmaSEO_Redirects_Controller {
     
     /**
      * Check if Pro features are enabled
-     * 
-     * @return bool
+     *
+     * Uses the centralized license helper to determine if redirects feature is available.
+     * The redirects feature requires Pro or higher tier.
+     *
+     * @return bool True if redirects feature is available
      */
     public static function is_pro_enabled() {
-        // Check for Pro license or tier
-        // For now, we'll check if user has manage_options capability
-        // TODO: Integrate with actual license/tier system
-        return current_user_can('manage_options');
+        // Use centralized license helper to check if redirects feature is available
+        return almaseo_feature_available( 'redirects' );
     }
     
     /**

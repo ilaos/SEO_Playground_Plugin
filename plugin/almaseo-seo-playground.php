@@ -30,6 +30,17 @@ define('ALMASEO_PLUGIN_URL', ALMASEO_URL);
 define('ALMASEO_PLUGIN_DIR', ALMASEO_PATH);
 define('ALMASEO_PLUGIN_FILE', ALMASEO_MAIN_FILE);
 
+// Include License & Tier Helper (centralized license checking)
+// This MUST be loaded early before any feature modules that check licensing
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/license/license-helper.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/license/license-helper.php';
+}
+
+// Include Locked Feature UI Helper (for Pro feature upsells)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/license/locked-ui.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/license/locked-ui.php';
+}
+
 // Include schema implementation (clean version to avoid conflicts)
 if (file_exists(ALMASEO_PLUGIN_DIR . 'includes/schema-clean.php')) {
     require_once ALMASEO_PLUGIN_DIR . 'includes/schema-clean.php';
@@ -148,10 +159,12 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/bulkmeta/bulkmeta-loader.p
 }
 
 // Ensure almaseo_is_pro function exists as fallback
+// This should rarely be reached since bulkmeta-loader.php defines it first
 if (!function_exists('almaseo_is_pro')) {
     function almaseo_is_pro() {
-        // Default to false if function not yet defined
-        return false;
+        // Use centralized license helper as fallback
+        // This ensures consistent behavior across all modules
+        return almaseo_is_pro_active();
     }
 }
 
@@ -8633,7 +8646,13 @@ function almaseo_woocommerce_settings_page() {
     if (\!current_user_can('manage_options')) {
         wp_die(__('You do not have sufficient permissions to access this page.'));
     }
-    
+
+    // Check if WooCommerce SEO feature is available (Pro feature)
+    if ( ! almaseo_feature_available( 'woocommerce' ) ) {
+        almaseo_render_feature_locked( 'woocommerce' );
+        return;
+    }
+
     // Include the WooCommerce settings page
     $settings_file = plugin_dir_path(__FILE__) . 'admin/pages/settings-woo.php';
     if (file_exists($settings_file)) {

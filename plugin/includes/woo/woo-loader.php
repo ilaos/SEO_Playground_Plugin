@@ -37,16 +37,16 @@ class AlmaSEO_Woo_Loader {
      * Constructor
      */
     private function __construct() {
+        // Check if Pro feature is available
+        if ( ! almaseo_feature_available('woocommerce') ) {
+            return;
+        }
+
         // Check if WooCommerce is active
         if (!$this->is_woocommerce_active()) {
             return;
         }
-        
-        // Check if user has Pro tier
-        if (function_exists('almaseo_is_pro') && !almaseo_is_pro()) {
-            return;
-        }
-        
+
         // Load modules
         $this->load_dependencies();
         $this->init_hooks();
@@ -63,37 +63,121 @@ class AlmaSEO_Woo_Loader {
      * Load dependencies
      */
     private function load_dependencies() {
-        // Load WooCommerce meta handler
-        require_once plugin_dir_path(__FILE__) . 'woo-meta.php';
-        
+        // Load WooCommerce metabox (product SEO fields)
+        if (file_exists(plugin_dir_path(__FILE__) . 'woo-metabox.php')) {
+            require_once plugin_dir_path(__FILE__) . 'woo-metabox.php';
+        }
+
         // Load WooCommerce schema handler
-        require_once plugin_dir_path(__FILE__) . 'woo-schema.php';
-        
-        // Load WooCommerce breadcrumbs
-        require_once plugin_dir_path(__FILE__) . 'woo-breadcrumbs.php';
-        
-        // Load WooCommerce sitemap integration
-        require_once plugin_dir_path(__FILE__) . 'woo-sitemap.php';
+        if (file_exists(plugin_dir_path(__FILE__) . 'woo-schema.php')) {
+            require_once plugin_dir_path(__FILE__) . 'woo-schema.php';
+        }
+
+        // Load WooCommerce sitemap provider
+        if (file_exists(plugin_dir_path(__FILE__) . 'woo-sitemap-provider.php')) {
+            require_once plugin_dir_path(__FILE__) . 'woo-sitemap-provider.php';
+        }
+
+        // Load WooCommerce meta handler (if exists)
+        if (file_exists(plugin_dir_path(__FILE__) . 'woo-meta.php')) {
+            require_once plugin_dir_path(__FILE__) . 'woo-meta.php';
+        }
+
+        // Load WooCommerce breadcrumbs (if exists)
+        if (file_exists(plugin_dir_path(__FILE__) . 'woo-breadcrumbs.php')) {
+            require_once plugin_dir_path(__FILE__) . 'woo-breadcrumbs.php';
+        }
     }
     
     /**
      * Initialize hooks
      */
     private function init_hooks() {
-        // Initialize modules
-        AlmaSEO_Woo_Meta::get_instance();
-        AlmaSEO_Woo_Schema::get_instance();
-        AlmaSEO_Woo_Breadcrumbs::get_instance();
-        AlmaSEO_Woo_Sitemap::get_instance();
-        
-        // Add settings tab
-        add_filter('almaseo_settings_tabs', array($this, 'add_settings_tab'));
-        add_action('almaseo_settings_content_woocommerce', array($this, 'render_settings_page'));
-        
+        // Initialize schema handler
+        if (class_exists('AlmaSEO_Woo_Schema')) {
+            AlmaSEO_Woo_Schema::get_instance();
+        }
+
+        // Initialize optional modules (if they exist)
+        if (class_exists('AlmaSEO_Woo_Meta')) {
+            AlmaSEO_Woo_Meta::get_instance();
+        }
+        if (class_exists('AlmaSEO_Woo_Breadcrumbs')) {
+            AlmaSEO_Woo_Breadcrumbs::get_instance();
+        }
+
+        // Register sitemap provider
+        add_filter('almaseo_sitemap_providers', array($this, 'register_sitemap_provider'));
+
+        // Add robots.txt rules for noindexed products
+        add_filter('robots_txt', array($this, 'add_robots_txt_rules'), 10, 2);
+
+        // Add meta robots tags for noindexed products
+        add_action('wp_head', array($this, 'add_noindex_meta'), 1);
+
         // Enqueue admin assets
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
     }
     
+    /**
+     * Register WooCommerce sitemap provider
+     */
+    public function register_sitemap_provider($providers) {
+        if (class_exists('Alma_Provider_WC_Products')) {
+            $providers['wc-products'] = new Alma_Provider_WC_Products();
+        }
+        return $providers;
+    }
+
+    /**
+     * Add robots.txt rules for noindexed products
+     */
+    public function add_robots_txt_rules($output, $public) {
+        // Only add rules if products are globally noindexed
+        $noindex_products = get_option('almaseo_wc_noindex_products', false);
+
+        if ($noindex_products) {
+            $output .= "\n# AlmaSEO WooCommerce SEO - Noindex Products\n";
+            $output .= "User-agent: *\n";
+            $output .= "Disallow: /product/\n";
+            $output .= "Disallow: /*add-to-cart=\n";
+        }
+
+        return $output;
+    }
+
+    /**
+     * Add noindex meta tag for products
+     */
+    public function add_noindex_meta() {
+        // Check if on single product page
+        if (!is_singular('product')) {
+            return;
+        }
+
+        global $post;
+
+        // Check global noindex setting
+        $global_noindex = get_option('almaseo_wc_noindex_products', false);
+
+        // Check per-product noindex
+        $product_noindex = get_post_meta($post->ID, '_almaseo_wc_noindex', true);
+
+        if ($global_noindex || $product_noindex) {
+            echo '<meta name="robots" content="noindex, follow" />' . "\n";
+        }
+
+        // Check product categories noindex
+        if (is_product_category() && get_option('almaseo_wc_noindex_product_cats', false)) {
+            echo '<meta name="robots" content="noindex, follow" />' . "\n";
+        }
+
+        // Check product tags noindex
+        if (is_product_tag() && get_option('almaseo_wc_noindex_product_tags', false)) {
+            echo '<meta name="robots" content="noindex, follow" />' . "\n";
+        }
+    }
+
     /**
      * Add WooCommerce tab to settings
      */
@@ -234,9 +318,9 @@ class AlmaSEO_Woo_Loader {
     }
 }
 
-// Initialize if Pro user and WooCommerce is active
+// Initialize if Pro feature available and WooCommerce is active
 add_action('plugins_loaded', function() {
-    if (function_exists('almaseo_is_pro') && almaseo_is_pro()) {
+    if (almaseo_feature_available('woocommerce')) {
         AlmaSEO_Woo_Loader::get_instance();
     }
 }, 20);

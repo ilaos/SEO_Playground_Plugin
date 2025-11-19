@@ -28,46 +28,22 @@ class DataForSEOProvider implements KeywordProviderInterface {
     
     /**
      * Fetch metrics from DataForSEO API
+     *
+     * NOTE: This provider is not yet implemented. It returns a "coming soon" status
+     * to display a professional UI panel instead of broken/fake data.
+     *
+     * @param array $keywords Array of keywords to fetch metrics for
+     * @param array $options Optional parameters (country, language, etc.)
+     * @return array Returns coming_soon flag with HTML output
      */
     public function fetchMetrics(array $keywords, array $options = []): array {
-        if (!$this->isConfigured()) {
-            // Return empty results if not configured
-            return array_map(function($keyword) {
-                return [
-                    'term' => $keyword,
-                    'position' => null,
-                    'volume' => null,
-                    'kd' => null,
-                    'cpc' => null,
-                    'trend' => null,
-                ];
-            }, $keywords);
-        }
-        
-        // Get country code from options or default to US
-        $country = $options['country'] ?? 'US';
-        $language = $options['language'] ?? 'en';
-        
-        // TODO: Implement actual DataForSEO API calls
-        // For now, return skeleton data with more realistic values
-        $results = [];
-        
-        foreach ($keywords as $keyword) {
-            // In production, this would make actual API calls to DataForSEO
-            // DataForSEO provides comprehensive SEO metrics
-            $results[] = [
-                'term' => $keyword,
-                'position' => null, // Would come from SERP API
-                'volume' => rand(100, 50000), // Monthly search volume
-                'kd' => rand(0, 100), // Keyword difficulty
-                'cpc' => round(rand(10, 1000) / 100, 2), // Cost per click
-                'trend' => $this->generateRealisticTrend(), // Monthly trend
-                'competition' => round(rand(0, 100) / 100, 2), // Competition level
-                'serp_features' => $this->generateSerpFeatures(), // SERP features
-            ];
-        }
-        
-        return $results;
+        // DataForSEO integration is not yet implemented
+        // Return "coming soon" status to trigger the special UI
+        return [
+            'coming_soon' => true,
+            'provider' => 'dataforseo',
+            'message' => 'DataForSEO Keyword Intelligence is coming soon. This powerful integration will bring professional-grade SERP analytics to your WordPress editor.',
+        ];
     }
     
     /**
@@ -139,7 +115,7 @@ class DataForSEOProvider implements KeywordProviderInterface {
      * Get provider name
      */
     public function getName(): string {
-        return 'DataForSEO (Beta)';
+        return 'DataForSEO (Coming Soon)';
     }
     
     /**

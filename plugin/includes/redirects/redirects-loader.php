@@ -64,31 +64,15 @@ class AlmaSEO_Redirects_Loader {
     
     /**
      * Check if Pro features are enabled
-     * 
-     * @return bool
+     *
+     * Uses the centralized license helper to determine if redirects feature is available.
+     * The redirects feature requires Pro or higher tier.
+     *
+     * @return bool True if redirects feature is available
      */
     private static function is_pro_enabled() {
-        // Check for Pro license or tier
-        // For development/testing, we'll check manage_options capability
-        // TODO: Integrate with actual license/tier system
-        
-        // Check if user can manage options (admin capability)
-        if (!current_user_can('manage_options')) {
-            return false;
-        }
-        
-        // Check for pro license (placeholder for actual license check)
-        $pro_license = get_option('almaseo_pro_license_key');
-        $dev_unlock = get_option('almaseo_dev_unlock');
-        
-        // Allow if dev unlock is enabled or pro license exists
-        if ($dev_unlock || $pro_license) {
-            return true;
-        }
-        
-        // Default to enabled for testing
-        // TODO: Change to false for production
-        return true;
+        // Use centralized license helper to check if redirects feature is available
+        return almaseo_feature_available( 'redirects' );
     }
     
     /**

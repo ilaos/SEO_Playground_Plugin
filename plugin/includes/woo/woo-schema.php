@@ -37,12 +37,22 @@ class AlmaSEO_Woo_Schema {
      * Constructor
      */
     private function __construct() {
+        // Only load if Pro feature is available
+        if ( ! almaseo_feature_available('woocommerce') ) {
+            return;
+        }
+
+        // Only load if WooCommerce is active
+        if ( ! class_exists('WooCommerce') ) {
+            return;
+        }
+
         // Add schema output to head
         add_action('wp_head', array($this, 'output_product_schema'), 15);
-        
+
         // Filter existing schema if needed
         add_filter('almaseo_schema_output', array($this, 'modify_schema_output'), 10, 2);
-        
+
         // Add schema to product loops
         add_action('woocommerce_after_shop_loop_item', array($this, 'add_loop_item_schema'));
     }

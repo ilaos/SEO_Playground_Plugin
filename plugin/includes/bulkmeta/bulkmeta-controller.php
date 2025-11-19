@@ -129,7 +129,13 @@ class BulkMeta_Controller {
         if (!current_user_can('manage_options')) {
             wp_die(__('You do not have sufficient permissions to access this page.', 'almaseo'));
         }
-        
+
+        // Check if bulk metadata feature is available (Pro feature)
+        if ( ! almaseo_feature_available( 'bulkmeta' ) ) {
+            almaseo_render_feature_locked( 'bulkmeta' );
+            return;
+        }
+
         require_once(dirname(dirname(dirname(__FILE__))) . '/admin/pages/bulk-meta.php');
     }
     

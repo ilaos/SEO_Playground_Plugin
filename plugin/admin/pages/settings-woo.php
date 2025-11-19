@@ -30,6 +30,19 @@ if (isset($_POST['almaseo_woo_settings_nonce']) &&
         'show_stock_in_schema',
         'show_reviews_in_schema'
     );
+
+    // Save global noindex settings (separate options)
+    update_option('almaseo_wc_noindex_products', isset($_POST['noindex_products']) ? true : false);
+    update_option('almaseo_wc_noindex_product_cats', isset($_POST['noindex_product_cats']) ? true : false);
+    update_option('almaseo_wc_noindex_product_tags', isset($_POST['noindex_product_tags']) ? true : false);
+
+    // Save priority settings (optional)
+    if (isset($_POST['wc_product_priority'])) {
+        update_option('almaseo_wc_product_priority', floatval($_POST['wc_product_priority']));
+    }
+    if (isset($_POST['wc_category_priority'])) {
+        update_option('almaseo_wc_category_priority', floatval($_POST['wc_category_priority']));
+    }
     
     foreach ($boolean_fields as $field) {
         $new_settings[$field] = isset($_POST[$field]) ? true : false;
@@ -259,7 +272,84 @@ if (isset($_POST['almaseo_woo_settings_nonce']) &&
                 </td>
             </tr>
         </table>
-        
+
+        <!-- Product Indexing Settings -->
+        <h2 class="title"><?php _e('Product Indexing', 'almaseo'); ?></h2>
+        <p><?php _e('Control which WooCommerce content search engines can index.', 'almaseo'); ?></p>
+
+        <table class="form-table">
+            <tr>
+                <th scope="row"><?php _e('Global Noindex Settings', 'almaseo'); ?></th>
+                <td>
+                    <fieldset>
+                        <label>
+                            <input type="checkbox" name="noindex_products" value="1"
+                                   <?php checked(get_option('almaseo_wc_noindex_products', false), true); ?> />
+                            <?php _e('Noindex all products (hide from search engines)', 'almaseo'); ?>
+                        </label>
+                        <p class="description">
+                            <?php _e('Prevents search engines from indexing all product pages. Also adds Disallow rules to robots.txt.', 'almaseo'); ?>
+                        </p>
+                        <br>
+
+                        <label>
+                            <input type="checkbox" name="noindex_product_cats" value="1"
+                                   <?php checked(get_option('almaseo_wc_noindex_product_cats', false), true); ?> />
+                            <?php _e('Noindex product categories', 'almaseo'); ?>
+                        </label>
+                        <p class="description">
+                            <?php _e('Prevents search engines from indexing product category archive pages.', 'almaseo'); ?>
+                        </p>
+                        <br>
+
+                        <label>
+                            <input type="checkbox" name="noindex_product_tags" value="1"
+                                   <?php checked(get_option('almaseo_wc_noindex_product_tags', false), true); ?> />
+                            <?php _e('Noindex product tags', 'almaseo'); ?>
+                        </label>
+                        <p class="description">
+                            <?php _e('Prevents search engines from indexing product tag archive pages.', 'almaseo'); ?>
+                        </p>
+                    </fieldset>
+                </td>
+            </tr>
+
+            <tr>
+                <th scope="row"><?php _e('Sitemap Priority (Optional)', 'almaseo'); ?></th>
+                <td>
+                    <label for="wc_product_priority">
+                        <?php _e('Products:', 'almaseo'); ?>
+                        <select id="wc_product_priority" name="wc_product_priority">
+                            <?php
+                            $product_priority = (float) get_option('almaseo_wc_product_priority', 0.6);
+                            $priorities = array('0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0');
+                            foreach ($priorities as $priority) {
+                                echo '<option value="' . $priority . '"' . selected($product_priority, (float) $priority, false) . '>' . $priority . '</option>';
+                            }
+                            ?>
+                        </select>
+                    </label>
+                    <br><br>
+
+                    <label for="wc_category_priority">
+                        <?php _e('Product Categories:', 'almaseo'); ?>
+                        <select id="wc_category_priority" name="wc_category_priority">
+                            <?php
+                            $category_priority = (float) get_option('almaseo_wc_category_priority', 0.5);
+                            foreach ($priorities as $priority) {
+                                echo '<option value="' . $priority . '"' . selected($category_priority, (float) $priority, false) . '>' . $priority . '</option>';
+                            }
+                            ?>
+                        </select>
+                    </label>
+
+                    <p class="description">
+                        <?php _e('Set priority values for products and categories in XML sitemaps (0.1 = lowest, 1.0 = highest).', 'almaseo'); ?>
+                    </p>
+                </td>
+            </tr>
+        </table>
+
         <!-- Shortcodes Reference -->
         <h2 class="title"><?php _e('Available Shortcodes', 'almaseo'); ?></h2>
         <div class="almaseo-shortcodes-reference">

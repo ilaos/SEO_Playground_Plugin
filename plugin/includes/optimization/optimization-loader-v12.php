@@ -15,6 +15,9 @@ require_once __DIR__ . '/StubProvider.php';
 require_once __DIR__ . '/GSCProvider-v12.php';
 require_once __DIR__ . '/DataForSEOProvider.php';
 
+// Load coming soon UI for unimplemented providers
+require_once __DIR__ . '/coming-soon-ui.php';
+
 use AlmaSEO\Optimization\KeywordProviderInterface;
 use AlmaSEO\Optimization\StubProvider;
 use AlmaSEO\Optimization\GSCProvider;
@@ -335,20 +338,33 @@ class AlmaSEO_Optimization_V12 {
         
         // Generate Quick Wins data using provider
         $result = $this->generate_quick_wins($title, $content, $post_id);
+
+        // Check if provider returned "coming soon" status
+        if (isset($result['coming_soon']) && $result['coming_soon'] === true) {
+            // Return coming soon response with HTML
+            return [
+                'success' => true,
+                'coming_soon' => true,
+                'html' => almaseo_render_dataforseo_coming_soon(),
+                'provider' => $result['provider'] ?? 'dataforseo',
+                'message' => $result['message'] ?? 'This feature is coming soon.',
+            ];
+        }
+
         $quick_wins = $result['data'];
         $provider_notice = $result['notice'];
         $provider_fallback = $result['fallback'];
-        
+
         update_post_meta($post_id, '_almaseo_quickwins', $quick_wins);
-        
+
         // Generate Keyword Suggestions
         $suggestions = $this->generate_keyword_suggestions($title, $content);
         update_post_meta($post_id, '_almaseo_keywordsuggestions', $suggestions);
-        
+
         // Update cache timestamp
         $cached_at = time();
         update_post_meta($post_id, '_almaseo_kw_cached_at', $cached_at);
-        
+
         return [
             'success' => true,
             'quick_wins' => $quick_wins,
@@ -402,7 +418,24 @@ class AlmaSEO_Optimization_V12 {
             // Try to get metrics from provider
             try {
                 $provider_metrics = $this->provider->fetchMetrics($keywords, $options);
-                
+
+                // Check if provider returned "coming soon" status
+                if (isset($provider_metrics['coming_soon']) && $provider_metrics['coming_soon'] === true) {
+                    // Return coming soon status with special handling
+                    return [
+                        'coming_soon' => true,
+                        'provider' => $provider_metrics['provider'] ?? 'unknown',
+                        'message' => $provider_metrics['message'] ?? 'This feature is coming soon.',
+                        'data' => [
+                            'keywords' => [],
+                            'last_updated' => current_time('mysql'),
+                            'provider' => $this->provider->getId(),
+                        ],
+                        'notice' => null,
+                        'fallback' => false,
+                    ];
+                }
+
                 // Map provider metrics to our format
                 foreach ($provider_metrics as $metric) {
                     $metrics[] = [
