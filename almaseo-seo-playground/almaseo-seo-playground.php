@@ -17,19 +17,19 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
 
-// STANDARDIZED Plugin constants - defined once at plugin load
-define('ALMASEO_MAIN_FILE', __FILE__);
-define('ALMASEO_PATH', plugin_dir_path(ALMASEO_MAIN_FILE));
-define('ALMASEO_URL', plugin_dir_url(ALMASEO_MAIN_FILE));
-define('ALMASEO_PLUGIN_VERSION', '6.5.0');
-define('ALMASEO_VERSION', '6.5.0'); // For compatibility
-define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
-define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
+// STANDARDIZED Plugin constants - guarded for safe coexistence with AlmaSEO Connector
+if (!defined('ALMASEO_MAIN_FILE'))       define('ALMASEO_MAIN_FILE', __FILE__);
+if (!defined('ALMASEO_PATH'))            define('ALMASEO_PATH', plugin_dir_path(__FILE__));
+if (!defined('ALMASEO_URL'))             define('ALMASEO_URL', plugin_dir_url(__FILE__));
+if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '6.5.0');
+if (!defined('ALMASEO_VERSION'))         define('ALMASEO_VERSION', '6.5.0');
+if (!defined('ALMASEO_API_NAMESPACE'))   define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
+if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
 
-// Legacy constants for backwards compatibility (to be removed later)
-define('ALMASEO_PLUGIN_URL', ALMASEO_URL);
-define('ALMASEO_PLUGIN_DIR', ALMASEO_PATH);
-define('ALMASEO_PLUGIN_FILE', ALMASEO_MAIN_FILE);
+// Legacy constants for backwards compatibility
+if (!defined('ALMASEO_PLUGIN_URL'))  define('ALMASEO_PLUGIN_URL', ALMASEO_URL);
+if (!defined('ALMASEO_PLUGIN_DIR'))  define('ALMASEO_PLUGIN_DIR', ALMASEO_PATH);
+if (!defined('ALMASEO_PLUGIN_FILE')) define('ALMASEO_PLUGIN_FILE', ALMASEO_MAIN_FILE);
 
 // Include License & Tier Helper (centralized license checking)
 // This MUST be loaded early before any feature modules that check licensing
@@ -229,19 +229,96 @@ add_action('admin_enqueue_scripts', function($hook) {
     );
 }, 999);
 
-// Admin notice for multiple AlmaSEO installations
-add_action('admin_notices', function() {
-    if (!current_user_can('activate_plugins')) return;
-    
-    $plugin_dir = WP_PLUGIN_DIR ?? ABSPATH . 'wp-content/plugins';
-    $dirs = array_filter(glob($plugin_dir . '/*'), 'is_dir');
-    $conflicts = array_filter($dirs, function($d) {
-        return preg_match('/almaseo-connector|almaseo-connector-v1\.1|seo-playground-(final|standalone)/', basename($d));
-    });
-    
-    if ($conflicts) {
-        echo '<div class="notice notice-warning is-dismissible"><p><strong>AlmaSEO:</strong> Multiple legacy plugin folders detected. For best results, keep only <em>almaseo-seo-playground-v4</em> active and remove older versions to avoid CSS conflicts (duplicate icons/blue headers).</p></div>';
+// --- CONNECTOR COEXISTENCE: Detect active AlmaSEO Connector and offer upgrade ---
+
+/**
+ * Detect if the AlmaSEO Connector plugin is active.
+ * Returns the plugin basename (e.g. 'almaseo-connector/alma-seoconnector.php') or false.
+ */
+function almaseo_detect_active_connector() {
+    $active_plugins = get_option('active_plugins', array());
+    foreach ($active_plugins as $plugin) {
+        if (preg_match('/^almaseo-connector[^\/]*\//', $plugin)) {
+            return $plugin;
+        }
     }
+    return false;
+}
+
+// Show upgrade notice when Connector is active alongside Playground
+add_action('admin_notices', function() {
+    if (!current_user_can('activate_plugins')) {
+        return;
+    }
+
+    // Don't show if user already dismissed
+    if (get_user_meta(get_current_user_id(), 'almaseo_connector_upgrade_dismissed', true)) {
+        return;
+    }
+
+    $connector_plugin = almaseo_detect_active_connector();
+    if (!$connector_plugin) {
+        return;
+    }
+
+    $deactivate_url = wp_nonce_url(
+        admin_url('admin-post.php?action=almaseo_deactivate_connector'),
+        'almaseo_deactivate_connector'
+    );
+    ?>
+    <div class="notice notice-info is-dismissible almaseo-connector-upgrade-notice" style="border-left-color: #667eea; padding: 12px;">
+        <p>
+            <strong>AlmaSEO SEO Playground</strong> includes everything the Connector plugin does &mdash; plus a full SEO toolkit.
+            You can safely deactivate the Connector. Your connection settings will be preserved.
+        </p>
+        <p>
+            <a href="<?php echo esc_url($deactivate_url); ?>" class="button button-primary" style="background: #667eea; border-color: #667eea;">
+                Deactivate Connector Plugin
+            </a>
+        </p>
+    </div>
+    <?php
+});
+
+// Handle the one-click connector deactivation
+add_action('admin_post_almaseo_deactivate_connector', function() {
+    if (!current_user_can('activate_plugins')) {
+        wp_die(__('You do not have permission to do this.', 'almaseo'));
+    }
+    check_admin_referer('almaseo_deactivate_connector');
+
+    $connector_plugin = almaseo_detect_active_connector();
+    if ($connector_plugin) {
+        deactivate_plugins($connector_plugin);
+    }
+
+    wp_safe_redirect(admin_url('plugins.php?deactivate=true'));
+    exit;
+});
+
+// AJAX handler for dismissing the connector upgrade notice
+add_action('wp_ajax_almaseo_dismiss_connector_upgrade', function() {
+    check_ajax_referer('almaseo_dismiss_connector_upgrade', 'nonce');
+    update_user_meta(get_current_user_id(), 'almaseo_connector_upgrade_dismissed', 1);
+    wp_die();
+});
+
+// Bind the dismiss button to our AJAX handler
+add_action('admin_footer', function() {
+    if (!almaseo_detect_active_connector()) {
+        return;
+    }
+    $nonce = wp_create_nonce('almaseo_dismiss_connector_upgrade');
+    ?>
+    <script>
+    jQuery(document).on('click', '.almaseo-connector-upgrade-notice .notice-dismiss', function() {
+        jQuery.post(ajaxurl, {
+            action: 'almaseo_dismiss_connector_upgrade',
+            nonce: '<?php echo esc_js($nonce); ?>'
+        });
+    });
+    </script>
+    <?php
 });
 
 // Content refresh reminder cron handler
@@ -515,49 +592,53 @@ add_action('rest_api_init', function() {
     add_filter('rest_pre_serve_request', 'almaseo_add_cors_headers', 10, 4);
 });
 
-function almaseo_add_cors_headers($served, $result, $request, $server) {
-    // Only add CORS headers for AlmaSEO endpoints
-    $route = $request->get_route();
-    // Fix: Add null check for $route before using strpos()
-    if (!empty($route) && strpos($route, '/almaseo/v1/') !== false) {
-        // Restrict CORS to known AlmaSEO origins
-        $allowed_origins = array(
-            'https://almaseo.com',
-            'https://www.almaseo.com',
-            'https://app.almaseo.com',
-            'https://api.almaseo.com',
-        );
-        $allowed_origins = apply_filters('almaseo_cors_allowed_origins', $allowed_origins);
+if (!function_exists('almaseo_add_cors_headers')) {
+    function almaseo_add_cors_headers($served, $result, $request, $server) {
+        // Only add CORS headers for AlmaSEO endpoints
+        $route = $request->get_route();
+        // Fix: Add null check for $route before using strpos()
+        if (!empty($route) && strpos($route, '/almaseo/v1/') !== false) {
+            // Restrict CORS to known AlmaSEO origins
+            $allowed_origins = array(
+                'https://almaseo.com',
+                'https://www.almaseo.com',
+                'https://app.almaseo.com',
+                'https://api.almaseo.com',
+            );
+            $allowed_origins = apply_filters('almaseo_cors_allowed_origins', $allowed_origins);
 
-        $origin = isset($_SERVER['HTTP_ORIGIN']) ? esc_url_raw($_SERVER['HTTP_ORIGIN']) : '';
+            $origin = isset($_SERVER['HTTP_ORIGIN']) ? esc_url_raw($_SERVER['HTTP_ORIGIN']) : '';
 
-        if (in_array($origin, $allowed_origins, true)) {
-            header('Access-Control-Allow-Origin: ' . $origin);
-            header('Access-Control-Allow-Credentials: true');
-            header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-            header('Access-Control-Allow-Headers: Authorization, Content-Type, X-WP-Nonce');
+            if (in_array($origin, $allowed_origins, true)) {
+                header('Access-Control-Allow-Origin: ' . $origin);
+                header('Access-Control-Allow-Credentials: true');
+                header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+                header('Access-Control-Allow-Headers: Authorization, Content-Type, X-WP-Nonce');
 
-            // Handle preflight OPTIONS requests
-            if ($request->get_method() === 'OPTIONS') {
-                header('Access-Control-Max-Age: 86400');
-                status_header(200);
-                return true;
+                // Handle preflight OPTIONS requests
+                if ($request->get_method() === 'OPTIONS') {
+                    header('Access-Control-Max-Age: 86400');
+                    status_header(200);
+                    return true;
+                }
             }
         }
+        return $served;
     }
-    return $served;
 }
 
 // Check if Application Passwords are available
-function almaseo_check_app_passwords_available() {
-    if (!function_exists('wp_generate_application_password')) {
-        return new WP_Error(
-            'app_passwords_not_available',
-            'Application Passwords feature is not available. Please ensure you are using WordPress 5.6 or higher.',
-            array('status' => 400)
-        );
+if (!function_exists('almaseo_check_app_passwords_available')) {
+    function almaseo_check_app_passwords_available() {
+        if (!function_exists('wp_generate_application_password')) {
+            return new WP_Error(
+                'app_passwords_not_available',
+                'Application Passwords feature is not available. Please ensure you are using WordPress 5.6 or higher.',
+                array('status' => 400)
+            );
+        }
+        return true;
     }
-    return true;
 }
 
 // REST API endpoint registration - UPDATED
@@ -614,195 +695,210 @@ add_action('rest_api_init', function () {
 });
 
 // Permission check: must be admin and secret must match
-function almaseo_permission_check( $request ) {
-    // Get the AlmaSEO secret (wp-config.php overrides DB)
-    $secret = almaseo_get_secret();
+if (!function_exists('almaseo_permission_check')) {
+    function almaseo_permission_check( $request ) {
+        // Get the AlmaSEO secret (wp-config.php overrides DB)
+        $secret = almaseo_get_secret();
 
-    // Verify secret
-    $provided_secret = $request->get_param('secret');
-    if ( ! hash_equals( $secret, $provided_secret ) ) {
-        return new WP_Error('invalid_secret', 'Invalid secret key.', array('status' => 403));
-    }
+        // Verify secret
+        $provided_secret = $request->get_param('secret');
+        if ( ! hash_equals( $secret, $provided_secret ) ) {
+            return new WP_Error('invalid_secret', 'Invalid secret key.', array('status' => 403));
+        }
 
-    // Verify nonce
-    $nonce = $request->get_param('nonce');
-    if (!wp_verify_nonce($nonce, 'almaseo_generate_password')) {
-        return new WP_Error('invalid_nonce', 'Invalid security token.', array('status' => 403));
-    }
+        // Verify nonce
+        $nonce = $request->get_param('nonce');
+        if (!wp_verify_nonce($nonce, 'almaseo_generate_password')) {
+            return new WP_Error('invalid_nonce', 'Invalid security token.', array('status' => 403));
+        }
 
-    // Check user is logged in and is admin
-    if ( ! is_user_logged_in() ) {
-        return new WP_Error('not_logged_in', 'You must be logged in.', array('status' => 401));
-    }
-    if ( ! current_user_can('manage_options') ) {
-        return new WP_Error('not_admin', 'You must be an administrator.', array('status' => 403));
-    }
+        // Check user is logged in and is admin
+        if ( ! is_user_logged_in() ) {
+            return new WP_Error('not_logged_in', 'You must be logged in.', array('status' => 401));
+        }
+        if ( ! current_user_can('manage_options') ) {
+            return new WP_Error('not_admin', 'You must be an administrator.', array('status' => 403));
+        }
 
-    // Check if Application Passwords are available
-    $app_passwords_check = almaseo_check_app_passwords_available();
-    if (is_wp_error($app_passwords_check)) {
-        return $app_passwords_check;
-    }
+        // Check if Application Passwords are available
+        $app_passwords_check = almaseo_check_app_passwords_available();
+        if (is_wp_error($app_passwords_check)) {
+            return $app_passwords_check;
+        }
 
-    return true;
+        return true;
+    }
 }
 
 // Main callback: generate and return application password
-// Removed auto-generation logic due to hosting limitations (GoDaddy Managed WordPress). Manual Application Password setup is now required.
-function almaseo_generate_app_password( $request ) {
-    $user = wp_get_current_user();
-    if ( ! $user || ! $user->exists() ) {
-        return new WP_Error('no_user', 'Could not determine user.', array('status' => 400));
-    }
+if (!function_exists('almaseo_generate_app_password')) {
+    function almaseo_generate_app_password( $request ) {
+        $user = wp_get_current_user();
+        if ( ! $user || ! $user->exists() ) {
+            return new WP_Error('no_user', 'Could not determine user.', array('status' => 400));
+        }
 
-    // Check if function exists before using
-    if (!function_exists('wp_generate_application_password')) {
-        return new WP_Error('app_passwords_not_available', 'Application Passwords feature is not available. Please ensure you are using WordPress 5.6 or higher.', array('status' => 400));
-    }
-    
-    // Generate a new application password
-    $label = 'AlmaSEO AI ' . wp_date('Y-m-d H:i:s');
-    list($new_password, $item) = wp_generate_application_password($user->ID, $label);
+        // Check if function exists before using
+        if (!function_exists('wp_generate_application_password')) {
+            return new WP_Error('app_passwords_not_available', 'Application Passwords feature is not available. Please ensure you are using WordPress 5.6 or higher.', array('status' => 400));
+        }
 
-    if ( empty($new_password) ) {
-        return new WP_Error('generation_failed', 'Failed to generate application password.', array('status' => 500));
-    }
+        // Generate a new application password
+        $label = 'AlmaSEO AI ' . wp_date('Y-m-d H:i:s');
+        list($new_password, $item) = wp_generate_application_password($user->ID, $label);
 
-    // Return the password and necessary information for AlmaSEO
-    return array(
-        'success' => true,
-        'username' => $user->user_login,
-        'application_password' => $new_password,
-        'site_info' => array(
-            'site_url' => get_site_url(),
-            'rest_api_url' => rest_url(),
-            'plugin_version' => ALMASEO_PLUGIN_VERSION,
-            'wordpress_version' => get_bloginfo('version'),
-        ),
-        'note' => 'Store this password securely. It will not be shown again.',
-    );
+        if ( empty($new_password) ) {
+            return new WP_Error('generation_failed', 'Failed to generate application password.', array('status' => 500));
+        }
+
+        // Return the password and necessary information for AlmaSEO
+        return array(
+            'success' => true,
+            'username' => $user->user_login,
+            'application_password' => $new_password,
+            'site_info' => array(
+                'site_url' => get_site_url(),
+                'rest_api_url' => rest_url(),
+                'plugin_version' => ALMASEO_PLUGIN_VERSION,
+                'wordpress_version' => get_bloginfo('version'),
+            ),
+            'note' => 'Store this password securely. It will not be shown again.',
+        );
+    }
 }
 
 // API Authentication check for AlmaSEO backend
-function almaseo_api_auth_check($request) {
-    $auth_header = $request->get_header('Authorization');
-    if (!$auth_header) {
-        return new WP_Error('no_auth', 'No authorization header.', array('status' => 401));
-    }
+if (!function_exists('almaseo_api_auth_check')) {
+    function almaseo_api_auth_check($request) {
+        $auth_header = $request->get_header('Authorization');
+        if (!$auth_header) {
+            return new WP_Error('no_auth', 'No authorization header.', array('status' => 401));
+        }
 
-    // Check if it's a Basic Auth header
-    if (!empty($auth_header) && strpos($auth_header, 'Basic ') === 0) {
-        $auth_data = base64_decode(substr($auth_header, 6), true);
-        if ($auth_data === false || strpos($auth_data, ':') === false) {
-            return new WP_Error('invalid_auth', 'Malformed authorization header.', array('status' => 401));
-        }
-        list($username, $password) = explode(':', $auth_data, 2);
-        
-        // Check if application password authentication is available
-        if (!function_exists('wp_authenticate_application_password')) {
-            // Fallback to regular authentication for older WordPress versions
-            $user = wp_authenticate($username, $password);
-        } else {
-            // Verify the application password
-            $user = wp_authenticate_application_password(null, $username, $password);
-        }
-        
-        if (is_wp_error($user)) {
-            return new WP_Error('invalid_auth', 'Invalid credentials.', array('status' => 401));
-        }
-        
-        // Check if the password was generated by our plugin
-        if (!class_exists('WP_Application_Passwords')) {
-            // For older WordPress versions, just allow the authentication
-            $app_passwords = array();
-        } else {
-            $app_passwords = WP_Application_Passwords::get_user_application_passwords($user->ID);
-        }
-        $is_almaseo_password = false;
-        foreach ($app_passwords as $app_password) {
-            if (strpos($app_password['name'] ?? '', 'AlmaSEO AI') === 0) {
-                $is_almaseo_password = true;
-                break;
+        // Check if it's a Basic Auth header
+        if (!empty($auth_header) && strpos($auth_header, 'Basic ') === 0) {
+            $auth_data = base64_decode(substr($auth_header, 6), true);
+            if ($auth_data === false || strpos($auth_data, ':') === false) {
+                return new WP_Error('invalid_auth', 'Malformed authorization header.', array('status' => 401));
             }
+            list($username, $password) = explode(':', $auth_data, 2);
+
+            // Check if application password authentication is available
+            if (!function_exists('wp_authenticate_application_password')) {
+                // Fallback to regular authentication for older WordPress versions
+                $user = wp_authenticate($username, $password);
+            } else {
+                // Verify the application password
+                $user = wp_authenticate_application_password(null, $username, $password);
+            }
+
+            if (is_wp_error($user)) {
+                return new WP_Error('invalid_auth', 'Invalid credentials.', array('status' => 401));
+            }
+
+            // Check if the password was generated by our plugin
+            if (!class_exists('WP_Application_Passwords')) {
+                // For older WordPress versions, just allow the authentication
+                $app_passwords = array();
+            } else {
+                $app_passwords = WP_Application_Passwords::get_user_application_passwords($user->ID);
+            }
+            $is_almaseo_password = false;
+            foreach ($app_passwords as $app_password) {
+                if (strpos($app_password['name'] ?? '', 'AlmaSEO AI') === 0) {
+                    $is_almaseo_password = true;
+                    break;
+                }
+            }
+
+            if (!$is_almaseo_password) {
+                return new WP_Error('invalid_auth', 'Invalid application password.', array('status' => 401));
+            }
+
+            return true;
         }
-        
-        if (!$is_almaseo_password) {
-            return new WP_Error('invalid_auth', 'Invalid application password.', array('status' => 401));
-        }
-        
-        return true;
+
+        return new WP_Error('invalid_auth', 'Invalid authorization method.', array('status' => 401));
     }
-    
-    return new WP_Error('invalid_auth', 'Invalid authorization method.', array('status' => 401));
 }
 
 // Verify connection endpoint callback
-function almaseo_verify_connection($request) {
-    return array(
-        'success' => true,
-        'message' => 'Connection verified successfully',
-        'site_info' => array(
-            'site_name' => get_bloginfo('name'),
-            'site_url' => get_site_url(),
-            'rest_api_url' => rest_url(),
-            'plugin_version' => ALMASEO_PLUGIN_VERSION,
-            'wordpress_version' => get_bloginfo('version'),
-        )
-    );
+if (!function_exists('almaseo_verify_connection')) {
+    function almaseo_verify_connection($request) {
+        return array(
+            'success' => true,
+            'message' => 'Connection verified successfully',
+            'site_info' => array(
+                'site_name' => get_bloginfo('name'),
+                'site_url' => get_site_url(),
+                'rest_api_url' => rest_url(),
+                'plugin_version' => ALMASEO_PLUGIN_VERSION,
+                'wordpress_version' => get_bloginfo('version'),
+            )
+        );
+    }
 }
 
 // Get site capabilities endpoint callback
-function almaseo_get_site_capabilities($request) {
-    $app_passwords_check = almaseo_check_app_passwords_available();
-    $app_passwords_available = !is_wp_error($app_passwords_check);
+if (!function_exists('almaseo_get_site_capabilities')) {
+    function almaseo_get_site_capabilities($request) {
+        $app_passwords_check = almaseo_check_app_passwords_available();
+        $app_passwords_available = !is_wp_error($app_passwords_check);
 
-    return array(
-        'success' => true,
-        'capabilities' => array(
-            'post_types' => get_post_types(array('public' => true), 'names'),
-            'taxonomies' => get_taxonomies(array('public' => true), 'names'),
-            'features' => array(
-                'application_passwords' => $app_passwords_available,
-                'rest_api' => true,
-                'custom_fields' => true,
-            ),
-            'rest_endpoints' => array(
-                'posts' => rest_url('wp/v2/posts'),
-                'pages' => rest_url('wp/v2/pages'),
-                'media' => rest_url('wp/v2/media'),
-                'categories' => rest_url('wp/v2/categories'),
-                'tags' => rest_url('wp/v2/tags'),
+        return array(
+            'success' => true,
+            'capabilities' => array(
+                'post_types' => get_post_types(array('public' => true), 'names'),
+                'taxonomies' => get_taxonomies(array('public' => true), 'names'),
+                'features' => array(
+                    'application_passwords' => $app_passwords_available,
+                    'rest_api' => true,
+                    'custom_fields' => true,
+                ),
+                'rest_endpoints' => array(
+                    'posts' => rest_url('wp/v2/posts'),
+                    'pages' => rest_url('wp/v2/pages'),
+                    'media' => rest_url('wp/v2/media'),
+                    'categories' => rest_url('wp/v2/categories'),
+                    'tags' => rest_url('wp/v2/tags'),
+                )
             )
-        )
-    );
+        );
+    }
 }
 
 // Reserved endpoint callback for future features
-function almaseo_reserved_endpoint($request) {
-    return new WP_Error(
-        'endpoint_not_implemented',
-        'This endpoint is reserved for future use.',
-        array('status' => 501)
-    );
+if (!function_exists('almaseo_reserved_endpoint')) {
+    function almaseo_reserved_endpoint($request) {
+        return new WP_Error(
+            'endpoint_not_implemented',
+            'This endpoint is reserved for future use.',
+            array('status' => 501)
+        );
+    }
 }
 
 // --- SETTINGS PAGE & SECRET MANAGEMENT ---
 
 // On activation, auto-generate secret if not present
-register_activation_hook(__FILE__, 'almaseo_generate_secret_on_activation');
-function almaseo_generate_secret_on_activation() {
-    if (!get_option('almaseo_secret') && !defined('ALMASEO_SECRET')) {
-        $secret = wp_generate_password(32, true, true);
-        add_option('almaseo_secret', $secret);
+if (!function_exists('almaseo_generate_secret_on_activation')) {
+    function almaseo_generate_secret_on_activation() {
+        if (!get_option('almaseo_secret') && !defined('ALMASEO_SECRET')) {
+            $secret = wp_generate_password(32, true, true);
+            add_option('almaseo_secret', $secret);
+        }
     }
 }
+register_activation_hook(__FILE__, 'almaseo_generate_secret_on_activation');
 
 // Get the AlmaSEO secret (wp-config.php overrides DB)
-function almaseo_get_secret() {
-    if (defined('ALMASEO_SECRET')) {
-        return ALMASEO_SECRET;
+if (!function_exists('almaseo_get_secret')) {
+    function almaseo_get_secret() {
+        if (defined('ALMASEO_SECRET')) {
+            return ALMASEO_SECRET;
+        }
+        return get_option('almaseo_secret', '');
     }
-    return get_option('almaseo_secret', '');
 }
 
 // Add main menu and submenus
@@ -1157,44 +1253,46 @@ function almaseo_get_comprehensive_connection_status() {
 }
 
 // --- REDIRECT TO SETTINGS PAGE AFTER ACTIVATION ---
-register_activation_hook(__FILE__, 'almaseo_set_activation_redirect');
-function almaseo_set_activation_redirect() {
-    add_option('almaseo_do_activation_redirect', true);
-    // Set transient for welcome screen
-    set_transient('almaseo_show_welcome_screen', true, 30);
-    
-    // Check for existing dashboard connection on activation
-    almaseo_sync_from_dashboard();
-    
-    // Attempt automatic connection on activation
-    $current_user_id = get_current_user_id();
-    if ($current_user_id) {
-        $user = get_user_by('ID', $current_user_id);
-        if ($user && user_can($user, 'manage_options')) {
-            $existing_password = get_option('almaseo_app_password', '');
-            
-            // Only generate if no password exists
-            if (!$existing_password && function_exists('wp_is_application_passwords_available') && function_exists('wp_generate_application_password')) {
-                if (wp_is_application_passwords_available()) {
-                    $label = 'AlmaSEO Auto-Connect ' . wp_date('Y-m-d');
-                    $new_password = wp_generate_application_password($user->ID, array(
-                        'name' => $label,
-                        'app_id' => 'almaseo-seo-playground'
-                    ));
+if (!function_exists('almaseo_set_activation_redirect')) {
+    function almaseo_set_activation_redirect() {
+        add_option('almaseo_do_activation_redirect', true);
+        // Set transient for welcome screen
+        set_transient('almaseo_show_welcome_screen', true, 30);
 
-                    if (is_wp_error($new_password)) {
-                        error_log('AlmaSEO: Auto-connect failed: ' . $new_password->get_error_message());
-                    } elseif ($new_password && is_array($new_password)) {
-                        update_option('almaseo_app_password', $new_password[0]);
-                        update_option('almaseo_connected_user', $user->user_login);
-                        update_option('almaseo_connected_date', current_time('mysql'));
-                        update_option('almaseo_auto_connected', true);
+        // Check for existing dashboard connection on activation
+        almaseo_sync_from_dashboard();
+
+        // Attempt automatic connection on activation
+        $current_user_id = get_current_user_id();
+        if ($current_user_id) {
+            $user = get_user_by('ID', $current_user_id);
+            if ($user && user_can($user, 'manage_options')) {
+                $existing_password = get_option('almaseo_app_password', '');
+
+                // Only generate if no password exists
+                if (!$existing_password && function_exists('wp_is_application_passwords_available') && function_exists('wp_generate_application_password')) {
+                    if (wp_is_application_passwords_available()) {
+                        $label = 'AlmaSEO Auto-Connect ' . wp_date('Y-m-d');
+                        $new_password = wp_generate_application_password($user->ID, array(
+                            'name' => $label,
+                            'app_id' => 'almaseo-seo-playground'
+                        ));
+
+                        if (is_wp_error($new_password)) {
+                            error_log('AlmaSEO: Auto-connect failed: ' . $new_password->get_error_message());
+                        } elseif ($new_password && is_array($new_password)) {
+                            update_option('almaseo_app_password', $new_password[0]);
+                            update_option('almaseo_connected_user', $user->user_login);
+                            update_option('almaseo_connected_date', current_time('mysql'));
+                            update_option('almaseo_auto_connected', true);
+                        }
                     }
                 }
             }
         }
     }
 }
+register_activation_hook(__FILE__, 'almaseo_set_activation_redirect');
 
 add_action('admin_init', function() {
     if (get_option('almaseo_do_activation_redirect', false)) {
@@ -1280,79 +1378,81 @@ add_action('wp_ajax_almaseo_dismiss_notice', function() {
 });
 
 // --- HELPER FUNCTIONS FOR CONNECTION STATUS & DISCONNECT ---
-function almaseo_get_connection_status() {
-    $connected_user = get_option('almaseo_connected_user', '');
-    $connected_date = get_option('almaseo_connected_date', '');
-    
-    // Check if synced from dashboard
-    if (get_option('almaseo_dashboard_synced')) {
-        $app_password = get_option('almaseo_app_password', '');
-        if ($app_password || $connected_user) {
-            return array(
-                'connected' => true,
-                'connected_user' => $connected_user,
-                'connected_date' => $connected_date ? date('M j, Y', strtotime($connected_date)) : 'Recently',
-                'site_url' => get_site_url(),
-                'connection_type' => get_option('almaseo_connection_type', 'dashboard_initiated')
-            );
-        }
-    }
-    
-    // If no stored connection data, check if any AlmaSEO app passwords exist
-    if (!$connected_user && class_exists('WP_Application_Passwords')) {
-        // Check all users for AlmaSEO application passwords
-        $users = get_users(array('role' => 'administrator'));
-        foreach ($users as $user) {
-            $app_passwords = WP_Application_Passwords::get_user_application_passwords($user->ID);
-            foreach ($app_passwords as $app_password) {
-                if (strpos($app_password['name'] ?? '', 'AlmaSEO AI') === 0) {
-                    // Found a AlmaSEO password, update our records
-                    update_option('almaseo_connected_user', $user->user_login);
-                    update_option('almaseo_connected_date', date('Y-m-d H:i:s', $app_password['created']));
-                    $connected_user = $user->user_login;
-                    $connected_date = date('Y-m-d H:i:s', $app_password['created']);
-                    break 2; // Break both loops
-                }
-            }
-        }
-    }
-    
-    // Check if we have any AlmaSEO application passwords
-    if ($connected_user) {
-        $user = get_user_by('login', $connected_user);
-        if ($user) {
-            $has_almaseo_password = false;
-            
-            if (class_exists('WP_Application_Passwords')) {
-                $app_passwords = WP_Application_Passwords::get_user_application_passwords($user->ID);
-                foreach ($app_passwords as $app_password) {
-                    if (strpos($app_password['name'] ?? '', 'AlmaSEO AI') === 0) {
-                        $has_almaseo_password = true;
-                        break;
-                    }
-                }
-            } else {
-                // For older WordPress versions, assume connected if we have stored credentials
-                $has_almaseo_password = true;
-            }
-            
-            if ($has_almaseo_password) {
+if (!function_exists('almaseo_get_connection_status')) {
+    function almaseo_get_connection_status() {
+        $connected_user = get_option('almaseo_connected_user', '');
+        $connected_date = get_option('almaseo_connected_date', '');
+
+        // Check if synced from dashboard
+        if (get_option('almaseo_dashboard_synced')) {
+            $app_password = get_option('almaseo_app_password', '');
+            if ($app_password || $connected_user) {
                 return array(
                     'connected' => true,
                     'connected_user' => $connected_user,
                     'connected_date' => $connected_date ? date('M j, Y', strtotime($connected_date)) : 'Recently',
-                    'site_url' => get_site_url()
+                    'site_url' => get_site_url(),
+                    'connection_type' => get_option('almaseo_connection_type', 'dashboard_initiated')
                 );
             }
         }
+
+        // If no stored connection data, check if any AlmaSEO app passwords exist
+        if (!$connected_user && class_exists('WP_Application_Passwords')) {
+            // Check all users for AlmaSEO application passwords
+            $users = get_users(array('role' => 'administrator'));
+            foreach ($users as $user) {
+                $app_passwords = WP_Application_Passwords::get_user_application_passwords($user->ID);
+                foreach ($app_passwords as $app_password) {
+                    if (strpos($app_password['name'] ?? '', 'AlmaSEO AI') === 0) {
+                        // Found a AlmaSEO password, update our records
+                        update_option('almaseo_connected_user', $user->user_login);
+                        update_option('almaseo_connected_date', date('Y-m-d H:i:s', $app_password['created']));
+                        $connected_user = $user->user_login;
+                        $connected_date = date('Y-m-d H:i:s', $app_password['created']);
+                        break 2; // Break both loops
+                    }
+                }
+            }
+        }
+
+        // Check if we have any AlmaSEO application passwords
+        if ($connected_user) {
+            $user = get_user_by('login', $connected_user);
+            if ($user) {
+                $has_almaseo_password = false;
+
+                if (class_exists('WP_Application_Passwords')) {
+                    $app_passwords = WP_Application_Passwords::get_user_application_passwords($user->ID);
+                    foreach ($app_passwords as $app_password) {
+                        if (strpos($app_password['name'] ?? '', 'AlmaSEO AI') === 0) {
+                            $has_almaseo_password = true;
+                            break;
+                        }
+                    }
+                } else {
+                    // For older WordPress versions, assume connected if we have stored credentials
+                    $has_almaseo_password = true;
+                }
+
+                if ($has_almaseo_password) {
+                    return array(
+                        'connected' => true,
+                        'connected_user' => $connected_user,
+                        'connected_date' => $connected_date ? date('M j, Y', strtotime($connected_date)) : 'Recently',
+                        'site_url' => get_site_url()
+                    );
+                }
+            }
+        }
+
+        return array(
+            'connected' => false,
+            'connected_user' => null,
+            'connected_date' => null,
+            'site_url' => get_site_url()
+        );
     }
-    
-    return array(
-        'connected' => false,
-        'connected_user' => null,
-        'connected_date' => null,
-        'site_url' => get_site_url()
-    );
 }
 
 // Helper function to clean up old AlmaSEO passwords
@@ -1372,21 +1472,23 @@ function almaseo_cleanup_old_passwords($user_id) {
     }
 }
 
-function almaseo_disconnect_site() {
-    $connected_user = get_option('almaseo_connected_user', '');
-    
-    if ($connected_user) {
-        $user = get_user_by('login', $connected_user);
-        if ($user) {
-            // Delete all AlmaSEO application passwords
-            almaseo_cleanup_old_passwords($user->ID);
+if (!function_exists('almaseo_disconnect_site')) {
+    function almaseo_disconnect_site() {
+        $connected_user = get_option('almaseo_connected_user', '');
+
+        if ($connected_user) {
+            $user = get_user_by('login', $connected_user);
+            if ($user) {
+                // Delete all AlmaSEO application passwords
+                almaseo_cleanup_old_passwords($user->ID);
+            }
         }
+
+        // Clear connection data
+        delete_option('almaseo_connected_user');
+        delete_option('almaseo_connected_date');
+        delete_option('almaseo_app_password');
     }
-    
-    // Clear connection data
-    delete_option('almaseo_connected_user');
-    delete_option('almaseo_connected_date');
-    delete_option('almaseo_app_password');
 }
 
 // AJAX handler to get connection status
@@ -1492,17 +1594,19 @@ add_action('wp_ajax_almaseo_test_connection', function() {
 // Register settings for manual app password
 // NOTE: We are using a manually generated Application Password stored in the plugin settings.
 // This approach is required for hosting environments like GoDaddy Managed WordPress that disable application password auto-generation.
-function almaseo_connector_register_settings() {
-    register_setting('almaseo_settings_group', 'almaseo_app_password', array(
-        'type' => 'string',
-        'sanitize_callback' => 'sanitize_text_field',
-    ));
-    register_setting('almaseo_settings_group', 'almaseo_exclusive_schema_mode', array(
-        'type' => 'string',
-        'sanitize_callback' => 'sanitize_text_field',
-    ));
+if (!function_exists('almaseo_connector_register_settings')) {
+    function almaseo_connector_register_settings() {
+        register_setting('almaseo_settings_group', 'almaseo_app_password', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+        ));
+        register_setting('almaseo_settings_group', 'almaseo_exclusive_schema_mode', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+        ));
+    }
+    add_action('admin_init', 'almaseo_connector_register_settings');
 }
-add_action('admin_init', 'almaseo_connector_register_settings');
 
 // ========================================
 // TIER DETECTION AND MANAGEMENT
