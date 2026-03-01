@@ -1,0 +1,202 @@
+/**
+ * AlmaSEO Breadcrumbs Styles
+ *
+ * Frontend styling for the general-purpose breadcrumbs feature.
+ *
+ * @package AlmaSEO
+ * @since 7.0.0
+ */
+
+/* ==========================================================================
+   Base Styles
+   ========================================================================== */
+
+.almaseo-breadcrumbs {
+    padding: 12px 0;
+    margin-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.almaseo-breadcrumbs .breadcrumb-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* ==========================================================================
+   Breadcrumb Items
+   ========================================================================== */
+
+.almaseo-breadcrumbs .breadcrumb-item {
+    display: inline-flex;
+    align-items: center;
+}
+
+.almaseo-breadcrumbs .breadcrumb-item a {
+    color: #0073aa;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.almaseo-breadcrumbs .breadcrumb-item a:hover,
+.almaseo-breadcrumbs .breadcrumb-item a:focus {
+    color: #005177;
+    text-decoration: underline;
+}
+
+.almaseo-breadcrumbs .breadcrumb-item a:focus {
+    outline: 2px solid #0073aa;
+    outline-offset: 2px;
+}
+
+.almaseo-breadcrumbs .breadcrumb-item--current {
+    color: #1e1e1e;
+    font-weight: 500;
+}
+
+.almaseo-breadcrumbs .breadcrumb-item--current span {
+    color: inherit;
+}
+
+/* ==========================================================================
+   Separator
+   ========================================================================== */
+
+.almaseo-breadcrumbs .breadcrumb-separator {
+    display: inline-flex;
+    align-items: center;
+    margin: 0 8px;
+    color: #757575;
+    font-size: 12px;
+    user-select: none;
+}
+
+/* ==========================================================================
+   Variants
+   ========================================================================== */
+
+/* Compact variant */
+.almaseo-breadcrumbs.almaseo-breadcrumbs--compact {
+    padding: 8px 0;
+    font-size: 13px;
+}
+
+.almaseo-breadcrumbs.almaseo-breadcrumbs--compact .breadcrumb-separator {
+    margin: 0 6px;
+}
+
+/* Large variant */
+.almaseo-breadcrumbs.almaseo-breadcrumbs--large {
+    font-size: 16px;
+}
+
+.almaseo-breadcrumbs.almaseo-breadcrumbs--large .breadcrumb-separator {
+    margin: 0 10px;
+    font-size: 14px;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    .almaseo-breadcrumbs {
+        font-size: 13px;
+        padding: 10px 0;
+    }
+
+    .almaseo-breadcrumbs .breadcrumb-separator {
+        margin: 0 6px;
+    }
+
+    /* Allow wrapping on small screens */
+    .almaseo-breadcrumbs .breadcrumb-list {
+        gap: 4px 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .almaseo-breadcrumbs {
+        font-size: 12px;
+    }
+
+    .almaseo-breadcrumbs .breadcrumb-separator {
+        margin: 0 4px;
+    }
+}
+
+/* ==========================================================================
+   Accessibility
+   ========================================================================== */
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .almaseo-breadcrumbs .breadcrumb-item a {
+        text-decoration: underline;
+    }
+
+    .almaseo-breadcrumbs .breadcrumb-separator {
+        color: inherit;
+    }
+
+    .almaseo-breadcrumbs .breadcrumb-item--current {
+        font-weight: 700;
+    }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .almaseo-breadcrumbs .breadcrumb-item a {
+        transition: none;
+    }
+}
+
+/* ==========================================================================
+   Dark Mode Support (if theme uses prefers-color-scheme)
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+    .almaseo-breadcrumbs .breadcrumb-item a {
+        color: #6eb4e7;
+    }
+
+    .almaseo-breadcrumbs .breadcrumb-item a:hover,
+    .almaseo-breadcrumbs .breadcrumb-item a:focus {
+        color: #9ecbf0;
+    }
+
+    .almaseo-breadcrumbs .breadcrumb-item--current {
+        color: #e0e0e0;
+    }
+
+    .almaseo-breadcrumbs .breadcrumb-separator {
+        color: #9e9e9e;
+    }
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+    .almaseo-breadcrumbs {
+        padding: 8px 0;
+        margin-bottom: 16px;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .almaseo-breadcrumbs .breadcrumb-item a {
+        color: #000;
+        text-decoration: none;
+    }
+
+    .almaseo-breadcrumbs .breadcrumb-item a::after {
+        content: " (" attr(href) ")";
+        font-size: 10px;
+        color: #666;
+    }
+}

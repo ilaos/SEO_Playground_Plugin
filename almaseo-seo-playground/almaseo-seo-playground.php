@@ -1,0 +1,1992 @@
+<?php
+/*
+Plugin Name: AlmaSEO SEO Playground
+Plugin URI: https://almaseo.com/
+Description: Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
+Version: 6.5.0
+Author: AlmaSEO
+Author URI: https://almaseo.com/
+License: GPL2
+Text Domain: almaseo
+Requires at least: 5.6
+Requires PHP: 7.4
+Tested up to: 6.6
+*/
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly
+}
+
+// STANDARDIZED Plugin constants - defined once at plugin load
+define('ALMASEO_MAIN_FILE', __FILE__);
+define('ALMASEO_PATH', plugin_dir_path(ALMASEO_MAIN_FILE));
+define('ALMASEO_URL', plugin_dir_url(ALMASEO_MAIN_FILE));
+define('ALMASEO_PLUGIN_VERSION', '6.5.0');
+define('ALMASEO_VERSION', '6.5.0'); // For compatibility
+define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
+define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
+
+// Legacy constants for backwards compatibility (to be removed later)
+define('ALMASEO_PLUGIN_URL', ALMASEO_URL);
+define('ALMASEO_PLUGIN_DIR', ALMASEO_PATH);
+define('ALMASEO_PLUGIN_FILE', ALMASEO_MAIN_FILE);
+
+// Include License & Tier Helper (centralized license checking)
+// This MUST be loaded early before any feature modules that check licensing
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/license/license-helper.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/license/license-helper.php';
+}
+
+// Include Locked Feature UI Helper (for Pro feature upsells)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/license/locked-ui.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/license/locked-ui.php';
+}
+
+// Include schema implementation (clean version to avoid conflicts)
+if (file_exists(ALMASEO_PLUGIN_DIR . 'includes/schema-clean.php')) {
+    require_once ALMASEO_PLUGIN_DIR . 'includes/schema-clean.php';
+}
+
+// Include schema image fallback chain
+if (file_exists(ALMASEO_PLUGIN_DIR . 'includes/schema-image-fallback.php')) {
+    require_once ALMASEO_PLUGIN_DIR . 'includes/schema-image-fallback.php';
+}
+
+// Include safe schema scrubber for AIOSEO compatibility
+if (file_exists(ALMASEO_PLUGIN_DIR . 'includes/schema-scrubber-safe.php')) {
+    require_once ALMASEO_PLUGIN_DIR . 'includes/schema-scrubber-safe.php';
+} elseif (file_exists(ALMASEO_PLUGIN_DIR . 'includes/schema-scrubber.php')) {
+    // Fallback to standard scrubber if safe not available
+    require_once ALMASEO_PLUGIN_DIR . 'includes/schema-scrubber.php';
+}
+
+// Include settings page
+if (file_exists(ALMASEO_PLUGIN_DIR . 'includes/admin/settings.php')) {
+    require_once ALMASEO_PLUGIN_DIR . 'includes/admin/settings.php';
+}
+
+// Include WP-CLI commands if available
+if (defined('WP_CLI') && WP_CLI) {
+    if (file_exists(ALMASEO_PLUGIN_DIR . 'includes/cli/schema-command.php')) {
+        require_once ALMASEO_PLUGIN_DIR . 'includes/cli/schema-command.php';
+    }
+}
+
+// Include meta and social tags handler
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/meta-social-handler.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/meta-social-handler.php';
+}
+
+// Include schema meta registration for Gutenberg
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/schema-meta-registration.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/schema-meta-registration.php';
+}
+
+// Include Advanced Schema (Pro feature)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/schema/schema-advanced-output.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/schema/schema-advanced-output.php';
+    // Hook advanced schema output into wp_head (priority 40 to run after basic schema)
+    add_action('wp_head', 'almaseo_output_advanced_schema', 40);
+}
+
+// Skip loading heavy features during activation to prevent memory issues
+$is_activating = isset($_GET['action']) && sanitize_key($_GET['action']) === 'activate';
+
+// Include Evergreen feature (using minimal safe loader to prevent crashes)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/evergreen/evergreen-loader-minimal-safe.php')) {
+    // Only load if not during activation
+    if (!$is_activating) {
+        require_once plugin_dir_path(__FILE__) . 'includes/evergreen/evergreen-loader-minimal-safe.php';
+    }
+} elseif (file_exists(plugin_dir_path(__FILE__) . 'includes/evergreen/evergreen-loader-safe.php')) {
+    // Fallback to safe loader if minimal not available
+    if (!$is_activating) {
+        require_once plugin_dir_path(__FILE__) . 'includes/evergreen/evergreen-loader-safe.php';
+    }
+}
+
+// Include Health Score feature
+if (!$is_activating && file_exists(plugin_dir_path(__FILE__) . 'includes/health/health-loader.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/health/health-loader.php';
+}
+
+// Include Metadata History feature
+if (!$is_activating && file_exists(plugin_dir_path(__FILE__) . 'includes/history/history-loader.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/history/history-loader.php';
+}
+
+// Include Post-Writing Optimization feature v1.2
+if (!$is_activating && file_exists(plugin_dir_path(__FILE__) . 'includes/optimization/optimization-loader-v12.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/optimization/optimization-loader-v12.php';
+}
+
+// Include WooCommerce SEO features (Pro tier only)
+if (!$is_activating && file_exists(plugin_dir_path(__FILE__) . 'includes/woo/woo-loader.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/woo/woo-loader.php';
+}
+
+// Include LLM Optimization REST API (v6.5.0+)
+if (!$is_activating && file_exists(plugin_dir_path(__FILE__) . 'includes/llm/llm-rest.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/llm/llm-rest.php';
+}
+
+// Include new Sitemap module (Phase 0)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/sitemap/class-alma-sitemap-manager.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/sitemap/helpers.php';
+    require_once plugin_dir_path(__FILE__) . 'includes/sitemap/class-alma-sitemap-manager.php';
+    
+    // Initialize sitemap manager
+    add_action('init', function() {
+        Alma_Sitemap_Manager::get_instance();
+    }, 0);
+    
+    // Register activation/deactivation hooks
+    register_activation_hook(__FILE__, array('Alma_Sitemap_Manager', 'activate'));
+    register_deactivation_hook(__FILE__, array('Alma_Sitemap_Manager', 'deactivate'));
+}
+
+// Include Admin UI Helpers (v6.0.2+)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/ui-helpers.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/admin/ui-helpers.php';
+}
+
+// Include Security Functions (v6.0.2+)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/security.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/security.php';
+}
+
+// Include Robots.txt Editor (v6.0.0+)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/robots/robots-controller.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/robots/robots-controller.php';
+    require_once plugin_dir_path(__FILE__) . 'includes/robots/robots-ajax.php';
+}
+
+// Include Redirects Manager module (v6.1.0+) - Pro feature
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/redirects/redirects-loader.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/redirects/redirects-loader.php';
+}
+
+// Include 404 Tracker module (v6.2.0+) - Pro feature
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/404/404-loader.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/404/404-loader.php';
+}
+
+// Include Bulk Metadata Editor module (v6.3.0+) - Pro feature
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/bulkmeta/bulkmeta-loader.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/bulkmeta/bulkmeta-loader.php';
+}
+
+// Include Breadcrumbs feature (v7.0.0+) - Free feature
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/breadcrumbs/breadcrumbs-loader.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/breadcrumbs/breadcrumbs-loader.php';
+}
+
+// Ensure almaseo_is_pro function exists as fallback
+// This should rarely be reached since bulkmeta-loader.php defines it first
+if (!function_exists('almaseo_is_pro')) {
+    function almaseo_is_pro() {
+        // Use centralized license helper as fallback
+        // This ensures consistent behavior across all modules
+        return almaseo_is_pro_active();
+    }
+}
+
+// Initialize auto-update system (v5.0.0+)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/almaseo-update.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/almaseo-update.php';
+}
+
+// Dequeue legacy styles from old plugin versions
+add_action('admin_enqueue_scripts', function($hook) {
+    if (!in_array($hook, ['post.php', 'post-new.php'], true)) return;
+    
+    $maybe_legacy = [
+        'almaseo-connector-admin',
+        'almaseo-connector-seo-playground',
+        'almaseo-connector-v1-admin',
+        'almaseo-seo-playground-legacy',
+        'seo-playground-final-admin',
+        'seo-playground-standalone-admin',
+    ];
+    
+    foreach ($maybe_legacy as $h) {
+        if (wp_style_is($h, 'enqueued')) {
+            wp_dequeue_style($h);
+            wp_deregister_style($h);
+        }
+    }
+}, 998);
+
+// Enqueue admin hardening CSS with very high priority to override legacy styles
+add_action('admin_enqueue_scripts', function($hook) {
+    if (!in_array($hook, ['post.php', 'post-new.php'], true)) return;
+    
+    wp_enqueue_style(
+        'almaseo-admin-hardening',
+        plugin_dir_url(__FILE__) . 'assets/css/admin-hardening.css',
+        [],
+        defined('ALMASEO_PLUGIN_VERSION') ? ALMASEO_PLUGIN_VERSION : time()
+    );
+}, 999);
+
+// Admin notice for multiple AlmaSEO installations
+add_action('admin_notices', function() {
+    if (!current_user_can('activate_plugins')) return;
+    
+    $plugin_dir = WP_PLUGIN_DIR ?? ABSPATH . 'wp-content/plugins';
+    $dirs = array_filter(glob($plugin_dir . '/*'), 'is_dir');
+    $conflicts = array_filter($dirs, function($d) {
+        return preg_match('/almaseo-connector|almaseo-connector-v1\.1|seo-playground-(final|standalone)/', basename($d));
+    });
+    
+    if ($conflicts) {
+        echo '<div class="notice notice-warning is-dismissible"><p><strong>AlmaSEO:</strong> Multiple legacy plugin folders detected. For best results, keep only <em>almaseo-seo-playground-v4</em> active and remove older versions to avoid CSS conflicts (duplicate icons/blue headers).</p></div>';
+    }
+});
+
+// Content refresh reminder cron handler
+if (!function_exists('almaseo_handle_content_refresh_reminder')) {
+    function almaseo_handle_content_refresh_reminder($post_id) {
+        $post = get_post($post_id);
+    if (!$post) {
+        return;
+    }
+    
+    // Check if email reminder is enabled
+    $send_email = get_post_meta($post_id, '_almaseo_update_reminder_email', true);
+    
+    // Get post age
+    $post_modified = get_post_modified_time('U', false, $post_id);
+    $current_time = current_time('U');
+    $days_since_update = floor(($current_time - $post_modified) / (60 * 60 * 24));
+    
+    // Store admin notice
+    $notice_data = array(
+        'post_id' => $post_id,
+        'post_title' => $post->post_title,
+        'days_old' => $days_since_update,
+        'edit_link' => ($edit_link = get_edit_post_link($post_id)) ? $edit_link . '#tab-seo-overview' : ''
+    );
+    
+    // Store notice for display (site option for all admins to see)
+    $existing_notices = get_option('almaseo_content_reminders', array());
+    $existing_notices[$post_id] = $notice_data;
+    update_option('almaseo_content_reminders', $existing_notices);
+    
+    // Send email if enabled
+    if ($send_email) {
+        $admin_email = get_option('admin_email');
+        $subject = sprintf('[%s] Content Update Reminder: %s', get_bloginfo('name'), $post->post_title);
+        $message = sprintf(
+            "This is a reminder that the following content is due for a refresh:\n\n" .
+            "Post: %s\n" .
+            "Last updated: %d days ago\n" .
+            "Edit URL: %s\n\n" .
+            "This reminder was set in AlmaSEO SEO Playground.",
+            $post->post_title,
+            $days_since_update,
+            get_edit_post_link($post_id, 'email')
+        );
+        
+        wp_mail($admin_email, $subject, $message);
+    }
+    
+    // Clear the scheduled meta
+    delete_post_meta($post_id, '_almaseo_update_reminder_scheduled');
+    }
+}
+add_action('almaseo_content_refresh_reminder', 'almaseo_handle_content_refresh_reminder');
+
+// Display search engine visibility warning globally
+if (!function_exists('almaseo_display_search_engine_warning')) {
+    function almaseo_display_search_engine_warning() {
+    // Check if search engines are discouraged
+    if (get_option('blog_public') != '0') {
+        return;
+    }
+    
+    // Check if user has permanently dismissed
+    $user_id = get_current_user_id();
+    if (get_user_meta($user_id, 'almaseo_dismiss_search_warning_permanent', true)) {
+        return;
+    }
+    
+    // Check if temporarily dismissed (24 hours)
+    $dismissed_time = get_user_meta($user_id, 'almaseo_dismiss_search_warning_temp', true);
+    if ($dismissed_time && (time() - $dismissed_time < 86400)) {
+        return;
+    }
+    
+    // Also add a sticky bar at the very top
+    ?>
+    <div id="almaseo-sticky-warning" style="position: fixed; top: 32px; left: 0; right: 0; z-index: 99999; background: #dc3232; color: white; padding: 10px 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;">
+        <strong style="margin-right: 10px;">🚨 AlmaSEO Alert: Your site is HIDDEN from Google!</strong>
+        <a href="<?php echo admin_url('options-reading.php'); ?>" class="button button-small" style="background: white; color: #dc3232; border: none; margin: 0 10px;">Fix Now</a>
+        <button type="button" onclick="jQuery('#almaseo-sticky-warning').slideUp();" style="background: transparent; border: none; color: white; cursor: pointer; padding: 0 5px;">✕</button>
+    </div>
+    <script>
+    jQuery(document).ready(function($) {
+        // Adjust admin bar spacing
+        if ($('#almaseo-sticky-warning').length) {
+            $('#wpadminbar').css('top', '42px');
+            $('html').css('margin-top', '74px');
+        }
+    });
+    </script>
+    <?php
+    
+    ?>
+    <div class="notice notice-error almaseo-search-engine-warning" style="position: relative; padding: 20px; border-left: 4px solid #dc3232; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.15);">
+        <div style="display: flex; align-items: center;">
+            <div style="margin-right: 15px;">
+                <img src="<?php echo plugin_dir_url(__FILE__); ?>almaseo-logo.png" alt="AlmaSEO" style="height: 40px; width: auto;">
+            </div>
+            <div style="flex: 1;">
+                <h3 style="margin: 0 0 5px 0; color: #dc3232; font-size: 18px;">
+                    🚨 CRITICAL SEO ALERT from AlmaSEO
+                </h3>
+                <p style="margin: 0 0 10px 0; font-size: 14px; color: #444;">
+                    <strong>Your website is HIDDEN from search engines!</strong> 
+                    WordPress is currently set to "Discourage search engines from indexing this site". 
+                    This means your content will NOT appear in Google, Bing, or any other search results.
+                </p>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <a href="<?php echo admin_url('options-reading.php'); ?>" class="button button-primary" style="background: #dc3232; border-color: #aa2020;">
+                        Fix This Now →
+                    </a>
+                    <button type="button" class="button almaseo-dismiss-temp" data-nonce="<?php echo wp_create_nonce('almaseo_dismiss_warning'); ?>">
+                        Dismiss for 24 hours
+                    </button>
+                    <button type="button" class="button-link almaseo-dismiss-permanent" data-nonce="<?php echo wp_create_nonce('almaseo_dismiss_warning'); ?>" style="color: #999;">
+                        Never show again
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    jQuery(document).ready(function($) {
+        $('.almaseo-dismiss-temp').on('click', function() {
+            var nonce = $(this).data('nonce');
+            var $notice = $(this).closest('.almaseo-search-engine-warning');
+            $.post(ajaxurl, {
+                action: 'almaseo_dismiss_search_warning',
+                type: 'temp',
+                nonce: nonce
+            }, function() {
+                $notice.fadeOut();
+            });
+        });
+        
+        $('.almaseo-dismiss-permanent').on('click', function() {
+            if (confirm('Are you sure? This warning helps prevent your site from being invisible to search engines.')) {
+                var nonce = $(this).data('nonce');
+                var $notice = $(this).closest('.almaseo-search-engine-warning');
+                $.post(ajaxurl, {
+                    action: 'almaseo_dismiss_search_warning',
+                    type: 'permanent',
+                    nonce: nonce
+                }, function() {
+                    $notice.fadeOut();
+                });
+            }
+        });
+    });
+    </script>
+    <?php
+    }
+}
+add_action('admin_notices', 'almaseo_display_search_engine_warning');
+
+// AJAX handler for dismissing search engine warning
+if (!function_exists('almaseo_ajax_dismiss_search_warning')) {
+    function almaseo_ajax_dismiss_search_warning() {
+    check_ajax_referer('almaseo_dismiss_warning', 'nonce');
+    
+    $user_id = get_current_user_id();
+    $type = isset($_POST['type']) ? sanitize_key($_POST['type']) : 'temp';
+
+    if ($type === 'permanent') {
+        update_user_meta($user_id, 'almaseo_dismiss_search_warning_permanent', true);
+    } else {
+        update_user_meta($user_id, 'almaseo_dismiss_search_warning_temp', time());
+    }
+    
+    wp_die();
+    }
+}
+add_action('wp_ajax_almaseo_dismiss_search_warning', 'almaseo_ajax_dismiss_search_warning');
+
+// Display content reminder admin notices
+if (!function_exists('almaseo_display_content_reminders')) {
+    function almaseo_display_content_reminders() {
+    if (!current_user_can('edit_posts')) {
+        return;
+    }
+    
+    $reminders = get_option('almaseo_content_reminders', array());
+    if (empty($reminders)) {
+        return;
+    }
+    
+    foreach ($reminders as $post_id => $reminder) {
+        ?>
+        <div class="notice notice-info is-dismissible almaseo-content-reminder" data-post-id="<?php echo esc_attr($post_id); ?>">
+            <p>
+                <strong>📝 Content Update Reminder:</strong>
+                "<?php echo esc_html($reminder['post_title']); ?>" is due for a refresh
+                (last updated <?php echo esc_html($reminder['days_old']); ?> days ago).
+                <a href="<?php echo esc_url($reminder['edit_link']); ?>" class="button button-small" style="margin-left: 10px;">
+                    Open AlmaSEO SEO Playground →
+                </a>
+            </p>
+        </div>
+        <?php
+    }
+    // Inline JS to persist dismissal via AJAX with nonce
+    ?>
+    <script>
+    jQuery(document).on('click', '.almaseo-content-reminder .notice-dismiss', function() {
+        var postId = jQuery(this).closest('.almaseo-content-reminder').data('post-id');
+        jQuery.post(ajaxurl, {
+            action: 'almaseo_dismiss_content_reminder',
+            nonce: <?php echo wp_json_encode(wp_create_nonce('almaseo_dismiss_content_reminder')); ?>,
+            post_id: postId
+        });
+    });
+    </script>
+    <?php
+    }
+}
+add_action('admin_notices', 'almaseo_display_content_reminders');
+
+// AJAX handler to dismiss content reminders
+if (!function_exists('almaseo_ajax_dismiss_content_reminder')) {
+    function almaseo_ajax_dismiss_content_reminder() {
+    check_ajax_referer('almaseo_dismiss_content_reminder', 'nonce');
+
+    if (!current_user_can('edit_posts')) {
+        wp_die();
+    }
+
+    $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+    if ($post_id) {
+        $reminders = get_option('almaseo_content_reminders', array());
+        unset($reminders[$post_id]);
+        update_option('almaseo_content_reminders', $reminders);
+    }
+
+    wp_die();
+    }
+}
+add_action('wp_ajax_almaseo_dismiss_content_reminder', 'almaseo_ajax_dismiss_content_reminder');
+
+// AJAX handler to cancel a scheduled reminder
+if (!function_exists('almaseo_ajax_cancel_reminder')) {
+    function almaseo_ajax_cancel_reminder() {
+    check_ajax_referer('almaseo_cancel_reminder', 'nonce');
+
+    if (!current_user_can('edit_posts')) {
+        wp_send_json_error('Insufficient permissions');
+    }
+
+    $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+    if (!$post_id) {
+        wp_send_json_error('Invalid post ID');
+    }
+
+    // Clear the reminder
+    delete_post_meta($post_id, '_almaseo_update_reminder_enabled');
+    delete_post_meta($post_id, '_almaseo_update_reminder_email');
+    delete_post_meta($post_id, '_almaseo_update_reminder_scheduled');
+    delete_post_meta($post_id, '_almaseo_update_reminder_days');
+
+    // Clear scheduled event
+    wp_clear_scheduled_hook('almaseo_content_refresh_reminder', array($post_id));
+
+    wp_send_json_success('Reminder cancelled');
+    }
+}
+add_action('wp_ajax_almaseo_cancel_reminder', 'almaseo_ajax_cancel_reminder');
+
+// Add CORS headers for AlmaSEO endpoints
+add_action('rest_api_init', function() {
+    // Add CORS support for AlmaSEO endpoints
+    add_filter('rest_pre_serve_request', 'almaseo_add_cors_headers', 10, 4);
+});
+
+function almaseo_add_cors_headers($served, $result, $request, $server) {
+    // Only add CORS headers for AlmaSEO endpoints
+    $route = $request->get_route();
+    // Fix: Add null check for $route before using strpos()
+    if (!empty($route) && strpos($route, '/almaseo/v1/') !== false) {
+        // Restrict CORS to known AlmaSEO origins
+        $allowed_origins = array(
+            'https://almaseo.com',
+            'https://www.almaseo.com',
+            'https://app.almaseo.com',
+            'https://api.almaseo.com',
+        );
+        $allowed_origins = apply_filters('almaseo_cors_allowed_origins', $allowed_origins);
+
+        $origin = isset($_SERVER['HTTP_ORIGIN']) ? esc_url_raw($_SERVER['HTTP_ORIGIN']) : '';
+
+        if (in_array($origin, $allowed_origins, true)) {
+            header('Access-Control-Allow-Origin: ' . $origin);
+            header('Access-Control-Allow-Credentials: true');
+            header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+            header('Access-Control-Allow-Headers: Authorization, Content-Type, X-WP-Nonce');
+
+            // Handle preflight OPTIONS requests
+            if ($request->get_method() === 'OPTIONS') {
+                header('Access-Control-Max-Age: 86400');
+                status_header(200);
+                return true;
+            }
+        }
+    }
+    return $served;
+}
+
+// Check if Application Passwords are available
+function almaseo_check_app_passwords_available() {
+    if (!function_exists('wp_generate_application_password')) {
+        return new WP_Error(
+            'app_passwords_not_available',
+            'Application Passwords feature is not available. Please ensure you are using WordPress 5.6 or higher.',
+            array('status' => 400)
+        );
+    }
+    return true;
+}
+
+// REST API endpoint registration - UPDATED
+add_action('rest_api_init', function () {
+    // Generate application password endpoint
+    register_rest_route(ALMASEO_API_NAMESPACE, '/generate-app-password', array(
+        'methods'  => 'POST',
+        'callback' => 'almaseo_generate_app_password',
+        'permission_callback' => 'almaseo_permission_check',
+        'args' => array(
+            'secret' => array(
+                'required' => true,
+                'type'     => 'string',
+            ),
+            'nonce' => array(
+                'required' => true,
+                'type'     => 'string',
+            ),
+        ),
+    ));
+
+    // Verify connection and capabilities endpoint
+    register_rest_route(ALMASEO_API_NAMESPACE, '/verify-connection', array(
+        'methods'  => 'GET',
+        'callback' => 'almaseo_verify_connection',
+        'permission_callback' => 'almaseo_api_auth_check',
+    ));
+
+    // Get site capabilities endpoint
+    register_rest_route(ALMASEO_API_NAMESPACE, '/site-capabilities', array(
+        'methods'  => 'GET',
+        'callback' => 'almaseo_get_site_capabilities',
+        'permission_callback' => 'almaseo_api_auth_check',
+    ));
+
+    // Reserved endpoints for future features
+    register_rest_route(ALMASEO_API_NAMESPACE, '/publish-post', array(
+        'methods'  => 'POST',
+        'callback' => 'almaseo_reserved_endpoint',
+        'permission_callback' => 'almaseo_api_auth_check',
+    ));
+
+    register_rest_route(ALMASEO_API_NAMESPACE, '/update-meta', array(
+        'methods'  => 'POST',
+        'callback' => 'almaseo_reserved_endpoint',
+        'permission_callback' => 'almaseo_api_auth_check',
+    ));
+
+    register_rest_route(ALMASEO_API_NAMESPACE, '/submit-to-search-console', array(
+        'methods'  => 'POST',
+        'callback' => 'almaseo_reserved_endpoint',
+        'permission_callback' => 'almaseo_api_auth_check',
+    ));
+});
+
+// Permission check: must be admin and secret must match
+function almaseo_permission_check( $request ) {
+    // Get the AlmaSEO secret (wp-config.php overrides DB)
+    $secret = almaseo_get_secret();
+
+    // Verify secret
+    $provided_secret = $request->get_param('secret');
+    if ( ! hash_equals( $secret, $provided_secret ) ) {
+        return new WP_Error('invalid_secret', 'Invalid secret key.', array('status' => 403));
+    }
+
+    // Verify nonce
+    $nonce = $request->get_param('nonce');
+    if (!wp_verify_nonce($nonce, 'almaseo_generate_password')) {
+        return new WP_Error('invalid_nonce', 'Invalid security token.', array('status' => 403));
+    }
+
+    // Check user is logged in and is admin
+    if ( ! is_user_logged_in() ) {
+        return new WP_Error('not_logged_in', 'You must be logged in.', array('status' => 401));
+    }
+    if ( ! current_user_can('manage_options') ) {
+        return new WP_Error('not_admin', 'You must be an administrator.', array('status' => 403));
+    }
+
+    // Check if Application Passwords are available
+    $app_passwords_check = almaseo_check_app_passwords_available();
+    if (is_wp_error($app_passwords_check)) {
+        return $app_passwords_check;
+    }
+
+    return true;
+}
+
+// Main callback: generate and return application password
+// Removed auto-generation logic due to hosting limitations (GoDaddy Managed WordPress). Manual Application Password setup is now required.
+function almaseo_generate_app_password( $request ) {
+    $user = wp_get_current_user();
+    if ( ! $user || ! $user->exists() ) {
+        return new WP_Error('no_user', 'Could not determine user.', array('status' => 400));
+    }
+
+    // Check if function exists before using
+    if (!function_exists('wp_generate_application_password')) {
+        return new WP_Error('app_passwords_not_available', 'Application Passwords feature is not available. Please ensure you are using WordPress 5.6 or higher.', array('status' => 400));
+    }
+    
+    // Generate a new application password
+    $label = 'AlmaSEO AI ' . wp_date('Y-m-d H:i:s');
+    list($new_password, $item) = wp_generate_application_password($user->ID, $label);
+
+    if ( empty($new_password) ) {
+        return new WP_Error('generation_failed', 'Failed to generate application password.', array('status' => 500));
+    }
+
+    // Return the password and necessary information for AlmaSEO
+    return array(
+        'success' => true,
+        'username' => $user->user_login,
+        'application_password' => $new_password,
+        'site_info' => array(
+            'site_url' => get_site_url(),
+            'rest_api_url' => rest_url(),
+            'plugin_version' => ALMASEO_PLUGIN_VERSION,
+            'wordpress_version' => get_bloginfo('version'),
+        ),
+        'note' => 'Store this password securely. It will not be shown again.',
+    );
+}
+
+// API Authentication check for AlmaSEO backend
+function almaseo_api_auth_check($request) {
+    $auth_header = $request->get_header('Authorization');
+    if (!$auth_header) {
+        return new WP_Error('no_auth', 'No authorization header.', array('status' => 401));
+    }
+
+    // Check if it's a Basic Auth header
+    if (!empty($auth_header) && strpos($auth_header, 'Basic ') === 0) {
+        $auth_data = base64_decode(substr($auth_header, 6), true);
+        if ($auth_data === false || strpos($auth_data, ':') === false) {
+            return new WP_Error('invalid_auth', 'Malformed authorization header.', array('status' => 401));
+        }
+        list($username, $password) = explode(':', $auth_data, 2);
+        
+        // Check if application password authentication is available
+        if (!function_exists('wp_authenticate_application_password')) {
+            // Fallback to regular authentication for older WordPress versions
+            $user = wp_authenticate($username, $password);
+        } else {
+            // Verify the application password
+            $user = wp_authenticate_application_password(null, $username, $password);
+        }
+        
+        if (is_wp_error($user)) {
+            return new WP_Error('invalid_auth', 'Invalid credentials.', array('status' => 401));
+        }
+        
+        // Check if the password was generated by our plugin
+        if (!class_exists('WP_Application_Passwords')) {
+            // For older WordPress versions, just allow the authentication
+            $app_passwords = array();
+        } else {
+            $app_passwords = WP_Application_Passwords::get_user_application_passwords($user->ID);
+        }
+        $is_almaseo_password = false;
+        foreach ($app_passwords as $app_password) {
+            if (strpos($app_password['name'] ?? '', 'AlmaSEO AI') === 0) {
+                $is_almaseo_password = true;
+                break;
+            }
+        }
+        
+        if (!$is_almaseo_password) {
+            return new WP_Error('invalid_auth', 'Invalid application password.', array('status' => 401));
+        }
+        
+        return true;
+    }
+    
+    return new WP_Error('invalid_auth', 'Invalid authorization method.', array('status' => 401));
+}
+
+// Verify connection endpoint callback
+function almaseo_verify_connection($request) {
+    return array(
+        'success' => true,
+        'message' => 'Connection verified successfully',
+        'site_info' => array(
+            'site_name' => get_bloginfo('name'),
+            'site_url' => get_site_url(),
+            'rest_api_url' => rest_url(),
+            'plugin_version' => ALMASEO_PLUGIN_VERSION,
+            'wordpress_version' => get_bloginfo('version'),
+        )
+    );
+}
+
+// Get site capabilities endpoint callback
+function almaseo_get_site_capabilities($request) {
+    $app_passwords_check = almaseo_check_app_passwords_available();
+    $app_passwords_available = !is_wp_error($app_passwords_check);
+
+    return array(
+        'success' => true,
+        'capabilities' => array(
+            'post_types' => get_post_types(array('public' => true), 'names'),
+            'taxonomies' => get_taxonomies(array('public' => true), 'names'),
+            'features' => array(
+                'application_passwords' => $app_passwords_available,
+                'rest_api' => true,
+                'custom_fields' => true,
+            ),
+            'rest_endpoints' => array(
+                'posts' => rest_url('wp/v2/posts'),
+                'pages' => rest_url('wp/v2/pages'),
+                'media' => rest_url('wp/v2/media'),
+                'categories' => rest_url('wp/v2/categories'),
+                'tags' => rest_url('wp/v2/tags'),
+            )
+        )
+    );
+}
+
+// Reserved endpoint callback for future features
+function almaseo_reserved_endpoint($request) {
+    return new WP_Error(
+        'endpoint_not_implemented',
+        'This endpoint is reserved for future use.',
+        array('status' => 501)
+    );
+}
+
+// --- SETTINGS PAGE & SECRET MANAGEMENT ---
+
+// On activation, auto-generate secret if not present
+register_activation_hook(__FILE__, 'almaseo_generate_secret_on_activation');
+function almaseo_generate_secret_on_activation() {
+    if (!get_option('almaseo_secret') && !defined('ALMASEO_SECRET')) {
+        $secret = wp_generate_password(32, true, true);
+        add_option('almaseo_secret', $secret);
+    }
+}
+
+// Get the AlmaSEO secret (wp-config.php overrides DB)
+function almaseo_get_secret() {
+    if (defined('ALMASEO_SECRET')) {
+        return ALMASEO_SECRET;
+    }
+    return get_option('almaseo_secret', '');
+}
+
+// Add main menu and submenus
+add_action('admin_menu', function() {
+    // Add main menu item in sidebar
+    add_menu_page(
+        'SEO Playground by AlmaSEO', // Page title
+        'AlmaSEO SEO Playground', // Menu title (shorter for sidebar)
+        'manage_options',
+        'seo-playground', // Menu slug
+        'seo_playground_render_overview_page', // Function
+        'dashicons-search', // Icon (magnifying glass for SEO)
+        30 // Position (after Pages, before Comments)
+    );
+    
+    // Add Overview as first submenu (replaces the main menu link)
+    add_submenu_page(
+        'seo-playground',
+        'AlmaSEO SEO Playground Overview',
+        'Overview',
+        'manage_options',
+        'seo-playground', // Same slug as parent to replace it
+        'seo_playground_render_overview_page'
+    );
+    
+    // Add Connection Settings submenu
+    add_submenu_page(
+        'seo-playground',
+        'Connection Settings - SEO Playground by AlmaSEO',
+        'Connection',
+        'manage_options',
+        'seo-playground-connection',
+        'almaseo_connector_settings_page'
+    );
+    
+    // Add WooCommerce SEO submenu (Pro feature)
+    if (class_exists('WooCommerce') && function_exists('almaseo_is_pro') && almaseo_is_pro()) {
+        add_submenu_page(
+            'seo-playground',
+            'WooCommerce SEO - SEO Playground by AlmaSEO',
+            'WooCommerce SEO',
+            'manage_options',
+            'seo-playground-woocommerce',
+            'almaseo_woocommerce_settings_page'
+        );
+    }
+    
+    // Add welcome page - hidden from menu
+    global $wp_version;
+    $parent_slug = version_compare($wp_version, '5.3', '>=') ? null : 'admin.php';
+    
+    add_submenu_page(
+        $parent_slug, // Hidden page
+        'Welcome to SEO Playground by AlmaSEO', // Page title
+        '', // Menu title (empty since it's hidden)
+        'manage_options',
+        'almaseo-welcome',
+        'almaseo_welcome_screen_page'
+    );
+    
+    // Keep the old settings page URL working for backwards compatibility
+    add_options_page(
+        'AlmaSEO SEO Playground Connection',
+        'AlmaSEO SEO Playground',
+        'manage_options',
+        'almaseo-connector',
+        'almaseo_connector_settings_page'
+    );
+});
+
+// Welcome Screen Page
+require_once plugin_dir_path(__FILE__) . 'admin/pages/welcome.php';
+
+// Connection Settings Page
+require_once plugin_dir_path(__FILE__) . 'admin/pages/connection-settings.php';
+
+// Overview Page
+require_once plugin_dir_path(__FILE__) . 'admin/pages/overview.php';
+
+// --- SITE DISCOVERY AND CONNECTION SYNC FUNCTIONS ---
+
+/**
+ * Check if site is already registered in AlmaSEO Dashboard
+ * @return array Registration status and details
+ */
+function almaseo_check_dashboard_registration() {
+    $site_url = get_site_url();
+    $site_domain = parse_url($site_url, PHP_URL_HOST);
+    
+    // Log discovery attempt if debug mode
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('[AlmaSEO] Checking dashboard registration for domain: ' . $site_domain);
+    }
+    
+    // Call dashboard API to check if site exists
+    $api_url = 'https://api.almaseo.com/api/site-discovery';
+    $response = wp_remote_post($api_url, array(
+        'timeout' => 15,
+        'headers' => array(
+            'Content-Type' => 'application/json',
+        ),
+        'body' => json_encode(array(
+            'domain' => $site_domain,
+            'site_url' => $site_url,
+            'plugin_version' => ALMASEO_PLUGIN_VERSION
+        ))
+    ));
+    
+    if (is_wp_error($response)) {
+        // Log error if debug mode
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[AlmaSEO] Dashboard check failed: ' . $response->get_error_message());
+        }
+        return array(
+            'registered' => false,
+            'error' => $response->get_error_message()
+        );
+    }
+    
+    $response_code = wp_remote_retrieve_response_code($response);
+    $response_body = wp_remote_retrieve_body($response);
+    
+    if ($response_code === 200) {
+        $data = json_decode($response_body, true);
+        
+        // Store dashboard info if site is registered
+        if ($data && isset($data['registered']) && $data['registered']) {
+            update_option('almaseo_dashboard_site_id', $data['site_id']);
+            update_option('almaseo_dashboard_registered', true);
+            update_option('almaseo_dashboard_check_date', current_time('mysql'));
+            
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('[AlmaSEO] Site found in dashboard: Site ID ' . $data['site_id']);
+            }
+            
+            return $data;
+        }
+    }
+    
+    return array(
+        'registered' => false,
+        'response_code' => $response_code
+    );
+}
+
+/**
+ * Auto-detect existing AlmaSEO Application Passwords
+ * @return array|false Found password details or false
+ */
+function almaseo_auto_detect_app_passwords() {
+    if (!class_exists('WP_Application_Passwords')) {
+        return false;
+    }
+    
+    $found_passwords = array();
+    
+    // Check all admin users for AlmaSEO passwords
+    $users = get_users(array('role' => 'administrator'));
+    
+    foreach ($users as $user) {
+        $app_passwords = WP_Application_Passwords::get_user_application_passwords($user->ID);
+        
+        foreach ($app_passwords as $app_password) {
+            // Check for various AlmaSEO password patterns
+            if (preg_match('/AlmaSEO|alma.?seo|SEO.?Playground/i', $app_password['name'] ?? '')) {
+                $found_passwords[] = array(
+                    'user_id' => $user->ID,
+                    'username' => $user->user_login,
+                    'password_name' => $app_password['name'],
+                    'created' => $app_password['created'],
+                    'uuid' => $app_password['uuid']
+                );
+                
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('[AlmaSEO] Found existing password: ' . $app_password['name'] . ' for user: ' . $user->user_login);
+                }
+            }
+        }
+    }
+    
+    return !empty($found_passwords) ? $found_passwords : false;
+}
+
+/**
+ * Sync connection from dashboard if site is pre-registered
+ */
+function almaseo_sync_from_dashboard() {
+    // Check dashboard registration
+    $dashboard_status = almaseo_check_dashboard_registration();
+    
+    if ($dashboard_status['registered']) {
+        // Auto-detect existing passwords
+        $existing_passwords = almaseo_auto_detect_app_passwords();
+        
+        if ($existing_passwords) {
+            // Use the first found password
+            $password_info = $existing_passwords[0];
+            
+            // Store connection details
+            update_option('almaseo_connected_user', $password_info['username']);
+            update_option('almaseo_dashboard_synced', true);
+            update_option('almaseo_connection_type', 'dashboard_initiated');
+            
+            // Set transient for admin notice
+            set_transient('almaseo_dashboard_sync_success', array(
+                'site_id' => $dashboard_status['site_id'],
+                'username' => $password_info['username'],
+                'password_name' => $password_info['password_name']
+            ), 60);
+            
+            return true;
+        } elseif ($dashboard_status['application_password_exists']) {
+            // Password exists in dashboard but not locally - prompt for import
+            set_transient('almaseo_needs_password_import', array(
+                'site_id' => $dashboard_status['site_id']
+            ), 3600);
+        }
+    }
+    
+    return false;
+}
+
+/**
+ * Import connection details manually
+ */
+function almaseo_import_connection_details($site_id, $app_password, $username = null) {
+    // Validate inputs
+    if (empty($site_id) || empty($app_password)) {
+        return array(
+            'success' => false,
+            'message' => 'Site ID and Application Password are required'
+        );
+    }
+    
+    // Clean the password
+    $cleaned_password = str_replace(' ', '', $app_password);
+    
+    // If no username provided, try to detect from existing passwords
+    if (!$username) {
+        $existing_passwords = almaseo_auto_detect_app_passwords();
+        if ($existing_passwords) {
+            $username = $existing_passwords[0]['username'];
+        } else {
+            $username = wp_get_current_user()->user_login;
+        }
+    }
+    
+    // Store connection details
+    update_option('almaseo_dashboard_site_id', $site_id);
+    update_option('almaseo_app_password', $cleaned_password);
+    update_option('almaseo_connected_user', $username);
+    update_option('almaseo_connected_date', current_time('mysql'));
+    update_option('almaseo_connection_type', 'imported');
+    update_option('almaseo_dashboard_synced', true);
+    
+    // Test the connection
+    $test_result = almaseo_test_imported_connection($username, $cleaned_password);
+    
+    if ($test_result['success']) {
+        return array(
+            'success' => true,
+            'message' => 'Connection imported successfully',
+            'site_id' => $site_id,
+            'username' => $username
+        );
+    } else {
+        // Rollback on failure
+        delete_option('almaseo_dashboard_site_id');
+        delete_option('almaseo_app_password');
+        delete_option('almaseo_connection_type');
+        
+        return array(
+            'success' => false,
+            'message' => 'Connection test failed: ' . $test_result['message']
+        );
+    }
+}
+
+/**
+ * Test imported connection credentials
+ */
+function almaseo_test_imported_connection($username, $password) {
+    $api_url = 'https://api.almaseo.com/api/v1/verify';
+    
+    $response = wp_remote_post($api_url, array(
+        'timeout' => 15,
+        'headers' => array(
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Basic ' . base64_encode($username . ':' . $password)
+        ),
+        'body' => json_encode(array(
+            'site_url' => get_site_url(),
+            'site_id' => get_option('almaseo_dashboard_site_id', '')
+        ))
+    ));
+    
+    if (is_wp_error($response)) {
+        return array(
+            'success' => false,
+            'message' => $response->get_error_message()
+        );
+    }
+    
+    $response_code = wp_remote_retrieve_response_code($response);
+    
+    if ($response_code === 200) {
+        return array('success' => true);
+    } else {
+        return array(
+            'success' => false,
+            'message' => 'Invalid credentials or site mismatch'
+        );
+    }
+}
+
+/**
+ * Get comprehensive connection status
+ */
+function almaseo_get_comprehensive_connection_status() {
+    $status = array(
+        'plugin_connected' => false,
+        'dashboard_connected' => false,
+        'site_id' => get_option('almaseo_dashboard_site_id', ''),
+        'connection_type' => get_option('almaseo_connection_type', 'unknown'),
+        'username' => get_option('almaseo_connected_user', ''),
+        'connected_date' => get_option('almaseo_connected_date', ''),
+        'dashboard_synced' => get_option('almaseo_dashboard_synced', false),
+        'app_password_exists' => false
+    );
+    
+    // Check plugin connection
+    $basic_status = almaseo_get_connection_status();
+    $status['plugin_connected'] = $basic_status['connected'];
+    
+    // Check for app password
+    $app_password = get_option('almaseo_app_password', '');
+    $status['app_password_exists'] = !empty($app_password);
+    
+    // Check dashboard connection
+    if ($status['site_id']) {
+        $status['dashboard_connected'] = true;
+    }
+    
+    // Detect existing passwords
+    $existing_passwords = almaseo_auto_detect_app_passwords();
+    if ($existing_passwords) {
+        $status['detected_passwords'] = count($existing_passwords);
+        $status['detected_users'] = array_unique(array_column($existing_passwords, 'username'));
+    }
+    
+    return $status;
+}
+
+// --- REDIRECT TO SETTINGS PAGE AFTER ACTIVATION ---
+register_activation_hook(__FILE__, 'almaseo_set_activation_redirect');
+function almaseo_set_activation_redirect() {
+    add_option('almaseo_do_activation_redirect', true);
+    // Set transient for welcome screen
+    set_transient('almaseo_show_welcome_screen', true, 30);
+    
+    // Check for existing dashboard connection on activation
+    almaseo_sync_from_dashboard();
+    
+    // Attempt automatic connection on activation
+    $current_user_id = get_current_user_id();
+    if ($current_user_id) {
+        $user = get_user_by('ID', $current_user_id);
+        if ($user && user_can($user, 'manage_options')) {
+            $existing_password = get_option('almaseo_app_password', '');
+            
+            // Only generate if no password exists
+            if (!$existing_password && function_exists('wp_is_application_passwords_available') && function_exists('wp_generate_application_password')) {
+                if (wp_is_application_passwords_available()) {
+                    $label = 'AlmaSEO Auto-Connect ' . wp_date('Y-m-d');
+                    $new_password = wp_generate_application_password($user->ID, array(
+                        'name' => $label,
+                        'app_id' => 'almaseo-seo-playground'
+                    ));
+
+                    if (is_wp_error($new_password)) {
+                        error_log('AlmaSEO: Auto-connect failed: ' . $new_password->get_error_message());
+                    } elseif ($new_password && is_array($new_password)) {
+                        update_option('almaseo_app_password', $new_password[0]);
+                        update_option('almaseo_connected_user', $user->user_login);
+                        update_option('almaseo_connected_date', current_time('mysql'));
+                        update_option('almaseo_auto_connected', true);
+                    }
+                }
+            }
+        }
+    }
+}
+
+add_action('admin_init', function() {
+    if (get_option('almaseo_do_activation_redirect', false)) {
+        delete_option('almaseo_do_activation_redirect');
+        if (!isset($_GET['activate-multi'])) {
+            // Redirect to welcome screen instead of settings
+            wp_safe_redirect(admin_url('admin.php?page=almaseo-welcome'));
+            exit;
+        }
+    }
+});
+
+// --- WELCOME NOTICE WITH GET STARTED LINK ---
+add_action('admin_notices', function() {
+    // Show welcome screen only on activation
+    if (get_transient('almaseo_show_welcome_screen')) {
+        delete_transient('almaseo_show_welcome_screen');
+        ?>
+        <div class="notice notice-success is-dismissible" style="padding: 20px; border-left: 4px solid #667eea;">
+            <h2 style="margin-top: 0; color: #23282d;">
+                🎯 Welcome to SEO Playground by AlmaSEO!
+            </h2>
+            
+            <p style="font-size: 16px; color: #555; margin: 15px 0;">
+                Your AI-powered SEO optimization toolkit is ready to use.
+            </p>
+            
+            <div style="margin: 20px 0;">
+                <h3 style="color: #23282d; margin-bottom: 10px;">✨ What's Included:</h3>
+                <ul style="list-style: disc; margin-left: 25px; color: #666;">
+                    <li>AI-powered title and description generation</li>
+                    <li>Intelligent keyword suggestions and analysis</li>
+                    <li>Real-time SEO scoring and recommendations</li>
+                    <li>Content intelligence and optimization tools</li>
+                    <li>Schema markup and meta health analysis</li>
+                </ul>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <h3 style="color: #23282d; margin-bottom: 10px;">🚀 Quick Start:</h3>
+                <ol style="margin-left: 25px; color: #666;">
+                    <li>Connect to AlmaSEO to enable AI features</li>
+                    <li>Edit any post or page</li>
+                    <li>Find the "AlmaSEO SEO Playground" meta box</li>
+                    <li>Use AI to generate optimized content</li>
+                </ol>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <a href="<?php echo admin_url('admin.php?page=seo-playground-connection'); ?>" class="button button-primary button-hero">
+                    Connect to AlmaSEO
+                </a>
+                <a href="<?php echo admin_url('post-new.php'); ?>" class="button button-secondary button-hero" style="margin-left: 10px;">
+                    Create New Post
+                </a>
+            </div>
+        </div>
+        <?php
+    } elseif (!get_user_meta(get_current_user_id(), 'almaseo_connector_dismissed_notice', true)) {
+        // Show simple connection reminder if not connected
+        $is_connected = get_option('almaseo_app_password') ? true : false;
+        if (!$is_connected) {
+            $settings_url = admin_url('admin.php?page=seo-playground-connection');
+            echo '<div class="notice notice-info is-dismissible almaseo-welcome-notice" style="border-left:4px solid #667eea;padding:12px;">'
+                .'<strong>AlmaSEO SEO Playground:</strong> '
+                .'<a href="' . esc_url($settings_url) . '" style="color:#667eea;font-weight:bold;">Connect to AlmaSEO</a> to unlock AI-powered SEO features.'
+                .'</div>';
+        }
+    }
+});
+
+add_action('admin_footer', function() {
+    // Dismiss notice via AJAX with nonce verification
+    $nonce = wp_create_nonce('almaseo_dismiss_notice');
+    echo '<script>jQuery(document).on("click", ".almaseo-welcome-notice .notice-dismiss", function(){
+        jQuery.post(ajaxurl, {action: "almaseo_dismiss_notice", nonce: "' . esc_js($nonce) . '"});
+    });</script>';
+});
+add_action('wp_ajax_almaseo_dismiss_notice', function() {
+    check_ajax_referer('almaseo_dismiss_notice', 'nonce');
+    update_user_meta(get_current_user_id(), 'almaseo_connector_dismissed_notice', 1);
+    wp_die();
+});
+
+// --- HELPER FUNCTIONS FOR CONNECTION STATUS & DISCONNECT ---
+function almaseo_get_connection_status() {
+    $connected_user = get_option('almaseo_connected_user', '');
+    $connected_date = get_option('almaseo_connected_date', '');
+    
+    // Check if synced from dashboard
+    if (get_option('almaseo_dashboard_synced')) {
+        $app_password = get_option('almaseo_app_password', '');
+        if ($app_password || $connected_user) {
+            return array(
+                'connected' => true,
+                'connected_user' => $connected_user,
+                'connected_date' => $connected_date ? date('M j, Y', strtotime($connected_date)) : 'Recently',
+                'site_url' => get_site_url(),
+                'connection_type' => get_option('almaseo_connection_type', 'dashboard_initiated')
+            );
+        }
+    }
+    
+    // If no stored connection data, check if any AlmaSEO app passwords exist
+    if (!$connected_user && class_exists('WP_Application_Passwords')) {
+        // Check all users for AlmaSEO application passwords
+        $users = get_users(array('role' => 'administrator'));
+        foreach ($users as $user) {
+            $app_passwords = WP_Application_Passwords::get_user_application_passwords($user->ID);
+            foreach ($app_passwords as $app_password) {
+                if (strpos($app_password['name'] ?? '', 'AlmaSEO AI') === 0) {
+                    // Found a AlmaSEO password, update our records
+                    update_option('almaseo_connected_user', $user->user_login);
+                    update_option('almaseo_connected_date', date('Y-m-d H:i:s', $app_password['created']));
+                    $connected_user = $user->user_login;
+                    $connected_date = date('Y-m-d H:i:s', $app_password['created']);
+                    break 2; // Break both loops
+                }
+            }
+        }
+    }
+    
+    // Check if we have any AlmaSEO application passwords
+    if ($connected_user) {
+        $user = get_user_by('login', $connected_user);
+        if ($user) {
+            $has_almaseo_password = false;
+            
+            if (class_exists('WP_Application_Passwords')) {
+                $app_passwords = WP_Application_Passwords::get_user_application_passwords($user->ID);
+                foreach ($app_passwords as $app_password) {
+                    if (strpos($app_password['name'] ?? '', 'AlmaSEO AI') === 0) {
+                        $has_almaseo_password = true;
+                        break;
+                    }
+                }
+            } else {
+                // For older WordPress versions, assume connected if we have stored credentials
+                $has_almaseo_password = true;
+            }
+            
+            if ($has_almaseo_password) {
+                return array(
+                    'connected' => true,
+                    'connected_user' => $connected_user,
+                    'connected_date' => $connected_date ? date('M j, Y', strtotime($connected_date)) : 'Recently',
+                    'site_url' => get_site_url()
+                );
+            }
+        }
+    }
+    
+    return array(
+        'connected' => false,
+        'connected_user' => null,
+        'connected_date' => null,
+        'site_url' => get_site_url()
+    );
+}
+
+// Helper function to clean up old AlmaSEO passwords
+function almaseo_cleanup_old_passwords($user_id) {
+    if (!class_exists('WP_Application_Passwords')) {
+        return;
+    }
+    
+    $app_passwords = WP_Application_Passwords::get_user_application_passwords($user_id);
+    if ($app_passwords) {
+        foreach ($app_passwords as $app_password) {
+            // Remove any password with AlmaSEO in the name
+            if (stripos($app_password['name'], 'AlmaSEO') !== false) {
+                WP_Application_Passwords::delete_application_password($user_id, $app_password['uuid']);
+            }
+        }
+    }
+}
+
+function almaseo_disconnect_site() {
+    $connected_user = get_option('almaseo_connected_user', '');
+    
+    if ($connected_user) {
+        $user = get_user_by('login', $connected_user);
+        if ($user) {
+            // Delete all AlmaSEO application passwords
+            almaseo_cleanup_old_passwords($user->ID);
+        }
+    }
+    
+    // Clear connection data
+    delete_option('almaseo_connected_user');
+    delete_option('almaseo_connected_date');
+    delete_option('almaseo_app_password');
+}
+
+// AJAX handler to get connection status
+add_action('wp_ajax_almaseo_get_status', function() {
+    if (!check_ajax_referer('almaseo_nonce', 'nonce', false)) {
+        wp_send_json_error(array('message' => 'Security check failed'));
+        return;
+    }
+    
+    $status = almaseo_get_connection_status();
+    wp_send_json_success($status);
+});
+
+// AJAX handler for checking dashboard registration
+add_action('wp_ajax_almaseo_check_dashboard', function() {
+    // Check nonce for security
+    if (!check_ajax_referer('almaseo_nonce', 'nonce', false)) {
+        wp_send_json_error(array('message' => 'Security check failed'));
+        return;
+    }
+    
+    $dashboard_status = almaseo_check_dashboard_registration();
+    
+    if ($dashboard_status['registered']) {
+        wp_send_json_success(array(
+            'registered' => true,
+            'site_id' => $dashboard_status['site_id'],
+            'connected' => $dashboard_status['connected'] ?? false,
+            'application_password_exists' => $dashboard_status['application_password_exists'] ?? false
+        ));
+    } else {
+        if (isset($dashboard_status['error'])) {
+            wp_send_json_error(array('message' => $dashboard_status['error']));
+        } else {
+            wp_send_json_success(array('registered' => false));
+        }
+    }
+});
+
+add_action('wp_ajax_almaseo_test_connection', function() {
+    // Check nonce for security
+    if (!check_ajax_referer('almaseo_nonce', 'nonce', false)) {
+        wp_send_json_error(array('message' => 'Security check failed'));
+        return;
+    }
+    
+    $status = almaseo_get_connection_status();
+    
+    if (!$status['connected']) {
+        wp_send_json_error(array('message' => 'Site is not connected to AlmaSEO'));
+        return;
+    }
+    
+    // Get stored credentials
+    $app_password = get_option('almaseo_app_password', '');
+    $username = get_option('almaseo_connected_user', '');
+    
+    if (!$app_password || !$username) {
+        wp_send_json_error(array('message' => 'Connection credentials not found'));
+        return;
+    }
+    
+    // Test connection with AlmaSEO API ping endpoint
+    $api_url = 'https://api.almaseo.com/api/v1/ping';
+    
+    $response = wp_remote_post($api_url, array(
+        'timeout' => 15,
+        'headers' => array(
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Basic ' . base64_encode($username . ':' . $app_password)
+        ),
+        'body' => json_encode(array(
+            'site_url' => get_site_url(),
+            'plugin_version' => ALMASEO_PLUGIN_VERSION
+        ))
+    ));
+    
+    if (is_wp_error($response)) {
+        wp_send_json_error(array(
+            'message' => 'Connection test failed: ' . $response->get_error_message()
+        ));
+        return;
+    }
+    
+    $response_code = wp_remote_retrieve_response_code($response);
+    $response_body = wp_remote_retrieve_body($response);
+    
+    if ($response_code === 200) {
+        $data = json_decode($response_body, true);
+        wp_send_json_success(array(
+            'message' => 'Connection successful!',
+            'details' => $data
+        ));
+    } else {
+        wp_send_json_error(array(
+            'message' => 'Connection test failed',
+            'code' => $response_code,
+            'response' => $response_body
+        ));
+    }
+});
+
+// Register settings for manual app password
+// NOTE: We are using a manually generated Application Password stored in the plugin settings.
+// This approach is required for hosting environments like GoDaddy Managed WordPress that disable application password auto-generation.
+function almaseo_connector_register_settings() {
+    register_setting('almaseo_settings_group', 'almaseo_app_password', array(
+        'type' => 'string',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+    register_setting('almaseo_settings_group', 'almaseo_exclusive_schema_mode', array(
+        'type' => 'string',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+}
+add_action('admin_init', 'almaseo_connector_register_settings');
+
+// ========================================
+// TIER DETECTION AND MANAGEMENT
+// ========================================
+
+/**
+ * Fetch user tier and limits from AlmaSEO dashboard
+ * @return array User tier information
+ */
+function almaseo_fetch_user_tier() {
+    // Check if connected first
+    if (!seo_playground_is_alma_connected()) {
+        return array(
+            'tier' => 'unconnected',
+            'limits' => array(),
+            'error' => 'Not connected to AlmaSEO'
+        );
+    }
+    
+    // Get stored credentials
+    $app_password = get_option('almaseo_app_password', '');
+    $username = get_option('almaseo_connected_user', '');
+    $site_url = get_site_url();
+    
+    if (!$app_password || !$username) {
+        return array(
+            'tier' => 'unconnected',
+            'limits' => array(),
+            'error' => 'Missing credentials'
+        );
+    }
+    
+    // Check if we have cached tier data (valid for 1 hour)
+    $cached_tier = get_transient('almaseo_user_tier_data');
+    if ($cached_tier !== false) {
+        return $cached_tier;
+    }
+    
+    // Fetch tier information from AlmaSEO API
+    $api_url = 'https://api.almaseo.com/api/plugin/connection-status';
+    
+    $response = wp_remote_post($api_url, array(
+        'timeout' => 15,
+        'headers' => array(
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Basic ' . base64_encode($username . ':' . $app_password)
+        ),
+        'body' => json_encode(array(
+            'site_url' => $site_url,
+            'plugin_version' => ALMASEO_PLUGIN_VERSION
+        ))
+    ));
+    
+    if (is_wp_error($response)) {
+        // Log error and return default tier
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log('[AlmaSEO] Tier fetch failed: ' . $response->get_error_message());
+        }
+        return array(
+            'tier' => 'free',
+            'limits' => array(
+                'monthly_articles' => 0,
+                'ai_generations' => 0
+            ),
+            'error' => $response->get_error_message()
+        );
+    }
+    
+    $response_code = wp_remote_retrieve_response_code($response);
+    $response_body = wp_remote_retrieve_body($response);
+    
+    if ($response_code === 200) {
+        $data = json_decode($response_body, true);
+        
+        // Structure the tier data
+        $tier_data = array(
+            'tier' => isset($data['tier']) ? strtolower($data['tier']) : 'free',
+            'limits' => array(
+                'monthly_articles' => isset($data['limits']['monthly_articles']) ? intval($data['limits']['monthly_articles']) : 0,
+                'ai_generations' => isset($data['limits']['ai_generations']) ? intval($data['limits']['ai_generations']) : 0,
+                'remaining_articles' => isset($data['remaining']['articles']) ? intval($data['remaining']['articles']) : 0,
+                'remaining_generations' => isset($data['remaining']['generations']) ? intval($data['remaining']['generations']) : 0,
+            ),
+            'usage' => array(
+                'articles_used' => isset($data['usage']['articles']) ? intval($data['usage']['articles']) : 0,
+                'generations_used' => isset($data['usage']['generations']) ? intval($data['usage']['generations']) : 0,
+            ),
+            'reset_date' => isset($data['reset_date']) ? $data['reset_date'] : '',
+            'fetched_at' => current_time('U')
+        );
+        
+        // Cache the tier data for 1 hour
+        set_transient('almaseo_user_tier_data', $tier_data, HOUR_IN_SECONDS);
+
+        // Also store in options for persistent access
+        update_option('almaseo_user_tier', $tier_data['tier']);
+        update_option('almaseo_tier_limits', $tier_data['limits']);
+        update_option('almaseo_tier_usage', $tier_data['usage']);
+
+        // Sync the license tier used for feature gating (license-helper.php)
+        // Map API tiers to license tiers: 'max' → 'agency', others pass through
+        $license_tier_map = array('free' => 'free', 'pro' => 'pro', 'max' => 'agency');
+        $mapped_tier = isset($license_tier_map[$tier_data['tier']]) ? $license_tier_map[$tier_data['tier']] : 'free';
+        update_option('almaseo_license_tier', $mapped_tier);
+        
+        return $tier_data;
+    } else {
+        // API returned error, use default tier
+        return array(
+            'tier' => 'free',
+            'limits' => array(
+                'monthly_articles' => 0,
+                'ai_generations' => 0
+            ),
+            'error' => 'API returned status code: ' . $response_code
+        );
+    }
+}
+
+/**
+ * Get current user tier (with caching)
+ * @return string User tier: 'unconnected', 'free', 'pro', 'max'
+ */
+function almaseo_get_user_tier() {
+    // Quick check from options first
+    $stored_tier = get_option('almaseo_user_tier', false);
+    
+    if ($stored_tier === false || empty($stored_tier)) {
+        // Fetch fresh tier data
+        $tier_data = almaseo_fetch_user_tier();
+        return $tier_data['tier'];
+    }
+    
+    return $stored_tier;
+}
+
+/**
+ * Check if user has access to AI features
+ * @return bool
+ */
+function almaseo_can_use_ai_features() {
+    $tier = almaseo_get_user_tier();
+    return in_array($tier, array('pro', 'max'));
+}
+
+/**
+ * Get remaining AI generations for current month
+ * @return array
+ */
+function almaseo_get_remaining_generations() {
+    $tier_data = almaseo_fetch_user_tier();
+    
+    if ($tier_data['tier'] === 'max') {
+        return array(
+            'remaining' => 'unlimited',
+            'total' => 'unlimited',
+            'used' => $tier_data['usage']['generations_used'] ?? 0
+        );
+    }
+    
+    return array(
+        'remaining' => $tier_data['limits']['remaining_generations'] ?? 0,
+        'total' => $tier_data['limits']['ai_generations'] ?? 0,
+        'used' => $tier_data['usage']['generations_used'] ?? 0
+    );
+}
+
+/**
+ * Track AI generation usage
+ * @param string $type Type of generation (title, description, rewrite)
+ * @return bool
+ */
+function almaseo_track_ai_usage($type) {
+    // Get current usage
+    $usage = get_option('almaseo_tier_usage', array(
+        'generations_used' => 0,
+        'articles_used' => 0
+    ));
+    
+    // Increment generation count
+    $usage['generations_used'] = ($usage['generations_used'] ?? 0) + 1;
+    
+    // If it's a full article rewrite, increment article count too
+    if ($type === 'article_rewrite') {
+        $usage['articles_used'] = ($usage['articles_used'] ?? 0) + 1;
+    }
+    
+    // Save updated usage
+    update_option('almaseo_tier_usage', $usage);
+    
+    // Also track in user meta for reporting
+    $current_user_id = get_current_user_id();
+    if ($current_user_id) {
+        $user_usage = get_user_meta($current_user_id, 'almaseo_ai_usage_' . date('Y_m'), true);
+        if (!is_array($user_usage)) {
+            $user_usage = array();
+        }
+        
+        $user_usage[$type] = ($user_usage[$type] ?? 0) + 1;
+        $user_usage['total'] = ($user_usage['total'] ?? 0) + 1;
+        $user_usage['last_used'] = current_time('U');
+        
+        update_user_meta($current_user_id, 'almaseo_ai_usage_' . date('Y_m'), $user_usage);
+    }
+    
+    // Clear tier cache to force refresh on next check
+    delete_transient('almaseo_user_tier_data');
+    
+    return true;
+}
+
+/**
+ * Refresh tier data on connection
+ */
+add_action('almaseo_connection_established', function() {
+    // Clear any cached tier data
+    delete_transient('almaseo_user_tier_data');
+    
+    // Fetch fresh tier information
+    almaseo_fetch_user_tier();
+});
+
+// ========================================
+// SEO PLAYGROUND FUNCTIONALITY
+// ========================================
+
+// Reusable function to check if AlmaSEO is connected
+function seo_playground_is_alma_connected() {
+    $connection_status = almaseo_get_connection_status();
+    return $connection_status['connected'];
+}
+
+// Add SEO Playground meta box
+function almaseo_add_seo_playground_meta_box() {
+    $post_types = array('post', 'page');
+    
+    foreach ($post_types as $post_type) {
+        // Defensive: remove any legacy box registered earlier with same ID
+        remove_meta_box('almaseo_seo_playground', $post_type, 'normal');
+        remove_meta_box('almaseo_seo_playground', $post_type, 'side');
+        remove_meta_box('almaseo_seo_playground', $post_type, 'advanced');
+        
+        // Add our meta box to main column only
+        add_meta_box(
+            'almaseo_seo_playground',
+            __('SEO Playground by AlmaSEO', 'almaseo'), // Single emoji in title, no duplicate
+            'almaseo_seo_playground_meta_box_callback',
+            $post_type,
+            'normal', // Main column, not 'side'
+            'high'
+        );
+    }
+}
+add_action('add_meta_boxes', 'almaseo_add_seo_playground_meta_box', 20); // Priority 20 to run after defaults
+
+// SEO Playground metabox: enqueue styles, LLM panel, and metabox callback
+require_once plugin_dir_path(__FILE__) . 'admin/partials/metabox-callback.php';
+
+// Save SEO Playground data
+require_once plugin_dir_path(__FILE__) . 'includes/admin/post-save-handler.php';
+
+// Remove conflicting schema and meta tags from WordPress core and themes
+add_action('init', function() {
+    // Remove WordPress core meta tags that might conflict
+    remove_action('wp_head', 'wp_oembed_add_host_js');
+    remove_action('wp_head', 'wp_oembed_add_discovery_links');
+    remove_action('wp_head', 'rel_canonical');
+    remove_action('wp_head', 'rest_output_link_wp_head');
+    remove_action('wp_head', 'wp_shortlink_wp_head');
+    
+    // Disable Yoast JSON-LD if present
+    add_filter('wpseo_json_ld_output', '__return_false', 99);
+    add_filter('wpseo_schema_graph_enabled', '__return_false', 99);
+    
+    // Disable Rank Math schema if present
+    add_filter('rank_math/json_ld', '__return_false', 99);
+    
+    // Disable All in One SEO schema if present
+    add_filter('aioseo_schema_output', '__return_false', 99);
+    
+    // Disable SEOPress schema if present
+    add_filter('seopress_schemas_jsonld_output', '__return_false', 99);
+    
+    // Disable The SEO Framework schema if present
+    add_filter('the_seo_framework_ldjson_scripts', '__return_false', 99);
+    
+    // Remove any theme-added schema
+    add_filter('wp_head', function() {
+        global $wp_filter;
+        if (isset($wp_filter['wp_head'])) {
+            foreach ($wp_filter['wp_head'] as $priority => $hooks) {
+                foreach ($hooks as $key => $hook) {
+                    // Remove any hooks that might output schema
+                    if (strpos($key, 'schema') !== false || strpos($key, 'json_ld') !== false || strpos($key, 'structured_data') !== false) {
+                        remove_action('wp_head', $key, $priority);
+                    }
+                }
+            }
+        }
+    }, 1);
+});
+
+// Output BlogPosting JSON-LD for Article schema type on front-end
+// DISABLED - Using schema-final.php instead for proper Exclusive Mode support
+/* Commented out to prevent duplicate schema output
+add_action('wp_head', function() {
+    // Check if we've already output schema (prevent duplicates)
+    static $done = false;
+    if ($done) return;
+    
+    // Only output on singular posts, pages, and front page
+    if (!is_singular('post') && !is_page() && !is_front_page()) return;
+    
+    // Get post ID (for front page, get the page ID)
+    $post_id = is_front_page() && !is_home() ? get_option('page_on_front') : get_the_ID();
+    if (!$post_id) return;
+    
+    // Get schema type - default to Article for all pages
+    $schema_type = get_post_meta($post_id, '_almaseo_schema_type', true) ?: 'Article';
+    
+    // Only output for Article type (free schema)
+    if ($schema_type !== 'Article') return;
+    
+    // Get post/page data
+    $post = get_post($post_id);
+    if (!$post) return;
+    
+    // HEADLINE: SEO Title → post title
+    $seo_title = get_post_meta($post_id, '_almaseo_title', true);
+    $headline = $seo_title ?: get_the_title($post_id);
+    
+    // DESCRIPTION: SEO Meta Description → excerpt → first 160 chars (with entity cleaning)
+    $desc = get_post_meta($post_id, '_almaseo_description', true);
+    if (!$desc) {
+        $excerpt = wp_strip_all_tags(get_the_excerpt($post_id));
+        if (!$excerpt) {
+            $content = wp_strip_all_tags(get_post_field('post_content', $post_id));
+            $excerpt = mb_substr(trim($content), 0, 160);
+        }
+        $desc = $excerpt;
+    }
+    
+    // If still no description, use site description as last resort
+    if (!$desc) {
+        $desc = get_bloginfo('description');
+    }
+    
+    // Decode any HTML entities that might be present (like &hellip; or &rsquo;)
+    $desc = html_entity_decode(wp_specialchars_decode($desc, ENT_QUOTES), ENT_QUOTES, get_bloginfo('charset'));
+    
+    // IMAGE: Full fallback chain - OG → Featured → Site Icon → Custom Logo → Plugin Logo
+    $image_url = '';
+    
+    // 1. Try OG Image
+    $og_image = get_post_meta($post_id, '_almaseo_og_image', true);
+    if ($og_image) {
+        $image_url = $og_image;
+    }
+    
+    // 2. Try Featured Image
+    if (!$image_url && has_post_thumbnail($post_id)) {
+        $image_url = get_the_post_thumbnail_url($post_id, 'full');
+    }
+    
+    // 3. Try Site Icon
+    if (!$image_url) {
+        $site_icon = get_site_icon_url('full');
+        if ($site_icon) {
+            $image_url = $site_icon;
+        }
+    }
+    
+    // 4. Try Theme Custom Logo
+    if (!$image_url) {
+        $custom_logo_id = get_theme_mod('custom_logo');
+        if ($custom_logo_id) {
+            $logo_data = wp_get_attachment_image_src($custom_logo_id, 'full');
+            if ($logo_data) {
+                $image_url = $logo_data[0];
+            }
+        }
+    }
+    
+    // 5. Final fallback to plugin logo
+    if (!$image_url) {
+        $image_url = plugin_dir_url(__FILE__) . 'almaseo-logo.png';
+    }
+    
+    // CANONICAL URL
+    $canonical = get_post_meta($post_id, '_almaseo_canonical_url', true);
+    if (!$canonical) {
+        $canonical = is_front_page() ? home_url('/') : get_permalink($post_id);
+    }
+    
+    // DATES
+    $date_published = get_the_date('c', $post_id);
+    $date_modified = get_the_modified_date('c', $post_id);
+    
+    // AUTHOR with URL - ensure both name and url are always present
+    $author_id = $post->post_author;
+    $author_name = get_the_author_meta('display_name', $author_id);
+    if (!$author_name) {
+        $author_name = get_bloginfo('name'); // Fallback to site name
+    }
+    
+    // Author URL: Prefer author archive, fallback to homepage
+    $author_url = get_author_posts_url($author_id);
+    if (!$author_url || empty($author_url)) {
+        $author_url = home_url('/');
+    }
+    
+    // PUBLISHER with logo
+    $publisher_logo = get_site_icon_url('full');
+    if (!$publisher_logo) {
+        // Try custom logo
+        $custom_logo_id = get_theme_mod('custom_logo');
+        if ($custom_logo_id) {
+            $logo_data = wp_get_attachment_image_src($custom_logo_id, 'full');
+            if ($logo_data) {
+                $publisher_logo = $logo_data[0];
+            }
+        }
+    }
+    if (!$publisher_logo) {
+        $publisher_logo = plugin_dir_url(__FILE__) . 'almaseo-logo.png';
+    }
+    
+    // Build JSON-LD data - Always use BlogPosting (not Article)
+    $json_ld = array(
+        '@context' => 'https://schema.org',
+        '@type' => 'BlogPosting',
+        'mainEntityOfPage' => $canonical,
+        'headline' => $headline,
+        'description' => $desc,
+        'datePublished' => $date_published,
+        'dateModified' => $date_modified,
+        'author' => array(
+            '@type' => 'Person',
+            'name' => $author_name,
+            'url' => $author_url
+        ),
+        'publisher' => array(
+            '@type' => 'Organization',
+            'name' => get_bloginfo('name'),
+            'logo' => array(
+                '@type' => 'ImageObject',
+                'url' => $publisher_logo
+            )
+        ),
+        'image' => $image_url
+    );
+    
+    // Mark as done to prevent any duplicate outputs
+    $done = true;
+    
+    // Safe output with proper JSON encoding - ONLY ONE JSON-LD block
+    echo "\n<!-- AlmaSEO Schema Markup -->\n";
+    echo '<script type="application/ld+json">' . wp_json_encode($json_ld, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>';
+    echo "\n<!-- /AlmaSEO Schema Markup -->\n";
+}, 100); // High priority to ensure it runs after theme functions
+End of commented out schema output */
+
+// SEO Playground AJAX handlers (AI tools, insights, GSC, schema, health, notes)
+require_once plugin_dir_path(__FILE__) . 'includes/ajax/seo-playground-ajax.php';
+
+// --- FRONT-END META TAG RENDERING ---
+require_once plugin_dir_path(__FILE__) . 'includes/frontend/meta-tags-renderer.php';
+// WooCommerce Settings Page
+function almaseo_woocommerce_settings_page() {
+    if (!current_user_can('manage_options')) {
+        wp_die(__('You do not have sufficient permissions to access this page.'));
+    }
+
+    // Check if WooCommerce SEO feature is available (Pro feature)
+    if ( ! almaseo_feature_available( 'woocommerce' ) ) {
+        almaseo_render_feature_locked( 'woocommerce' );
+        return;
+    }
+
+    // Include the WooCommerce settings page
+    $settings_file = plugin_dir_path(__FILE__) . 'admin/pages/settings-woo.php';
+    if (file_exists($settings_file)) {
+        include $settings_file;
+    } else {
+        echo '<div class="notice notice-error"><p>' . __('WooCommerce SEO settings file not found.', 'almaseo') . '</p></div>';
+    }
+}
