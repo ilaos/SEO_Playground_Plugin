@@ -128,6 +128,89 @@ function seo_playground_render_overview_page() {
                     </div>
                 </div>
             </div>
+
+            <!-- Link Suggestions Metric -->
+            <div class="almaseo-metric-card">
+                <div class="almaseo-metric-icon">
+                    <span class="dashicons dashicons-admin-links"></span>
+                </div>
+                <div class="almaseo-metric-content">
+                    <?php
+                    $pending_links = 0;
+                    if (class_exists('AlmaSEO_Internal_Links_Model') && method_exists('AlmaSEO_Internal_Links_Model', 'get_stats')) {
+                        $link_stats = AlmaSEO_Internal_Links_Model::get_stats();
+                        $pending_links = isset($link_stats['pending']) ? $link_stats['pending'] : 0;
+                    }
+                    ?>
+                    <div class="almaseo-metric-value"><?php echo esc_html($pending_links); ?></div>
+                    <div class="almaseo-metric-label">Link Suggestions</div>
+                    <div class="almaseo-metric-sublabel">
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-internal-links')); ?>">Review &rarr;</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Refresh Metric -->
+            <div class="almaseo-metric-card">
+                <div class="almaseo-metric-icon">
+                    <span class="dashicons dashicons-update"></span>
+                </div>
+                <div class="almaseo-metric-content">
+                    <?php
+                    $pending_drafts = 0;
+                    if (class_exists('AlmaSEO_Refresh_Draft_Model') && method_exists('AlmaSEO_Refresh_Draft_Model', 'count')) {
+                        $pending_drafts = AlmaSEO_Refresh_Draft_Model::count(array('status' => 'pending'));
+                    }
+                    ?>
+                    <div class="almaseo-metric-value"><?php echo esc_html($pending_drafts); ?></div>
+                    <div class="almaseo-metric-label">Content Refresh</div>
+                    <div class="almaseo-metric-sublabel">
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-refresh-drafts')); ?>">Review &rarr;</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Refresh Queue Metric -->
+            <div class="almaseo-metric-card">
+                <div class="almaseo-metric-icon">
+                    <span class="dashicons dashicons-flag"></span>
+                </div>
+                <div class="almaseo-metric-content">
+                    <?php
+                    $high_priority = 0;
+                    if (class_exists('AlmaSEO_Refresh_Queue_Model') && method_exists('AlmaSEO_Refresh_Queue_Model', 'get_stats')) {
+                        $rq_stats = AlmaSEO_Refresh_Queue_Model::get_stats();
+                        $high_priority = isset($rq_stats['high']) ? $rq_stats['high'] : 0;
+                    }
+                    ?>
+                    <div class="almaseo-metric-value"><?php echo esc_html($high_priority); ?></div>
+                    <div class="almaseo-metric-label">High Priority</div>
+                    <div class="almaseo-metric-sublabel">
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-refresh-queue')); ?>">View queue &rarr;</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date Hygiene Metric -->
+            <div class="almaseo-metric-card">
+                <div class="almaseo-metric-icon">
+                    <span class="dashicons dashicons-calendar-alt"></span>
+                </div>
+                <div class="almaseo-metric-content">
+                    <?php
+                    $dh_high = 0;
+                    if (class_exists('AlmaSEO_Date_Hygiene_Model') && method_exists('AlmaSEO_Date_Hygiene_Model', 'get_stats')) {
+                        $dh_stats = AlmaSEO_Date_Hygiene_Model::get_stats();
+                        $dh_high = isset($dh_stats['high']) ? $dh_stats['high'] : 0;
+                    }
+                    ?>
+                    <div class="almaseo-metric-value"><?php echo esc_html($dh_high); ?></div>
+                    <div class="almaseo-metric-label">Stale Findings</div>
+                    <div class="almaseo-metric-sublabel">
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-date-hygiene')); ?>">View findings &rarr;</a>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Two-Column Layout -->

@@ -60,6 +60,7 @@ function almaseo_is_pro_active() {
  * - 'optimization_dataforseo': DataForSEO keyword provider
  * - 'health_advanced': Advanced health score features
  * - 'history_extended': Extended metadata history (30+ days)
+ * - 'internal_links': Internal links auto-linker
  *
  * Free tier features (available to all):
  * - Basic schema markup
@@ -86,6 +87,10 @@ function almaseo_feature_available( $feature ) {
         'optimization_dataforseo', // DataForSEO provider
         'health_advanced',        // Advanced health features
         'history_extended',       // Extended history retention
+        'internal_links',         // Internal links auto-linker
+        'refresh_drafts',         // Content refresh drafts
+        'refresh_queue',          // Refresh queue autoprioritization
+        'date_hygiene',           // Date hygiene scanner
     );
 
     // Check if this feature requires Pro tier
@@ -189,5 +194,9 @@ function almaseo_get_pro_features() {
         'optimization_dataforseo',
         'health_advanced',
         'history_extended',
+        'internal_links',
+        'refresh_drafts',
+        'refresh_queue',
+        'date_hygiene',
     );
 }

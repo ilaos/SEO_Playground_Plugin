@@ -88,7 +88,7 @@ class AlmaSEO_Robots_Controller {
      * Enqueue assets
      */
     public function enqueue_assets($hook) {
-        if ('seo-playground_page_almaseo-robots' !== $hook) {
+        if (strpos($hook, 'almaseo-robots') === false) {
             return;
         }
         

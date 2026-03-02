@@ -181,6 +181,26 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/breadcrumbs/breadcrumbs-lo
     require_once plugin_dir_path(__FILE__) . 'includes/breadcrumbs/breadcrumbs-loader.php';
 }
 
+// Include Internal Links module (v7.0.0+) - Hybrid (Free: suggestions, Pro: auto-insert)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/internal-links/internal-links-loader.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/internal-links/internal-links-loader.php';
+}
+
+// Include Content Refresh Drafts module (v7.1.0+) - Pro feature
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/refresh-drafts/refresh-drafts-loader.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/refresh-drafts/refresh-drafts-loader.php';
+}
+
+// Include Refresh Queue module (v7.2.0+) - Pro feature
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/refresh-queue/refresh-queue-loader.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/refresh-queue/refresh-queue-loader.php';
+}
+
+// Include Date Hygiene Scanner module (v7.3.0+) - Pro feature
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/date-hygiene/date-hygiene-loader.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/date-hygiene/date-hygiene-loader.php';
+}
+
 // Ensure almaseo_is_pro function exists as fallback
 // This should rarely be reached since bulkmeta-loader.php defines it first
 if (!function_exists('almaseo_is_pro')) {

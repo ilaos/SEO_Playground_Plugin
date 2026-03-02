@@ -314,6 +314,26 @@ function almaseo_get_locked_feature_content( $feature ) {
             'description' => 'Store and access metadata history beyond 30 days with unlimited revision tracking and restoration.',
             'url'         => 'https://almaseo.com/pro#history',
         ),
+        'internal_links' => array(
+            'name'        => 'Internal Links',
+            'description' => 'Build a stronger internal linking structure without editing a single post. Create keyword-to-page rules and AlmaSEO automatically inserts the right links when visitors view your content. Built-in guardrails prevent over-linking, and your original content is never modified.',
+            'url'         => 'https://almaseo.com/pro#internal-links',
+        ),
+        'refresh_drafts' => array(
+            'name'        => 'Content Refresh',
+            'description' => 'Let AlmaSEO suggest improvements to your existing posts. Compare the proposed updates against your live content section by section, keep the changes you like, and apply them with one click. WordPress revisions are saved automatically so you can always roll back.',
+            'url'         => 'https://almaseo.com/pro#content-refresh',
+        ),
+        'refresh_queue' => array(
+            'name'        => 'Refresh Queue',
+            'description' => 'Automatically prioritize which content to refresh next based on business value, traffic trends, conversion potential, and opportunity size. Focus your team on the pages that will have the biggest impact.',
+            'url'         => 'https://almaseo.com/pro#refresh-queue',
+        ),
+        'date_hygiene' => array(
+            'name'        => 'Date Hygiene Scanner',
+            'description' => 'Scan your content for stale year references, outdated prices, and time-decay problems that quietly erode trust. Get a focused worklist of exactly what to fix, with suggested replacements.',
+            'url'         => 'https://almaseo.com/pro#date-hygiene',
+        ),
     );
 
     if ( isset( $content[ $feature ] ) ) {

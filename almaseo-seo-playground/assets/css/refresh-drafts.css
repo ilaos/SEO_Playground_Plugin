@@ -1,0 +1,341 @@
+/**
+ * Refresh Drafts – Styles
+ *
+ * @package AlmaSEO
+ * @since   7.0.0
+ */
+
+/* ── Layout ── */
+.almaseo-rd-wrap {
+    max-width: 1100px;
+    margin: 20px auto;
+}
+
+.almaseo-rd-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+/* ── Feature Intro ── */
+.almaseo-rd-intro {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-left: 4px solid #2271b1;
+    border-radius: 2px;
+    padding: 20px 24px;
+    margin: 16px 0 24px;
+    max-width: 900px;
+}
+
+.almaseo-rd-intro-lead {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: #1d2327;
+    margin: 0 0 6px;
+}
+
+.almaseo-rd-intro-lead + .almaseo-rd-how-it-works {
+    margin-top: 16px;
+}
+
+.almaseo-rd-how-it-works {
+    background: #f6f7f7;
+    border-radius: 4px;
+    padding: 14px 20px;
+    margin: 0 0 12px;
+}
+
+.almaseo-rd-how-it-works h3 {
+    margin: 0 0 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1d2327;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.almaseo-rd-how-it-works ol {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.almaseo-rd-how-it-works li {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #50575e;
+    margin-bottom: 3px;
+}
+
+.almaseo-rd-how-it-works li:last-child {
+    margin-bottom: 0;
+}
+
+.almaseo-rd-intro-note {
+    margin: 0;
+    padding: 10px 14px;
+    background: #e7f5fa;
+    border-radius: 3px;
+    font-size: 12.5px;
+    color: #135e96;
+    line-height: 1.5;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.almaseo-rd-intro-note .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-top: 1px;
+    flex-shrink: 0;
+    color: #2271b1;
+}
+
+/* ── Filters ── */
+.almaseo-rd-filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.almaseo-rd-select {
+    min-width: 160px;
+}
+
+/* ── Table ── */
+.almaseo-rd-table th,
+.almaseo-rd-table td {
+    vertical-align: middle;
+    padding: 10px 12px;
+}
+
+.almaseo-rd-table .almaseo-rd-status {
+    text-transform: capitalize;
+}
+
+/* ── Empty state ── */
+.almaseo-rd-empty {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    text-align: center;
+    padding: 60px 40px;
+    margin-top: 4px;
+}
+
+.almaseo-rd-empty-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 24px;
+    background: #f0f6fc;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.almaseo-rd-empty-icon .dashicons {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: #2271b1;
+}
+
+.almaseo-rd-empty h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 10px;
+    color: #1d2327;
+}
+
+.almaseo-rd-empty p {
+    color: #646970;
+    font-size: 14px;
+    max-width: 520px;
+    margin: 0 auto 28px;
+    line-height: 1.6;
+}
+
+.almaseo-rd-empty-steps {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+    max-width: 480px;
+    text-align: left;
+}
+
+.almaseo-rd-empty-steps li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    font-size: 13.5px;
+    color: #3c434a;
+    line-height: 1.5;
+    border-bottom: 1px solid #f0f0f1;
+}
+
+.almaseo-rd-empty-steps li:last-child {
+    border-bottom: none;
+}
+
+.almaseo-rd-step-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #2271b1;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 1px;
+}
+
+/* ── Pagination ── */
+.almaseo-rd-pagination {
+    display: flex;
+    gap: 6px;
+    margin-top: 14px;
+    justify-content: flex-end;
+}
+
+.almaseo-rd-pagination .button.current {
+    font-weight: 700;
+    pointer-events: none;
+}
+
+/* ── How-it-works hint (review page) ── */
+.almaseo-rd-howto {
+    background: #f0f6fc;
+    border-left: 4px solid #2271b1;
+    padding: 12px 16px;
+    margin-bottom: 18px;
+    font-size: 13px;
+    line-height: 1.55;
+    border-radius: 2px;
+}
+
+/* ── Back link ── */
+.almaseo-rd-back {
+    text-decoration: none;
+    font-size: 13px;
+}
+
+/* ── Meta line ── */
+.almaseo-rd-meta {
+    color: #666;
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+/* ── Section cards ── */
+.almaseo-rd-section {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 14px;
+    overflow: hidden;
+}
+
+.almaseo-rd-section.unchanged {
+    opacity: 0.6;
+}
+
+.almaseo-rd-section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: #f9f9f9;
+    border-bottom: 1px solid #eee;
+}
+
+.almaseo-rd-section-label {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.almaseo-rd-unchanged-badge {
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+}
+
+/* ── Diff columns ── */
+.almaseo-rd-diff {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+}
+
+.almaseo-rd-col {
+    padding: 12px 14px;
+}
+
+.almaseo-rd-col h4 {
+    margin: 0 0 6px;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #999;
+}
+
+.almaseo-rd-old {
+    background: #fef8f8;
+    border-right: 1px solid #eee;
+}
+
+.almaseo-rd-new {
+    background: #f4faf4;
+}
+
+.almaseo-rd-body {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* ── Toggle ── */
+.almaseo-rd-toggle {
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* ── Action bars ── */
+.almaseo-rd-actions-top {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.almaseo-rd-actions-bottom {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid #ddd;
+}
+
+/* ── Responsive ── */
+@media screen and (max-width: 782px) {
+    .almaseo-rd-empty {
+        padding: 40px 24px;
+    }
+
+    .almaseo-rd-diff {
+        grid-template-columns: 1fr;
+    }
+
+    .almaseo-rd-old {
+        border-right: none;
+        border-bottom: 1px solid #eee;
+    }
+}
