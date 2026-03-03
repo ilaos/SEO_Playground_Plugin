@@ -38,7 +38,10 @@ class AlmaSEO_404_Loader {
         
         // Load controller (business logic)
         require_once $base_path . '404-controller.php';
-        
+
+        // Load intelligence engine (v7.6.0+)
+        require_once $base_path . '404-intelligence.php';
+
         // Load capture logic (front-end only)
         if (!is_admin()) {
             require_once $base_path . '404-capture.php';

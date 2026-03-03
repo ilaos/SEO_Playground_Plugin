@@ -201,6 +201,26 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/date-hygiene/date-hygiene-
     require_once plugin_dir_path(__FILE__) . 'includes/date-hygiene/date-hygiene-loader.php';
 }
 
+// Include E-E-A-T Enforcement module (v7.4.0+) - Pro feature
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/eeat/eeat-loader.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/eeat/eeat-loader.php';
+}
+
+// Include GSC Monitor module (v7.5.0+) - Pro feature
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/gsc-monitor/gsc-monitor-loader.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/gsc-monitor/gsc-monitor-loader.php';
+}
+
+// Include Schema Drift Monitor module (v7.8.0+) - Pro feature
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/schema-drift/schema-drift-loader.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/schema-drift/schema-drift-loader.php';
+}
+
+// Include Featured Snippet Targeting module (v7.9.0+) - Pro feature
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/snippet-targets/snippet-targets-loader.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/snippet-targets/snippet-targets-loader.php';
+}
+
 // Ensure almaseo_is_pro function exists as fallback
 // This should rarely be reached since bulkmeta-loader.php defines it first
 if (!function_exists('almaseo_is_pro')) {

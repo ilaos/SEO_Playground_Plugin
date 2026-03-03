@@ -74,8 +74,7 @@ class AlmaSEO_Redirects_Controller {
      */
     public static function enqueue_admin_assets($hook) {
         // Only load on our page
-        // The hook will be 'seo-playground_page_almaseo-redirects' since parent is 'seo-playground'
-        if ($hook !== 'seo-playground_page_almaseo-redirects') {
+        if ( strpos( $hook, 'almaseo-redirects' ) === false ) {
             return;
         }
         
@@ -121,6 +120,36 @@ class AlmaSEO_Redirects_Controller {
         require_once plugin_dir_path(__FILE__) . 'redirects-rest.php';
         $rest_controller = new AlmaSEO_Redirects_REST();
         $rest_controller->register_routes();
+
+        /* ── Intelligence endpoints (v7.6.0+) ── */
+
+        // Dashboard push: traffic recovery data.
+        register_rest_route('almaseo/v1', '/redirects/push-traffic', array(
+            'methods'             => 'POST',
+            'callback'            => array(__CLASS__, 'rest_push_traffic'),
+            'permission_callback' => 'almaseo_api_auth_check',
+            'args'                => array(
+                'items' => array(
+                    'type'     => 'array',
+                    'required' => true,
+                    'items'    => array( 'type' => 'object' ),
+                ),
+            ),
+        ));
+
+        // Detect redirect chains.
+        register_rest_route('almaseo/v1', '/redirects/chains', array(
+            'methods'             => 'GET',
+            'callback'            => array(__CLASS__, 'rest_detect_chains'),
+            'permission_callback' => function () { return current_user_can( 'manage_options' ); },
+        ));
+
+        // Traffic recovery report.
+        register_rest_route('almaseo/v1', '/redirects/recovery', array(
+            'methods'             => 'GET',
+            'callback'            => array(__CLASS__, 'rest_recovery_report'),
+            'permission_callback' => function () { return current_user_can( 'manage_options' ); },
+        ));
     }
     
     /**
@@ -209,6 +238,41 @@ class AlmaSEO_Redirects_Controller {
         return true;
     }
     
+    /* ──────────────── Intelligence REST callbacks (v7.6.0+) ── */
+
+    /**
+     * REST: Push traffic recovery data from dashboard.
+     */
+    public static function rest_push_traffic( $request ) {
+        $items = $request->get_param( 'items' );
+
+        if ( ! is_array( $items ) || empty( $items ) ) {
+            return new WP_Error( 'invalid_payload', 'items must be a non-empty array.', array( 'status' => 400 ) );
+        }
+
+        $counts = AlmaSEO_Redirects_Intelligence::process_traffic_push( $items );
+
+        return rest_ensure_response( $counts );
+    }
+
+    /**
+     * REST: Detect redirect chains.
+     */
+    public static function rest_detect_chains() {
+        $chains = AlmaSEO_Redirects_Intelligence::detect_chains();
+
+        return rest_ensure_response( $chains );
+    }
+
+    /**
+     * REST: Traffic recovery report.
+     */
+    public static function rest_recovery_report() {
+        $report = AlmaSEO_Redirects_Intelligence::get_recovery_report();
+
+        return rest_ensure_response( $report );
+    }
+
     /**
      * Export redirects to CSV
      * 

@@ -1,0 +1,491 @@
+/**
+ * Featured Snippet Targeting – Styles
+ *
+ * @package AlmaSEO
+ * @since   7.9.0
+ */
+
+/* ── Layout ── */
+.almaseo-st-wrap {
+    max-width: 1200px;
+    margin: 20px auto;
+}
+
+.almaseo-st-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+/* ── Feature Intro ── */
+.almaseo-st-intro {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-left: 4px solid #2271b1;
+    border-radius: 2px;
+    padding: 20px 24px;
+    margin: 16px 0 24px;
+    max-width: 960px;
+}
+
+.almaseo-st-intro-lead {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: #1d2327;
+    margin: 0 0 6px;
+}
+
+.almaseo-st-intro-lead + .almaseo-st-how-it-works {
+    margin-top: 16px;
+}
+
+.almaseo-st-how-it-works {
+    background: #f6f7f7;
+    border-radius: 4px;
+    padding: 14px 20px;
+    margin: 0 0 12px;
+}
+
+.almaseo-st-how-it-works h3 {
+    margin: 0 0 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1d2327;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.almaseo-st-how-it-works ol {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.almaseo-st-how-it-works li {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #50575e;
+    margin-bottom: 3px;
+}
+
+.almaseo-st-connection-notice {
+    margin: 0 0 12px;
+    padding: 14px 18px;
+    background: #fef8ee;
+    border: 1px solid #f0c36d;
+    border-left: 4px solid #dba617;
+    border-radius: 4px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    line-height: 1.5;
+}
+
+.almaseo-st-connection-notice > .dashicons {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+    color: #dba617;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.almaseo-st-connection-notice strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 13px;
+    color: #6e4b00;
+}
+
+.almaseo-st-connection-notice p {
+    margin: 0;
+    font-size: 12.5px;
+    color: #6e4b00;
+}
+
+.almaseo-st-connect-action {
+    margin-top: 8px !important;
+}
+
+.almaseo-st-intro-note {
+    margin: 0;
+    padding: 10px 14px;
+    background: #e7f5fa;
+    border-radius: 3px;
+    font-size: 12.5px;
+    color: #135e96;
+    line-height: 1.5;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.almaseo-st-intro-note .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-top: 1px;
+    flex-shrink: 0;
+    color: #2271b1;
+}
+
+/* ── Summary Cards ── */
+.almaseo-st-stats {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.almaseo-st-stat-card {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 16px 20px;
+    min-width: 120px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.almaseo-st-stat-card .dashicons {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    color: #2271b1;
+    margin-bottom: 8px;
+}
+
+.almaseo-st-stat-opportunities .dashicons { color: #dba617; }
+.almaseo-st-stat-won .dashicons { color: #00a32a; }
+
+.almaseo-st-stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1d2327;
+    line-height: 1.2;
+}
+
+.almaseo-st-stat-label {
+    font-size: 12px;
+    color: #646970;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+/* ── Action Bar ── */
+.almaseo-st-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.almaseo-st-select {
+    min-width: 130px;
+}
+
+.almaseo-st-search {
+    min-width: 200px;
+    padding: 4px 8px;
+}
+
+/* ── Table ── */
+.almaseo-st-table th,
+.almaseo-st-table td {
+    vertical-align: middle;
+    padding: 10px 12px;
+}
+
+.almaseo-st-col-num {
+    width: 80px;
+    text-align: center;
+}
+
+/* ── Format Badge ── */
+.almaseo-st-format-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.almaseo-st-format-paragraph {
+    background: #f0f6fc;
+    color: #2271b1;
+}
+
+.almaseo-st-format-list {
+    background: #edfaef;
+    color: #00a32a;
+}
+
+.almaseo-st-format-table {
+    background: #fef8e8;
+    color: #996800;
+}
+
+.almaseo-st-format-definition {
+    background: #f0f0f1;
+    color: #50575e;
+}
+
+/* ── Status Badge ── */
+.almaseo-st-status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.almaseo-st-status-opportunity {
+    background: #fef8e8;
+    color: #996800;
+}
+
+.almaseo-st-status-draft {
+    background: #f0f6fc;
+    color: #2271b1;
+}
+
+.almaseo-st-status-approved {
+    background: #e7f5fa;
+    color: #135e96;
+}
+
+.almaseo-st-status-applied {
+    background: #edfaef;
+    color: #00a32a;
+}
+
+.almaseo-st-status-won {
+    background: #edfaef;
+    color: #00a32a;
+    font-weight: 700;
+}
+
+.almaseo-st-status-lost {
+    background: #fcecec;
+    color: #d63638;
+}
+
+.almaseo-st-status-rejected {
+    color: #646970;
+    background: #f0f0f1;
+}
+
+.almaseo-st-status-expired {
+    color: #646970;
+    background: #f0f0f1;
+}
+
+/* ── Query text ── */
+.almaseo-st-query {
+    font-weight: 600;
+    color: #1d2327;
+}
+
+/* ── Empty State ── */
+.almaseo-st-empty {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    text-align: center;
+    padding: 60px 40px;
+    margin-top: 4px;
+}
+
+.almaseo-st-empty-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 24px;
+    background: #f0f6fc;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.almaseo-st-empty-icon .dashicons {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: #2271b1;
+}
+
+.almaseo-st-empty h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 10px;
+    color: #1d2327;
+}
+
+.almaseo-st-empty p {
+    color: #646970;
+    font-size: 14px;
+    max-width: 520px;
+    margin: 0 auto 20px;
+    line-height: 1.6;
+}
+
+/* ── Pagination ── */
+.almaseo-st-pagination {
+    display: flex;
+    gap: 6px;
+    margin-top: 14px;
+    justify-content: flex-end;
+}
+
+.almaseo-st-pagination .button.current {
+    font-weight: 700;
+    pointer-events: none;
+}
+
+/* ── Modal ── */
+.almaseo-st-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.almaseo-st-modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.almaseo-st-modal-content {
+    position: relative;
+    background: #fff;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.almaseo-st-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #dcdcde;
+}
+
+.almaseo-st-modal-header h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.almaseo-st-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #646970;
+    padding: 4px 8px;
+    line-height: 1;
+}
+
+.almaseo-st-modal-close:hover {
+    color: #d63638;
+}
+
+.almaseo-st-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.almaseo-st-modal-meta {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.almaseo-st-prompt-hint {
+    background: #f6f7f7;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #50575e;
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.almaseo-st-modal-body label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    font-size: 13px;
+}
+
+.almaseo-st-draft-preview {
+    margin-top: 12px;
+    padding: 12px;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+    background: #fafafa;
+    min-height: 60px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.almaseo-st-modal-footer {
+    display: flex;
+    gap: 8px;
+    padding: 16px 20px;
+    border-top: 1px solid #dcdcde;
+    justify-content: flex-end;
+}
+
+/* ── Has Draft indicator ── */
+.almaseo-st-has-draft {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #2271b1;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+/* ── Responsive ── */
+@media screen and (max-width: 782px) {
+    .almaseo-st-stats {
+        flex-direction: column;
+    }
+
+    .almaseo-st-empty {
+        padding: 40px 24px;
+    }
+
+    .almaseo-st-actions {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .almaseo-st-modal-content {
+        width: 95%;
+        max-height: 95vh;
+    }
+}

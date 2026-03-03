@@ -1,0 +1,385 @@
+/**
+ * Schema Drift Monitor – Styles
+ *
+ * @package AlmaSEO
+ * @since   7.8.0
+ */
+
+/* ── Layout ── */
+.almaseo-sd-wrap {
+    max-width: 1200px;
+    margin: 20px auto;
+}
+
+.almaseo-sd-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+/* ── Feature Intro ── */
+.almaseo-sd-intro {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-left: 4px solid #2271b1;
+    border-radius: 2px;
+    padding: 20px 24px;
+    margin: 16px 0 24px;
+    max-width: 960px;
+}
+
+.almaseo-sd-intro-lead {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: #1d2327;
+    margin: 0 0 6px;
+}
+
+.almaseo-sd-intro-lead + .almaseo-sd-how-it-works {
+    margin-top: 16px;
+}
+
+.almaseo-sd-how-it-works {
+    background: #f6f7f7;
+    border-radius: 4px;
+    padding: 14px 20px;
+    margin: 0 0 12px;
+}
+
+.almaseo-sd-how-it-works h3 {
+    margin: 0 0 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1d2327;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.almaseo-sd-how-it-works ol {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.almaseo-sd-how-it-works li {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #50575e;
+    margin-bottom: 3px;
+}
+
+.almaseo-sd-intro-note {
+    margin: 0;
+    padding: 10px 14px;
+    background: #e7f5fa;
+    border-radius: 3px;
+    font-size: 12.5px;
+    color: #135e96;
+    line-height: 1.5;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.almaseo-sd-intro-note .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-top: 1px;
+    flex-shrink: 0;
+    color: #2271b1;
+}
+
+/* ── Summary Cards ── */
+.almaseo-sd-stats {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.almaseo-sd-stat-card {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 16px 20px;
+    min-width: 120px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.almaseo-sd-stat-card .dashicons {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    color: #2271b1;
+    margin-bottom: 8px;
+}
+
+.almaseo-sd-stat-open .dashicons { color: #dba617; }
+.almaseo-sd-stat-high .dashicons { color: #d63638; }
+
+.almaseo-sd-stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1d2327;
+    line-height: 1.2;
+}
+
+.almaseo-sd-stat-label {
+    font-size: 12px;
+    color: #646970;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+/* ── Action Bar ── */
+.almaseo-sd-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.almaseo-sd-actions .button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.almaseo-sd-actions .button .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.almaseo-sd-select {
+    min-width: 130px;
+}
+
+.almaseo-sd-search {
+    min-width: 180px;
+    padding: 4px 8px;
+}
+
+.almaseo-sd-last-scan {
+    font-size: 12px;
+    color: #646970;
+    margin-left: 8px;
+}
+
+/* ── Table ── */
+.almaseo-sd-table th,
+.almaseo-sd-table td {
+    vertical-align: middle;
+    padding: 10px 12px;
+}
+
+.almaseo-sd-col-summary {
+    min-width: 220px;
+}
+
+/* ── Drift Type Badge ── */
+.almaseo-sd-drift-type {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.almaseo-sd-drift-type-schema_removed {
+    background: #fcecec;
+    color: #d63638;
+}
+
+.almaseo-sd-drift-type-schema_modified {
+    background: #fef8e8;
+    color: #996800;
+}
+
+.almaseo-sd-drift-type-schema_added {
+    background: #edfaef;
+    color: #00a32a;
+}
+
+.almaseo-sd-drift-type-schema_error {
+    background: #f0f6fc;
+    color: #2271b1;
+}
+
+/* ── Severity Badge ── */
+.almaseo-sd-severity {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.almaseo-sd-severity-high {
+    background: #fcecec;
+    color: #d63638;
+}
+
+.almaseo-sd-severity-medium {
+    background: #fef8e8;
+    color: #996800;
+}
+
+.almaseo-sd-severity-low {
+    background: #f0f0f1;
+    color: #50575e;
+}
+
+/* ── Status Badge ── */
+.almaseo-sd-status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.almaseo-sd-status-open {
+    background: #fef8e8;
+    color: #996800;
+}
+
+.almaseo-sd-status-resolved {
+    background: #edfaef;
+    color: #00a32a;
+}
+
+.almaseo-sd-status-dismissed {
+    color: #646970;
+    background: #f0f0f1;
+}
+
+/* ── Schema Type Badge ── */
+.almaseo-sd-schema-type {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    background: #f0f6fc;
+    color: #2271b1;
+    font-family: monospace;
+}
+
+/* ── Diff Summary ── */
+.almaseo-sd-summary {
+    font-size: 12px;
+    color: #50575e;
+    line-height: 1.5;
+}
+
+/* ── Empty State ── */
+.almaseo-sd-empty {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    text-align: center;
+    padding: 60px 40px;
+    margin-top: 4px;
+}
+
+.almaseo-sd-empty-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 24px;
+    background: #f0f6fc;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.almaseo-sd-empty-icon .dashicons {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: #2271b1;
+}
+
+.almaseo-sd-empty h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 10px;
+    color: #1d2327;
+}
+
+.almaseo-sd-empty p {
+    color: #646970;
+    font-size: 14px;
+    max-width: 520px;
+    margin: 0 auto 20px;
+    line-height: 1.6;
+}
+
+/* ── Pagination ── */
+.almaseo-sd-pagination {
+    display: flex;
+    gap: 6px;
+    margin-top: 14px;
+    justify-content: flex-end;
+}
+
+.almaseo-sd-pagination .button.current {
+    font-weight: 700;
+    pointer-events: none;
+}
+
+/* ── Settings Panel ── */
+.almaseo-sd-settings-panel {
+    margin-top: 24px;
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+}
+
+.almaseo-sd-settings-panel > summary {
+    padding: 12px 16px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    color: #1d2327;
+}
+
+.almaseo-sd-settings-inner {
+    padding: 0 16px 16px;
+}
+
+.almaseo-sd-settings-status {
+    margin-left: 10px;
+    font-size: 13px;
+    color: #00a32a;
+}
+
+/* ── Responsive ── */
+@media screen and (max-width: 782px) {
+    .almaseo-sd-stats {
+        flex-direction: column;
+    }
+
+    .almaseo-sd-col-summary {
+        display: none;
+    }
+
+    .almaseo-sd-empty {
+        padding: 40px 24px;
+    }
+
+    .almaseo-sd-actions {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

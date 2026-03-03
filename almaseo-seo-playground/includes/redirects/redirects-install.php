@@ -33,17 +33,20 @@ function almaseo_install_redirects_table() {
         last_hit DATETIME NULL,
         created_at DATETIME NOT NULL,
         updated_at DATETIME NOT NULL,
+        traffic_before BIGINT(20) UNSIGNED DEFAULT 0,
+        traffic_after BIGINT(20) UNSIGNED DEFAULT 0,
+        recovery_pct DECIMAL(5,2) DEFAULT NULL,
         PRIMARY KEY (id),
         UNIQUE KEY source (source),
         KEY is_enabled (is_enabled),
         KEY source_enabled (source, is_enabled)
     ) $charset_collate;";
-    
+
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
-    
+
     // Store the database version
-    update_option('almaseo_redirects_db_version', '1.0.0');
+    update_option('almaseo_redirects_db_version', '1.1.0');
 }
 
 /**
@@ -54,7 +57,7 @@ function almaseo_install_redirects_table() {
 function almaseo_check_redirects_db() {
     $installed_version = get_option('almaseo_redirects_db_version', '0');
     
-    if (version_compare($installed_version, '1.0.0', '<')) {
+    if (version_compare($installed_version, '1.1.0', '<')) {
         almaseo_install_redirects_table();
     }
 }

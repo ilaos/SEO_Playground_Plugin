@@ -123,6 +123,7 @@ jQuery(function($) {
             
             // Actions
             var actionsCell = '<td class="column-actions">';
+            actionsCell += '<button type="button" class="button button-small almaseo-404-suggest-btn" data-id="' + log.id + '">Suggestions</button> ';
             actionsCell += '<button type="button" class="button button-small create-redirect" data-id="' + log.id + '">Create Redirect</button> ';
             
             if (log.is_ignored == 1) {

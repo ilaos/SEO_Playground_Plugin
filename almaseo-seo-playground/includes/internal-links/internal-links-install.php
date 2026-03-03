@@ -72,6 +72,51 @@ function almaseo_check_internal_links_db() {
 }
 
 /**
+ * Create or update the orphan pages table (v7.7.0+)
+ */
+function almaseo_install_orphan_pages_table() {
+    global $wpdb;
+
+    $table_name      = $wpdb->prefix . 'almaseo_orphan_pages';
+    $charset_collate = $wpdb->get_charset_collate();
+
+    $sql = "CREATE TABLE $table_name (
+        id               BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+        post_id          BIGINT(20) UNSIGNED NOT NULL,
+        inbound_count    INT UNSIGNED NOT NULL DEFAULT 0,
+        outbound_count   INT UNSIGNED NOT NULL DEFAULT 0,
+        cluster_id       VARCHAR(100) DEFAULT '',
+        cluster_strength DECIMAL(5,2) DEFAULT 0,
+        is_hub_candidate TINYINT(1) DEFAULT 0,
+        status           VARCHAR(20) NOT NULL DEFAULT 'orphan',
+        scanned_at       DATETIME DEFAULT NULL,
+        suggestion       TEXT DEFAULT NULL,
+        PRIMARY KEY (id),
+        UNIQUE KEY post_id (post_id),
+        KEY status (status),
+        KEY cluster_id (cluster_id),
+        KEY inbound_count (inbound_count)
+    ) $charset_collate;";
+
+    require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    dbDelta( $sql );
+
+    update_option( 'almaseo_orphan_pages_db_version', '1.0.0' );
+}
+
+/**
+ * Check orphan pages DB version
+ */
+function almaseo_check_orphan_pages_db() {
+    $installed = get_option( 'almaseo_orphan_pages_db_version', '0' );
+    if ( version_compare( $installed, '1.0.0', '<' ) ) {
+        almaseo_install_orphan_pages_table();
+    }
+}
+
+add_action( 'admin_init', 'almaseo_check_orphan_pages_db' );
+
+/**
  * Drop the internal links table (for uninstall)
  *
  * @return void

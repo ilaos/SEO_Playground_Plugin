@@ -31,17 +31,24 @@ function almaseo_install_404_table() {
         first_seen DATETIME NOT NULL,
         last_seen DATETIME NOT NULL,
         is_ignored TINYINT(1) DEFAULT 0,
+        impact_score DECIMAL(5,2) DEFAULT NULL,
+        impressions BIGINT(20) UNSIGNED DEFAULT 0,
+        clicks BIGINT(20) UNSIGNED DEFAULT 0,
+        suggested_target TEXT DEFAULT NULL,
+        spike_flag TINYINT(1) DEFAULT 0,
         PRIMARY KEY (id),
         KEY path_ignored (path, is_ignored),
         KEY last_seen (last_seen),
-        KEY hits (hits)
+        KEY hits (hits),
+        KEY impact_score (impact_score),
+        KEY spike_flag (spike_flag)
     ) $charset_collate;";
-    
+
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
-    
+
     // Store database version
-    update_option('almaseo_404_db_version', '1.0');
+    update_option('almaseo_404_db_version', '1.1');
 }
 
 /**
@@ -50,7 +57,7 @@ function almaseo_install_404_table() {
 function almaseo_check_404_db() {
     $current_version = get_option('almaseo_404_db_version', '0');
     
-    if (version_compare($current_version, '1.0', '<')) {
+    if (version_compare($current_version, '1.1', '<')) {
         almaseo_install_404_table();
     }
 }

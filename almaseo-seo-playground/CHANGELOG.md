@@ -5,6 +5,119 @@ All notable changes to AlmaSEO SEO Playground will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.9.0] - 2026-03-02
+
+### Added
+- **Featured Snippet Targeting** (Pro) — new module to win Google's "position zero" answer box
+- Targets queries where you rank on page 1 but don't hold the featured snippet
+- Four snippet formats: paragraph, list, table, definition
+- Draft editor with live preview and format-specific prompt hints
+- One-click apply inserts content into posts (WordPress revision created automatically)
+- Clean undo removes snippet content without affecting original post
+- Status tracking: opportunity → draft → approved → applied → won/lost/expired
+- Connection Required notice with dynamic "Connect to AlmaSEO" button
+- Beginner-friendly instructions explaining what featured snippets are
+- Requires AlmaSEO dashboard connection with Google Search Console linked
+
+## [7.8.0] - 2026-03-01
+
+### Added
+- **Schema Drift Monitor** (Pro) — detect when structured data changes unexpectedly
+- Captures baseline snapshot of JSON-LD structured data on representative pages
+- Scans for drift: schemas removed, modified, added, or errored
+- Auto-scans after plugin and theme updates (configurable, 30s delay)
+- Configurable monitored post types and sample size per type (1–50)
+- Works locally via `wp_remote_get()` — no external APIs needed
+- Severity levels: high (removed), medium (modified/error), low (added)
+- Resolve, dismiss, and reopen actions per finding
+- Beginner-friendly admin instructions with "before photo" analogy
+
+## [7.7.0] - 2026-02-28
+
+### Added
+- **Orphan Page Detection** (Pro) — find pages with zero internal links pointing to them
+- Classifies pages as orphan (0 links), weak (1–2), or addressed (3+)
+- Cluster analysis groups pages by category to identify poorly connected topics
+- Hub candidate identification for cornerstone content
+- Integrates with Internal Links module for one-click fixes
+- Auto-generated internal link rule suggestions for orphan pages
+- Works locally — no external connections needed
+
+## [7.6.0] - 2026-02-27
+
+### Added
+- **404 Intelligence enhancements** — smart analytics on top of the 404 log
+- Smart redirect suggestions: slug similarity and title keyword matching against published posts
+- Spike detection: flags 404 paths with 3x surge over 7-day average
+- Impact scoring: dashboard-pushed search impressions and clicks for prioritization
+- Redirect chain detection: finds A→B→C chains and suggests consolidation
+- Renamed sidebar menu from "404 Logs" to "404 Intelligence"
+
+## [7.5.0] - 2026-02-26
+
+### Added
+- **GSC Monitor** (Pro) — track indexation drift, rich result changes, and snippet rewrites
+- Three tabs: Indexation, Rich Results, Snippets with per-tab stats
+- Finding types: not_indexed, excluded_spike, coverage_drop, rich result lost/gained/degraded, title/description rewrite
+- Bulk actions for efficient worklist management (resolve, dismiss, reopen)
+- Smart deduplication prevents duplicate findings on push
+- Configurable alert thresholds and auto-dismiss
+- Connection Required warning box with dynamic "Connect to AlmaSEO" button
+- Requires AlmaSEO dashboard connection with Google Search Console linked
+
+## [7.4.0] - 2026-02-25
+
+### Added
+- **E-E-A-T Enforcement** (Pro) — scan published content for trust signal gaps
+- Six detection methods: missing author, missing bio, missing author schema, missing credentials, no citation sources, missing review attribution
+- YMYL category support for stricter checks on sensitive content
+- Configurable post types, generic usernames, and scan toggles
+- Optional health score integration (0–20 weight)
+- Works locally — no external connections needed
+- Resolved/dismissed findings survive re-scans (dedup by post_id + finding_type)
+- Configurable "Post Types to Scan" setting (default: post, page, product)
+
+## [7.3.0] - 2026-02-24
+
+### Added
+- **Date Hygiene Scanner** (Pro) — passage-level stale content detection
+- Five detection methods: stale years, dated phrases, superlative years, price references, regulation mentions
+- Configurable stale threshold, price scanning, regulation scanning
+- Dashboard push endpoint for NLP-detected findings
+- Configurable "Post Types to Scan" setting (default: post, page, product)
+- Resolved/dismissed findings survive re-scans
+
+## [7.2.0] - 2026-02-23
+
+### Added
+- **Refresh Queue Autoprioritization** (Pro) — priority-ranked content refresh queue
+- Four signal scores: business value, traffic decline, conversion intent, opportunity size
+- Local fallback scoring using evergreen/health data
+- Dashboard can push richer signal scores via REST
+- Configurable signal weights (default: 25/30/20/25)
+- Batch recalculation with skip/restore per post
+
+## [7.1.0] - 2026-02-22
+
+### Added
+- **Content Refresh Drafts** (Pro) — diff-based side-by-side content refresh review
+- Section splitting at heading boundaries with heading alignment
+- Word-level LCS diff with `<del>`/`<ins>` highlighting
+- Accept/reject per section, bulk accept/reject all
+- Content drift detection (MD5 hash comparison)
+- Selective merge into live post with WordPress revision
+
+## [7.0.0] - 2026-02-21
+
+### Added
+- **Internal Links** (Hybrid Free/Pro) — automated internal link insertion with guardrails
+- Dashboard pushes recommendations, admin reviews on dedicated page
+- Five guardrails: max links per post, no duplicate targets, no linking inside existing links or headings, anchor-target consistency
+- Pro users can auto-insert and undo with one click
+- Free users see suggestions and approve/reject
+
+---
+
 ## [5.9.2] - 2025-08-30
 
 ### Fixed

@@ -46,8 +46,8 @@ class AlmaSEO_404_Controller {
     public static function add_admin_menu() {
         add_submenu_page(
             'seo-playground',
-            __('404 Logs', 'almaseo'),
-            __('404 Logs', 'almaseo'),
+            __('404 Intelligence', 'almaseo'),
+            __('404 Intelligence', 'almaseo'),
             'manage_options',
             'almaseo-404-logs',
             array(__CLASS__, 'render_admin_page')
@@ -77,7 +77,7 @@ class AlmaSEO_404_Controller {
      */
     public static function enqueue_admin_assets($hook) {
         // Only load on our page
-        if ($hook !== 'seo-playground_page_almaseo-404-logs') {
+        if ( strpos( $hook, 'almaseo-404-logs' ) === false ) {
             return;
         }
         
@@ -116,6 +116,15 @@ class AlmaSEO_404_Controller {
                 'delete' => __('Delete', 'almaseo')
             )
         ));
+
+        // Intelligence JS (v7.6.0+)
+        wp_enqueue_script(
+            'almaseo-404-intelligence',
+            plugins_url('assets/js/404-intelligence.js', dirname(dirname(__FILE__))),
+            array('jquery', 'almaseo-404-logs'),
+            defined( 'ALMASEO_VERSION' ) ? ALMASEO_VERSION : '7.6.0',
+            true
+        );
     }
     
     /**
@@ -224,6 +233,43 @@ class AlmaSEO_404_Controller {
             'methods' => 'GET',
             'callback' => array(__CLASS__, 'rest_get_stats'),
             'permission_callback' => array(__CLASS__, 'rest_permission_check')
+        ));
+
+        /* ── Intelligence endpoints (v7.6.0+) ── */
+
+        // Dashboard push: impact data.
+        register_rest_route('almaseo/v1', '/404s/push-impact', array(
+            'methods'             => 'POST',
+            'callback'            => array(__CLASS__, 'rest_push_impact'),
+            'permission_callback' => 'almaseo_api_auth_check',
+            'args'                => array(
+                'items' => array(
+                    'type'     => 'array',
+                    'required' => true,
+                    'items'    => array( 'type' => 'object' ),
+                ),
+            ),
+        ));
+
+        // Get redirect suggestions for a 404.
+        register_rest_route('almaseo/v1', '/404s/(?P<id>\d+)/suggestions', array(
+            'methods'             => 'GET',
+            'callback'            => array(__CLASS__, 'rest_get_suggestions'),
+            'permission_callback' => array(__CLASS__, 'rest_permission_check'),
+        ));
+
+        // Get spike alerts.
+        register_rest_route('almaseo/v1', '/404s/spikes', array(
+            'methods'             => 'GET',
+            'callback'            => array(__CLASS__, 'rest_get_spikes'),
+            'permission_callback' => array(__CLASS__, 'rest_permission_check'),
+        ));
+
+        // Get high-impact 404s.
+        register_rest_route('almaseo/v1', '/404s/high-impact', array(
+            'methods'             => 'GET',
+            'callback'            => array(__CLASS__, 'rest_get_high_impact'),
+            'permission_callback' => array(__CLASS__, 'rest_permission_check'),
         ));
     }
     
@@ -362,10 +408,84 @@ class AlmaSEO_404_Controller {
      */
     public static function rest_get_stats() {
         require_once dirname(__FILE__) . '/404-model.php';
-        
+
         $stats = AlmaSEO_404_Model::get_stats();
         $stats['top_referrer'] = AlmaSEO_404_Model::get_top_referrer();
-        
+
         return rest_ensure_response($stats);
+    }
+
+    /* ──────────────── Intelligence endpoints (v7.6.0+) ── */
+
+    /**
+     * REST: Push impact data from dashboard.
+     */
+    public static function rest_push_impact( $request ) {
+        $items = $request->get_param( 'items' );
+
+        if ( ! is_array( $items ) || empty( $items ) ) {
+            return new WP_Error( 'invalid_payload', 'items must be a non-empty array.', array( 'status' => 400 ) );
+        }
+
+        $counts = AlmaSEO_404_Intelligence::process_impact_push( $items );
+
+        return rest_ensure_response( $counts );
+    }
+
+    /**
+     * REST: Get redirect suggestions for a specific 404 log.
+     */
+    public static function rest_get_suggestions( $request ) {
+        require_once dirname(__FILE__) . '/404-model.php';
+
+        $id  = absint( $request['id'] );
+        $log = AlmaSEO_404_Model::get_log( $id );
+
+        if ( ! $log ) {
+            return new WP_Error( 'not_found', '404 log not found.', array( 'status' => 404 ) );
+        }
+
+        $suggestions = AlmaSEO_404_Intelligence::get_suggestions( $log['path'] );
+
+        // If dashboard pushed a suggested target, prepend it.
+        if ( ! empty( $log['suggested_target'] ) ) {
+            array_unshift( $suggestions, array(
+                'post_id' => null,
+                'url'     => $log['suggested_target'],
+                'title'   => 'Dashboard suggestion',
+                'score'   => 100,
+                'reason'  => 'Suggested by AlmaSEO dashboard',
+            ) );
+        }
+
+        return rest_ensure_response( $suggestions );
+    }
+
+    /**
+     * REST: Get spike alerts.
+     */
+    public static function rest_get_spikes() {
+        $spikes = AlmaSEO_404_Intelligence::detect_spikes();
+
+        return rest_ensure_response( $spikes );
+    }
+
+    /**
+     * REST: Get high-impact 404s (sorted by impact_score).
+     */
+    public static function rest_get_high_impact() {
+        global $wpdb;
+        $table = $wpdb->prefix . 'almaseo_404_log';
+
+        $results = $wpdb->get_results(
+            "SELECT id, path, hits, impact_score, impressions, clicks, suggested_target, last_seen
+             FROM {$table}
+             WHERE is_ignored = 0 AND impact_score IS NOT NULL AND impact_score > 0
+             ORDER BY impact_score DESC
+             LIMIT 20",
+            ARRAY_A
+        );
+
+        return rest_ensure_response( $results ? $results : array() );
     }
 }

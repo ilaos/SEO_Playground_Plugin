@@ -56,6 +56,28 @@ $logs_data = AlmaSEO_404_Model::get_logs(array(
         <span class="dashicons dashicons-info"></span>
         <?php _e('404 logs show missing URLs on your site. Fix broken links by creating redirects or restoring missing pages. Use "Ignore" to hide bot noise and unimportant paths.', 'almaseo'); ?>
     </div>
+
+    <!-- Spike Alerts (v7.6.0+) -->
+    <details class="almaseo-404-intelligence-panel" open>
+        <summary>
+            <span class="dashicons dashicons-chart-bar"></span>
+            <?php _e( 'Spike Alerts', 'almaseo' ); ?>
+        </summary>
+        <div id="almaseo-404-spikes" class="almaseo-404-panel-body">
+            <p><?php esc_html_e( 'Checking for spikes...', 'almaseo' ); ?></p>
+        </div>
+    </details>
+
+    <!-- High Impact 404s (v7.6.0+) -->
+    <details class="almaseo-404-intelligence-panel">
+        <summary>
+            <span class="dashicons dashicons-star-filled"></span>
+            <?php _e( 'High Impact 404s', 'almaseo' ); ?>
+        </summary>
+        <div id="almaseo-404-high-impact" class="almaseo-404-panel-body">
+            <p><?php esc_html_e( 'Loading impact data...', 'almaseo' ); ?></p>
+        </div>
+    </details>
     
     <!-- Filters -->
     <div class="tablenav top">
@@ -146,6 +168,9 @@ $logs_data = AlmaSEO_404_Model::get_logs(array(
                         <?php endif; ?>
                     </td>
                     <td class="column-actions">
+                        <button type="button" class="button button-small almaseo-404-suggest-btn" data-id="<?php echo esc_attr($log['id']); ?>">
+                            <?php _e('Suggestions', 'almaseo'); ?>
+                        </button>
                         <button type="button" class="button button-small create-redirect" data-id="<?php echo esc_attr($log['id']); ?>">
                             <?php _e('Create Redirect', 'almaseo'); ?>
                         </button>

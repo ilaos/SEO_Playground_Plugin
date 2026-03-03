@@ -228,6 +228,36 @@ class AlmaSEO_Date_Hygiene_Model {
         return $wpdb->query( "TRUNCATE TABLE " . self::table() );
     }
 
+    /**
+     * Clear only open findings (preserves resolved/dismissed).
+     */
+    public static function clear_open() {
+        global $wpdb;
+        return $wpdb->query( "DELETE FROM " . self::table() . " WHERE status = 'open'" );
+    }
+
+    /**
+     * Get keys for all resolved/dismissed findings.
+     *
+     * Returns an associative array keyed by "post_id:finding_type:detected_value"
+     * so the scan engine can skip re-inserting dismissed findings.
+     * Date hygiene uses detected_value in the key because the same post
+     * can have multiple findings of the same type (e.g., two stale years).
+     *
+     * @return array Keyed by "post_id:finding_type:detected_value" => true.
+     */
+    public static function get_dismissed_keys() {
+        global $wpdb;
+        $rows = $wpdb->get_results(
+            "SELECT post_id, finding_type, detected_value FROM " . self::table() . " WHERE status IN ('resolved', 'dismissed')"
+        );
+        $keys = array();
+        foreach ( $rows as $r ) {
+            $keys[ $r->post_id . ':' . $r->finding_type . ':' . $r->detected_value ] = true;
+        }
+        return $keys;
+    }
+
     /* ── STATS ── */
 
     /**

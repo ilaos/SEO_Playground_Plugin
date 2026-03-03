@@ -91,6 +91,11 @@ function almaseo_feature_available( $feature ) {
         'refresh_drafts',         // Content refresh drafts
         'refresh_queue',          // Refresh queue autoprioritization
         'date_hygiene',           // Date hygiene scanner
+        'eeat_enforcement',       // E-E-A-T enforcement
+        'gsc_monitor',            // GSC Monitor
+        'orphan_detection',       // Orphan page detection
+        'schema_drift',           // Schema drift monitor
+        'snippet_targeting',      // Featured snippet targeting
     );
 
     // Check if this feature requires Pro tier
@@ -198,5 +203,10 @@ function almaseo_get_pro_features() {
         'refresh_drafts',
         'refresh_queue',
         'date_hygiene',
+        'eeat_enforcement',
+        'gsc_monitor',
+        'orphan_detection',
+        'schema_drift',
+        'snippet_targeting',
     );
 }

@@ -42,6 +42,9 @@ class AlmaSEO_Internal_Links_Loader {
         // Admin controller (menu, assets, REST wiring)
         require_once $base . 'internal-links-controller.php';
 
+        // Orphan page detection (v7.7.0+)
+        require_once $base . 'internal-links-orphan.php';
+
         // Front-end content engine (only needed on the public site)
         if ( ! is_admin() ) {
             require_once $base . 'internal-links-engine.php';

@@ -255,9 +255,11 @@
      * ============================================================ */
     function loadSettings() {
         wp.apiFetch({ url: cfg.restBase + '/settings' }).then(function (data) {
+            var postTypes   = document.getElementById('almaseo-dh-s-posttypes');
             var threshold   = document.getElementById('almaseo-dh-s-threshold');
             var prices      = document.getElementById('almaseo-dh-s-prices');
             var regulations = document.getElementById('almaseo-dh-s-regulations');
+            if (postTypes)   postTypes.value = (data.scan_post_types || []).join(', ');
             if (threshold)   threshold.value = data.stale_threshold;
             if (prices)      prices.checked = !!data.scan_prices;
             if (regulations) regulations.checked = !!data.scan_regulations;
@@ -265,6 +267,7 @@
     }
 
     function saveSettings() {
+        var postTypes   = document.getElementById('almaseo-dh-s-posttypes').value || 'post,page,product';
         var threshold   = parseInt(document.getElementById('almaseo-dh-s-threshold').value, 10) || 2;
         var prices      = document.getElementById('almaseo-dh-s-prices').checked;
         var regulations = document.getElementById('almaseo-dh-s-regulations').checked;
@@ -277,6 +280,7 @@
             url: cfg.restBase + '/settings',
             method: 'POST',
             data: {
+                scan_post_types: postTypes,
                 stale_threshold: threshold,
                 scan_prices: prices,
                 scan_regulations: regulations,

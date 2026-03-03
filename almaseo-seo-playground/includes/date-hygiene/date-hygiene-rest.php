@@ -111,6 +111,7 @@ class AlmaSEO_Date_Hygiene_REST {
                     'stale_threshold'  => array( 'type' => 'integer', 'required' => false ),
                     'scan_prices'      => array( 'type' => 'boolean', 'required' => false ),
                     'scan_regulations' => array( 'type' => 'boolean', 'required' => false ),
+                    'scan_post_types'  => array( 'type' => 'string',  'required' => false ),
                 ),
             ),
         ) );
@@ -314,6 +315,12 @@ class AlmaSEO_Date_Hygiene_REST {
 
         if ( $request->has_param( 'scan_regulations' ) ) {
             $current['scan_regulations'] = (bool) $request['scan_regulations'];
+        }
+
+        if ( $request->has_param( 'scan_post_types' ) ) {
+            $raw   = sanitize_text_field( $request['scan_post_types'] );
+            $types = array_filter( array_map( 'trim', explode( ',', $raw ) ) );
+            $current['scan_post_types'] = ! empty( $types ) ? array_values( $types ) : array( 'post', 'page', 'product' );
         }
 
         update_option( 'almaseo_dh_settings', $current );

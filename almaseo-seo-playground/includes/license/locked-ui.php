@@ -334,6 +334,31 @@ function almaseo_get_locked_feature_content( $feature ) {
             'description' => 'Scan your content for stale year references, outdated prices, and time-decay problems that quietly erode trust. Get a focused worklist of exactly what to fix, with suggested replacements.',
             'url'         => 'https://almaseo.com/pro#date-hygiene',
         ),
+        'eeat_enforcement' => array(
+            'name'        => 'E-E-A-T Enforcement',
+            'description' => 'Scan your content for missing trust signals: author attribution, credentials, biographical info, author schema, and citation links. Build the Experience, Expertise, Authoritativeness, and Trustworthiness that Google looks for.',
+            'url'         => 'https://almaseo.com/pro#eeat',
+        ),
+        'gsc_monitor' => array(
+            'name'        => 'GSC Monitor',
+            'description' => 'Track indexation drift, rich result changes, and snippet rewrites detected from your Google Search Console data. Get alerted when Google drops pages from the index, removes rich results, or rewrites your titles and descriptions.',
+            'url'         => 'https://almaseo.com/pro#gsc-monitor',
+        ),
+        'orphan_detection' => array(
+            'name'        => 'Orphan Page Detection',
+            'description' => 'Find pages with no internal links pointing to them. Discover orphan pages invisible to search crawlers, identify weak pages with too few links, and detect hub candidates that could become cornerstone content with better linking.',
+            'url'         => 'https://almaseo.com/pro#orphan-detection',
+        ),
+        'schema_drift' => array(
+            'name'        => 'Schema Drift Monitor',
+            'description' => 'Detect when structured data (JSON-LD) on your pages changes unexpectedly after plugin updates, theme switches, or other site changes. Capture baselines, scan for drift, and get alerted when schemas are removed, modified, or broken.',
+            'url'         => 'https://almaseo.com/pro#schema-drift',
+        ),
+        'snippet_targeting' => array(
+            'name'        => 'Featured Snippet Targeting',
+            'description' => 'Win featured snippets by targeting queries where you rank on page 1 but don\'t hold position zero. Draft snippet-optimized content in paragraph, list, table, or definition format and apply it to your posts with one click.',
+            'url'         => 'https://almaseo.com/pro#snippet-targets',
+        ),
     );
 
     if ( isset( $content[ $feature ] ) ) {

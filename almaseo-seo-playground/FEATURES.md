@@ -124,6 +124,86 @@
 
 ---
 
+## E-E-A-T Enforcement (Pro)
+
+**Location:** SEO Playground → E-E-A-T
+
+- Scans all published content for 6 types of trust signal gaps
+- Detects: missing author, missing bio, missing author schema, missing credentials, no citation sources, missing review attribution
+- YMYL category support for stricter checks on sensitive content
+- Configurable post types, generic usernames, and scan toggles
+- Optional health score integration (0–20 weight)
+- Works locally — no external connections needed
+- Resolved/dismissed findings survive re-scans
+
+---
+
+## GSC Monitor (Pro)
+
+**Location:** SEO Playground → GSC Monitor
+
+- Tracks indexation drift, rich result changes, and snippet rewrites
+- Three tabs: Indexation, Rich Results, Snippets
+- Bulk actions for efficient worklist management
+- Configurable alert thresholds and auto-dismiss
+- Smart deduplication prevents duplicate findings
+- **Requires AlmaSEO dashboard connection + Google Search Console**
+
+---
+
+## 404 Intelligence (Pro Enhancement)
+
+**Location:** SEO Playground → 404 Intelligence
+
+Enhancements to the 404 tracking module:
+
+- **Smart Redirect Suggestions** — matches 404 paths to existing posts via slug similarity and title keyword matching
+- **Spike Detection** — flags 404 paths with 3x surge over 7-day average
+- **Impact Scoring** — dashboard-pushed search impressions and clicks for prioritization
+- **Redirect Chain Detection** — finds A→B→C redirect chains and suggests consolidation
+
+---
+
+## Orphan Page Detection (Pro)
+
+**Location:** SEO Playground → Orphan Pages
+
+- Finds pages with zero internal links pointing to them
+- Classifies as orphan (0 links), weak (1–2), or addressed (3+)
+- Cluster analysis groups pages by category to identify poorly connected topics
+- Hub candidate identification for cornerstone content
+- Integrates with Internal Links module for one-click fixes
+- Works locally — no external connections needed
+
+---
+
+## Schema Drift Monitor (Pro)
+
+**Location:** SEO Playground → Schema Drift
+
+- Captures baseline snapshot of JSON-LD structured data
+- Scans for drift: schemas removed, modified, added, or errored
+- Auto-scans after plugin and theme updates (configurable)
+- Configurable monitored post types and sample size
+- Works locally — fetches your own pages via HTTP
+- No external APIs needed
+
+---
+
+## Featured Snippet Targeting (Pro)
+
+**Location:** SEO Playground → Snippet Targets
+
+- Targets queries where you rank page 1 but don't hold the featured snippet
+- Four snippet formats: paragraph, list, table, definition
+- Draft editor with live preview and format-specific prompt hints
+- One-click apply inserts content into posts (WordPress revision created)
+- Clean undo removes snippet content without affecting original post
+- Status tracking: opportunity → draft → approved → applied → won/lost
+- **Requires AlmaSEO dashboard connection + Google Search Console**
+
+---
+
 ## Integrations
 
 ### Third-Party Compatibility

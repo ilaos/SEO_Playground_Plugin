@@ -126,6 +126,11 @@ if ( ! defined( 'ABSPATH' ) ) {
                 <?php esc_html_e( 'Configure how the scanner detects stale content. After changing settings, run a new scan to apply them.', 'almaseo' ); ?>
             </p>
             <div class="almaseo-dh-setting-row">
+                <label for="almaseo-dh-s-posttypes"><?php esc_html_e( 'Post Types to Scan', 'almaseo' ); ?></label>
+                <input type="text" id="almaseo-dh-s-posttypes" value="post,page,product" style="width:300px;">
+                <span class="almaseo-dh-setting-help"><?php esc_html_e( 'Comma-separated post types to include in scans. Default: post, page, product.', 'almaseo' ); ?></span>
+            </div>
+            <div class="almaseo-dh-setting-row">
                 <label for="almaseo-dh-s-threshold"><?php esc_html_e( 'Stale Year Threshold', 'almaseo' ); ?></label>
                 <input type="number" id="almaseo-dh-s-threshold" min="1" max="10" value="2">
                 <span class="almaseo-dh-setting-help"><?php esc_html_e( 'Years older than (current year - threshold) are flagged.', 'almaseo' ); ?></span>

@@ -22,6 +22,7 @@ class AlmaSEO_Date_Hygiene_Engine {
         'stale_threshold'    => 2,
         'scan_prices'        => true,
         'scan_regulations'   => true,
+        'scan_post_types'    => array( 'post', 'page', 'product' ),
     );
 
     /* ──────────────────────── Settings ── */
@@ -344,23 +345,28 @@ class AlmaSEO_Date_Hygiene_Engine {
     /**
      * Scan all published posts.
      *
-     * Clears existing findings first, then processes in batches of 50.
+     * Clears open findings first (preserving resolved/dismissed),
+     * then processes in batches of 50.
      *
      * @return array { posts_scanned: int, findings_count: int }
      */
     public static function scan_all() {
         global $wpdb;
 
-        $excluded_types = array( 'attachment', 'revision', 'nav_menu_item', 'wp_template', 'wp_template_part', 'wp_navigation' );
-        $placeholders   = implode( ', ', array_fill( 0, count( $excluded_types ), '%s' ) );
+        $settings     = self::get_settings();
+        $post_types   = ! empty( $settings['scan_post_types'] ) ? $settings['scan_post_types'] : array( 'post', 'page', 'product' );
+        $placeholders = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
 
         $total = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type NOT IN ({$placeholders})",
-            $excluded_types
+            "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type IN ({$placeholders})",
+            $post_types
         ) );
 
-        // Clear existing findings before re-scan.
-        AlmaSEO_Date_Hygiene_Model::clear_all();
+        // Collect dismissed/resolved keys so we can skip re-inserting them.
+        $dismissed_keys = AlmaSEO_Date_Hygiene_Model::get_dismissed_keys();
+
+        // Clear only open findings — resolved/dismissed survive the re-scan.
+        AlmaSEO_Date_Hygiene_Model::clear_open();
 
         $batch_size      = 50;
         $posts_scanned   = 0;
@@ -368,15 +374,23 @@ class AlmaSEO_Date_Hygiene_Engine {
 
         for ( $batch_offset = 0; $batch_offset < $total; $batch_offset += $batch_size ) {
             $post_ids = $wpdb->get_col( $wpdb->prepare(
-                "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type NOT IN ({$placeholders}) ORDER BY ID LIMIT %d OFFSET %d",
-                array_merge( $excluded_types, array( $batch_size, $batch_offset ) )
+                "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type IN ({$placeholders}) ORDER BY ID LIMIT %d OFFSET %d",
+                array_merge( $post_types, array( $batch_size, $batch_offset ) )
             ) );
 
             foreach ( $post_ids as $pid ) {
                 $findings = self::scan_post( (int) $pid );
 
                 if ( ! empty( $findings ) ) {
-                    $findings_count += AlmaSEO_Date_Hygiene_Model::insert_batch( $findings );
+                    // Filter out findings that were previously dismissed/resolved.
+                    $findings = array_filter( $findings, function ( $f ) use ( $dismissed_keys ) {
+                        $key = $f['post_id'] . ':' . $f['finding_type'] . ':' . $f['detected_value'];
+                        return ! isset( $dismissed_keys[ $key ] );
+                    } );
+
+                    if ( ! empty( $findings ) ) {
+                        $findings_count += AlmaSEO_Date_Hygiene_Model::insert_batch( $findings );
+                    }
                 }
 
                 $posts_scanned++;

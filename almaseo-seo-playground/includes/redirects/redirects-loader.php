@@ -42,7 +42,10 @@ class AlmaSEO_Redirects_Loader {
         
         // Load controller (business logic)
         require_once $base_path . 'redirects-controller.php';
-        
+
+        // Load intelligence engine (v7.6.0+)
+        require_once $base_path . 'redirects-intelligence.php';
+
         // Load runtime handler (front-end redirects)
         if (!is_admin()) {
             require_once $base_path . 'redirects-runtime.php';
