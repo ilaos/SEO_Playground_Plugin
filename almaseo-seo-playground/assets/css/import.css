@@ -1,0 +1,224 @@
+/**
+ * AlmaSEO Import / Migration Styles
+ *
+ * @package AlmaSEO
+ * @since   8.1.0
+ */
+
+/* Wrapper */
+.almaseo-import-wrap {
+    max-width: 900px;
+}
+
+/* Loading spinner */
+.almaseo-import-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.almaseo-import-loading .spinner {
+    margin: 0;
+}
+
+/* Source cards */
+.almaseo-import-sources {
+    margin: 20px 0;
+}
+
+.almaseo-source-cards {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.almaseo-source-card {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 16px 20px;
+    min-width: 200px;
+    flex: 1;
+}
+
+.almaseo-source-card h3 {
+    margin: 0 0 8px;
+    font-size: 14px;
+}
+
+.almaseo-source-card .count {
+    font-size: 24px;
+    font-weight: 600;
+    color: #2271b1;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.almaseo-source-card .label {
+    color: #646970;
+    font-size: 13px;
+}
+
+.almaseo-source-card.unavailable {
+    opacity: 0.5;
+}
+
+.almaseo-source-card.unavailable .count {
+    color: #646970;
+}
+
+/* Import controls */
+.almaseo-import-controls {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.almaseo-import-controls h2 {
+    margin-top: 0;
+}
+
+.almaseo-import-controls .form-table th {
+    width: 180px;
+    padding-top: 12px;
+}
+
+.almaseo-import-controls .form-table td {
+    padding-top: 8px;
+}
+
+.almaseo-import-controls select {
+    min-width: 250px;
+}
+
+/* Preview table */
+#almaseo-import-preview {
+    margin: 20px 0;
+}
+
+#almaseo-import-preview h3 {
+    margin-bottom: 10px;
+}
+
+#almaseo-import-preview-table td {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#almaseo-import-preview-table .status-new {
+    color: #00a32a;
+    font-weight: 600;
+}
+
+#almaseo-import-preview-table .status-overwrite {
+    color: #d63638;
+    font-weight: 600;
+}
+
+#almaseo-import-preview-table .status-skip {
+    color: #646970;
+}
+
+/* Action buttons */
+.almaseo-import-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Progress */
+.almaseo-import-progress {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.almaseo-import-progress h2 {
+    margin-top: 0;
+}
+
+.almaseo-import-progress-bar-wrap {
+    background: #dcdcde;
+    border-radius: 4px;
+    height: 24px;
+    overflow: hidden;
+    margin: 16px 0;
+}
+
+.almaseo-import-progress-bar {
+    background: #2271b1;
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    min-width: 0;
+}
+
+#almaseo-import-status {
+    font-size: 14px;
+    color: #1d2327;
+    margin: 8px 0;
+}
+
+/* Stats */
+.almaseo-import-stats {
+    display: flex;
+    gap: 20px;
+    margin-top: 16px;
+}
+
+.almaseo-import-stat {
+    text-align: center;
+}
+
+.almaseo-import-stat .number {
+    font-size: 28px;
+    font-weight: 600;
+    display: block;
+}
+
+.almaseo-import-stat .label {
+    color: #646970;
+    font-size: 13px;
+}
+
+.almaseo-import-stat.imported .number {
+    color: #00a32a;
+}
+
+.almaseo-import-stat.skipped .number {
+    color: #dba617;
+}
+
+.almaseo-import-stat.processed .number {
+    color: #2271b1;
+}
+
+/* Done state */
+.almaseo-import-done {
+    color: #00a32a;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+/* Error state */
+.almaseo-import-error {
+    color: #d63638;
+    font-weight: 600;
+}
+
+/* No data message */
+.almaseo-import-nodata {
+    background: #fcf9e8;
+    border: 1px solid #dba617;
+    border-left-width: 4px;
+    padding: 12px 16px;
+    margin: 16px 0;
+}

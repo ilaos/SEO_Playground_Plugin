@@ -1,0 +1,621 @@
+/**
+ * AlmaSEO Setup Wizard Styles
+ *
+ * @package AlmaSEO
+ * @since   8.2.0
+ */
+
+/* ----------------------------------------------------------------
+ *  Reset & Base
+ * ----------------------------------------------------------------*/
+
+.almaseo-wizard-body {
+    margin: 0;
+    padding: 0;
+    background: #f0f2f5;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    font-size: 14px;
+    color: #1d2327;
+    line-height: 1.5;
+    min-height: 100vh;
+}
+
+.almaseo-wizard-body *,
+.almaseo-wizard-body *::before,
+.almaseo-wizard-body *::after {
+    box-sizing: border-box;
+}
+
+.almaseo-wizard-wrap {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 0 20px 40px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ----------------------------------------------------------------
+ *  Header
+ * ----------------------------------------------------------------*/
+
+.almaseo-wizard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 0 16px;
+}
+
+.almaseo-wizard-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1d2327;
+}
+
+.almaseo-wizard-exit {
+    font-size: 28px;
+    color: #787c82;
+    text-decoration: none;
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.almaseo-wizard-exit:hover {
+    background: #dcdcde;
+    color: #1d2327;
+}
+
+/* ----------------------------------------------------------------
+ *  Progress Indicator
+ * ----------------------------------------------------------------*/
+
+.almaseo-wizard-progress {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 0 0 32px;
+    position: relative;
+}
+
+/* Connecting line */
+.almaseo-wizard-progress::before {
+    content: "";
+    position: absolute;
+    top: 16px;
+    left: 24px;
+    right: 24px;
+    height: 2px;
+    background: #dcdcde;
+    z-index: 0;
+}
+
+.almaseo-wizard-step-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+    z-index: 1;
+    flex: 0 0 auto;
+}
+
+.almaseo-wizard-step-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #dcdcde;
+    color: #787c82;
+    font-weight: 600;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+
+.almaseo-wizard-step-label {
+    font-size: 11px;
+    color: #787c82;
+    text-align: center;
+    white-space: nowrap;
+    transition: color 0.2s;
+}
+
+/* Active step */
+.almaseo-wizard-step-indicator.is-active .almaseo-wizard-step-num {
+    background: #667eea;
+    border-color: #667eea;
+    color: #fff;
+}
+
+.almaseo-wizard-step-indicator.is-active .almaseo-wizard-step-label {
+    color: #667eea;
+    font-weight: 600;
+}
+
+/* Completed step */
+.almaseo-wizard-step-indicator.is-done .almaseo-wizard-step-num {
+    background: #00a32a;
+    border-color: #00a32a;
+    color: #fff;
+}
+
+.almaseo-wizard-step-indicator.is-done .almaseo-wizard-step-label {
+    color: #00a32a;
+}
+
+/* ----------------------------------------------------------------
+ *  Main / Step Panels
+ * ----------------------------------------------------------------*/
+
+.almaseo-wizard-main {
+    flex: 1 1 auto;
+}
+
+.almaseo-wizard-panel {
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 8px;
+    padding: 32px;
+    animation: almaseoWizFadeIn 0.25s ease;
+}
+
+@keyframes almaseoWizFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.almaseo-wizard-panel h2 {
+    margin: 0 0 8px;
+    font-size: 22px;
+    font-weight: 700;
+    color: #1d2327;
+}
+
+.almaseo-wizard-desc {
+    color: #646970;
+    margin: 0 0 24px;
+    font-size: 14px;
+}
+
+/* ----------------------------------------------------------------
+ *  Site Type Cards (Step 1)
+ * ----------------------------------------------------------------*/
+
+.almaseo-wizard-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.almaseo-wizard-card {
+    cursor: pointer;
+    display: block;
+}
+
+.almaseo-wizard-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.almaseo-wizard-card-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px 12px;
+    border: 2px solid #dcdcde;
+    border-radius: 8px;
+    transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+.almaseo-wizard-card-inner:hover {
+    border-color: #a7aaad;
+}
+
+.almaseo-wizard-card input:checked + .almaseo-wizard-card-inner {
+    border-color: #667eea;
+    background: #f0f3ff;
+    box-shadow: 0 0 0 1px #667eea;
+}
+
+.almaseo-wizard-card-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.almaseo-wizard-card-inner strong {
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.almaseo-wizard-card-inner > span:last-child {
+    font-size: 12px;
+    color: #646970;
+}
+
+/* ----------------------------------------------------------------
+ *  Form Fields
+ * ----------------------------------------------------------------*/
+
+.almaseo-wizard-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.almaseo-wizard-form hr {
+    border: none;
+    border-top: 1px solid #e2e4e7;
+    margin: 4px 0;
+}
+
+.almaseo-wizard-field > label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 4px;
+    font-size: 13px;
+}
+
+.almaseo-wizard-field input[type="text"],
+.almaseo-wizard-field input[type="url"],
+.almaseo-wizard-field textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #8c8f94;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.almaseo-wizard-field input:focus,
+.almaseo-wizard-field textarea:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 1px #667eea;
+    outline: none;
+}
+
+.almaseo-wizard-field-hint {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: #787c82;
+}
+
+/* ----------------------------------------------------------------
+ *  Separator Picker (Step 3)
+ * ----------------------------------------------------------------*/
+
+.almaseo-wizard-separator-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.almaseo-wizard-sep-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 2px solid #dcdcde;
+    border-radius: 6px;
+    font-size: 18px;
+    cursor: pointer;
+    background: #fff;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    color: #1d2327;
+}
+
+.almaseo-wizard-sep-option:hover {
+    border-color: #a7aaad;
+}
+
+.almaseo-wizard-sep-option.is-selected {
+    border-color: #667eea;
+    background: #f0f3ff;
+    box-shadow: 0 0 0 1px #667eea;
+}
+
+/* ----------------------------------------------------------------
+ *  Toggle / Checkbox (Step 4)
+ * ----------------------------------------------------------------*/
+
+.almaseo-wizard-toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.almaseo-wizard-toggle-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #667eea;
+}
+
+.almaseo-wizard-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.almaseo-wizard-checkboxes label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.almaseo-wizard-checkboxes input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #667eea;
+}
+
+/* ----------------------------------------------------------------
+ *  Import Cards (Step 6)
+ * ----------------------------------------------------------------*/
+
+.almaseo-wizard-import-results {
+    min-height: 80px;
+}
+
+.almaseo-wizard-detecting {
+    color: #646970;
+    font-style: italic;
+}
+
+.almaseo-wizard-import-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.almaseo-wizard-import-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border: 1px solid #dcdcde;
+    border-radius: 8px;
+    background: #f9f9f9;
+}
+
+.almaseo-wizard-import-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.almaseo-wizard-import-card-info strong {
+    font-size: 15px;
+}
+
+.almaseo-wizard-import-card-info span {
+    font-size: 12px;
+    color: #646970;
+}
+
+.almaseo-wizard-import-btn {
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid #667eea;
+    border-radius: 4px;
+    background: #667eea;
+    color: #fff;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s;
+}
+
+.almaseo-wizard-import-btn:hover {
+    background: #5468d4;
+    color: #fff;
+}
+
+.almaseo-wizard-no-sources {
+    padding: 24px;
+    text-align: center;
+    color: #646970;
+    background: #f9f9f9;
+    border: 1px dashed #dcdcde;
+    border-radius: 8px;
+}
+
+/* ----------------------------------------------------------------
+ *  Done Screen (Step 7)
+ * ----------------------------------------------------------------*/
+
+.almaseo-wizard-done {
+    text-align: center;
+    padding: 16px 0;
+}
+
+.almaseo-wizard-done-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: #e6ffed;
+    color: #00a32a;
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.almaseo-wizard-done h2 {
+    text-align: center;
+}
+
+.almaseo-wizard-done .almaseo-wizard-desc {
+    text-align: center;
+    max-width: 400px;
+    margin: 0 auto 28px;
+}
+
+.almaseo-wizard-done-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+}
+
+/* ----------------------------------------------------------------
+ *  Buttons
+ * ----------------------------------------------------------------*/
+
+.almaseo-wizard-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s, box-shadow 0.15s;
+}
+
+.almaseo-wizard-btn-primary {
+    background: #667eea;
+    color: #fff;
+}
+
+.almaseo-wizard-btn-primary:hover {
+    background: #5468d4;
+    color: #fff;
+}
+
+.almaseo-wizard-btn-primary:focus {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #667eea;
+    outline: none;
+}
+
+.almaseo-wizard-btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.almaseo-wizard-btn-secondary {
+    background: #fff;
+    color: #1d2327;
+    border: 1px solid #8c8f94;
+}
+
+.almaseo-wizard-btn-secondary:hover {
+    background: #f0f0f1;
+    color: #1d2327;
+}
+
+.almaseo-wizard-btn-link {
+    background: none;
+    border: none;
+    color: #787c82;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 10px 12px;
+    font-family: inherit;
+    text-decoration: underline;
+    transition: color 0.15s;
+}
+
+.almaseo-wizard-btn-link:hover {
+    color: #1d2327;
+}
+
+/* ----------------------------------------------------------------
+ *  Footer Navigation
+ * ----------------------------------------------------------------*/
+
+.almaseo-wizard-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 0 0;
+}
+
+.almaseo-wizard-footer-left,
+.almaseo-wizard-footer-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ----------------------------------------------------------------
+ *  Toast Notification
+ * ----------------------------------------------------------------*/
+
+.almaseo-wizard-toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1d2327;
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s, transform 0.25s;
+    z-index: 9999;
+}
+
+.almaseo-wizard-toast.is-visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.almaseo-wizard-toast.is-error {
+    background: #d63638;
+}
+
+/* ----------------------------------------------------------------
+ *  Responsive
+ * ----------------------------------------------------------------*/
+
+@media (max-width: 600px) {
+    .almaseo-wizard-wrap {
+        padding: 0 12px 24px;
+    }
+
+    .almaseo-wizard-panel {
+        padding: 20px 16px;
+    }
+
+    .almaseo-wizard-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .almaseo-wizard-step-label {
+        display: none;
+    }
+
+    .almaseo-wizard-step-num {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+
+    .almaseo-wizard-done-links {
+        flex-direction: column;
+    }
+}

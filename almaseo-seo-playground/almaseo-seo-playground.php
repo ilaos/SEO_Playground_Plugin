@@ -221,6 +221,52 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/snippet-targets/snippet-ta
     require_once plugin_dir_path(__FILE__) . 'includes/snippet-targets/snippet-targets-loader.php';
 }
 
+// Include Role Manager (v8.0.0+)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/role-manager.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/admin/role-manager.php';
+    AlmaSEO_Role_Manager::init();
+}
+
+// Include Webmaster Verification Codes (v8.0.0+)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/verification-codes.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/admin/verification-codes.php';
+    AlmaSEO_Verification_Codes::init();
+}
+
+// Include RSS Feed Controls (v8.0.0+)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/rss-controls.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/admin/rss-controls.php';
+    AlmaSEO_RSS_Controls::init();
+}
+
+// Include LLMs.txt Management (v8.0.0+)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/llms-txt/llms-txt-controller.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/llms-txt/llms-txt-controller.php';
+    require_once plugin_dir_path(__FILE__) . 'includes/llms-txt/llms-txt-generator.php';
+    AlmaSEO_LLMS_Txt_Controller::get_instance();
+}
+
+// Include Search Appearance module (v8.0.0+) - Title templates, smart tags, per-type settings
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/search-appearance/search-appearance-loader.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/search-appearance/search-appearance-loader.php';
+}
+
+// Include Import/Migration module (v8.1.0+) - Import from Yoast, Rank Math, AIOSEO
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/import/import-loader.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/import/import-loader.php';
+}
+
+// Include Setup Wizard (v8.2.0+)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/setup-wizard.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/admin/setup-wizard.php';
+    AlmaSEO_Setup_Wizard::init();
+}
+
+// Include Gutenberg Blocks (v8.3.0+) - FAQ, Table of Contents
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/blocks/blocks-loader.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/blocks/blocks-loader.php';
+}
+
 // Ensure almaseo_is_pro function exists as fallback
 // This should rarely be reached since bulkmeta-loader.php defines it first
 if (!function_exists('almaseo_is_pro')) {
@@ -1338,8 +1384,11 @@ add_action('admin_init', function() {
     if (get_option('almaseo_do_activation_redirect', false)) {
         delete_option('almaseo_do_activation_redirect');
         if (!isset($_GET['activate-multi'])) {
-            // Redirect to welcome screen instead of settings
-            wp_safe_redirect(admin_url('admin.php?page=almaseo-welcome'));
+            if (!get_option('almaseo_setup_wizard_completed')) {
+                wp_safe_redirect(admin_url('admin.php?page=almaseo-setup-wizard'));
+            } else {
+                wp_safe_redirect(admin_url('admin.php?page=almaseo-welcome'));
+            }
             exit;
         }
     }

@@ -109,8 +109,29 @@ class AlmaSEO_Settings {
             ),
             'sanitize_callback' => array($this, 'sanitize_evergreen_advanced_settings')
         ));
+
+        // Webmaster Verification Codes (v8.0.0)
+        register_setting('almaseo_settings', 'almaseo_verification_codes', array(
+            'type' => 'array',
+            'default' => AlmaSEO_Verification_Codes::get_defaults(),
+            'sanitize_callback' => array('AlmaSEO_Verification_Codes', 'sanitize')
+        ));
+
+        // RSS Feed Controls (v8.0.0)
+        register_setting('almaseo_settings', 'almaseo_rss_settings', array(
+            'type' => 'array',
+            'default' => AlmaSEO_RSS_Controls::get_defaults(),
+            'sanitize_callback' => array('AlmaSEO_RSS_Controls', 'sanitize')
+        ));
+
+        // Role Manager Capabilities (v8.0.0)
+        register_setting('almaseo_settings', 'almaseo_role_capabilities', array(
+            'type' => 'array',
+            'default' => AlmaSEO_Role_Manager::get_defaults(),
+            'sanitize_callback' => array('AlmaSEO_Role_Manager', 'sanitize')
+        ));
     }
-    
+
     /**
      * Sanitize schema control settings
      */
@@ -708,6 +729,89 @@ class AlmaSEO_Settings {
                  * @since 7.0.0
                  */
                 do_action('almaseo_settings_sections');
+
+                // ── Webmaster Verification Codes Section (v8.0.0) ──
+                if (class_exists('AlmaSEO_Verification_Codes')) :
+                    $verification_codes = AlmaSEO_Verification_Codes::get_codes();
+                    $verification_labels = AlmaSEO_Verification_Codes::get_labels();
+                ?>
+                <div class="almaseo-settings-section">
+                    <h2><?php _e('Webmaster Verification', 'almaseo'); ?></h2>
+                    <p class="description"><?php _e('Paste verification codes from search engine webmaster tools. You can paste the full meta tag or just the content value.', 'almaseo'); ?></p>
+                    <table class="form-table">
+                        <?php foreach ($verification_labels as $key => $label) : ?>
+                        <tr>
+                            <th scope="row"><label for="verification_<?php echo esc_attr($key); ?>"><?php echo esc_html($label); ?></label></th>
+                            <td>
+                                <input type="text" id="verification_<?php echo esc_attr($key); ?>"
+                                       name="almaseo_verification_codes[<?php echo esc_attr($key); ?>]"
+                                       value="<?php echo esc_attr($verification_codes[$key]); ?>"
+                                       class="regular-text" />
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </table>
+                </div>
+                <?php endif;
+
+                // ── RSS Feed Controls Section (v8.0.0) ──
+                if (class_exists('AlmaSEO_RSS_Controls')) :
+                    $rss_settings = AlmaSEO_RSS_Controls::get_settings();
+                    $rss_tags = AlmaSEO_RSS_Controls::get_available_tags();
+                ?>
+                <div class="almaseo-settings-section">
+                    <h2><?php _e('RSS Feed', 'almaseo'); ?></h2>
+                    <p class="description"><?php _e('Add content before or after each RSS feed item to prevent content scraping.', 'almaseo'); ?></p>
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row"><label for="rss_before"><?php _e('Before Feed Content', 'almaseo'); ?></label></th>
+                            <td>
+                                <textarea id="rss_before" name="almaseo_rss_settings[before_content]" rows="3" class="large-text"><?php echo esc_textarea($rss_settings['before_content']); ?></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="rss_after"><?php _e('After Feed Content', 'almaseo'); ?></label></th>
+                            <td>
+                                <textarea id="rss_after" name="almaseo_rss_settings[after_content]" rows="3" class="large-text"><?php echo esc_textarea($rss_settings['after_content']); ?></textarea>
+                                <p class="description">
+                                    <?php _e('Available tags:', 'almaseo'); ?>
+                                    <?php foreach ($rss_tags as $tag => $desc) : ?>
+                                        <code><?php echo esc_html($tag); ?></code>
+                                    <?php endforeach; ?>
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <?php endif;
+
+                // ── Roles & Permissions Section (v8.0.0) ──
+                if (class_exists('AlmaSEO_Role_Manager')) :
+                    $role_settings = AlmaSEO_Role_Manager::get_settings();
+                    $assignable_roles = AlmaSEO_Role_Manager::get_assignable_roles();
+                ?>
+                <div class="almaseo-settings-section">
+                    <h2><?php _e('Roles & Permissions', 'almaseo'); ?></h2>
+                    <p class="description"><?php _e('Control which user roles can access SEO editing features (metabox, bulk meta). Plugin settings pages remain admin-only.', 'almaseo'); ?></p>
+                    <table class="form-table">
+                        <?php foreach ($assignable_roles as $role_slug => $role_name) : ?>
+                        <tr>
+                            <th scope="row"><?php echo esc_html($role_name); ?></th>
+                            <td>
+                                <label>
+                                    <input type="checkbox"
+                                           name="almaseo_role_capabilities[<?php echo esc_attr($role_slug); ?>]"
+                                           value="1"
+                                           <?php checked(!empty($role_settings[$role_slug])); ?>
+                                           <?php disabled($role_slug, 'administrator'); ?> />
+                                    <?php _e('Can edit SEO fields', 'almaseo'); ?>
+                                </label>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </table>
+                </div>
+                <?php endif; ?>
                 ?>
 
                 <?php submit_button(); ?>
