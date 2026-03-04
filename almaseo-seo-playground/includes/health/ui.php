@@ -329,6 +329,56 @@ function almaseo_health_meta_box_callback($post) {
         endif;
         ?>
 
+        <!-- AI Readability Insights (Dashboard Enhanced) -->
+        <?php
+        if ( function_exists('seo_playground_is_alma_connected') && seo_playground_is_alma_connected() ) :
+            $rd_dash_raw  = get_post_meta( $post->ID, '_almaseo_readability_dashboard', true );
+            $rd_dash_data = $rd_dash_raw ? json_decode( $rd_dash_raw, true ) : null;
+            if ( $rd_dash_data ) :
+        ?>
+        <div style="margin-top: 12px; padding: 10px 12px; background: linear-gradient(135deg, #f0f4ff 0%, #f8f9ff 100%); border: 1px solid #d0d5ff; border-radius: 6px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                <span style="font-size: 12px; font-weight: 600; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI</span>
+                <strong style="font-size: 13px;"><?php _e( 'SERP Readability Benchmark', 'almaseo' ); ?></strong>
+            </div>
+            <?php if ( ! empty( $rd_dash_data['competitor_avg_score'] ) ) : ?>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font-size: 12px;">
+                <span><?php _e( 'Competitor Avg:', 'almaseo' ); ?></span>
+                <div style="flex: 1; height: 8px; background: #e2e4e7; border-radius: 4px; overflow: hidden;">
+                    <div style="width: <?php echo esc_attr( min( 100, $rd_dash_data['competitor_avg_score'] ) ); ?>%; height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 4px;"></div>
+                </div>
+                <strong><?php echo esc_html( number_format( $rd_dash_data['competitor_avg_score'], 1 ) ); ?></strong>
+                <?php if ( ! empty( $rd_dash_data['competitor_grade_level'] ) ) : ?>
+                <span style="color: #666;">(<?php echo esc_html( $rd_dash_data['competitor_grade_level'] ); ?>)</span>
+                <?php endif; ?>
+            </div>
+            <?php endif; ?>
+            <?php if ( ! empty( $rd_dash_data['overall_recommendation'] ) ) : ?>
+            <p style="margin: 6px 0 0; font-size: 12px; color: #1d2327;"><?php echo esc_html( $rd_dash_data['overall_recommendation'] ); ?></p>
+            <?php endif; ?>
+            <?php if ( ! empty( $rd_dash_data['paragraphs'] ) ) : ?>
+            <div style="margin-top: 8px;">
+                <div style="cursor: pointer; font-size: 12px; color: #2271b1;" onclick="var el=this.nextElementSibling;el.style.display=el.style.display==='none'?'':'none';">
+                    <?php printf( __( '%d paragraph suggestions — click to expand', 'almaseo' ), count( $rd_dash_data['paragraphs'] ) ); ?>
+                </div>
+                <div style="display: none; margin-top: 6px;">
+                    <?php foreach ( array_slice( $rd_dash_data['paragraphs'], 0, 10 ) as $p ) :
+                        $sev_color = $p['severity'] === 'critical' ? '#d63638' : ( $p['severity'] === 'warning' ? '#dba617' : '#2271b1' );
+                    ?>
+                    <div style="padding: 4px 8px; margin-bottom: 3px; font-size: 11px; border-left: 3px solid <?php echo esc_attr( $sev_color ); ?>; background: #fff; border-radius: 2px;">
+                        <span style="color: #666;">P<?php echo esc_html( $p['index'] ); ?>:</span>
+                        <?php echo esc_html( $p['suggestion'] ); ?>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+        </div>
+        <?php
+            endif;
+        endif;
+        ?>
+
         <!-- Google Search Preview -->
         <?php almaseo_health_render_search_preview($post->ID); ?>
         

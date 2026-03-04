@@ -67,7 +67,19 @@ class AlmaSEO_Image_SEO {
             $alt_empty = $has_alt && trim( $alt_match[1] ) === '';
 
             if ( ! $has_alt || $alt_empty || $settings['override_existing'] ) {
-                $new_alt = self::apply_format( $settings['alt_format'], $filename, $post_title );
+                // Prefer dashboard AI suggestion if available
+                $ai_alt = null;
+                if ( class_exists( 'AlmaSEO_Image_SEO_REST' ) ) {
+                    global $post;
+                    $pid = is_object( $post ) ? $post->ID : get_the_ID();
+                    if ( $pid ) {
+                        $ai_suggestion = AlmaSEO_Image_SEO_REST::find_suggestion_by_src( $pid, $src_match[1] );
+                        if ( $ai_suggestion && ! empty( $ai_suggestion['suggested_alt'] ) && empty( $ai_suggestion['is_decorative'] ) ) {
+                            $ai_alt = $ai_suggestion['suggested_alt'];
+                        }
+                    }
+                }
+                $new_alt = $ai_alt ? $ai_alt : self::apply_format( $settings['alt_format'], $filename, $post_title );
                 if ( $has_alt ) {
                     $tag = preg_replace( '/alt=["\'][^"\']*?["\']/i', 'alt="' . esc_attr( $new_alt ) . '"', $tag );
                 } else {
@@ -114,6 +126,12 @@ class AlmaSEO_Image_SEO {
         <div class="almaseo-settings-section">
             <h2><?php _e( 'Image SEO', 'almaseo' ); ?></h2>
             <p class="description"><?php _e( 'Automatically add alt text and title attributes to images that are missing them.', 'almaseo' ); ?></p>
+            <?php if ( function_exists('seo_playground_is_alma_connected') && seo_playground_is_alma_connected() ) : ?>
+            <p class="description" style="margin-top: 4px; padding: 6px 10px; background: linear-gradient(135deg, #f0f4ff, #f8f9ff); border-left: 3px solid #667eea; border-radius: 3px;">
+                <strong style="background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI Enhanced</strong> —
+                <?php _e( 'Your dashboard connection provides AI-generated alt text that understands image context.', 'almaseo' ); ?>
+            </p>
+            <?php endif; ?>
             <table class="form-table">
                 <tr>
                     <th scope="row"><?php _e( 'Enable Image SEO', 'almaseo' ); ?></th>

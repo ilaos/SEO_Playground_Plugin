@@ -51,8 +51,12 @@ class AlmaSEO_Cornerstone_Content {
         if ( 'almaseo_cornerstone' !== $column ) return;
 
         $is_cornerstone = get_post_meta( $post_id, self::META_KEY, true );
+        $is_suggested   = get_post_meta( $post_id, '_almaseo_cornerstone_suggested', true );
         if ( $is_cornerstone ) {
             echo '<span class="dashicons dashicons-star-filled" style="color: #dba617;" title="' . esc_attr__( 'Cornerstone Content', 'almaseo' ) . '"></span>';
+        } elseif ( $is_suggested ) {
+            $score = get_post_meta( $post_id, '_almaseo_cornerstone_score', true );
+            echo '<span class="dashicons dashicons-star-half" style="color: #667eea;" title="' . esc_attr( sprintf( __( 'AI Suggested (Score: %s/100)', 'almaseo' ), intval( $score ) ) ) . '"></span>';
         } else {
             echo '<span class="dashicons dashicons-star-empty" style="color: #ccc;" title="' . esc_attr__( 'Not Cornerstone', 'almaseo' ) . '"></span>';
         }

@@ -697,6 +697,124 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 </script>
                 <?php endif; ?>
 
+                <!-- AI Headline Insights (Dashboard Enhanced) -->
+                <?php if ( function_exists('seo_playground_is_alma_connected') && seo_playground_is_alma_connected() ) : ?>
+                <?php
+                $hl_dash_raw  = get_post_meta($post->ID, '_almaseo_headline_dashboard', true);
+                $hl_dash_data = $hl_dash_raw ? json_decode($hl_dash_raw, true) : null;
+                ?>
+                <div id="almaseo-ai-headline-panel" style="margin-top: 8px; padding: 10px 12px; background: linear-gradient(135deg, #f0f4ff 0%, #f8f9ff 100%); border: 1px solid #d0d5ff; border-radius: 4px; <?php echo $hl_dash_data ? '' : 'display:none;'; ?>">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                        <span style="font-size: 12px; font-weight: 600; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI Headline Insights</span>
+                        <button type="button" id="almaseo-ai-hl-refresh" style="padding: 2px 6px; font-size: 10px; background: #fff; border: 1px solid #c3c4c7; border-radius: 3px; cursor: pointer; color: #2271b1;">Analyze</button>
+                    </div>
+                    <div id="almaseo-ai-hl-content" style="font-size: 12px;">
+                        <?php if ( $hl_dash_data ) : ?>
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 6px;">
+                            <?php if ( ! empty($hl_dash_data['ctr_potential']) ) : ?>
+                            <span>CTR Potential: <strong><?php echo esc_html(number_format($hl_dash_data['ctr_potential'], 1)); ?>%</strong></span>
+                            <?php endif; ?>
+                            <?php if ( ! empty($hl_dash_data['emotional_impact']) ) : ?>
+                            <span>Emotion: <strong><?php echo esc_html($hl_dash_data['emotional_impact']); ?></strong></span>
+                            <?php endif; ?>
+                        </div>
+                        <?php if ( ! empty($hl_dash_data['rewrite_suggestions']) ) : ?>
+                        <div style="margin-top: 4px;">
+                            <span style="color: #666;">Suggestions:</span>
+                            <?php foreach ( array_slice($hl_dash_data['rewrite_suggestions'], 0, 3) as $sug ) : ?>
+                            <div class="almaseo-ai-hl-suggestion" data-text="<?php echo esc_attr($sug); ?>" style="padding: 4px 8px; margin-top: 3px; background: #fff; border-radius: 3px; cursor: pointer; color: #1d2327; transition: background 0.15s;"><?php echo esc_html($sug); ?></div>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <script>
+                (function(){
+                    var panel = document.getElementById('almaseo-ai-headline-panel');
+                    var content = document.getElementById('almaseo-ai-hl-content');
+                    var btn = document.getElementById('almaseo-ai-hl-refresh');
+                    var titleInput = document.getElementById('almaseo_seo_title');
+                    if (!panel || !content || !btn || !titleInput) return;
+
+                    var nonce = (typeof almaseo_health !== 'undefined' && almaseo_health.nonce)
+                                ? almaseo_health.nonce
+                                : '<?php echo esc_js(wp_create_nonce('almaseo_nonce')); ?>';
+                    var postId = <?php echo (int) $post->ID; ?>;
+
+                    function escHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+                    function renderDashboard(data) {
+                        if (!data || data.available === false) { panel.style.display = 'none'; return; }
+                        panel.style.display = '';
+                        var html = '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:6px;">';
+                        if (data.ctr_potential) html += '<span>CTR Potential: <strong>'+Number(data.ctr_potential).toFixed(1)+'%</strong></span>';
+                        if (data.emotional_impact) html += '<span>Emotion: <strong>'+escHtml(data.emotional_impact)+'</strong></span>';
+                        if (data.headline_score) html += '<span>AI Score: <strong>'+data.headline_score+'/100</strong></span>';
+                        html += '</div>';
+                        if (data.rewrite_suggestions && data.rewrite_suggestions.length) {
+                            html += '<div style="margin-top:4px;"><span style="color:#666;">Suggestions:</span>';
+                            data.rewrite_suggestions.slice(0, 3).forEach(function(s){
+                                html += '<div class="almaseo-ai-hl-suggestion" data-text="'+escHtml(s)+'" style="padding:4px 8px;margin-top:3px;background:#fff;border-radius:3px;cursor:pointer;color:#1d2327;transition:background 0.15s;">'+escHtml(s)+'</div>';
+                            });
+                            html += '</div>';
+                        }
+                        if (data.competitor_headlines && data.competitor_headlines.length) {
+                            html += '<div style="margin-top:6px;"><span style="color:#666;">Competitor headlines:</span>';
+                            data.competitor_headlines.slice(0, 3).forEach(function(c){
+                                html += '<div style="padding:3px 8px;margin-top:2px;font-size:11px;color:#555;">'+escHtml(c.headline)+(c.ctr?' <span style="color:#2271b1;">('+Number(c.ctr).toFixed(1)+'% CTR)</span>':'')+'</div>';
+                            });
+                            html += '</div>';
+                        }
+                        content.innerHTML = html;
+                        bindSuggestions();
+                    }
+
+                    function bindSuggestions() {
+                        content.querySelectorAll('.almaseo-ai-hl-suggestion').forEach(function(el){
+                            el.addEventListener('mouseenter', function(){ this.style.background = '#f0f4ff'; });
+                            el.addEventListener('mouseleave', function(){ this.style.background = '#fff'; });
+                            el.addEventListener('click', function(){
+                                titleInput.value = this.getAttribute('data-text');
+                                titleInput.dispatchEvent(new Event('input', {bubbles:true}));
+                                titleInput.dispatchEvent(new Event('change', {bubbles:true}));
+                            });
+                        });
+                    }
+                    bindSuggestions();
+
+                    btn.addEventListener('click', function(){
+                        var headline = titleInput.value.trim();
+                        if (!headline) return;
+                        btn.textContent = '...';
+                        btn.disabled = true;
+                        var fd = new FormData();
+                        fd.append('action', 'almaseo_headline_ai_analyze');
+                        fd.append('nonce', nonce);
+                        fd.append('headline', headline);
+                        fd.append('post_id', postId);
+                        var xhr = new XMLHttpRequest();
+                        xhr.open('POST', '<?php echo esc_js(admin_url('admin-ajax.php')); ?>', true);
+                        xhr.onreadystatechange = function(){
+                            if (this.readyState !== 4) return;
+                            btn.textContent = 'Analyze';
+                            btn.disabled = false;
+                            if (this.status === 200) {
+                                try {
+                                    var resp = JSON.parse(this.responseText);
+                                    if (resp.success && resp.data) renderDashboard(resp.data);
+                                } catch(e){}
+                            }
+                        };
+                        xhr.send(fd);
+                    });
+
+                    // Show panel when title has content and we're connected
+                    if (titleInput.value.trim()) panel.style.display = '';
+                })();
+                </script>
+                <?php endif; ?>
+
             </div>
 
             <div class="almaseo-field-group">
@@ -881,6 +999,134 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 })();
                 </script>
             </div>
+
+            <!-- AI Keyword Insights (Dashboard Enhanced) -->
+            <?php if ( function_exists('seo_playground_is_alma_connected') && seo_playground_is_alma_connected() ) : ?>
+            <?php
+            $ai_kw_stored = get_post_meta($post->ID, '_almaseo_kw_suggestions', true);
+            $ai_kw_data   = $ai_kw_stored ? json_decode($ai_kw_stored, true) : array();
+            ?>
+            <div id="almaseo-ai-keywords-panel" style="margin-top: 12px; padding: 12px; background: linear-gradient(135deg, #f0f4ff 0%, #f8f9ff 100%); border: 1px solid #d0d5ff; border-radius: 6px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                    <h4 style="margin: 0; font-size: 13px; font-weight: 600; color: #1d2327;">
+                        <span style="background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI</span>
+                        Keyword Insights
+                    </h4>
+                    <button type="button" id="almaseo-ai-kw-refresh" style="padding: 3px 8px; font-size: 11px; background: #fff; border: 1px solid #c3c4c7; border-radius: 3px; cursor: pointer; color: #2271b1;">Refresh</button>
+                </div>
+                <div id="almaseo-ai-kw-list" style="max-height: 200px; overflow-y: auto;">
+                    <?php if ( ! empty($ai_kw_data) ) : ?>
+                        <?php foreach ( array_slice($ai_kw_data, 0, 8) as $kw ) : ?>
+                        <div class="almaseo-ai-kw-item" data-keyword="<?php echo esc_attr($kw['keyword']); ?>" style="display: flex; align-items: center; gap: 6px; padding: 6px 8px; margin-bottom: 4px; background: #fff; border-radius: 4px; cursor: pointer; transition: background 0.15s; font-size: 12px;">
+                            <span style="flex: 1; color: #1d2327; font-weight: 500;"><?php echo esc_html($kw['keyword']); ?></span>
+                            <?php if ( ! empty($kw['volume']) ) : ?>
+                            <span style="padding: 1px 6px; background: #e8f5e9; color: #2e7d32; border-radius: 10px; font-size: 10px; white-space: nowrap;"><?php echo esc_html(number_format($kw['volume'])); ?>/mo</span>
+                            <?php endif; ?>
+                            <?php if ( ! empty($kw['competition']) ) : ?>
+                            <span style="padding: 1px 6px; background: <?php echo $kw['competition'] === 'low' ? '#e8f5e9' : ($kw['competition'] === 'high' ? '#fce4ec' : '#fff3e0'); ?>; color: <?php echo $kw['competition'] === 'low' ? '#2e7d32' : ($kw['competition'] === 'high' ? '#c62828' : '#e65100'); ?>; border-radius: 10px; font-size: 10px;"><?php echo esc_html(ucfirst($kw['competition'])); ?></span>
+                            <?php endif; ?>
+                            <?php if ( ! empty($kw['intent']) ) : ?>
+                            <span style="padding: 1px 6px; background: #e3f2fd; color: #1565c0; border-radius: 10px; font-size: 10px;"><?php echo esc_html(ucfirst(substr($kw['intent'], 0, 5))); ?></span>
+                            <?php endif; ?>
+                            <?php if ( ! empty($kw['trend']) && $kw['trend'] !== 'stable' ) : ?>
+                            <span style="font-size: 11px;"><?php echo $kw['trend'] === 'up' ? '↑' : '↓'; ?></span>
+                            <?php endif; ?>
+                        </div>
+                        <?php endforeach; ?>
+                    <?php else : ?>
+                        <p style="margin: 0; color: #666; font-size: 12px; font-style: italic;">Type a focus keyword above, then click Refresh to get AI keyword insights.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <script>
+            (function(){
+                var panel = document.getElementById('almaseo-ai-keywords-panel');
+                var listEl = document.getElementById('almaseo-ai-kw-list');
+                var refreshBtn = document.getElementById('almaseo-ai-kw-refresh');
+                var kwInput = document.getElementById('almaseo_focus_keyword');
+                if (!panel || !listEl || !refreshBtn || !kwInput) return;
+
+                var nonce = (typeof almaseo_health !== 'undefined' && almaseo_health.nonce)
+                            ? almaseo_health.nonce
+                            : '<?php echo esc_js(wp_create_nonce('almaseo_nonce')); ?>';
+                var postId = <?php echo (int) $post->ID; ?>;
+
+                function renderAiKeywords(keywords) {
+                    if (!keywords || !keywords.length) {
+                        listEl.innerHTML = '<p style="margin:0;color:#666;font-size:12px;font-style:italic;">No AI keyword insights available yet.</p>';
+                        return;
+                    }
+                    listEl.innerHTML = '';
+                    keywords.slice(0, 8).forEach(function(kw) {
+                        var div = document.createElement('div');
+                        div.className = 'almaseo-ai-kw-item';
+                        div.setAttribute('data-keyword', kw.keyword);
+                        div.style.cssText = 'display:flex;align-items:center;gap:6px;padding:6px 8px;margin-bottom:4px;background:#fff;border-radius:4px;cursor:pointer;transition:background 0.15s;font-size:12px;';
+                        var html = '<span style="flex:1;color:#1d2327;font-weight:500;">' + escHtml(kw.keyword) + '</span>';
+                        if (kw.volume) html += '<span style="padding:1px 6px;background:#e8f5e9;color:#2e7d32;border-radius:10px;font-size:10px;white-space:nowrap;">' + Number(kw.volume).toLocaleString() + '/mo</span>';
+                        if (kw.competition) {
+                            var bg = kw.competition==='low'?'#e8f5e9':kw.competition==='high'?'#fce4ec':'#fff3e0';
+                            var fg = kw.competition==='low'?'#2e7d32':kw.competition==='high'?'#c62828':'#e65100';
+                            html += '<span style="padding:1px 6px;background:'+bg+';color:'+fg+';border-radius:10px;font-size:10px;">'+kw.competition.charAt(0).toUpperCase()+kw.competition.slice(1)+'</span>';
+                        }
+                        if (kw.intent) html += '<span style="padding:1px 6px;background:#e3f2fd;color:#1565c0;border-radius:10px;font-size:10px;">'+kw.intent.charAt(0).toUpperCase()+kw.intent.slice(1,5)+'</span>';
+                        if (kw.trend && kw.trend !== 'stable') html += '<span style="font-size:11px;">'+(kw.trend==='up'?'↑':'↓')+'</span>';
+                        div.innerHTML = html;
+                        div.addEventListener('mouseenter', function(){ this.style.background = '#f0f4ff'; });
+                        div.addEventListener('mouseleave', function(){ this.style.background = '#fff'; });
+                        div.addEventListener('click', function(){
+                            kwInput.value = kw.keyword;
+                            kwInput.dispatchEvent(new Event('input', {bubbles:true}));
+                            kwInput.dispatchEvent(new Event('change', {bubbles:true}));
+                        });
+                        listEl.appendChild(div);
+                    });
+                }
+
+                function escHtml(str) {
+                    var d = document.createElement('div'); d.textContent = str; return d.innerHTML;
+                }
+
+                refreshBtn.addEventListener('click', function() {
+                    var q = kwInput.value.trim();
+                    if (q.length < 2) { listEl.innerHTML = '<p style="margin:0;color:#666;font-size:12px;">Enter a focus keyword first.</p>'; return; }
+                    refreshBtn.textContent = '...';
+                    refreshBtn.disabled = true;
+                    var url = '<?php echo esc_js(admin_url('admin-ajax.php')); ?>'
+                        + '?action=almaseo_keyword_ai_suggest&nonce=' + encodeURIComponent(nonce)
+                        + '&q=' + encodeURIComponent(q)
+                        + '&post_id=' + postId;
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('GET', url, true);
+                    xhr.onreadystatechange = function() {
+                        if (this.readyState !== 4) return;
+                        refreshBtn.textContent = 'Refresh';
+                        refreshBtn.disabled = false;
+                        if (this.status === 200) {
+                            try {
+                                var resp = JSON.parse(this.responseText);
+                                if (resp.success && resp.data && resp.data.keywords) {
+                                    renderAiKeywords(resp.data.keywords);
+                                }
+                            } catch(e) {}
+                        }
+                    };
+                    xhr.send();
+                });
+
+                // Click handler for pre-rendered items
+                listEl.querySelectorAll('.almaseo-ai-kw-item').forEach(function(item) {
+                    item.addEventListener('mouseenter', function(){ this.style.background = '#f0f4ff'; });
+                    item.addEventListener('mouseleave', function(){ this.style.background = '#fff'; });
+                    item.addEventListener('click', function(){
+                        kwInput.value = this.getAttribute('data-keyword');
+                        kwInput.dispatchEvent(new Event('input', {bubbles:true}));
+                        kwInput.dispatchEvent(new Event('change', {bubbles:true}));
+                    });
+                });
+            })();
+            </script>
+            <?php endif; ?>
 
             <!-- Google SERP Preview -->
             <div class="almaseo-serp-preview">
@@ -3260,6 +3506,21 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     <strong><?php _e( 'Cornerstone Content', 'almaseo' ); ?></strong>
                 </label>
                 <p class="field-hint"><?php _e( 'Mark this as a key page that should be prioritized in your SEO strategy.', 'almaseo' ); ?></p>
+                <?php
+                $cs_suggested = get_post_meta( $post->ID, '_almaseo_cornerstone_suggested', true );
+                $cs_current   = get_post_meta( $post->ID, '_almaseo_is_cornerstone', true );
+                if ( $cs_suggested && ! $cs_current ) :
+                    $cs_score  = get_post_meta( $post->ID, '_almaseo_cornerstone_score', true );
+                    $cs_reason = get_post_meta( $post->ID, '_almaseo_cornerstone_reason', true );
+                ?>
+                <div style="margin-top: 8px; padding: 8px 12px; background: linear-gradient(135deg, #f0f4ff 0%, #f8f9ff 100%); border: 1px solid #d0d5ff; border-radius: 4px; font-size: 12px;">
+                    <span style="font-weight: 600; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI</span>
+                    <?php printf( __( 'AlmaSEO suggests marking this as cornerstone content (score: %s/100).', 'almaseo' ), '<strong>' . intval( $cs_score ) . '</strong>' ); ?>
+                    <?php if ( $cs_reason ) : ?>
+                    <br><span style="color: #666;"><?php echo esc_html( $cs_reason ); ?></span>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
         <!-- End Schema & Meta Tab -->

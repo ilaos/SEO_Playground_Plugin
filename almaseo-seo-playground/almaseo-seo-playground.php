@@ -263,6 +263,12 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/cornerstone-content.
     AlmaSEO_Cornerstone_Content::init();
 }
 
+// Include Cornerstone REST (Dashboard Enhanced) (v8.5.0+)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/cornerstone-rest.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/admin/cornerstone-rest.php';
+    AlmaSEO_Cornerstone_REST::init();
+}
+
 // Include Image SEO (v8.4.0+)
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/image-seo.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/admin/image-seo.php';
@@ -281,10 +287,22 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/blocks/link-attributes.php
     AlmaSEO_Link_Attributes::init();
 }
 
+// Include Image SEO REST (Dashboard Enhanced) (v8.5.0+)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/image-seo-rest.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/admin/image-seo-rest.php';
+    AlmaSEO_Image_SEO_REST::init();
+}
+
 // Include Google Keyword Suggestions (v8.5.0+)
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/keyword-suggestions.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/admin/keyword-suggestions.php';
     AlmaSEO_Keyword_Suggestions::init();
+}
+
+// Include Keyword Suggestions REST (Dashboard Enhanced) (v8.5.0+)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/keyword-suggestions-rest.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/admin/keyword-suggestions-rest.php';
+    AlmaSEO_Keyword_Suggestions_REST::init();
 }
 
 // Include Google Analytics Integration (v8.5.0+)

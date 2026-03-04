@@ -54,6 +54,16 @@ class AlmaSEO_Health_Loader {
         require_once dirname(__FILE__) . '/headline-analyzer.php';
         require_once dirname(__FILE__) . '/readability.php';
 
+        // Dashboard REST endpoints for health enhancements
+        if (file_exists(dirname(__FILE__) . '/headline-analyzer-rest.php')) {
+            require_once dirname(__FILE__) . '/headline-analyzer-rest.php';
+            AlmaSEO_Headline_Analyzer_REST::init();
+        }
+        if (file_exists(dirname(__FILE__) . '/readability-rest.php')) {
+            require_once dirname(__FILE__) . '/readability-rest.php';
+            AlmaSEO_Readability_REST::init();
+        }
+
         if (is_admin()) {
             require_once dirname(__FILE__) . '/ui.php';
             require_once dirname(__FILE__) . '/compact-view.php';
