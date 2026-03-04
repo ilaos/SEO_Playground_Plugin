@@ -506,10 +506,26 @@ jQuery(document).ready(function($) {
         }
     }
     
+    // LocalBusiness fields show/hide helper
+    function toggleLocalBusinessFields() {
+        var schemaVal = $('#almaseo_schema_primary_type').length ? $('#almaseo_schema_primary_type').val() : '';
+        var basicVal  = $('#almaseo_schema_type').val();
+        var isLB = (schemaVal === 'LocalBusiness') || (!schemaVal && basicVal === 'LocalBusiness');
+        if (isLB) {
+            $('#almaseo-localbusiness-fields').slideDown();
+        } else {
+            $('#almaseo-localbusiness-fields').slideUp();
+        }
+    }
+
+    // Bind to both schema selectors
+    $('#almaseo_schema_primary_type').on('change', toggleLocalBusinessFields);
+
     // Schema type change handler
     $('#almaseo_schema_type').on('change', function() {
         var selectedSchema = $(this).val();
-        
+        toggleLocalBusinessFields();
+
         // Show/hide article-specific fields
         if (selectedSchema === 'Article') {
             $('.schema-article-fields').slideDown();

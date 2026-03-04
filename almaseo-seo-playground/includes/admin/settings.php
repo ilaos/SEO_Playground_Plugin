@@ -120,6 +120,13 @@ class AlmaSEO_Settings {
             'sanitize_callback' => array('AlmaSEO_Image_SEO', 'sanitize'),
         ));
 
+        // Google Analytics (v8.5.0)
+        register_setting('almaseo_settings', 'almaseo_analytics_settings', array(
+            'type'              => 'array',
+            'default'           => AlmaSEO_Analytics_Settings::get_defaults(),
+            'sanitize_callback' => array('AlmaSEO_Analytics_Settings', 'sanitize'),
+        ));
+
         // Webmaster Verification Codes (v8.0.0)
         register_setting('almaseo_settings', 'almaseo_verification_codes', array(
             'type' => 'array',

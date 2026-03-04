@@ -559,6 +559,144 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 <p class="field-subtext" style="margin: 5px 0 0 0; color: #666; font-size: 12px; font-style: italic;">
                     <?php printf(esc_html__('Or let AlmaSEO generate optimized titles automatically → %sUpgrade%s', 'almaseo'), '<a href="' . esc_url(admin_url('admin.php?page=seo-playground-connection')) . '">', '</a>'); ?>
                 </p>
+
+                <!-- Headline Analyzer -->
+                <?php if ( class_exists( 'AlmaSEO_Headline_Analyzer' ) ) : ?>
+                <div id="almaseo-headline-analyzer" class="almaseo-headline-analyzer" style="margin-top: 10px; display: none;">
+                    <div class="headline-score-row" style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #f6f7f7; border: 1px solid #c3c4c7; border-radius: 4px;">
+                        <div class="headline-score-badge" id="headline-score-badge" style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: #fff; background: #646970; flex-shrink: 0;">
+                            --
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <strong style="font-size: 13px;"><?php _e( 'Headline Score', 'almaseo' ); ?></strong>
+                            <span id="headline-score-label" style="font-size: 12px; color: #646970; margin-left: 6px;"></span>
+                        </div>
+                        <button type="button" id="headline-toggle-details" class="button-link" style="font-size: 12px; white-space: nowrap;">
+                            <?php _e( 'Show Details', 'almaseo' ); ?>
+                        </button>
+                    </div>
+                    <div id="headline-details" style="display: none; margin-top: 6px; padding: 10px 12px; background: #fff; border: 1px solid #c3c4c7; border-radius: 4px; font-size: 12px;">
+                        <ul id="headline-checks-list" style="margin: 0; list-style: none; padding: 0;"></ul>
+                    </div>
+                </div>
+                <script>
+                (function() {
+                    var powerWords = <?php echo wp_json_encode( AlmaSEO_Headline_Analyzer::get_word_lists()['power'] ); ?>;
+                    var emotionalWords = <?php echo wp_json_encode( AlmaSEO_Headline_Analyzer::get_word_lists()['emotional'] ); ?>;
+                    var commonWords = <?php echo wp_json_encode( AlmaSEO_Headline_Analyzer::get_word_lists()['common'] ); ?>;
+
+                    var $input = document.getElementById('almaseo_seo_title');
+                    var $wrap  = document.getElementById('almaseo-headline-analyzer');
+                    var $badge = document.getElementById('headline-score-badge');
+                    var $label = document.getElementById('headline-score-label');
+                    var $details = document.getElementById('headline-details');
+                    var $list  = document.getElementById('headline-checks-list');
+                    var $toggle = document.getElementById('headline-toggle-details');
+
+                    if (!$input || !$wrap) return;
+
+                    $toggle.addEventListener('click', function() {
+                        var hidden = $details.style.display === 'none';
+                        $details.style.display = hidden ? '' : 'none';
+                        this.textContent = hidden ? '<?php echo esc_js( __( 'Hide Details', 'almaseo' ) ); ?>' : '<?php echo esc_js( __( 'Show Details', 'almaseo' ) ); ?>';
+                    });
+
+                    function countMatches(words, list) {
+                        var lookup = {};
+                        for (var i = 0; i < list.length; i++) lookup[list[i]] = true;
+                        var c = 0;
+                        for (var j = 0; j < words.length; j++) {
+                            if (lookup[words[j].replace(/[^a-z]/g, '')]) c++;
+                        }
+                        return c;
+                    }
+
+                    function analyze(headline) {
+                        headline = (headline || '').trim();
+                        if (!headline) return { score: 0, checks: [] };
+
+                        var words = headline.toLowerCase().split(/\s+/);
+                        var wc = words.length;
+                        var cc = headline.length;
+                        var score = 0;
+                        var checks = [];
+
+                        // Word count 6-13
+                        var wcP = wc >= 6 && wc <= 13;
+                        if (wcP) score += 20;
+                        checks.push({ label: 'Word Count', pass: wcP, tip: wc + ' words' + (wcP ? ' — ideal range' : ' — aim for 6–13') });
+
+                        // Char length 50-60
+                        var clP = cc >= 50 && cc <= 60;
+                        if (clP) score += 15;
+                        checks.push({ label: 'Character Length', pass: clP, tip: cc + ' chars' + (clP ? ' — fits Google title' : ' — aim for 50–60') });
+
+                        // Power words
+                        var pw = countMatches(words, powerWords);
+                        if (pw > 0) score += 15;
+                        checks.push({ label: 'Power Words', pass: pw > 0, tip: pw > 0 ? pw + ' found' : 'Add a power word (e.g., "proven", "essential")' });
+
+                        // Emotional words
+                        var ew = countMatches(words, emotionalWords);
+                        if (ew > 0) score += 15;
+                        checks.push({ label: 'Emotional Words', pass: ew > 0, tip: ew > 0 ? ew + ' found' : 'Add an emotional trigger word' });
+
+                        // Number
+                        var hn = /\d/.test(headline);
+                        if (hn) score += 10;
+                        checks.push({ label: 'Contains Number', pass: hn, tip: hn ? 'Numbers attract clicks' : 'Headlines with numbers get 36% more clicks' });
+
+                        // Question
+                        var iq = /\?$/.test(headline.trim()) || /^(how|what|why|when|where|who|which|can|do|does|is|are|will|should)\b/i.test(headline);
+                        if (iq) score += 10;
+                        checks.push({ label: 'Question Format', pass: iq, tip: iq ? 'Questions spark curiosity' : 'Try phrasing as a question' });
+
+                        // Word balance
+                        var cwc = countMatches(words, commonWords);
+                        var pct = wc > 0 ? (cwc / wc) * 100 : 0;
+                        var bp = pct >= 15 && pct <= 50;
+                        if (bp) score += 15;
+                        checks.push({ label: 'Word Balance', pass: bp, tip: Math.round(pct) + '% common words' + (bp ? ' — good balance' : (pct > 50 ? ' — too generic' : ' — add connecting words')) });
+
+                        return { score: Math.min(100, score), checks: checks };
+                    }
+
+                    function render(result) {
+                        $wrap.style.display = '';
+                        var s = result.score;
+                        $badge.textContent = s;
+
+                        if (s >= 70) { $badge.style.background = '#00a32a'; $label.textContent = 'Great!'; }
+                        else if (s >= 40) { $badge.style.background = '#dba617'; $label.textContent = 'Could be better'; }
+                        else { $badge.style.background = '#d63638'; $label.textContent = 'Needs work'; }
+
+                        var html = '';
+                        for (var i = 0; i < result.checks.length; i++) {
+                            var c = result.checks[i];
+                            var dot = c.pass ? '<span style="color:#00a32a;">&#10003;</span>' : '<span style="color:#d63638;">&#10007;</span>';
+                            html += '<li style="padding: 4px 0; border-bottom: 1px solid #f0f0f1;">' + dot + ' <strong>' + c.label + '</strong> — ' + c.tip + '</li>';
+                        }
+                        $list.innerHTML = html;
+                    }
+
+                    // Initial
+                    var val = $input.value;
+                    if (val.trim()) render(analyze(val));
+
+                    // Live update
+                    var timer;
+                    $input.addEventListener('input', function() {
+                        clearTimeout(timer);
+                        timer = setTimeout(function() {
+                            var v = $input.value;
+                            if (v.trim()) { render(analyze(v)); }
+                            else { $wrap.style.display = 'none'; }
+                        }, 200);
+                    });
+                })();
+                </script>
+                <?php endif; ?>
+
             </div>
 
             <div class="almaseo-field-group">
@@ -611,6 +749,137 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 <p class="field-subtext" style="margin: 5px 0 0 0; color: #666; font-size: 12px; font-style: italic;">
                     <?php printf(esc_html__('Or unlock smart keyword suggestions and intent detection → %sUpgrade%s', 'almaseo'), '<a href="' . esc_url(admin_url('admin.php?page=seo-playground-connection')) . '">', '</a>'); ?>
                 </p>
+                <!-- Google Keyword Suggestions Dropdown -->
+                <div id="almaseo-keyword-suggestions-wrap" style="position: relative; margin-top: 4px;">
+                    <ul id="almaseo-keyword-suggestions" style="
+                        display: none;
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        z-index: 1000;
+                        background: #fff;
+                        border: 1px solid #ddd;
+                        border-radius: 4px;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                        list-style: none;
+                        margin: 0;
+                        padding: 4px 0;
+                        max-height: 260px;
+                        overflow-y: auto;
+                    "></ul>
+                </div>
+                <script>
+                (function(){
+                    var input = document.getElementById('almaseo_focus_keyword');
+                    var list  = document.getElementById('almaseo-keyword-suggestions');
+                    if (!input || !list) return;
+
+                    var debounceTimer = null;
+                    var currentXhr    = null;
+
+                    function fetchSuggestions(query) {
+                        if (currentXhr) { currentXhr.abort(); currentXhr = null; }
+                        if (query.length < 2) { list.style.display = 'none'; return; }
+
+                        var nonce = (typeof almaseo_health !== 'undefined' && almaseo_health.nonce)
+                                    ? almaseo_health.nonce
+                                    : '<?php echo esc_js(wp_create_nonce('almaseo_nonce')); ?>';
+
+                        var url = '<?php echo esc_js(admin_url('admin-ajax.php')); ?>'
+                                + '?action=almaseo_keyword_suggest&nonce=' + encodeURIComponent(nonce)
+                                + '&q=' + encodeURIComponent(query);
+
+                        currentXhr = new XMLHttpRequest();
+                        currentXhr.open('GET', url, true);
+                        currentXhr.onreadystatechange = function() {
+                            if (this.readyState !== 4) return;
+                            currentXhr = null;
+                            if (this.status !== 200) { list.style.display = 'none'; return; }
+                            try {
+                                var resp = JSON.parse(this.responseText);
+                                if (resp.success && resp.data && resp.data.suggestions && resp.data.suggestions.length) {
+                                    renderSuggestions(resp.data.suggestions);
+                                } else {
+                                    list.style.display = 'none';
+                                }
+                            } catch(e) { list.style.display = 'none'; }
+                        };
+                        currentXhr.send();
+                    }
+
+                    function renderSuggestions(items) {
+                        list.innerHTML = '';
+                        items.forEach(function(text) {
+                            var li = document.createElement('li');
+                            li.textContent = text;
+                            li.style.cssText = 'padding: 8px 12px; cursor: pointer; font-size: 13px; color: #333; border-bottom: 1px solid #f0f0f0; transition: background 0.15s;';
+                            li.addEventListener('mouseenter', function(){ this.style.background = '#f0f4ff'; });
+                            li.addEventListener('mouseleave', function(){ this.style.background = ''; });
+                            li.addEventListener('mousedown', function(e){
+                                e.preventDefault();
+                                input.value = text;
+                                list.style.display = 'none';
+                                input.dispatchEvent(new Event('input', {bubbles: true}));
+                                input.dispatchEvent(new Event('change', {bubbles: true}));
+                            });
+                            list.appendChild(li);
+                        });
+                        var last = list.lastElementChild;
+                        if (last) last.style.borderBottom = 'none';
+                        list.style.display = 'block';
+                    }
+
+                    input.addEventListener('input', function() {
+                        clearTimeout(debounceTimer);
+                        var val = this.value.trim();
+                        debounceTimer = setTimeout(function(){ fetchSuggestions(val); }, 300);
+                    });
+
+                    input.addEventListener('blur', function() {
+                        setTimeout(function(){ list.style.display = 'none'; }, 200);
+                    });
+
+                    input.addEventListener('focus', function() {
+                        if (this.value.trim().length >= 2 && list.children.length > 0) {
+                            list.style.display = 'block';
+                        }
+                    });
+
+                    input.addEventListener('keydown', function(e) {
+                        if (list.style.display === 'none') return;
+                        var items = list.querySelectorAll('li');
+                        var active = list.querySelector('li[data-active]');
+                        var idx = -1;
+                        if (active) {
+                            for (var i = 0; i < items.length; i++) { if (items[i] === active) { idx = i; break; } }
+                        }
+                        if (e.key === 'ArrowDown') {
+                            e.preventDefault();
+                            if (active) { active.removeAttribute('data-active'); active.style.background = ''; }
+                            idx = (idx + 1) % items.length;
+                            items[idx].setAttribute('data-active', '1');
+                            items[idx].style.background = '#f0f4ff';
+                            items[idx].scrollIntoView({block: 'nearest'});
+                        } else if (e.key === 'ArrowUp') {
+                            e.preventDefault();
+                            if (active) { active.removeAttribute('data-active'); active.style.background = ''; }
+                            idx = idx <= 0 ? items.length - 1 : idx - 1;
+                            items[idx].setAttribute('data-active', '1');
+                            items[idx].style.background = '#f0f4ff';
+                            items[idx].scrollIntoView({block: 'nearest'});
+                        } else if (e.key === 'Enter' && active) {
+                            e.preventDefault();
+                            input.value = active.textContent;
+                            list.style.display = 'none';
+                            input.dispatchEvent(new Event('input', {bubbles: true}));
+                            input.dispatchEvent(new Event('change', {bubbles: true}));
+                        } else if (e.key === 'Escape') {
+                            list.style.display = 'none';
+                        }
+                    });
+                })();
+                </script>
             </div>
 
             <!-- Google SERP Preview -->
@@ -2334,6 +2603,117 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 <p class="field-hint">Override the global default for this specific post</p>
                             </div>
 
+                            <!-- LocalBusiness Fields (shown when LocalBusiness selected) -->
+                            <?php
+                            $lb_subtype    = get_post_meta($post->ID, '_almaseo_lb_subtype', true) ?: 'LocalBusiness';
+                            $lb_street     = get_post_meta($post->ID, '_almaseo_lb_street', true);
+                            $lb_city       = get_post_meta($post->ID, '_almaseo_lb_city', true);
+                            $lb_state      = get_post_meta($post->ID, '_almaseo_lb_state', true);
+                            $lb_zip        = get_post_meta($post->ID, '_almaseo_lb_zip', true);
+                            $lb_country    = get_post_meta($post->ID, '_almaseo_lb_country', true);
+                            $lb_phone      = get_post_meta($post->ID, '_almaseo_lb_phone', true);
+                            $lb_email      = get_post_meta($post->ID, '_almaseo_lb_email', true);
+                            $lb_price      = get_post_meta($post->ID, '_almaseo_lb_price_range', true);
+                            $lb_lat        = get_post_meta($post->ID, '_almaseo_lb_lat', true);
+                            $lb_lng        = get_post_meta($post->ID, '_almaseo_lb_lng', true);
+                            $lb_area       = get_post_meta($post->ID, '_almaseo_lb_area_served', true);
+                            $lb_payment    = get_post_meta($post->ID, '_almaseo_lb_payment', true);
+                            $lb_hours_raw  = get_post_meta($post->ID, '_almaseo_lb_hours', true);
+                            $lb_hours      = is_array($lb_hours_raw) ? $lb_hours_raw : ( $lb_hours_raw ? json_decode($lb_hours_raw, true) : array() );
+                            if ( ! is_array($lb_hours) ) $lb_hours = array();
+                            $show_lb = ( $primary_type === 'LocalBusiness' || $current_schema === 'LocalBusiness' );
+                            ?>
+                            <div id="almaseo-localbusiness-fields" style="<?php echo $show_lb ? '' : 'display:none;'; ?> margin-top: 15px; padding: 15px; background: #f9fafb; border: 1px solid #e2e4e7; border-radius: 6px;">
+                                <h4 style="margin: 0 0 12px 0; font-size: 13px; font-weight: 600; color: #1d2327;">Local Business Details</h4>
+
+                                <div class="almaseo-field-group" style="margin-bottom: 10px;">
+                                    <label for="almaseo_lb_subtype" style="font-size: 12px; font-weight: 600;">Business Type</label>
+                                    <select id="almaseo_lb_subtype" name="almaseo_lb_subtype" class="almaseo-select" style="width: 100%;">
+                                        <?php
+                                        if ( function_exists('almaseo_get_local_business_types') ) {
+                                            foreach ( almaseo_get_local_business_types() as $group_label => $group_types ) {
+                                                echo '<optgroup label="' . esc_attr($group_label) . '">';
+                                                foreach ( $group_types as $type_key => $type_label ) {
+                                                    echo '<option value="' . esc_attr($type_key) . '" ' . selected($lb_subtype, $type_key, false) . '>' . esc_html($type_label) . '</option>';
+                                                }
+                                                echo '</optgroup>';
+                                            }
+                                        } else {
+                                            echo '<option value="LocalBusiness" selected>Local Business</option>';
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                                    <div>
+                                        <label style="font-size: 11px; font-weight: 600; display: block; margin-bottom: 3px;">Phone</label>
+                                        <input type="text" name="almaseo_lb_phone" value="<?php echo esc_attr($lb_phone); ?>" placeholder="+1 (555) 123-4567" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 11px; font-weight: 600; display: block; margin-bottom: 3px;">Email</label>
+                                        <input type="email" name="almaseo_lb_email" value="<?php echo esc_attr($lb_email); ?>" placeholder="info@example.com" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                </div>
+
+                                <fieldset style="border: 1px solid #dcdcde; border-radius: 4px; padding: 10px; margin-bottom: 10px;">
+                                    <legend style="font-size: 12px; font-weight: 600; padding: 0 5px;">Address</legend>
+                                    <div style="margin-bottom: 6px;">
+                                        <input type="text" name="almaseo_lb_street" value="<?php echo esc_attr($lb_street); ?>" placeholder="Street Address" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 6px; margin-bottom: 6px;">
+                                        <input type="text" name="almaseo_lb_city" value="<?php echo esc_attr($lb_city); ?>" placeholder="City" class="almaseo-input" />
+                                        <input type="text" name="almaseo_lb_state" value="<?php echo esc_attr($lb_state); ?>" placeholder="State" class="almaseo-input" />
+                                        <input type="text" name="almaseo_lb_zip" value="<?php echo esc_attr($lb_zip); ?>" placeholder="ZIP" class="almaseo-input" />
+                                    </div>
+                                    <input type="text" name="almaseo_lb_country" value="<?php echo esc_attr($lb_country); ?>" placeholder="Country (e.g. US)" class="almaseo-input" style="width: 100%;" />
+                                </fieldset>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                                    <div>
+                                        <label style="font-size: 11px; font-weight: 600; display: block; margin-bottom: 3px;">Price Range</label>
+                                        <input type="text" name="almaseo_lb_price_range" value="<?php echo esc_attr($lb_price); ?>" placeholder="$$ or $10-$50" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 11px; font-weight: 600; display: block; margin-bottom: 3px;">Area Served</label>
+                                        <input type="text" name="almaseo_lb_area_served" value="<?php echo esc_attr($lb_area); ?>" placeholder="e.g. Greater Boston" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                                    <div>
+                                        <label style="font-size: 11px; font-weight: 600; display: block; margin-bottom: 3px;">Latitude</label>
+                                        <input type="text" name="almaseo_lb_lat" value="<?php echo esc_attr($lb_lat); ?>" placeholder="42.3601" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 11px; font-weight: 600; display: block; margin-bottom: 3px;">Longitude</label>
+                                        <input type="text" name="almaseo_lb_lng" value="<?php echo esc_attr($lb_lng); ?>" placeholder="-71.0589" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                </div>
+
+                                <div style="margin-bottom: 10px;">
+                                    <label style="font-size: 11px; font-weight: 600; display: block; margin-bottom: 3px;">Payment Accepted</label>
+                                    <input type="text" name="almaseo_lb_payment" value="<?php echo esc_attr($lb_payment); ?>" placeholder="Cash, Credit Card, Bitcoin" class="almaseo-input" style="width: 100%;" />
+                                </div>
+
+                                <fieldset style="border: 1px solid #dcdcde; border-radius: 4px; padding: 10px;">
+                                    <legend style="font-size: 12px; font-weight: 600; padding: 0 5px;">Opening Hours</legend>
+                                    <?php
+                                    $days = array('monday','tuesday','wednesday','thursday','friday','saturday','sunday');
+                                    foreach ( $days as $day ) :
+                                        $open  = isset($lb_hours[$day]['open'])  ? $lb_hours[$day]['open']  : '';
+                                        $close = isset($lb_hours[$day]['close']) ? $lb_hours[$day]['close'] : '';
+                                    ?>
+                                    <div style="display: grid; grid-template-columns: 80px 1fr 1fr; gap: 6px; align-items: center; margin-bottom: 4px;">
+                                        <span style="font-size: 12px; text-transform: capitalize;"><?php echo esc_html($day); ?></span>
+                                        <input type="time" name="almaseo_lb_hours[<?php echo esc_attr($day); ?>][open]" value="<?php echo esc_attr($open); ?>" class="almaseo-input" style="width: 100%;" />
+                                        <input type="time" name="almaseo_lb_hours[<?php echo esc_attr($day); ?>][close]" value="<?php echo esc_attr($close); ?>" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                    <?php endforeach; ?>
+                                    <p class="description" style="margin-top: 6px; font-size: 11px;">Leave blank for closed days.</p>
+                                </fieldset>
+                            </div>
+
                             <div class="almaseo-field-group">
                                 <label>
                                     <input type="checkbox"
@@ -2471,19 +2851,167 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         </div>
                     </div>
                     
-                    <!-- Collapsible Social Preview -->
-                    <div class="almaseo-collapsible" style="margin-top: 20px;">
-                        <button type="button" class="almaseo-collapsible-toggle" data-target="social-preview-content" style="width: 100%; text-align: left; padding: 10px; background: #f6f7f7; border: 1px solid #c3c4c7; border-radius: 3px; cursor: pointer;">
-                            <span class="dashicons dashicons-arrow-down-alt2" style="margin-right: 5px;"></span>
-                            Preview: Social Tags
-                        </button>
-                        <div id="social-preview-content" class="almaseo-collapsible-content" style="display: none; margin-top: 10px; padding: 15px; background: #f6f7f7; border: 1px solid #c3c4c7; border-radius: 3px;">
-                            <div id="social-tags-preview" style="font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.6;">
-                                <div style="color: #646970;">Loading preview...</div>
+                    <!-- Visual Social Previews -->
+                    <div class="almaseo-social-previews" style="margin-top: 20px;">
+                        <h4 style="margin: 0 0 12px; font-size: 14px; font-weight: 600; color: #1d2327;">
+                            <?php _e( 'Social Sharing Preview', 'almaseo' ); ?>
+                        </h4>
+
+                        <?php
+                        $sp_title       = get_post_meta( $post->ID, '_almaseo_og_title', true ) ?: ( $seo_title ?: get_the_title( $post->ID ) );
+                        $sp_description = get_post_meta( $post->ID, '_almaseo_og_description', true ) ?: ( $seo_description ?: wp_trim_words( $post->post_content, 25 ) );
+                        $sp_image       = get_post_meta( $post->ID, '_almaseo_og_image', true ) ?: get_the_post_thumbnail_url( $post->ID, 'large' );
+                        $sp_domain      = wp_parse_url( home_url(), PHP_URL_HOST );
+                        $sp_tw_card     = get_post_meta( $post->ID, '_almaseo_twitter_card', true ) ?: 'summary_large_image';
+                        ?>
+
+                        <!-- Facebook Preview -->
+                        <div class="almaseo-fb-preview" style="max-width: 500px; border: 1px solid #dadde1; border-radius: 3px; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #fff; margin-bottom: 16px;">
+                            <div id="fb-preview-image" style="width: 100%; aspect-ratio: 1.91/1; background: #e4e6eb url('<?php echo esc_url( $sp_image ); ?>') center/cover no-repeat; position: relative;">
+                                <?php if ( empty( $sp_image ) ) : ?>
+                                <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #8a8d91; font-size: 13px;">
+                                    <?php _e( 'No image set', 'almaseo' ); ?>
+                                </div>
+                                <?php endif; ?>
                             </div>
-                            <p style="margin-top: 10px; font-size: 12px; color: #646970; font-style: italic;">Note: Previews are approximate.</p>
+                            <div style="padding: 10px 12px; border-top: 1px solid #dadde1; background: #f2f3f5;">
+                                <div id="fb-preview-domain" style="font-size: 12px; color: #606770; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 3px;">
+                                    <?php echo esc_html( $sp_domain ); ?>
+                                </div>
+                                <div id="fb-preview-title" style="font-size: 16px; font-weight: 600; color: #1d2129; line-height: 1.3; margin-bottom: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                    <?php echo esc_html( $sp_title ); ?>
+                                </div>
+                                <div id="fb-preview-desc" style="font-size: 14px; color: #606770; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;">
+                                    <?php echo esc_html( $sp_description ); ?>
+                                </div>
+                            </div>
                         </div>
+
+                        <!-- Twitter/X Preview -->
+                        <div class="almaseo-twitter-preview" id="twitter-preview-container" data-card-type="<?php echo esc_attr( $sp_tw_card ); ?>" style="max-width: 500px; border: 1px solid #cfd9de; border-radius: 16px; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #fff;">
+                            <?php if ( $sp_tw_card === 'summary_large_image' ) : ?>
+                            <!-- Large Image Card -->
+                            <div id="tw-preview-image" style="width: 100%; aspect-ratio: 2/1; background: #eff3f4 url('<?php echo esc_url( $sp_image ); ?>') center/cover no-repeat; position: relative;">
+                                <?php if ( empty( $sp_image ) ) : ?>
+                                <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #8a8d91; font-size: 13px;">
+                                    <?php _e( 'No image set', 'almaseo' ); ?>
+                                </div>
+                                <?php endif; ?>
+                            </div>
+                            <div style="padding: 12px;">
+                                <div id="tw-preview-domain" style="font-size: 13px; color: #536471; margin-bottom: 2px;">
+                                    <?php echo esc_html( $sp_domain ); ?>
+                                </div>
+                                <div id="tw-preview-title" style="font-size: 15px; font-weight: 700; color: #0f1419; line-height: 1.3; margin-bottom: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                    <?php echo esc_html( $sp_title ); ?>
+                                </div>
+                                <div id="tw-preview-desc" style="font-size: 15px; color: #536471; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                    <?php echo esc_html( $sp_description ); ?>
+                                </div>
+                            </div>
+                            <?php else : ?>
+                            <!-- Summary Card (small image left) -->
+                            <div style="display: flex;">
+                                <div id="tw-preview-image" style="width: 130px; min-height: 130px; background: #eff3f4 url('<?php echo esc_url( $sp_image ); ?>') center/cover no-repeat; flex-shrink: 0; border-right: 1px solid #cfd9de;">
+                                </div>
+                                <div style="padding: 12px; flex: 1; min-width: 0;">
+                                    <div id="tw-preview-domain" style="font-size: 13px; color: #536471; margin-bottom: 2px;">
+                                        <?php echo esc_html( $sp_domain ); ?>
+                                    </div>
+                                    <div id="tw-preview-title" style="font-size: 15px; font-weight: 700; color: #0f1419; line-height: 1.3; margin-bottom: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                        <?php echo esc_html( $sp_title ); ?>
+                                    </div>
+                                    <div id="tw-preview-desc" style="font-size: 15px; color: #536471; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                        <?php echo esc_html( $sp_description ); ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+
+                        <p style="margin-top: 8px; font-size: 12px; color: #646970; font-style: italic;">
+                            <?php _e( 'Previews are approximate. Actual appearance may vary by platform.', 'almaseo' ); ?>
+                        </p>
                     </div>
+
+                    <script>
+                    (function(){
+                        /* Live Social Preview Updates */
+                        var fields = {
+                            ogTitle:    document.getElementById('almaseo_og_title'),
+                            ogDesc:     document.getElementById('almaseo_og_description'),
+                            ogImage:    document.getElementById('almaseo_og_image'),
+                            twTitle:    document.getElementById('almaseo_twitter_title'),
+                            twDesc:     document.getElementById('almaseo_twitter_description'),
+                            twCard:     document.getElementById('almaseo_twitter_card'),
+                            seoTitle:   document.getElementById('almaseo_seo_title'),
+                            seoDesc:    document.getElementById('almaseo_seo_description'),
+                        };
+
+                        var fbImage = document.getElementById('fb-preview-image');
+                        var fbTitle = document.getElementById('fb-preview-title');
+                        var fbDesc  = document.getElementById('fb-preview-desc');
+                        var twImage = document.getElementById('tw-preview-image');
+                        var twTitle = document.getElementById('tw-preview-title');
+                        var twDesc  = document.getElementById('tw-preview-desc');
+                        var twWrap  = document.getElementById('twitter-preview-container');
+
+                        var postTitle = <?php echo wp_json_encode( get_the_title( $post->ID ) ); ?>;
+                        var postExcerpt = <?php echo wp_json_encode( wp_trim_words( $post->post_content, 25 ) ); ?>;
+                        var featuredImage = <?php echo wp_json_encode( get_the_post_thumbnail_url( $post->ID, 'large' ) ?: '' ); ?>;
+
+                        function getVal(el) { return el ? el.value.trim() : ''; }
+
+                        function resolveTitle() {
+                            return getVal(fields.ogTitle) || getVal(fields.seoTitle) || postTitle || '';
+                        }
+                        function resolveDesc() {
+                            return getVal(fields.ogDesc) || getVal(fields.seoDesc) || postExcerpt || '';
+                        }
+                        function resolveImage() {
+                            return getVal(fields.ogImage) || featuredImage;
+                        }
+
+                        function updatePreviews() {
+                            var title = resolveTitle();
+                            var desc  = resolveDesc();
+                            var image = resolveImage();
+
+                            /* Facebook */
+                            if (fbTitle) fbTitle.textContent = title;
+                            if (fbDesc)  fbDesc.textContent  = desc;
+                            if (fbImage) {
+                                fbImage.style.backgroundImage = image ? 'url(' + image + ')' : 'none';
+                                fbImage.innerHTML = image ? '' : '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#8a8d91;font-size:13px;">No image set</div>';
+                            }
+
+                            /* Twitter */
+                            var twTitleVal = getVal(fields.twTitle) || title;
+                            var twDescVal  = getVal(fields.twDesc) || desc;
+                            if (twTitle) twTitle.textContent = twTitleVal;
+                            if (twDesc)  twDesc.textContent  = twDescVal;
+                            if (twImage) {
+                                twImage.style.backgroundImage = image ? 'url(' + image + ')' : 'none';
+                            }
+                        }
+
+                        /* Bind input events */
+                        var inputFields = [fields.ogTitle, fields.ogDesc, fields.ogImage, fields.twTitle, fields.twDesc, fields.seoTitle, fields.seoDesc];
+                        for (var i = 0; i < inputFields.length; i++) {
+                            if (inputFields[i]) {
+                                inputFields[i].addEventListener('input', updatePreviews);
+                            }
+                        }
+
+                        /* Card type change rebuilds Twitter preview layout */
+                        if (fields.twCard) {
+                            fields.twCard.addEventListener('change', function() {
+                                /* Reload the page section would be complex; for now just update the data attr */
+                                if (twWrap) twWrap.setAttribute('data-card-type', this.value);
+                            });
+                        }
+                    })();
+                    </script>
                 </div>
             </div>
             

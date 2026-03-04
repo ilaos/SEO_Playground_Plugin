@@ -397,7 +397,7 @@ function almaseo_health_check_image_alt($content, $post_id) {
 }
 
 /**
- * Check readability
+ * Check readability (uses enhanced analyzer when available).
  */
 function almaseo_health_check_readability($plain_content) {
     if (empty($plain_content)) {
@@ -406,23 +406,43 @@ function almaseo_health_check_readability($plain_content) {
             'note' => __('No content to analyze', 'almaseo')
         );
     }
-    
-    // Split into sentences (multibyte safe)
+
+    // Use enhanced readability analyzer if available
+    if (class_exists('AlmaSEO_Readability_Analyzer')) {
+        $post_id = get_the_ID();
+        $html = '';
+        if ($post_id) {
+            $post = get_post($post_id);
+            if ($post) {
+                $html = $post->post_content;
+            }
+        }
+        $result = AlmaSEO_Readability_Analyzer::analyze($plain_content, $html);
+
+        // Store detailed results in transient for metabox display
+        if ($post_id) {
+            set_transient('almaseo_readability_' . $post_id, $result, HOUR_IN_SECONDS);
+        }
+
+        return array(
+            'pass' => $result['overall_pass'],
+            'note' => $result['overall_pass']
+                ? sprintf(__('Good readability (%d/%d checks pass)', 'almaseo'), $result['pass_count'], $result['total_checks'])
+                : sprintf(__('Readability needs work (%d/%d checks pass)', 'almaseo'), $result['pass_count'], $result['total_checks']),
+        );
+    }
+
+    // Fallback: basic sentence/paragraph check
     $sentences = preg_split('/[.!?]+/u', $plain_content, -1, PREG_SPLIT_NO_EMPTY);
     $sentence_count = count($sentences);
-    
-    // Split into paragraphs
     $paragraphs = preg_split('/\n\n+/', $plain_content, -1, PREG_SPLIT_NO_EMPTY);
     $paragraph_count = count($paragraphs);
-    
-    // Count words
     $word_count = str_word_count($plain_content);
-    
+
     if ($sentence_count > 0 && $paragraph_count > 0 && $word_count > 0) {
         $avg_sentence_length = $word_count / $sentence_count;
         $avg_paragraph_length = $word_count / $paragraph_count;
-        
-        // Pass if avg sentence ≤ 24 words OR avg paragraph ≤ 150 words
+
         if ($avg_sentence_length <= 24 || $avg_paragraph_length <= 150) {
             return array(
                 'pass' => true,
@@ -435,7 +455,7 @@ function almaseo_health_check_readability($plain_content) {
             );
         }
     }
-    
+
     return array(
         'pass' => false,
         'note' => __('Unable to assess readability', 'almaseo')

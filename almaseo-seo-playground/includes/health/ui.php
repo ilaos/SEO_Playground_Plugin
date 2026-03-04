@@ -278,7 +278,57 @@ function almaseo_health_meta_box_callback($post) {
             </div>
             <?php endforeach; ?>
         </div>
-        
+
+        <!-- Enhanced Readability Breakdown -->
+        <?php
+        if ( class_exists( 'AlmaSEO_Readability_Analyzer' ) ) :
+            $readability_data = get_transient( 'almaseo_readability_' . $post->ID );
+            if ( $readability_data && ! empty( $readability_data['checks'] ) ) :
+        ?>
+        <div class="almaseo-readability-panel" style="margin-top: 16px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;" id="readability-panel-toggle">
+                <h4 style="margin: 0;"><?php _e( 'Readability Breakdown', 'almaseo' ); ?></h4>
+                <span class="dashicons dashicons-arrow-down-alt2" id="readability-toggle-icon" style="color: #646970;"></span>
+            </div>
+            <div id="readability-panel-content" style="display: none; margin-top: 10px;">
+                <?php foreach ( $readability_data['checks'] as $key => $check ) :
+                    $icon = ! empty( $check['pass'] ) ? '<span style="color:#00a32a;">&#10003;</span>' : '<span style="color:#d63638;">&#10007;</span>';
+                ?>
+                <div style="padding: 6px 0; border-bottom: 1px solid #f0f0f1; font-size: 13px;">
+                    <?php echo $icon; ?>
+                    <strong><?php echo esc_html( $check['label'] ); ?></strong>
+                    &mdash;
+                    <span style="color: #646970;"><?php echo esc_html( $check['tip'] ); ?></span>
+                </div>
+                <?php endforeach; ?>
+                <p style="margin: 10px 0 0; font-size: 12px; color: #646970;">
+                    <?php printf(
+                        __( '%d of %d checks pass. Recalculate to refresh after editing.', 'almaseo' ),
+                        $readability_data['pass_count'],
+                        $readability_data['total_checks']
+                    ); ?>
+                </p>
+            </div>
+        </div>
+        <script>
+        (function(){
+            var toggle = document.getElementById('readability-panel-toggle');
+            var content = document.getElementById('readability-panel-content');
+            var icon = document.getElementById('readability-toggle-icon');
+            if (toggle && content) {
+                toggle.addEventListener('click', function() {
+                    var hidden = content.style.display === 'none';
+                    content.style.display = hidden ? '' : 'none';
+                    icon.className = hidden ? 'dashicons dashicons-arrow-up-alt2' : 'dashicons dashicons-arrow-down-alt2';
+                });
+            }
+        })();
+        </script>
+        <?php
+            endif;
+        endif;
+        ?>
+
         <!-- Google Search Preview -->
         <?php almaseo_health_render_search_preview($post->ID); ?>
         

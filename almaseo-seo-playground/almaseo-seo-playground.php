@@ -281,6 +281,22 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/blocks/link-attributes.php
     AlmaSEO_Link_Attributes::init();
 }
 
+// Include Google Keyword Suggestions (v8.5.0+)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/keyword-suggestions.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/admin/keyword-suggestions.php';
+    AlmaSEO_Keyword_Suggestions::init();
+}
+
+// Include Google Analytics Integration (v8.5.0+)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/analytics/analytics-loader.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/analytics/analytics-loader.php';
+}
+
+// Include Local Business Schema Types (v8.5.0+)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/schema/local-business-types.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/schema/local-business-types.php';
+}
+
 // Include Import/Migration module (v8.1.0+) - Import from Yoast, Rank Math, AIOSEO
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/import/import-loader.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/import/import-loader.php';

@@ -403,18 +403,107 @@ function almaseo_build_service_node($post) {
  * @return array LocalBusiness node
  */
 function almaseo_build_localbusiness_node($post) {
-    $seo_title = get_post_meta($post->ID, '_almaseo_title', true);
+    $seo_title       = get_post_meta($post->ID, '_almaseo_title', true);
     $seo_description = get_post_meta($post->ID, '_almaseo_description', true);
-    $name = $seo_title ?: get_the_title($post->ID);
-    $description = $seo_description ?: wp_trim_words(wp_strip_all_tags($post->post_content), 30);
+    $name            = $seo_title ?: get_the_title($post->ID);
+    $description     = $seo_description ?: wp_trim_words(wp_strip_all_tags($post->post_content), 30);
+
+    // Determine subtype
+    $subtype = get_post_meta($post->ID, '_almaseo_lb_subtype', true);
+    $type    = ( $subtype && $subtype !== 'LocalBusiness' ) ? $subtype : 'LocalBusiness';
 
     $node = array(
-        '@type' => 'LocalBusiness',
-        '@id' => get_permalink($post->ID) . '#business',
-        'name' => $name,
+        '@type'       => $type,
+        '@id'         => get_permalink($post->ID) . '#business',
+        'name'        => $name,
         'description' => $description,
-        'url' => get_permalink($post->ID),
+        'url'         => get_permalink($post->ID),
     );
+
+    // Image
+    $image = get_post_meta($post->ID, '_almaseo_og_image', true);
+    if ( ! $image ) {
+        $thumb_id = get_post_thumbnail_id($post->ID);
+        if ( $thumb_id ) {
+            $image = wp_get_attachment_url($thumb_id);
+        }
+    }
+    if ( $image ) {
+        $node['image'] = $image;
+    }
+
+    // Address
+    $street  = get_post_meta($post->ID, '_almaseo_lb_street', true);
+    $city    = get_post_meta($post->ID, '_almaseo_lb_city', true);
+    $state   = get_post_meta($post->ID, '_almaseo_lb_state', true);
+    $zip     = get_post_meta($post->ID, '_almaseo_lb_zip', true);
+    $country = get_post_meta($post->ID, '_almaseo_lb_country', true);
+
+    if ( $street || $city ) {
+        $address = array( '@type' => 'PostalAddress' );
+        if ( $street )  $address['streetAddress']   = $street;
+        if ( $city )    $address['addressLocality']  = $city;
+        if ( $state )   $address['addressRegion']    = $state;
+        if ( $zip )     $address['postalCode']       = $zip;
+        if ( $country ) $address['addressCountry']   = $country;
+        $node['address'] = $address;
+    }
+
+    // Contact info
+    $phone = get_post_meta($post->ID, '_almaseo_lb_phone', true);
+    $email = get_post_meta($post->ID, '_almaseo_lb_email', true);
+    if ( $phone ) $node['telephone'] = $phone;
+    if ( $email ) $node['email']     = $email;
+
+    // Price range
+    $price_range = get_post_meta($post->ID, '_almaseo_lb_price_range', true);
+    if ( $price_range ) $node['priceRange'] = $price_range;
+
+    // Geo coordinates
+    $lat = get_post_meta($post->ID, '_almaseo_lb_lat', true);
+    $lng = get_post_meta($post->ID, '_almaseo_lb_lng', true);
+    if ( $lat && $lng ) {
+        $node['geo'] = array(
+            '@type'     => 'GeoCoordinates',
+            'latitude'  => (float) $lat,
+            'longitude' => (float) $lng,
+        );
+    }
+
+    // Opening hours
+    $hours_json = get_post_meta($post->ID, '_almaseo_lb_hours', true);
+    if ( $hours_json ) {
+        $hours = is_array($hours_json) ? $hours_json : json_decode($hours_json, true);
+        if ( is_array($hours) && ! empty($hours) ) {
+            $specs = array();
+            $day_map = array(
+                'monday'    => 'Mo', 'tuesday'  => 'Tu', 'wednesday' => 'We',
+                'thursday'  => 'Th', 'friday'   => 'Fr', 'saturday'  => 'Sa',
+                'sunday'    => 'Su',
+            );
+            foreach ( $hours as $day => $times ) {
+                if ( empty($times['open']) || empty($times['close']) ) continue;
+                $abbr = isset($day_map[$day]) ? $day_map[$day] : ucfirst(substr($day, 0, 2));
+                $specs[] = array(
+                    '@type'     => 'OpeningHoursSpecification',
+                    'dayOfWeek' => $abbr,
+                    'opens'     => $times['open'],
+                    'closes'    => $times['close'],
+                );
+            }
+            if ( ! empty($specs) ) {
+                $node['openingHoursSpecification'] = $specs;
+            }
+        }
+    }
+
+    // Area served
+    $area = get_post_meta($post->ID, '_almaseo_lb_area_served', true);
+    if ( $area ) $node['areaServed'] = $area;
+
+    // Payment accepted
+    $payment = get_post_meta($post->ID, '_almaseo_lb_payment', true);
+    if ( $payment ) $node['paymentAccepted'] = $payment;
 
     return $node;
 }

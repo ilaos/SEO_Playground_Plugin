@@ -164,6 +164,53 @@ function almaseo_save_seo_playground_meta($post_id) {
         update_post_meta($post_id, '_almaseo_article_author', sanitize_text_field($_POST['almaseo_article_author']));
     }
 
+    // LocalBusiness fields (v8.5.0)
+    if (isset($_POST['almaseo_lb_subtype'])) {
+        $lb_subtype = sanitize_text_field($_POST['almaseo_lb_subtype']);
+        if (function_exists('almaseo_sanitize_localbusiness_type')) {
+            $lb_subtype = almaseo_sanitize_localbusiness_type($lb_subtype);
+        }
+        update_post_meta($post_id, '_almaseo_lb_subtype', $lb_subtype);
+    }
+    $lb_text_fields = array(
+        'almaseo_lb_street'      => '_almaseo_lb_street',
+        'almaseo_lb_city'        => '_almaseo_lb_city',
+        'almaseo_lb_state'       => '_almaseo_lb_state',
+        'almaseo_lb_zip'         => '_almaseo_lb_zip',
+        'almaseo_lb_country'     => '_almaseo_lb_country',
+        'almaseo_lb_phone'       => '_almaseo_lb_phone',
+        'almaseo_lb_price_range' => '_almaseo_lb_price_range',
+        'almaseo_lb_area_served' => '_almaseo_lb_area_served',
+        'almaseo_lb_payment'     => '_almaseo_lb_payment',
+    );
+    foreach ($lb_text_fields as $post_key => $meta_key) {
+        if (isset($_POST[$post_key])) {
+            update_post_meta($post_id, $meta_key, sanitize_text_field($_POST[$post_key]));
+        }
+    }
+    if (isset($_POST['almaseo_lb_email'])) {
+        update_post_meta($post_id, '_almaseo_lb_email', sanitize_email($_POST['almaseo_lb_email']));
+    }
+    if (isset($_POST['almaseo_lb_lat'])) {
+        update_post_meta($post_id, '_almaseo_lb_lat', sanitize_text_field($_POST['almaseo_lb_lat']));
+    }
+    if (isset($_POST['almaseo_lb_lng'])) {
+        update_post_meta($post_id, '_almaseo_lb_lng', sanitize_text_field($_POST['almaseo_lb_lng']));
+    }
+    if (isset($_POST['almaseo_lb_hours']) && is_array($_POST['almaseo_lb_hours'])) {
+        $hours = array();
+        $valid_days = array('monday','tuesday','wednesday','thursday','friday','saturday','sunday');
+        foreach ($valid_days as $day) {
+            if (isset($_POST['almaseo_lb_hours'][$day])) {
+                $hours[$day] = array(
+                    'open'  => sanitize_text_field($_POST['almaseo_lb_hours'][$day]['open'] ?? ''),
+                    'close' => sanitize_text_field($_POST['almaseo_lb_hours'][$day]['close'] ?? ''),
+                );
+            }
+        }
+        update_post_meta($post_id, '_almaseo_lb_hours', wp_json_encode($hours));
+    }
+
     // Open Graph metadata
     if (isset($_POST['almaseo_og_title'])) {
         update_post_meta($post_id, '_almaseo_og_title', sanitize_text_field($_POST['almaseo_og_title']));

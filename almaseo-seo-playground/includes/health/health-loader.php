@@ -51,7 +51,9 @@ class AlmaSEO_Health_Loader {
     private function load_dependencies() {
         require_once dirname(__FILE__) . '/weights.php';
         require_once dirname(__FILE__) . '/analyzer.php';
-        
+        require_once dirname(__FILE__) . '/headline-analyzer.php';
+        require_once dirname(__FILE__) . '/readability.php';
+
         if (is_admin()) {
             require_once dirname(__FILE__) . '/ui.php';
             require_once dirname(__FILE__) . '/compact-view.php';
