@@ -251,6 +251,36 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/search-appearance/search-a
     require_once plugin_dir_path(__FILE__) . 'includes/search-appearance/search-appearance-loader.php';
 }
 
+// Include Crawl Optimization (v8.4.0+)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/crawl-optimization.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/admin/crawl-optimization.php';
+    AlmaSEO_Crawl_Optimization::init();
+}
+
+// Include Cornerstone Content (v8.4.0+)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/cornerstone-content.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/admin/cornerstone-content.php';
+    AlmaSEO_Cornerstone_Content::init();
+}
+
+// Include Image SEO (v8.4.0+)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/image-seo.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/admin/image-seo.php';
+    AlmaSEO_Image_SEO::init();
+}
+
+// Include .htaccess Editor (v8.4.0+)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/htaccess-editor.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/admin/htaccess-editor.php';
+    AlmaSEO_Htaccess_Editor::get_instance();
+}
+
+// Include Link Attributes for Block Editor (v8.4.0+)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/blocks/link-attributes.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/blocks/link-attributes.php';
+    AlmaSEO_Link_Attributes::init();
+}
+
 // Include Import/Migration module (v8.1.0+) - Import from Yoast, Rank Math, AIOSEO
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/import/import-loader.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/import/import-loader.php';

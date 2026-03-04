@@ -97,6 +97,13 @@ function almaseo_save_seo_playground_meta($post_id) {
         update_post_meta($post_id, '_seo_playground_notes', almaseo_sanitize_notes($_POST['almaseo_seo_notes']));
     }
 
+    // Cornerstone Content
+    if ( isset( $_POST['almaseo_is_cornerstone'] ) ) {
+        update_post_meta( $post_id, '_almaseo_is_cornerstone', 1 );
+    } else {
+        delete_post_meta( $post_id, '_almaseo_is_cornerstone' );
+    }
+
     // Save Schema & Meta tab fields
 
     // Meta Robots settings

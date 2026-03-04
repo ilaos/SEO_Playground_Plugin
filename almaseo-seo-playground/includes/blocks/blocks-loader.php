@@ -21,3 +21,15 @@ if ( file_exists( __DIR__ . '/toc/toc-block.php' ) ) {
     require_once __DIR__ . '/toc/toc-block.php';
     AlmaSEO_TOC_Block::init();
 }
+
+/* ── Breadcrumbs Block ─────────────────────────────────────────────── */
+if ( file_exists( __DIR__ . '/breadcrumbs/breadcrumbs-block.php' ) ) {
+    require_once __DIR__ . '/breadcrumbs/breadcrumbs-block.php';
+    AlmaSEO_Breadcrumbs_Block::init();
+}
+
+/* ── How-To Block ──────────────────────────────────────────────────── */
+if ( file_exists( __DIR__ . '/howto/howto-block.php' ) ) {
+    require_once __DIR__ . '/howto/howto-block.php';
+    AlmaSEO_HowTo_Block::init();
+}

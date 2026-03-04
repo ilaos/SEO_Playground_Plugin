@@ -1,0 +1,43 @@
+/**
+ * AlmaSEO Link Attributes — Block Editor Styles
+ *
+ * @package AlmaSEO
+ * @since   8.4.0
+ */
+
+/* Popover container */
+.almaseo-link-attrs-popover .almaseo-link-attrs-panel {
+    padding: 16px;
+    min-width: 220px;
+    max-width: 300px;
+}
+
+.almaseo-link-attrs-popover .almaseo-link-attrs-panel h4 {
+    margin: 0 0 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e1e1e;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 8px;
+}
+
+/* Checkbox rows */
+.almaseo-link-attrs-popover .components-checkbox-control {
+    margin-bottom: 8px;
+}
+
+.almaseo-link-attrs-popover .components-checkbox-control:last-child {
+    margin-bottom: 0;
+}
+
+.almaseo-link-attrs-popover .components-base-control__help {
+    margin-top: 2px;
+    font-size: 11px;
+    color: #757575;
+}
+
+/* Active indicator on toolbar button */
+.components-toolbar-button.almaseo-link-attrs-active {
+    color: #007cba;
+    background: rgba(0, 124, 186, 0.08);
+}

@@ -110,6 +110,16 @@ class AlmaSEO_Settings {
             'sanitize_callback' => array($this, 'sanitize_evergreen_advanced_settings')
         ));
 
+        // Crawl Optimization (v8.4.0)
+        register_setting('almaseo_settings', 'almaseo_crawl_optimization', array(
+            'sanitize_callback' => array('AlmaSEO_Crawl_Optimization', 'sanitize'),
+        ));
+
+        // Image SEO (v8.4.0)
+        register_setting('almaseo_settings', 'almaseo_image_seo_settings', array(
+            'sanitize_callback' => array('AlmaSEO_Image_SEO', 'sanitize'),
+        ));
+
         // Webmaster Verification Codes (v8.0.0)
         register_setting('almaseo_settings', 'almaseo_verification_codes', array(
             'type' => 'array',

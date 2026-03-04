@@ -42,7 +42,13 @@
       "Bash(xargs -I {} basename {})",
       "WebFetch(domain:yoast.com)",
       "WebFetch(domain:rankmath.com)",
-      "WebFetch(domain:aioseo.com)"
+      "WebFetch(domain:aioseo.com)",
+      "WebFetch(domain:www.productiveblogging.com)",
+      "WebFetch(domain:wpbeing.com)",
+      "WebFetch(domain:www.isitwp.com)",
+      "WebFetch(domain:stuartkerrs.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(__NEW_LINE_42ff81a5ee94831d__ echo:*)"
     ],
     "deny": [],
     "ask": []

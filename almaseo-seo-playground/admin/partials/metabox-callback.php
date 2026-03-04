@@ -2722,6 +2722,17 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     </div>
                 </div>
             </div>
+
+            <!-- Cornerstone Content -->
+            <div class="almaseo-field-group" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #dcdcde;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" name="almaseo_is_cornerstone" value="1"
+                           <?php checked( get_post_meta( $post->ID, '_almaseo_is_cornerstone', true ) ); ?> />
+                    <span class="dashicons dashicons-star-filled" style="color: #dba617;"></span>
+                    <strong><?php _e( 'Cornerstone Content', 'almaseo' ); ?></strong>
+                </label>
+                <p class="field-hint"><?php _e( 'Mark this as a key page that should be prioritized in your SEO strategy.', 'almaseo' ); ?></p>
+            </div>
         </div>
         <!-- End Schema & Meta Tab -->
         

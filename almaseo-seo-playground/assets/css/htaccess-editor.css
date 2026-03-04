@@ -1,0 +1,232 @@
+/**
+ * AlmaSEO .htaccess Editor Styles
+ *
+ * @package AlmaSEO
+ * @since   8.4.0
+ */
+
+/* Layout */
+.almaseo-htaccess-editor {
+    max-width: 1200px;
+}
+
+.almaseo-htaccess-editor .almaseo-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+.almaseo-htaccess-container {
+    margin-top: 20px;
+}
+
+.almaseo-htaccess-container .card {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.almaseo-htaccess-container .card h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #23282d;
+}
+
+/* Warning card */
+.almaseo-htaccess-warning-card {
+    background: #fff3cd !important;
+    border-color: #ffc107 !important;
+}
+
+.almaseo-htaccess-warning-card p {
+    margin: 0;
+    font-size: 13px;
+    color: #856404;
+}
+
+.almaseo-htaccess-warning-card .dashicons {
+    vertical-align: text-bottom;
+    margin-right: 4px;
+}
+
+/* Status list */
+.almaseo-htaccess-status {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.almaseo-htaccess-status ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.almaseo-htaccess-status li {
+    padding: 5px 0;
+    font-size: 13px;
+}
+
+.almaseo-htaccess-status code {
+    background: #fff;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+/* Textarea */
+.almaseo-htaccess-editor-wrap {
+    margin-bottom: 16px;
+}
+
+.almaseo-htaccess-editor-wrap textarea {
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    width: 100%;
+    resize: vertical;
+    border: 1px solid #ddd;
+    padding: 10px;
+    background: #f9f9f9;
+}
+
+.almaseo-htaccess-editor-wrap textarea:focus {
+    background: #fff;
+    border-color: #667eea;
+    box-shadow: 0 0 0 1px #667eea;
+    outline: none;
+}
+
+.almaseo-htaccess-editor-wrap textarea[readonly] {
+    background: #f0f0f0;
+    color: #666;
+    cursor: not-allowed;
+}
+
+/* Quick reference */
+.almaseo-htaccess-help {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.almaseo-htaccess-help h4 {
+    margin: 0 0 10px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.almaseo-htaccess-help ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.almaseo-htaccess-help li {
+    padding: 3px 0;
+    font-size: 12px;
+}
+
+.almaseo-htaccess-help code {
+    background: #fff;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 11px;
+}
+
+/* Submit area */
+.almaseo-htaccess-submit {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.almaseo-htaccess-submit .spinner {
+    float: none;
+    margin: 0;
+}
+
+/* Notifications */
+.almaseo-htaccess-message {
+    flex: 1;
+    margin: 0;
+    padding: 0;
+}
+
+.almaseo-htaccess-message.success {
+    padding: 5px 10px;
+    border-radius: 3px;
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.almaseo-htaccess-message.error {
+    padding: 5px 10px;
+    border-radius: 3px;
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.almaseo-htaccess-message.info {
+    padding: 5px 10px;
+    border-radius: 3px;
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+/* Backup selector */
+.almaseo-htaccess-backup-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.almaseo-htaccess-backup-selector select {
+    min-width: 300px;
+}
+
+.almaseo-htaccess-backup-selector .spinner {
+    float: none;
+    margin: 0;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+    .almaseo-htaccess-submit {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .almaseo-htaccess-message {
+        margin-top: 10px;
+    }
+
+    .almaseo-htaccess-backup-selector {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .almaseo-htaccess-backup-selector select {
+        min-width: auto;
+        width: 100%;
+    }
+}
