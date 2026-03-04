@@ -5,6 +5,99 @@ All notable changes to AlmaSEO SEO Playground will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.5.0] - 2026-03-04
+
+### Added — Dashboard Enhancement Layer
+- **AI Keyword Suggestions** — REST push endpoint + real-time dashboard API for keyword insights with volume, competition, intent, and trend data
+- AI Keywords panel in metabox below Google Suggest dropdown (shown when connected)
+- Click-to-use AI keyword as focus keyword
+- Transient caching (1-hour TTL) for dashboard API responses
+- **AI Headline Analysis** — REST push endpoint + real-time dashboard API for headline intelligence
+- CTR prediction percentage with visual gauge
+- Emotional impact analysis (curiosity, urgency, etc.)
+- Competitor headline comparison with CTR data
+- AI rewrite suggestions with click-to-apply
+- **AI Readability Benchmarks** — REST push endpoint for SERP competitor readability data
+- Competitor average readability score with progress bar
+- Grade level comparison (your content vs competitors)
+- Per-paragraph AI improvement suggestions with severity levels
+- Collapsible suggestions panel in readability breakdown
+- **AI Image SEO** — REST push endpoint for AI-generated alt text
+- Context-aware alt text suggestions with confidence scores
+- Decorative image detection (skips alt text for decorative images)
+- Seamless integration: AI alt text preferred over template-based when available
+- "AI Enhanced" badge on Image SEO settings when connected
+- **AI Cornerstone Suggestions** — REST push endpoint for cornerstone content recommendations
+- Dashboard analyzes traffic, backlinks, word count, internal links to suggest cornerstone posts
+- Half-star "AI Suggested" indicator in posts list table
+- Metabox notice with confidence score and one-click "Mark as Cornerstone" button
+- All 5 enhancements use the established push/store/display architecture pattern
+- Graceful degradation: all features work fully without dashboard connection
+
+## [8.2.0] - 2026-03-03
+
+### Added — Competitive Parity Batch 3
+- **Headline Analyzer** — real-time client-side headline scoring (0-100) in metabox
+- Word count, power words, emotional words, numbers, question format, character length analysis
+- Color-coded score badge (green/yellow/red) with instant feedback
+- **Enhanced Readability Analysis** — comprehensive readability breakdown in health panel
+- Flesch Reading Ease score with grade level
+- Passive voice detection, transition words, subheading distribution, sentence/paragraph length checks
+- Integration with SEO health score system
+- **Visual Social Previews** — Facebook and Twitter card mockups in Schema & Meta tab
+- Live-updating previews as OG/Twitter fields are edited
+- Replaces raw meta tag display with visual card format
+- **Google Keyword Suggestions** — autocomplete dropdown below focus keyword field
+- Powered by Google Suggest API with server-side AJAX proxy
+- Debounced input (300ms), arrow key navigation, Enter to select
+- 1-hour transient caching per query
+- **Google Analytics Integration (GA4)** — full GA4 tracking setup in settings
+- Measurement ID validation (G-XXXXXXX format)
+- gtag.js snippet output on wp_head priority 1
+- Exclude logged-in administrators option
+- Optional outbound link click tracking
+- **Local Business Schema (193 subtypes)** — comprehensive LocalBusiness JSON-LD
+- 193 business types organized in 18 categories
+- Conditional fields in Schema & Meta tab: phone, email, address, geo, hours, payment
+- Full PostalAddress, GeoCoordinates, OpeningHoursSpecification output
+- Per-day opening hours with time pickers
+
+## [8.1.0] - 2026-03-02
+
+### Added — Competitive Parity Batch 2
+- **Crawl Optimization** — remove unnecessary tags from wp_head
+- Toggle: RSD/WLW links, version meta, shortlinks, REST API links, oEmbed, XML-RPC, feed links, emoji scripts, jQuery Migrate
+- **Cornerstone Content** — mark important content with star column in posts list
+- Sortable column, filter dropdown (Cornerstone Only / Non-Cornerstone)
+- Quick Edit checkbox support with inline JS population
+- **Image SEO** — automatically add missing alt text and title attributes
+- Template-based generation with %%filename%%, %%sitename%%, %%post_title%% tags
+- Strip file extension option, override existing option
+- Applies to both the_content filter and attachment image attributes
+- **Breadcrumbs Gutenberg Block** — breadcrumb navigation block for the editor
+- Customizable separator, home link toggle, BreadcrumbList schema
+- **How-To Block (HowTo Schema)** — step-by-step instruction block
+- HowTo JSON-LD schema, total time, estimated cost, tools/supplies
+- **Link Attributes** — nofollow, sponsored, ugc toggles in block editor link toolbar
+- **.htaccess Editor** — syntax-highlighted editor with backup/restore
+
+## [8.0.0] - 2026-03-02
+
+### Added — Competitive Parity Batch 1
+- **Search Appearance** — title and meta description templates for all content types
+- Smart tags: %%title%%, %%sitename%%, %%sep%%, %%excerpt%%, %%date%%, %%category%%, %%tag%%, %%author%%, %%page%%
+- Per-type templates: Posts, Pages, Categories, Tags, Author Archives, Date Archives, Search, 404
+- **Import / Migration** — one-click import from Yoast SEO, Rank Math, and AIOSEO
+- Imports meta titles, descriptions, focus keywords, robots meta, OG, schema settings
+- Dry-run mode, batch processing, post-import summary
+- **Role / Access Manager** — per-role toggles for metabox, settings, and admin menu access
+- **Setup Wizard** — guided first-run configuration (site type, search appearance, sitemaps, social profiles, verification codes)
+- **Webmaster Verification Codes** — meta tag insertion for Google, Bing, Yandex, Pinterest, Baidu
+- **RSS Feed Controls** — add content before/after feed items with smart tags
+- **FAQ Block (FAQPage Schema)** — accordion FAQ with automatic FAQPage JSON-LD
+- **LLMs.txt Management** — edit and serve /llms.txt for AI crawler guidance
+- **TOC Block (Table of Contents)** — auto-generated from heading structure with smooth scroll
+
 ## [7.9.0] - 2026-03-02
 
 ### Added

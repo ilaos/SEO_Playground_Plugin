@@ -1,7 +1,7 @@
 # AlmaSEO SEO Playground Plugin
 
 ## Project Overview
-- **Plugin Version:** 7.1.0
+- **Plugin Version:** 8.5.0
 - **Plugin Source:** `almaseo-seo-playground/` (root of this repo)
 - **Main Plugin File:** `almaseo-seo-playground/almaseo-seo-playground.php`
 
@@ -54,6 +54,32 @@ Both the AlmaSEO Connector and SEO Playground can be active simultaneously:
 | Post save handler | `includes/admin/post-save-handler.php` |
 | Connection settings page | `admin/pages/connection-settings.php` |
 | Overview dashboard | `admin/pages/overview.php` |
+| **Search appearance** | **`includes/search-appearance/`** |
+| **Import/migration** | **`includes/import/`** |
+| **Role manager** | **`includes/admin/role-manager.php`** |
+| **Setup wizard** | **`includes/admin/setup-wizard.php`** |
+| **Verification codes** | **`includes/admin/verification-codes.php`** |
+| **RSS controls** | **`includes/admin/rss-controls.php`** |
+| **Crawl optimization** | **`includes/admin/crawl-optimization.php`** |
+| **Image SEO** | **`includes/admin/image-seo.php`** |
+| **Cornerstone content** | **`includes/admin/cornerstone-content.php`** |
+| **.htaccess editor** | **`includes/admin/htaccess-editor.php`** |
+| **Keyword suggestions** | **`includes/admin/keyword-suggestions.php`** |
+| **Headline analyzer** | **`includes/health/headline-analyzer.php`** |
+| **Readability analysis** | **`includes/health/readability.php`** |
+| **Google Analytics** | **`includes/analytics/`** |
+| **Local Business types** | **`includes/schema/local-business-types.php`** |
+| **LLMs.txt** | **`includes/llms-txt/`** |
+| **FAQ block** | **`includes/blocks/faq/`** |
+| **TOC block** | **`includes/blocks/toc/`** |
+| **How-To block** | **`includes/blocks/howto/`** |
+| **Breadcrumbs block** | **`includes/blocks/breadcrumbs/`** |
+| **Link attributes block** | **`includes/blocks/link-attributes.php`** |
+| **KW suggestions REST (AI)** | **`includes/admin/keyword-suggestions-rest.php`** |
+| **Image SEO REST (AI)** | **`includes/admin/image-seo-rest.php`** |
+| **Cornerstone REST (AI)** | **`includes/admin/cornerstone-rest.php`** |
+| **Headline analyzer REST (AI)** | **`includes/health/headline-analyzer-rest.php`** |
+| **Readability REST (AI)** | **`includes/health/readability-rest.php`** |
 
 ## Internal Links Module (v7.0.0)
 
@@ -316,6 +342,84 @@ Both the AlmaSEO Connector and SEO Playground can be active simultaneously:
 - `stale_threshold`: Years behind current year to flag (default: 2)
 - `scan_prices`: Toggle price reference detection (default: true)
 - `scan_regulations`: Toggle regulation mention detection (default: true)
+
+## Competitive Parity Features (v8.0.0–v8.2.0)
+
+39 free features matching everything Yoast, Rank Math, and AIOSEO offer for free — combined. All use the settings hook pattern (`almaseo_settings_sections`) or block registration.
+
+### Settings-based Features (in `includes/admin/`)
+- **Crawl Optimization** (`crawl-optimization.php`) — wp_head cleanup toggles, option: `almaseo_crawl_optimization`
+- **Image SEO** (`image-seo.php`) — auto alt/title with templates, option: `almaseo_image_seo_settings`
+- **Cornerstone Content** (`cornerstone-content.php`) — star column, Quick Edit, sortable/filterable, meta: `_almaseo_is_cornerstone`
+- **.htaccess Editor** (`htaccess-editor.php` + `admin/pages/htaccess-editor.php`) — editor with backup/restore
+- **Keyword Suggestions** (`keyword-suggestions.php`) — Google Suggest AJAX proxy, transient cached
+- **Role Manager** (`role-manager.php`) — per-role access control
+- **Setup Wizard** (`setup-wizard.php`) — guided first-run
+- **Verification Codes** (`verification-codes.php`) — webmaster meta tags
+- **RSS Controls** (`rss-controls.php`) — before/after feed content
+
+### Health-based Features (in `includes/health/`)
+- **Headline Analyzer** (`headline-analyzer.php`) — client-side scoring in metabox
+- **Readability** (`readability.php`) — Flesch, passive voice, transitions, subheadings
+
+### Analytics Module (in `includes/analytics/`)
+- **Loader** (`analytics-loader.php`) — bootstraps settings + tracking
+- **Settings** (`analytics-settings.php`) — GA4 config, option: `almaseo_analytics_settings`
+- **Tracking** (`analytics-tracking.php`) — gtag.js output on wp_head
+
+### Schema Extension
+- **Local Business Types** (`includes/schema/local-business-types.php`) — 193 subtypes in 18 categories
+- Conditional fields in metabox (Schema & Meta tab), saved in `post-save-handler.php`
+- Full JSON-LD output in `schema-advanced-output.php` (`almaseo_build_localbusiness_node()`)
+
+### Block Editor Features (in `includes/blocks/`)
+- **FAQ Block** (`faq/`) — FAQPage schema
+- **TOC Block** (`toc/`) — auto-generated table of contents
+- **How-To Block** (`howto/`) — HowTo schema
+- **Breadcrumbs Block** (`breadcrumbs/`) — BreadcrumbList schema
+- **Link Attributes** (`link-attributes.php`) — nofollow/sponsored/ugc toggles
+
+### Other Modules
+- **Search Appearance** (`includes/search-appearance/`) — title/description templates with smart tags
+- **Import** (`includes/import/`) — Yoast, Rank Math, AIOSEO migration
+- **LLMs.txt** (`includes/llms-txt/`) — AI crawler guidance file
+
+## Dashboard Enhancement Layer (v8.5.0)
+
+5 free features enhanced with AI when connected to AlmaSEO cloud dashboard. All use the push/store/display pattern.
+
+### Architecture
+```
+Dashboard → POST /wp-json/almaseo/v1/{feature}/push (Basic Auth)
+         → Plugin stores in post meta: _almaseo_{feature}_dashboard
+         → Metabox UI shows "AI Enhanced" badge when data available
+
+Plugin   → POST https://app.almaseo.com/api/v1/{feature}/analyze (Bearer token)
+         → Real-time request on user interaction
+         → Cached in transient (1-hour TTL)
+```
+
+### REST Files
+| File | Feature | Push Endpoint |
+|------|---------|---------------|
+| `includes/admin/keyword-suggestions-rest.php` | AI Keywords | `/almaseo/v1/keyword-suggestions/push` |
+| `includes/health/headline-analyzer-rest.php` | AI Headlines | `/almaseo/v1/headline-analyzer/push` |
+| `includes/health/readability-rest.php` | AI Readability | `/almaseo/v1/readability/push` |
+| `includes/admin/image-seo-rest.php` | AI Image SEO | `/almaseo/v1/image-seo/push` |
+| `includes/admin/cornerstone-rest.php` | AI Cornerstone | `/almaseo/v1/cornerstone/push` |
+
+### Post Meta Keys
+- `_almaseo_kw_suggestions` — AI keyword data (JSON)
+- `_almaseo_headline_dashboard` — AI headline analysis (JSON)
+- `_almaseo_readability_dashboard` — AI readability benchmarks (JSON)
+- `_almaseo_image_seo_dashboard` — AI image alt text suggestions (JSON)
+- `_almaseo_cornerstone_suggested` — boolean flag
+- `_almaseo_cornerstone_score` — 0-100 confidence
+- `_almaseo_cornerstone_reason` — text explanation
+- `_almaseo_cornerstone_metrics` — JSON (traffic, backlinks, word_count, internal_links)
+
+### Key Principle
+Free local analysis always works. Dashboard data overlays/enhances when available. Connected users see "AI Powered" badges. No feature breaks if dashboard is offline. Connection check: `seo_playground_is_alma_connected()`.
 
 ## Tab Order (Page Optimization Panel)
 
