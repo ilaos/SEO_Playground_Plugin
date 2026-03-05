@@ -17,6 +17,10 @@ require_once $import_dir . 'import-mapper-yoast.php';
 require_once $import_dir . 'import-mapper-rankmath.php';
 require_once $import_dir . 'import-mapper-aioseo.php';
 require_once $import_dir . 'import-engine.php';
+require_once $import_dir . 'import-settings-mapper.php';
+require_once $import_dir . 'import-term-mapper.php';
+require_once $import_dir . 'import-redirects-mapper.php';
+require_once $import_dir . 'import-verifier.php';
 require_once $import_dir . 'import-rest.php';
 require_once $import_dir . 'import-controller.php';
 

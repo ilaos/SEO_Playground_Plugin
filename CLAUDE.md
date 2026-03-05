@@ -1,7 +1,7 @@
 # AlmaSEO SEO Playground Plugin
 
 ## Project Overview
-- **Plugin Version:** 8.5.0
+- **Plugin Version:** 8.7.0
 - **Plugin Source:** `almaseo-seo-playground/` (root of this repo)
 - **Main Plugin File:** `almaseo-seo-playground/almaseo-seo-playground.php`
 
@@ -56,6 +56,10 @@ Both the AlmaSEO Connector and SEO Playground can be active simultaneously:
 | Overview dashboard | `admin/pages/overview.php` |
 | **Search appearance** | **`includes/search-appearance/`** |
 | **Import/migration** | **`includes/import/`** |
+| **Import settings mapper** | **`includes/import/import-settings-mapper.php`** |
+| **Import term mapper** | **`includes/import/import-term-mapper.php`** |
+| **Import redirects mapper** | **`includes/import/import-redirects-mapper.php`** |
+| **Import verifier** | **`includes/import/import-verifier.php`** |
 | **Role manager** | **`includes/admin/role-manager.php`** |
 | **Setup wizard** | **`includes/admin/setup-wizard.php`** |
 | **Verification codes** | **`includes/admin/verification-codes.php`** |
@@ -381,8 +385,63 @@ Both the AlmaSEO Connector and SEO Playground can be active simultaneously:
 
 ### Other Modules
 - **Search Appearance** (`includes/search-appearance/`) — title/description templates with smart tags
-- **Import** (`includes/import/`) — Yoast, Rank Math, AIOSEO migration
+- **Import** (`includes/import/`) — Full 5-step migration system (see below)
 - **LLMs.txt** (`includes/llms-txt/`) — AI crawler guidance file
+
+## Full Migration System (v8.7.0)
+
+5-step migration wizard at SEO Playground > Import & Migrate. All steps detect data independently, run in batches, and support overwrite toggle.
+
+### Step 1: Post Meta (existing, v8.1.0)
+Imports per-post SEO titles, descriptions, keywords, canonical URLs, social meta, and robots directives from Yoast, Rank Math, and AIOSEO. Reads directly from `wp_postmeta` / `aioseo_posts` table.
+
+### Step 2: Taxonomy Term Meta (v8.7.0)
+**File:** `includes/import/import-term-mapper.php`
+
+Imports SEO titles, descriptions, canonical, noindex, and OG meta from categories, tags, and custom taxonomy terms. Sources: Yoast (`wpseo_taxonomy_meta` option), Rank Math (termmeta table), AIOSEO (`aioseo_terms` table). Stores in `_almaseo_term_*` term meta keys.
+
+### Step 3: Global Settings (v8.7.0)
+**File:** `includes/import/import-settings-mapper.php`
+
+Maps global search appearance settings into `almaseo_search_appearance` option:
+- **Separator character** (Yoast uses named constants like `sc-dash`, converted to actual characters)
+- **Title/description templates** for all post types, taxonomies, archives, homepage, search, 404
+- **Noindex flags** per content type
+- **Template variable conversion**: Yoast `%%var%%` → AlmaSEO `%%var%%`, Rank Math `%var%` → `%%var%%`, AIOSEO `#var` → `%%var%%`
+
+### Step 4: Redirects (v8.7.0)
+**File:** `includes/import/import-redirects-mapper.php`
+
+Imports redirect rules into `wp_almaseo_redirects` table from:
+- **Rank Math** — `rank_math_redirections` table (deserializes sources array, only imports exact-match rules)
+- **Yoast Premium** — `wpseo-premium-redirects-base` option
+- **Redirection plugin** — `redirection_items` table (URL action type only)
+
+### Step 5: Verification Report (v8.7.0)
+**File:** `includes/import/import-verifier.php`
+
+Post-import scan that detects:
+- **Unresolved template variables** — Yoast `%%var%%`, Rank Math `%var%`, AIOSEO `#var` patterns that weren't converted
+- **Missing meta descriptions** — Posts with SEO title but no description
+- **Duplicate SEO titles** — Multiple posts sharing the same title
+
+### REST Endpoints (Import System)
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/import/detect` | GET | Detect post meta sources |
+| `/import/preview` | GET | Preview first N records |
+| `/import/batch` | POST | Process one batch of post meta |
+| `/import/detect-settings` | GET | Detect global settings sources |
+| `/import/settings` | POST | Import global settings |
+| `/import/detect-terms` | GET | Detect taxonomy term data |
+| `/import/terms/batch` | POST | Process one batch of term meta |
+| `/import/detect-redirects` | GET | Detect redirect sources |
+| `/import/redirects/batch` | POST | Process one batch of redirects |
+| `/import/verify` | GET | Run verification report |
+
+### SEO Plugin Conflict Detection (v8.7.0)
+On every admin page load, `almaseo_detect_conflicting_seo_plugins()` checks for 8 major SEO plugins (Yoast, Rank Math, AIOSEO, SEOPress, The SEO Framework, Squirrly, SmartCrawl, Slim SEO). Shows a dismissible warning notice with links to the Plugins page and Import tool. Dismiss state is per-user and hash-based (re-triggers if a different plugin is detected).
 
 ## Dashboard Enhancement Layer (v8.5.0)
 

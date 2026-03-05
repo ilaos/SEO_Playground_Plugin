@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
-Version: 8.6.0
+Version: 8.7.0
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 if (!defined('ALMASEO_MAIN_FILE'))       define('ALMASEO_MAIN_FILE', __FILE__);
 if (!defined('ALMASEO_PATH'))            define('ALMASEO_PATH', plugin_dir_path(__FILE__));
 if (!defined('ALMASEO_URL'))             define('ALMASEO_URL', plugin_dir_url(__FILE__));
-if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '8.6.0');
+if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '8.7.0');
 if (!defined('ALMASEO_VERSION'))         define('ALMASEO_VERSION', '6.5.0');
 if (!defined('ALMASEO_API_NAMESPACE'))   define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
 if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
@@ -477,6 +477,148 @@ add_action('admin_footer', function() {
         jQuery.post(ajaxurl, {
             action: 'almaseo_dismiss_connector_upgrade',
             nonce: '<?php echo esc_js($nonce); ?>'
+        });
+    });
+    </script>
+    <?php
+});
+
+// --- SEO PLUGIN CONFLICT DETECTION ---
+
+/**
+ * Detect active third-party SEO plugins that may conflict with AlmaSEO.
+ *
+ * Runs on every admin page load (lightweight constant/class checks).
+ * Returns an array of detected plugin names, empty if none found.
+ *
+ * @since 8.7.0
+ * @return array
+ */
+function almaseo_detect_conflicting_seo_plugins() {
+    $detected = array();
+
+    // Yoast SEO / Yoast SEO Premium
+    if ( defined( 'WPSEO_VERSION' ) ) {
+        $detected[] = 'Yoast SEO';
+    }
+
+    // Rank Math
+    if ( class_exists( 'RankMath' ) ) {
+        $detected[] = 'Rank Math';
+    }
+
+    // All in One SEO
+    if ( defined( 'AIOSEO_VERSION' ) ) {
+        $detected[] = 'All in One SEO';
+    }
+
+    // SEOPress
+    if ( defined( 'SEOPRESS_VERSION' ) ) {
+        $detected[] = 'SEOPress';
+    }
+
+    // The SEO Framework
+    if ( defined( 'THE_SEO_FRAMEWORK_VERSION' ) ) {
+        $detected[] = 'The SEO Framework';
+    }
+
+    // Squirrly SEO
+    if ( defined( 'SQ_VERSION' ) || class_exists( 'SQ_Classes_ObjController' ) ) {
+        $detected[] = 'Squirrly SEO';
+    }
+
+    // SmartCrawl (WPMU DEV)
+    if ( class_exists( 'SmartCrawl_Loader' ) || defined( 'SMARTCRAWL_VERSION' ) ) {
+        $detected[] = 'SmartCrawl';
+    }
+
+    // Slim SEO
+    if ( defined( 'SLIM_SEO_VER' ) ) {
+        $detected[] = 'Slim SEO';
+    }
+
+    return $detected;
+}
+
+/**
+ * Show an admin notice when a conflicting SEO plugin is active.
+ *
+ * Dismissible per-user. Re-appears if the user activates a different SEO plugin.
+ *
+ * @since 8.7.0
+ */
+add_action( 'admin_notices', function () {
+    if ( ! current_user_can( 'activate_plugins' ) ) {
+        return;
+    }
+
+    $conflicts = almaseo_detect_conflicting_seo_plugins();
+    if ( empty( $conflicts ) ) {
+        // Clear any stale dismiss meta so it re-triggers if a plugin comes back
+        delete_user_meta( get_current_user_id(), '_almaseo_seo_conflict_dismissed' );
+        return;
+    }
+
+    // Check if user dismissed for this exact set of conflicts
+    $dismissed_hash = get_user_meta( get_current_user_id(), '_almaseo_seo_conflict_dismissed', true );
+    $current_hash   = md5( implode( '|', $conflicts ) );
+    if ( $dismissed_hash === $current_hash ) {
+        return;
+    }
+
+    $plugin_list = '<strong>' . esc_html( implode( '</strong>, <strong>', $conflicts ) ) . '</strong>';
+    $plugins_url = admin_url( 'plugins.php' );
+    ?>
+    <div class="notice notice-warning is-dismissible almaseo-seo-conflict-notice" style="border-left-color: #f0b849; padding: 12px;">
+        <p>
+            <strong>AlmaSEO SEO Playground</strong> &mdash;
+            <?php
+            printf(
+                /* translators: %s = comma-separated list of plugin names */
+                esc_html__( 'We detected %s running alongside AlmaSEO. Running multiple SEO plugins simultaneously can cause duplicate meta tags, schema conflicts, and sitemap issues.', 'almaseo' ),
+                $plugin_list
+            );
+            ?>
+        </p>
+        <p>
+            <?php esc_html_e( 'For best results, deactivate other SEO plugins. If you have existing data, use our Import tool to migrate everything first.', 'almaseo' ); ?>
+        </p>
+        <p>
+            <a href="<?php echo esc_url( $plugins_url ); ?>" class="button button-primary" style="background: #667eea; border-color: #667eea;">
+                <?php esc_html_e( 'Go to Plugins', 'almaseo' ); ?>
+            </a>
+            <a href="<?php echo esc_url( admin_url( 'admin.php?page=almaseo-import' ) ); ?>" class="button" style="margin-left: 8px;">
+                <?php esc_html_e( 'Import SEO Data First', 'almaseo' ); ?>
+            </a>
+        </p>
+    </div>
+    <?php
+});
+
+// AJAX handler for dismissing the SEO conflict notice
+add_action( 'wp_ajax_almaseo_dismiss_seo_conflict', function () {
+    check_ajax_referer( 'almaseo_dismiss_seo_conflict', 'nonce' );
+    $conflicts    = almaseo_detect_conflicting_seo_plugins();
+    $current_hash = md5( implode( '|', $conflicts ) );
+    update_user_meta( get_current_user_id(), '_almaseo_seo_conflict_dismissed', $current_hash );
+    wp_die();
+});
+
+// Bind the dismiss button to AJAX
+add_action( 'admin_footer', function () {
+    if ( ! current_user_can( 'activate_plugins' ) ) {
+        return;
+    }
+    if ( empty( almaseo_detect_conflicting_seo_plugins() ) ) {
+        return;
+    }
+    $nonce = wp_create_nonce( 'almaseo_dismiss_seo_conflict' );
+    ?>
+    <script>
+    jQuery(document).on('click', '.almaseo-seo-conflict-notice .notice-dismiss', function() {
+        jQuery.post(ajaxurl, {
+            action: 'almaseo_dismiss_seo_conflict',
+            nonce: '<?php echo esc_js( $nonce ); ?>'
         });
     });
     </script>

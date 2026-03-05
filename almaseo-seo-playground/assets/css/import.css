@@ -222,3 +222,97 @@
     padding: 12px 16px;
     margin: 16px 0;
 }
+
+/* ── Step sections ── */
+.almaseo-import-section {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 20px 0;
+}
+
+.almaseo-import-section > h2 {
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+}
+
+.almaseo-import-step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #667eea;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.almaseo-import-section .almaseo-import-sources {
+    margin: 12px 0;
+}
+
+.almaseo-import-section .almaseo-import-controls,
+.almaseo-import-section .almaseo-import-progress {
+    border: none;
+    padding: 0;
+    margin: 12px 0;
+}
+
+/* Active badge on source cards */
+.almaseo-badge-active {
+    display: inline-block;
+    background: #d63638;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 3px;
+    vertical-align: middle;
+}
+
+/* ── Verification report ── */
+.almaseo-verify-summary {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 16px 0;
+}
+
+.almaseo-verify-card {
+    background: #f6f7f7;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 12px 16px;
+    min-width: 140px;
+    text-align: center;
+    flex: 1;
+}
+
+.almaseo-verify-card .number {
+    display: block;
+    font-size: 24px;
+    font-weight: 600;
+    color: #2271b1;
+    margin-bottom: 4px;
+}
+
+.almaseo-verify-card .label {
+    color: #646970;
+    font-size: 13px;
+}
+
+#almaseo-verify-report table {
+    margin-top: 12px;
+}
+
+#almaseo-verify-report h3 {
+    margin-top: 24px;
+    margin-bottom: 6px;
+}
