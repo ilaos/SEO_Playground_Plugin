@@ -66,19 +66,6 @@ class AlmaSEO_Redirects_Loader {
     }
     
     /**
-     * Check if Pro features are enabled
-     *
-     * Uses the centralized license helper to determine if redirects feature is available.
-     * The redirects feature requires Pro or higher tier.
-     *
-     * @return bool True if redirects feature is available
-     */
-    private static function is_pro_enabled() {
-        // Use centralized license helper to check if redirects feature is available
-        return almaseo_feature_available( 'redirects' );
-    }
-    
-    /**
      * Activation hook
      */
     public static function activate() {

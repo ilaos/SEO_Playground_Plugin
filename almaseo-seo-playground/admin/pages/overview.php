@@ -120,11 +120,7 @@ function seo_playground_render_overview_page() {
                     <div class="almaseo-metric-value"><?php echo esc_html($error_404_count); ?></div>
                     <div class="almaseo-metric-label">404 Errors</div>
                     <div class="almaseo-metric-sublabel">
-                        <?php if (almaseo_feature_available('404_advanced')): ?>
-                            <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-404-monitor')); ?>">View all &rarr;</a>
-                        <?php else: ?>
-                            Pro feature
-                        <?php endif; ?>
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-404-monitor')); ?>">View all &rarr;</a>
                     </div>
                 </div>
             </div>
@@ -397,31 +393,19 @@ function seo_playground_render_overview_page() {
                         </h2>
                     </div>
                     <div class="almaseo-card-body">
-                        <?php if (almaseo_feature_available('redirects')): ?>
-                            <div class="almaseo-quick-link">
-                                <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-redirects')); ?>">
-                                    <span class="dashicons dashicons-randomize"></span>
-                                    Manage Redirects
-                                </a>
-                            </div>
-                        <?php else: ?>
-                            <div class="almaseo-pro-badge-small">
-                                <span class="dashicons dashicons-lock"></span> Redirects (Pro)
-                            </div>
-                        <?php endif; ?>
+                        <div class="almaseo-quick-link">
+                            <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-redirects')); ?>">
+                                <span class="dashicons dashicons-randomize"></span>
+                                Manage Redirects
+                            </a>
+                        </div>
 
-                        <?php if (almaseo_feature_available('404_advanced')): ?>
-                            <div class="almaseo-quick-link">
-                                <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-404-monitor')); ?>">
-                                    <span class="dashicons dashicons-warning"></span>
-                                    404 Monitor (<?php echo esc_html($error_404_count); ?>)
-                                </a>
-                            </div>
-                        <?php else: ?>
-                            <div class="almaseo-pro-badge-small">
-                                <span class="dashicons dashicons-lock"></span> 404 Monitoring (Pro)
-                            </div>
-                        <?php endif; ?>
+                        <div class="almaseo-quick-link">
+                            <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-404-monitor')); ?>">
+                                <span class="dashicons dashicons-warning"></span>
+                                404 Monitor (<?php echo esc_html($error_404_count); ?>)
+                            </a>
+                        </div>
 
                         <div class="almaseo-quick-link">
                             <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-settings')); ?>">

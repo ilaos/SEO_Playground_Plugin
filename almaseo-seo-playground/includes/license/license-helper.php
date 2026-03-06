@@ -50,26 +50,34 @@ function almaseo_is_pro_active() {
  * required tier level.
  *
  * Pro-only features (require Pro or Agency tier):
- * - 'redirects': 301/302 redirect management
  * - 'bulkmeta': Bulk metadata editor
  * - 'woocommerce': WooCommerce SEO enhancements
  * - 'llm_optimization': LLM Optimization advanced features
  * - 'evergreen_advanced': Advanced evergreen content filters
  * - 'schema_advanced': Advanced schema markup options
- * - '404_advanced': Advanced 404 tracking and analytics
  * - 'optimization_dataforseo': DataForSEO keyword provider
- * - 'health_advanced': Advanced health score features
- * - 'history_extended': Extended metadata history (30+ days)
  * - 'internal_links': Internal links auto-linker
+ * - 'refresh_drafts': Content refresh drafts
+ * - 'refresh_queue': Refresh queue autoprioritization
+ * - 'date_hygiene': Date hygiene scanner
+ * - 'eeat_enforcement': E-E-A-T enforcement
+ * - 'gsc_monitor': GSC Monitor
+ * - 'orphan_detection': Orphan page detection
+ * - 'schema_drift': Schema drift monitor
+ * - 'snippet_targeting': Featured snippet targeting
  *
  * Free tier features (available to all):
- * - Basic schema markup
- * - Basic sitemaps
+ * - Redirect manager (301/302)
+ * - 404 tracking & logs
+ * - Health score (all signals)
+ * - Metadata history
+ * - Schema markup
+ * - Sitemaps (XML, image, video, news)
  * - Meta tags (title, description)
- * - Simple evergreen tracking
- * - Basic 404 logs (last 7 days)
- * - Basic health score
+ * - Evergreen tracking (basic)
  * - Robots.txt editor
+ * - Search appearance templates
+ * - Import/migration
  *
  * @param string $feature The feature identifier to check
  * @return bool True if the feature is available in the current tier, false otherwise
@@ -77,16 +85,12 @@ function almaseo_is_pro_active() {
 function almaseo_feature_available( $feature ) {
     // Define which features require Pro or higher
     $pro_features = array(
-        'redirects',              // Redirect manager
         'bulkmeta',               // Bulk metadata editor
         'woocommerce',            // WooCommerce SEO
         'llm_optimization',       // LLM Optimization advanced features
         'evergreen_advanced',     // Advanced evergreen filters
         'schema_advanced',        // Advanced schema options
-        '404_advanced',           // Advanced 404 analytics
         'optimization_dataforseo', // DataForSEO provider
-        'health_advanced',        // Advanced health features
-        'history_extended',       // Extended history retention
         'internal_links',         // Internal links auto-linker
         'refresh_drafts',         // Content refresh drafts
         'refresh_queue',          // Refresh queue autoprioritization
@@ -189,16 +193,12 @@ function almaseo_get_tier_display_name() {
  */
 function almaseo_get_pro_features() {
     return array(
-        'redirects',
         'bulkmeta',
         'woocommerce',
         'llm_optimization',
         'evergreen_advanced',
         'schema_advanced',
-        '404_advanced',
         'optimization_dataforseo',
-        'health_advanced',
-        'history_extended',
         'internal_links',
         'refresh_drafts',
         'refresh_queue',

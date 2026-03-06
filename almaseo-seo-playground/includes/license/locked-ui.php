@@ -57,12 +57,12 @@ function almaseo_render_locked_feature( $feature_name = '', $description = '', $
                 <div class="almaseo-locked-benefits">
                     <h3>Pro Features Include:</h3>
                     <ul>
-                        <li><span class="dashicons dashicons-yes"></span> Advanced Redirect Manager with 301/302 support</li>
                         <li><span class="dashicons dashicons-yes"></span> Bulk Metadata Editor for mass updates</li>
                         <li><span class="dashicons dashicons-yes"></span> WooCommerce SEO Optimization</li>
-                        <li><span class="dashicons dashicons-yes"></span> Advanced 404 Tracking & Analytics</li>
-                        <li><span class="dashicons dashicons-yes"></span> Extended Metadata History (30+ days)</li>
-                        <li><span class="dashicons dashicons-yes"></span> DataForSEO Keyword Intelligence</li>
+                        <li><span class="dashicons dashicons-yes"></span> Internal Links Auto-Insertion</li>
+                        <li><span class="dashicons dashicons-yes"></span> Content Refresh Drafts & Queue</li>
+                        <li><span class="dashicons dashicons-yes"></span> E-E-A-T Enforcement & Schema Drift Monitor</li>
+                        <li><span class="dashicons dashicons-yes"></span> Featured Snippet Targeting</li>
                         <li><span class="dashicons dashicons-yes"></span> Priority Support & Updates</li>
                     </ul>
                 </div>
@@ -269,11 +269,6 @@ function almaseo_locked_feature_styles() {
  */
 function almaseo_get_locked_feature_content( $feature ) {
     $content = array(
-        'redirects' => array(
-            'name'        => 'Redirect Manager',
-            'description' => 'Create and manage 301/302 redirects, track hits, prevent 404 errors, and improve your site SEO with our advanced redirect management system.',
-            'url'         => 'https://almaseo.com/pro#redirects',
-        ),
         'bulkmeta' => array(
             'name'        => 'Bulk Metadata Editor',
             'description' => 'Update SEO titles, descriptions, and metadata across multiple posts at once. Save hours with batch editing capabilities.',
@@ -283,11 +278,6 @@ function almaseo_get_locked_feature_content( $feature ) {
             'name'        => 'WooCommerce SEO',
             'description' => 'Optimize your WooCommerce store with product schema markup, optimized sitemaps, and advanced eCommerce SEO features.',
             'url'         => 'https://almaseo.com/pro#woocommerce',
-        ),
-        '404_advanced' => array(
-            'name'        => '404 Advanced Analytics',
-            'description' => 'Get detailed 404 tracking with referrer analysis, user agent tracking, and advanced filtering options.',
-            'url'         => 'https://almaseo.com/pro#404',
         ),
         'evergreen_advanced' => array(
             'name'        => 'Advanced Evergreen Features',
@@ -303,16 +293,6 @@ function almaseo_get_locked_feature_content( $feature ) {
             'name'        => 'DataForSEO Integration',
             'description' => 'Access real-time keyword data, search volume, difficulty scores, and competitive analysis with DataForSEO integration.',
             'url'         => 'https://almaseo.com/pro#dataforseo',
-        ),
-        'health_advanced' => array(
-            'name'        => 'Advanced Health Score',
-            'description' => 'Get detailed health score breakdowns, historical tracking, and advanced SEO health metrics.',
-            'url'         => 'https://almaseo.com/pro#health',
-        ),
-        'history_extended' => array(
-            'name'        => 'Extended Metadata History',
-            'description' => 'Store and access metadata history beyond 30 days with unlimited revision tracking and restoration.',
-            'url'         => 'https://almaseo.com/pro#history',
         ),
         'internal_links' => array(
             'name'        => 'Internal Links',
