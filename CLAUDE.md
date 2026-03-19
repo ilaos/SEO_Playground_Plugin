@@ -501,3 +501,64 @@ includes/{module}/
   {module}-rest.php        → REST API route registration
 ```
 Admin page template in `admin/pages/`, CSS/JS in `assets/css/` and `assets/js/`.
+
+## ALMASEO PLUGIN RELEASE WORKFLOW
+
+### Overview
+This local development environment builds WordPress plugins (Connector and SEO Playground) that are deployed to the AlmaSEO production server. A separate Claude Code agent manages that server. These rules ensure both agents stay in sync.
+
+### Production Server Details
+- Server path: `/root/FULLY WORKING WITH MULTIPLE SITE OPTIONS/`
+- Plugins are served as zip downloads from: `static/downloads/`
+- Version constants live in `dashboard.py` on the server (NOT managed here)
+
+### Zip Naming Convention (STRICT)
+- Connector: `almaseo-connector-v{VERSION}.zip`
+- SEO Playground: `almaseo-seo-playground-v{VERSION}.zip`
+
+Examples:
+- `almaseo-connector-v2.1.4.zip`
+- `almaseo-seo-playground-v8.7.0.zip`
+
+These names MUST match exactly — the server uses them to serve downloads.
+
+### Version Bumping Rules
+- Use semantic versioning: MAJOR.MINOR.PATCH
+- Bug fixes (like the duplicate function fix) = PATCH bump (e.g., 8.7.0 → 8.7.1)
+- New features = MINOR bump (e.g., 8.7.0 → 8.8.0)
+- Breaking changes = MAJOR bump
+- Update the version number inside the plugin's main PHP file header AND in any internal version constants before zipping
+
+### How to Package a Release
+1. Ensure all changes are saved and tested
+2. Bump the version number in the plugin's main PHP file header
+3. Zip the plugin directory using the strict naming convention above
+4. The zip should contain a single top-level folder (the plugin directory), NOT loose files
+5. Place the zip on the user's desktop or a known location so it can be transferred to the server
+
+### What Happens After You Zip
+The user will transfer the zip to the production server. The server-side Claude Code agent will then:
+1. Place it in `static/downloads/`
+2. Update the version constant in `dashboard.py` (`LATEST_PLAYGROUND_VERSION` or `LATEST_CONNECTOR_VERSION`)
+3. Restart the server
+
+You do NOT need to handle any of those steps — just produce a correctly named zip.
+
+### Plugin Relationship Rules
+- The **SEO Playground** plugin is the full suite and REPLACES the Connector plugin
+- The **Connector** is a lightweight bridge only — no Playground features
+- Both plugins must NEVER be active simultaneously on the same WordPress site
+- Any shared functions between the two plugins MUST be wrapped in `if (!function_exists('...'))` guards to prevent fatal errors during transition periods
+- Current known shared function: `seo_playground_is_alma_connected()`
+
+### Before Zipping — Checklist
+- [ ] Version number bumped in PHP file header
+- [ ] No duplicate function declarations that would conflict with the Connector plugin
+- [ ] All shared functions wrapped in `function_exists()` checks
+- [ ] Plugin activates without fatal errors (test with Connector both active and inactive)
+- [ ] Zip follows naming convention: `almaseo-seo-playground-v{VERSION}.zip`
+- [ ] Zip contains a single top-level directory, not loose files
+
+### Current Versions (as of 2026-03-19)
+- Connector: v2.1.4
+- SEO Playground: v8.7.0

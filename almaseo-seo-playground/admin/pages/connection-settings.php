@@ -14,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Settings page HTML - Completely redesigned for smooth UX
+if (!function_exists('almaseo_connector_settings_page')) {
 function almaseo_connector_settings_page() {
     if (!current_user_can('manage_options')) return;
 
@@ -1190,3 +1191,4 @@ function almaseo_connector_settings_page() {
     });
     </script>';
 }
+} // end function_exists guard: almaseo_connector_settings_page
