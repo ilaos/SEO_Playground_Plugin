@@ -39,7 +39,7 @@ class AlmaSEO_Import_REST {
                 ),
                 'limit'  => array(
                     'default'           => 5,
-                    'validate_callback' => 'is_numeric',
+                    'validate_callback' => function ( $val ) { return is_numeric( $val ); },
                 ),
             ),
         ) );
@@ -59,7 +59,7 @@ class AlmaSEO_Import_REST {
                 ),
                 'offset'    => array(
                     'default'           => 0,
-                    'validate_callback' => 'is_numeric',
+                    'validate_callback' => function ( $val ) { return is_numeric( $val ); },
                 ),
                 'overwrite' => array(
                     'default' => false,
@@ -115,7 +115,7 @@ class AlmaSEO_Import_REST {
                         return in_array( $val, array( 'yoast', 'rankmath', 'aioseo' ), true );
                     },
                 ),
-                'offset'    => array( 'default' => 0, 'validate_callback' => 'is_numeric' ),
+                'offset'    => array( 'default' => 0, 'validate_callback' => function ( $val ) { return is_numeric( $val ); } ),
                 'overwrite' => array( 'default' => false ),
             ),
         ) );
@@ -142,7 +142,7 @@ class AlmaSEO_Import_REST {
                         return in_array( $val, array( 'rankmath', 'yoast', 'redirection' ), true );
                     },
                 ),
-                'offset'    => array( 'default' => 0, 'validate_callback' => 'is_numeric' ),
+                'offset'    => array( 'default' => 0, 'validate_callback' => function ( $val ) { return is_numeric( $val ); } ),
                 'overwrite' => array( 'default' => false ),
             ),
         ) );
@@ -155,7 +155,7 @@ class AlmaSEO_Import_REST {
                 return current_user_can( 'manage_options' );
             },
             'args'                => array(
-                'limit' => array( 'default' => 0, 'validate_callback' => 'is_numeric' ),
+                'limit' => array( 'default' => 0, 'validate_callback' => function ( $val ) { return is_numeric( $val ); } ),
             ),
         ) );
     }
