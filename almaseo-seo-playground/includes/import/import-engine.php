@@ -7,6 +7,7 @@
  *
  * @package AlmaSEO
  * @since   8.1.0
+ * @updated 8.8.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -37,6 +38,10 @@ class AlmaSEO_Import_Engine {
         $skipped   = 0;
         $processed = 0;
 
+        // Suspend third-party SEO plugin hooks during import to prevent
+        // fatal errors (e.g., AIOSEO schema rebuild crash on update_post_meta).
+        self::suspend_seo_hooks();
+
         foreach ( $rows as $row ) {
             $post_id = (int) $row['post_id'];
             $mapped  = $mapper::map_row( $row );
@@ -60,6 +65,9 @@ class AlmaSEO_Import_Engine {
                 $imported++;
             }
         }
+
+        // Restore hooks after import batch completes.
+        self::restore_seo_hooks();
 
         $done = count( $rows ) < self::BATCH_SIZE;
 
@@ -121,5 +129,84 @@ class AlmaSEO_Import_Engine {
         );
 
         return isset( $mappers[ $source ] ) ? $mappers[ $source ] : null;
+    }
+
+    /* ------------------------------------------------------------------
+     *  Hook suspension: prevent third-party SEO plugins from interfering
+     *  with meta updates during import. Specifically fixes AIOSEO Pro
+     *  fatal error in Schema/Helpers.php usort() on update_post_meta.
+     * ----------------------------------------------------------------*/
+
+    private static $suspended_hooks = array();
+
+    /**
+     * Temporarily remove third-party SEO plugin hooks that fire on
+     * post meta changes and can cause fatal errors during bulk import.
+     */
+    private static function suspend_seo_hooks() {
+        self::$suspended_hooks = array();
+
+        // Hooks to suspend: wp_head is not relevant in REST context,
+        // but updated_post_meta and added_post_meta are.
+        $hook_names = array(
+            'updated_post_meta',
+            'added_post_meta',
+            'update_post_meta',
+            'add_post_meta',
+            'save_post',
+            'wp_insert_post',
+        );
+
+        // Patterns that match third-party SEO plugin callbacks.
+        $patterns = array( 'AIOSEO', 'aioseo', 'WPSEO', 'wpseo', 'RankMath', 'rank_math' );
+
+        foreach ( $hook_names as $hook_name ) {
+            global $wp_filter;
+            if ( ! isset( $wp_filter[ $hook_name ] ) ) {
+                continue;
+            }
+
+            foreach ( $wp_filter[ $hook_name ]->callbacks as $priority => $callbacks ) {
+                foreach ( $callbacks as $id => $callback_data ) {
+                    $func = $callback_data['function'];
+                    $match = false;
+
+                    // Check if callback belongs to a third-party SEO plugin.
+                    if ( is_string( $func ) ) {
+                        foreach ( $patterns as $p ) {
+                            if ( stripos( $func, $p ) !== false ) { $match = true; break; }
+                        }
+                    } elseif ( is_array( $func ) && count( $func ) === 2 ) {
+                        $class = is_object( $func[0] ) ? get_class( $func[0] ) : (string) $func[0];
+                        foreach ( $patterns as $p ) {
+                            if ( stripos( $class, $p ) !== false ) { $match = true; break; }
+                        }
+                    } elseif ( $func instanceof Closure ) {
+                        // Can't inspect closures — skip.
+                        continue;
+                    }
+
+                    if ( $match ) {
+                        self::$suspended_hooks[] = array(
+                            'hook'     => $hook_name,
+                            'callback' => $func,
+                            'priority' => $priority,
+                            'args'     => $callback_data['accepted_args'],
+                        );
+                        remove_filter( $hook_name, $func, $priority );
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Restore previously suspended hooks.
+     */
+    private static function restore_seo_hooks() {
+        foreach ( self::$suspended_hooks as $h ) {
+            add_filter( $h['hook'], $h['callback'], $h['priority'], $h['args'] );
+        }
+        self::$suspended_hooks = array();
     }
 }
