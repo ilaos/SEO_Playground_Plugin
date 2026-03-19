@@ -75,17 +75,19 @@ class AlmaSEO_Import_Settings_Mapper {
         $titles = get_option( 'wpseo_titles', array() );
         $social = get_option( 'wpseo_social', array() );
         return array(
-            'name'      => 'Yoast SEO',
-            'available' => ! empty( $titles ),
-            'has_social' => ! empty( $social ),
+            'name'          => 'Yoast SEO',
+            'available'     => ! empty( $titles ),
+            'plugin_active' => defined( 'WPSEO_VERSION' ),
+            'has_social'    => ! empty( $social ),
         );
     }
 
     private static function detect_rankmath_settings() {
         $titles = get_option( 'rank-math-options-titles', array() );
         return array(
-            'name'      => 'Rank Math',
-            'available' => ! empty( $titles ),
+            'name'          => 'Rank Math',
+            'available'     => ! empty( $titles ),
+            'plugin_active' => class_exists( 'RankMath' ),
         );
     }
 
@@ -95,8 +97,9 @@ class AlmaSEO_Import_Settings_Mapper {
             $options = json_decode( $options, true );
         }
         return array(
-            'name'      => 'All in One SEO',
-            'available' => is_array( $options ) && ! empty( $options ),
+            'name'          => 'All in One SEO',
+            'available'     => is_array( $options ) && ! empty( $options ),
+            'plugin_active' => defined( 'AIOSEO_VERSION' ),
         );
     }
 

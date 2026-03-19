@@ -48,22 +48,63 @@
 
     function renderSources(data) {
         var available = [];
-        var html = '<div class="almaseo-source-cards">';
+        var meta = data._meta || {};
+        var html = '';
         var labels = { yoast: 'Yoast SEO', rankmath: 'Rank Math', aioseo: 'All in One SEO' };
 
+        // Recommendation banner when active + legacy sources coexist.
+        if (meta.has_recommendation && meta.message) {
+            html += '<div class="almaseo-import-recommendation">';
+            html += '<strong>Recommendation:</strong> ' + esc(meta.message);
+            html += '</div>';
+        }
+
+        html += '<div class="almaseo-source-cards">';
+
         for (var key in data) {
-            if (!data.hasOwnProperty(key)) continue;
+            if (!data.hasOwnProperty(key) || key === '_meta') continue;
             var src = data[key];
-            var cls = src.available ? '' : ' unavailable';
-            var activeLabel = src.plugin_active ? ' <span class="almaseo-badge-active">Active</span>' : '';
+            var isActive = !!src.plugin_active;
+            var hasData = !!src.available;
+            var cls = hasData ? (isActive ? ' active' : ' legacy') : ' unavailable';
+            var badge = '';
+            var label = '';
+            var overlapNote = '';
+
+            if (hasData && isActive) {
+                badge = ' <span class="almaseo-badge almaseo-badge-active">Active</span>';
+                label = (src.record_count || 0) + ' posts available';
+            } else if (hasData && !isActive) {
+                badge = ' <span class="almaseo-badge almaseo-badge-legacy">Legacy data</span>';
+                label = (src.record_count || 0) + ' posts with legacy data';
+
+                // Show overlap info if available.
+                if (src.overlap) {
+                    var parts = [];
+                    for (var otherKey in src.overlap) {
+                        if (!src.overlap.hasOwnProperty(otherKey)) continue;
+                        parts.push(src.overlap[otherKey] + ' overlap with ' + esc(labels[otherKey] || otherKey));
+                    }
+                    if (parts.length > 0) {
+                        overlapNote = '<span class="almaseo-overlap-note">' + parts.join(', ') + '</span>';
+                    }
+                }
+            } else {
+                label = 'No data detected';
+            }
+
             html += '<div class="almaseo-source-card' + cls + '">';
-            html += '<h3>' + esc(labels[key] || key) + activeLabel + '</h3>';
+            html += '<h3>' + esc(labels[key] || key) + badge + '</h3>';
             html += '<span class="count">' + (src.record_count || 0) + '</span>';
-            html += '<span class="label">' + (src.available ? 'posts with data' : 'not detected') + '</span>';
+            html += '<span class="label">' + label + '</span>';
+            if (overlapNote) {
+                html += overlapNote;
+            }
             html += '</div>';
 
-            if (src.available) {
-                available.push({ key: key, label: labels[key] || key, count: src.record_count || 0 });
+            if (hasData) {
+                var suffix = isActive ? ' posts)' : ' posts, legacy)';
+                available.push({ key: key, label: labels[key] || key, count: src.record_count || 0, active: isActive, suffix: suffix });
             }
         }
 
@@ -78,9 +119,16 @@
         available.forEach(function (src) {
             var opt = document.createElement('option');
             opt.value = src.key;
-            opt.textContent = src.label + ' (' + src.count + ' posts)';
+            opt.textContent = src.label + ' (' + src.count + src.suffix;
             $sourceSelect.appendChild(opt);
         });
+
+        // Auto-select if exactly one active source exists.
+        var activeSources = available.filter(function (s) { return s.active; });
+        if (activeSources.length === 1) {
+            $sourceSelect.value = activeSources[0].key;
+            $startBtn.disabled = false;
+        }
 
         $controls.style.display = '';
     }
@@ -435,15 +483,37 @@
         for (var key in data) {
             if (!data.hasOwnProperty(key)) continue;
             var src = data[key];
-            var cls = src.available ? '' : ' unavailable';
+            var isActive = !!src.plugin_active;
+            var hasData = !!src.available;
+            var cls = hasData ? (isActive ? ' active' : ' legacy') : ' unavailable';
+            var badge = '';
+            var label = '';
+            var countVal = src.record_count || 0;
+
+            var hasCount = typeof src.record_count === 'number' && src.record_count > 0;
+
+            if (hasData && isActive) {
+                badge = ' <span class="almaseo-badge almaseo-badge-active">Active</span>';
+                label = hasCount ? countVal + ' records available' : 'Settings available';
+            } else if (hasData && !isActive) {
+                badge = ' <span class="almaseo-badge almaseo-badge-legacy">Legacy data</span>';
+                label = hasCount ? countVal + ' records with legacy data' : 'Legacy settings found';
+            } else {
+                label = 'No data detected';
+            }
+
             html += '<div class="almaseo-source-card' + cls + '">';
-            html += '<h3>' + esc(src.name || key) + '</h3>';
-            html += '<span class="count">' + (src.record_count || 0) + '</span>';
-            html += '<span class="label">' + (src.available ? 'records found' : 'not detected') + '</span>';
+            html += '<h3>' + esc(src.name || key) + badge + '</h3>';
+            if (hasCount) {
+                html += '<span class="count">' + countVal + '</span>';
+            }
+            html += '<span class="label">' + label + '</span>';
             html += '</div>';
 
-            if (src.available) {
-                available.push({ key: key, name: src.name || key, count: src.record_count || 0 });
+            if (hasData) {
+                var suffix = hasCount ? (isActive ? ' records)' : ' records, legacy)') : (isActive ? ')' : ', legacy)');
+                var displayCount = hasCount ? countVal + ' ' : '';
+                available.push({ key: key, name: src.name || key, count: displayCount, active: isActive, suffix: suffix });
             }
         }
 
@@ -458,9 +528,16 @@
         available.forEach(function (src) {
             var opt = document.createElement('option');
             opt.value = src.key;
-            opt.textContent = src.name + ' (' + src.count + ' records)';
+            opt.textContent = src.name + ' (' + src.count + src.suffix;
             $select.appendChild(opt);
         });
+
+        // Auto-select if exactly one active source exists.
+        var activeSources = available.filter(function (s) { return s.active; });
+        if (activeSources.length === 1) {
+            $select.value = activeSources[0].key;
+            $startBtn.disabled = false;
+        }
 
         $controlsDiv.style.display = '';
     }

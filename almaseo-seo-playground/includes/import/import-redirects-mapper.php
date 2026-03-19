@@ -40,9 +40,9 @@ class AlmaSEO_Import_Redirects_Mapper {
         $redir_count  = $redir_exists ? (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$redir_table}`" ) : 0;
 
         return array(
-            'rankmath'    => array( 'name' => 'Rank Math', 'available' => $rm_count > 0, 'record_count' => $rm_count ),
-            'yoast'       => array( 'name' => 'Yoast SEO Premium', 'available' => $yoast_count > 0, 'record_count' => $yoast_count ),
-            'redirection' => array( 'name' => 'Redirection Plugin', 'available' => $redir_count > 0, 'record_count' => $redir_count ),
+            'rankmath'    => array( 'name' => 'Rank Math', 'available' => $rm_count > 0, 'plugin_active' => class_exists( 'RankMath' ), 'record_count' => $rm_count ),
+            'yoast'       => array( 'name' => 'Yoast SEO Premium', 'available' => $yoast_count > 0, 'plugin_active' => defined( 'WPSEO_VERSION' ), 'record_count' => $yoast_count ),
+            'redirection' => array( 'name' => 'Redirection Plugin', 'available' => $redir_count > 0, 'plugin_active' => defined( 'REDIRECTION_VERSION' ), 'record_count' => $redir_count ),
         );
     }
 

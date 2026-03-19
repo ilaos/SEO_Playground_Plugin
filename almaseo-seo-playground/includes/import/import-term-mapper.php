@@ -56,9 +56,9 @@ class AlmaSEO_Import_Term_Mapper {
         }
 
         return array(
-            'yoast'    => array( 'name' => 'Yoast SEO', 'available' => $yoast_count > 0, 'record_count' => $yoast_count ),
-            'rankmath' => array( 'name' => 'Rank Math', 'available' => $rm_count > 0, 'record_count' => $rm_count ),
-            'aioseo'   => array( 'name' => 'All in One SEO', 'available' => $aioseo_count > 0, 'record_count' => $aioseo_count ),
+            'yoast'    => array( 'name' => 'Yoast SEO', 'available' => $yoast_count > 0, 'plugin_active' => defined( 'WPSEO_VERSION' ), 'record_count' => $yoast_count ),
+            'rankmath' => array( 'name' => 'Rank Math', 'available' => $rm_count > 0, 'plugin_active' => class_exists( 'RankMath' ), 'record_count' => $rm_count ),
+            'aioseo'   => array( 'name' => 'All in One SEO', 'available' => $aioseo_count > 0, 'plugin_active' => defined( 'AIOSEO_VERSION' ), 'record_count' => $aioseo_count ),
         );
     }
 

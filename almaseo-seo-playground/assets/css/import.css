@@ -265,16 +265,68 @@
     margin: 12px 0;
 }
 
-/* Active badge on source cards */
-.almaseo-badge-active {
+/* Status badges on source cards */
+.almaseo-badge {
     display: inline-block;
-    background: #d63638;
-    color: #fff;
     font-size: 11px;
     font-weight: 600;
     padding: 2px 6px;
     border-radius: 3px;
     vertical-align: middle;
+}
+
+.almaseo-badge-active {
+    background: #00a32a;
+    color: #fff;
+}
+
+.almaseo-badge-legacy {
+    background: #dba617;
+    color: #fff;
+}
+
+/* Recommendation banner */
+.almaseo-import-recommendation {
+    background: #f0f6fc;
+    border: 1px solid #2271b1;
+    border-left-width: 4px;
+    padding: 12px 16px;
+    margin: 0 0 16px;
+    font-size: 13px;
+    line-height: 1.5;
+    border-radius: 2px;
+}
+
+.almaseo-import-recommendation strong {
+    color: #2271b1;
+}
+
+/* Overlap note on legacy cards */
+.almaseo-overlap-note {
+    display: block;
+    font-size: 12px;
+    color: #8c8f94;
+    font-style: italic;
+    margin-top: 4px;
+}
+
+/* Card states */
+.almaseo-source-card.active {
+    border-color: #00a32a;
+    border-left-width: 4px;
+}
+
+.almaseo-source-card.active .count {
+    color: #00a32a;
+}
+
+.almaseo-source-card.legacy {
+    border-color: #dba617;
+    border-left-width: 4px;
+}
+
+.almaseo-source-card.legacy .count {
+    color: #dba617;
 }
 
 /* ── Verification report ── */
