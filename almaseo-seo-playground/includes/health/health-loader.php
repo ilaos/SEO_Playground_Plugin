@@ -129,7 +129,7 @@ class AlmaSEO_Health_Loader {
             wp_die();
         }
         
-        $post_id = intval($_POST['post_id']);
+        $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
         
         if (!$post_id || !get_post($post_id)) {
             wp_send_json_error('Invalid post ID');
@@ -167,7 +167,7 @@ class AlmaSEO_Health_Loader {
             wp_die();
         }
         
-        $post_id = intval($_POST['post_id']);
+        $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
         $token = isset($_POST['token']) ? intval($_POST['token']) : 0;
         $reason = isset($_POST['reason']) ? sanitize_text_field($_POST['reason']) : 'manual';
         
@@ -248,7 +248,7 @@ class AlmaSEO_Health_Loader {
             wp_die();
         }
         
-        $post_id = intval($_POST['post_id']);
+        $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
         
         if (!$post_id || !get_post($post_id)) {
             wp_send_json_error('Invalid post ID');
@@ -313,7 +313,7 @@ class AlmaSEO_Health_Loader {
             wp_die();
         }
         
-        $post_id = intval($_POST['post_id']);
+        $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
         $api_key = get_option('almaseo_api_key');
         
         if (empty($api_key)) {
@@ -368,7 +368,7 @@ class AlmaSEO_Health_Loader {
             wp_die();
         }
         
-        $post_id = intval($_POST['post_id']);
+        $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
         $post = get_post($post_id);
         
         if (!$post) {
