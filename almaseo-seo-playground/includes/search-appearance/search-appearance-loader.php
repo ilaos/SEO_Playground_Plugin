@@ -26,7 +26,7 @@ add_action( 'admin_init', array( 'AlmaSEO_Search_Appearance_Settings', 'register
 // Initialize admin controller.
 AlmaSEO_Search_Appearance_Controller::init();
 
-// Initialize frontend (only on non-admin requests, skip when another SEO plugin handles frontend).
-if ( ! is_admin() && ( ! defined( 'ALMASEO_SKIP_FRONTEND_SEO' ) || ! ALMASEO_SKIP_FRONTEND_SEO ) ) {
+// Initialize frontend (only on non-admin requests).
+if ( ! is_admin() ) {
     AlmaSEO_Search_Appearance_Frontend::init();
 }
