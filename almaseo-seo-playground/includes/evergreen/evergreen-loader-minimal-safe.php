@@ -187,13 +187,15 @@ add_action('enqueue_block_editor_assets', function() {
     $plugin_url = plugin_dir_url(dirname(dirname(__FILE__)));
     $plugin_dir = plugin_dir_path(dirname(dirname(__FILE__)));
     
-    // Enqueue sidebar CSS
-    wp_enqueue_style(
-        'almaseo-evergreen-sidebar',
-        $plugin_url . 'assets/css/evergreen-sidebar.css',
-        array(),
-        '4.2.0'
-    );
+    // Enqueue sidebar CSS (only if file exists)
+    if (file_exists($plugin_dir . 'assets/css/evergreen-sidebar.css')) {
+        wp_enqueue_style(
+            'almaseo-evergreen-sidebar',
+            $plugin_url . 'assets/css/evergreen-sidebar.css',
+            array(),
+            '4.2.0'
+        );
+    }
     
     // Enqueue Schema panel
     $schema_panel = $plugin_dir . 'assets/js/schema-panel.js';

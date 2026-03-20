@@ -30,7 +30,7 @@ add_action('rest_api_init', function() {
             'args' => array(
                 'post_id' => array(
                     'required' => true,
-                    'validate_callback' => 'is_numeric',
+                    'validate_callback' => function ( $val ) { return is_numeric( $val ); },
                     'sanitize_callback' => 'absint',
                 ),
                 'style' => array(

@@ -150,8 +150,8 @@ class AlmaSEO_History_Loader {
     public function ajax_restore() {
         check_ajax_referer('almaseo_history_nonce', 'nonce');
         
-        $post_id = intval($_POST['post_id']);
-        $version_id = intval($_POST['version_id']);
+        $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+        $version_id = isset($_POST['version_id']) ? intval($_POST['version_id']) : 0;
         
         if (!current_user_can('edit_post', $post_id)) {
             wp_die('Insufficient permissions');
@@ -176,9 +176,9 @@ class AlmaSEO_History_Loader {
     public function ajax_compare() {
         check_ajax_referer('almaseo_history_nonce', 'nonce');
         
-        $post_id = intval($_POST['post_id']);
-        $from_version = intval($_POST['from_version']);
-        $to_version = intval($_POST['to_version']);
+        $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+        $from_version = isset($_POST['from_version']) ? intval($_POST['from_version']) : 0;
+        $to_version = isset($_POST['to_version']) ? intval($_POST['to_version']) : 0;
         
         if (!current_user_can('edit_post', $post_id)) {
             wp_die('Insufficient permissions');
@@ -198,7 +198,7 @@ class AlmaSEO_History_Loader {
     public function ajax_create_snapshot() {
         check_ajax_referer('almaseo_history_nonce', 'nonce');
         
-        $post_id = intval($_POST['post_id']);
+        $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
         
         if (!current_user_can('edit_post', $post_id)) {
             wp_die('Insufficient permissions');
@@ -226,8 +226,8 @@ class AlmaSEO_History_Loader {
     public function ajax_delete_version() {
         check_ajax_referer('almaseo_history_nonce', 'nonce');
         
-        $post_id = intval($_POST['post_id']);
-        $version_id = intval($_POST['version_id']);
+        $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+        $version_id = isset($_POST['version_id']) ? intval($_POST['version_id']) : 0;
         
         if (!current_user_can('edit_post', $post_id)) {
             wp_die('Insufficient permissions');

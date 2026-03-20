@@ -100,23 +100,13 @@ function almaseo_enqueue_seo_playground_styles() {
                 ALMASEO_PLUGIN_VERSION
             );
             
-            // Main SEO Playground styles
-            wp_enqueue_style(
-                'almaseo-seo-playground',
-                ALMASEO_PLUGIN_URL . 'assets/css/seo-playground.css',
-                array('almaseo-seo-playground-consolidated'),
-                ALMASEO_PLUGIN_VERSION
-            );
-            
             // Tab-specific styles (only load what's needed)
             $tab_styles = array(
                 'llm-optimization', // LLM Optimization panel CSS
                 'health', // Health and SERP preview styles
                 'unified-tabs', // Unified tab styles with emojis
                 'unified-health', // Unified health score styles
-                'seo-playground-tabs',
-                'seo-overview-polish',
-                'seo-overview-improved', // New improved SEO Overview CSS
+                'seo-overview-consolidated', // SEO Overview styles
                 'search-console-polish',
                 'search-console-placeholder', // Search Console placeholder CSS
                 'schema-meta-tab', // Schema & Meta tab CSS
@@ -132,11 +122,11 @@ function almaseo_enqueue_seo_playground_styles() {
                 wp_enqueue_style(
                     'almaseo-' . $style,
                     ALMASEO_PLUGIN_URL . 'assets/css/' . $style . '.css',
-                    array('almaseo-seo-playground'),
+                    array('almaseo-seo-playground-consolidated'),
                     ALMASEO_PLUGIN_VERSION
                 );
             }
-            
+
             // Consolidated JavaScript first
             wp_enqueue_script(
                 'almaseo-seo-playground-consolidated',
@@ -145,22 +135,11 @@ function almaseo_enqueue_seo_playground_styles() {
                 ALMASEO_PLUGIN_VERSION,
                 true
             );
-            
-            // Main JavaScript
-            wp_enqueue_script(
-                'almaseo-seo-playground',
-                ALMASEO_PLUGIN_URL . 'assets/js/seo-playground.js',
-                array('jquery', 'almaseo-seo-playground-consolidated'),
-                ALMASEO_PLUGIN_VERSION,
-                true
-            );
-            
+
             // Tab-specific scripts
             $tab_scripts = array(
-                'seo-playground-tabs',
+                'seo-overview-consolidated', // SEO Overview JavaScript
                 'unified-health', // Unified health score JavaScript
-                'seo-overview-polish',
-                'seo-overview-improved', // New improved SEO Overview JS
                 'search-console-polish',
                 'schema-meta-tab', // Schema & Meta tab JavaScript
                 'ai-tools-polish',
@@ -174,15 +153,15 @@ function almaseo_enqueue_seo_playground_styles() {
                 wp_enqueue_script(
                     'almaseo-' . $script,
                     ALMASEO_PLUGIN_URL . 'assets/js/' . $script . '.js',
-                    array('jquery', 'almaseo-seo-playground'),
+                    array('jquery', 'almaseo-seo-playground-consolidated'),
                     ALMASEO_PLUGIN_VERSION,
                     true
                 );
             }
         }
-        
+
         // Localize script with connection status and other data
-        wp_localize_script('almaseo-seo-playground', 'seoPlaygroundData', array(
+        wp_localize_script('almaseo-seo-playground-consolidated', 'seoPlaygroundData', array(
             'almaConnected' => seo_playground_is_alma_connected(),
             'connectionUrl' => admin_url('admin.php?page=seo-playground-connection'),
             'ajaxUrl' => admin_url('admin-ajax.php'),

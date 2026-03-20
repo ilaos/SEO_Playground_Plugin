@@ -177,7 +177,7 @@ class AlmaSEO_Evergreen_Loader_Safe {
             if (file_exists(dirname(__FILE__) . '/admin.php')) {
                 require_once dirname(__FILE__) . '/admin.php';
             }
-            if ($_GET['page'] === 'almaseo-evergreen-dashboard') {
+            if (isset($_GET['page']) && $_GET['page'] === 'almaseo-evergreen-dashboard') {
                 if (file_exists(dirname(__FILE__) . '/dashboard.php')) {
                     require_once dirname(__FILE__) . '/dashboard.php';
                 }

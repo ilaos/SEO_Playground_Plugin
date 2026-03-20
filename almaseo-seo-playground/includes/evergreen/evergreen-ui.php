@@ -230,10 +230,10 @@ function almaseo_eg_settings_page_content() {
     // Handle form submission
     if (isset($_POST['almaseo_eg_save_settings']) && check_admin_referer('almaseo_eg_settings')) {
         $settings = array(
-            'watch_days' => intval($_POST['watch_days']),
-            'stale_days' => intval($_POST['stale_days']),
-            'watch_traffic_drop' => floatval($_POST['watch_traffic_drop']),
-            'stale_traffic_drop' => floatval($_POST['stale_traffic_drop']),
+            'watch_days' => isset($_POST['watch_days']) ? intval($_POST['watch_days']) : 30,
+            'stale_days' => isset($_POST['stale_days']) ? intval($_POST['stale_days']) : 90,
+            'watch_traffic_drop' => isset($_POST['watch_traffic_drop']) ? floatval($_POST['watch_traffic_drop']) : 0.2,
+            'stale_traffic_drop' => isset($_POST['stale_traffic_drop']) ? floatval($_POST['stale_traffic_drop']) : 0.5,
             'enable_digest' => isset($_POST['enable_digest'])
         );
         

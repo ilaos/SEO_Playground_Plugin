@@ -461,13 +461,15 @@ class Alma_HTML_Sitemap {
             )
         ));
         
-        // Register block script
-        wp_register_script(
-            'almaseo-html-sitemap-block',
-            ALMASEO_PLUGIN_URL . 'assets/js/html-sitemap-block.js',
-            array('wp-blocks', 'wp-element', 'wp-editor', 'wp-components'),
-            ALMASEO_PLUGIN_VERSION
-        );
+        // Register block script (only if file exists)
+        if (file_exists(ALMASEO_PATH . 'assets/js/html-sitemap-block.js')) {
+            wp_register_script(
+                'almaseo-html-sitemap-block',
+                ALMASEO_PLUGIN_URL . 'assets/js/html-sitemap-block.js',
+                array('wp-blocks', 'wp-element', 'wp-editor', 'wp-components'),
+                ALMASEO_PLUGIN_VERSION
+            );
+        }
     }
     
     /**
@@ -490,12 +492,14 @@ class Alma_HTML_Sitemap {
      */
     public static function enqueue_styles() {
         if (has_shortcode(get_the_content(), 'almaseo_html_sitemap') || has_block('almaseo/html-sitemap')) {
-            wp_enqueue_style(
-                'almaseo-html-sitemap',
-                ALMASEO_PLUGIN_URL . 'assets/css/html-sitemap.css',
-                array(),
-                ALMASEO_PLUGIN_VERSION
-            );
+            if (file_exists(ALMASEO_PATH . 'assets/css/html-sitemap.css')) {
+                wp_enqueue_style(
+                    'almaseo-html-sitemap',
+                    ALMASEO_PLUGIN_URL . 'assets/css/html-sitemap.css',
+                    array(),
+                    ALMASEO_PLUGIN_VERSION
+                );
+            }
         }
     }
 }
