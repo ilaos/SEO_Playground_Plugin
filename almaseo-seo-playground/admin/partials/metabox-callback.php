@@ -366,33 +366,33 @@ function almaseo_seo_playground_meta_box_callback($post) {
         <!-- Tab Navigation Bar -->
         <div class="almaseo-tab-navigation" id="almaseo-tab-navigation">
             <div class="almaseo-tab-scroll-wrapper">
-                <button class="almaseo-tab-btn active" data-tab="seo-overview">
+                <button type="button" class="almaseo-tab-btn active" data-tab="seo-overview">
                     <span class="tab-icon">🩺</span>
                     <span class="tab-label">SEO Page Health</span>
                 </button>
-                <button class="almaseo-tab-btn" data-tab="search-console">
+                <button type="button" class="almaseo-tab-btn" data-tab="search-console">
                     <span class="tab-icon">📈</span>
                     <span class="tab-label">Search Console</span>
                 </button>
-                <button class="almaseo-tab-btn" data-tab="schema-meta">
+                <button type="button" class="almaseo-tab-btn" data-tab="schema-meta">
                     <span class="tab-icon">🧩</span>
                     <span class="tab-label">Schema & Meta</span>
                 </button>
-                <button class="almaseo-tab-btn" data-tab="ai-tools">
+                <button type="button" class="almaseo-tab-btn" data-tab="ai-tools">
                     <span class="tab-icon">✨</span>
                     <span class="tab-label">AI Tools</span>
                 </button>
-                <button class="almaseo-tab-btn" data-tab="llm-optimization">
+                <button type="button" class="almaseo-tab-btn" data-tab="llm-optimization">
                     <span class="tab-icon">🤖</span>
                     <span class="tab-label">LLM Optimization</span>
                     <span class="tab-badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2px 6px; border-radius: 10px; font-size: 10px; margin-left: 4px;">BETA</span>
                 </button>
-                <button class="almaseo-tab-btn" data-tab="notes-history">
+                <button type="button" class="almaseo-tab-btn" data-tab="notes-history">
                     <span class="tab-icon">🗒️</span>
                     <span class="tab-label">Notes & History</span>
                 </button>
                 <?php if (!$is_connected): ?>
-                <button class="almaseo-tab-btn almaseo-unlock-tab" data-tab="unlock-features">
+                <button type="button" class="almaseo-tab-btn almaseo-unlock-tab" data-tab="unlock-features">
                     <span class="tab-icon">🔒</span>
                     <span class="tab-label">Unlock AI Features</span>
                     <span class="tab-badge">NEW</span>
