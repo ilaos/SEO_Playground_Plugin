@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
-Version: 8.9.2
+Version: 8.9.1
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 if (!defined('ALMASEO_MAIN_FILE'))       define('ALMASEO_MAIN_FILE', __FILE__);
 if (!defined('ALMASEO_PATH'))            define('ALMASEO_PATH', plugin_dir_path(__FILE__));
 if (!defined('ALMASEO_URL'))             define('ALMASEO_URL', plugin_dir_url(__FILE__));
-if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '8.9.2');
+if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '8.9.1');
 if (!defined('ALMASEO_VERSION'))         define('ALMASEO_VERSION', '6.5.0');
 if (!defined('ALMASEO_API_NAMESPACE'))   define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
 if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
@@ -90,19 +90,7 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/schema/schema-advanced-out
 }
 
 // Skip loading heavy features during activation to prevent memory issues
-// WordPress uses 'activate' for the initial request, but 'error_scrape' for the
-// sandbox test request that actually loads the plugin to check for fatal errors.
-$is_activating = false;
-if ( isset( $_GET['action'] ) ) {
-    $act = sanitize_key( $_GET['action'] );
-    if ( in_array( $act, array( 'activate', 'error_scrape' ), true ) ) {
-        $is_activating = true;
-    }
-}
-// Also skip during WP-CLI plugin activation
-if ( defined( 'WP_CLI' ) && WP_CLI ) {
-    $is_activating = true;
-}
+$is_activating = isset($_GET['action']) && sanitize_key($_GET['action']) === 'activate';
 
 // Include Evergreen feature (using minimal safe loader to prevent crashes)
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/evergreen/evergreen-loader-minimal-safe.php')) {
@@ -146,15 +134,13 @@ if (!$is_activating && file_exists(plugin_dir_path(__FILE__) . 'includes/llm/llm
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/sitemap/class-alma-sitemap-manager.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/sitemap/helpers.php';
     require_once plugin_dir_path(__FILE__) . 'includes/sitemap/class-alma-sitemap-manager.php';
-
-    if (!$is_activating) {
-        // Initialize sitemap manager
-        add_action('init', function() {
-            Alma_Sitemap_Manager::get_instance();
-        }, 0);
-    }
-
-    // Register activation/deactivation hooks (must run even during activation)
+    
+    // Initialize sitemap manager
+    add_action('init', function() {
+        Alma_Sitemap_Manager::get_instance();
+    }, 0);
+    
+    // Register activation/deactivation hooks
     register_activation_hook(__FILE__, array('Alma_Sitemap_Manager', 'activate'));
     register_deactivation_hook(__FILE__, array('Alma_Sitemap_Manager', 'deactivate'));
 }
@@ -168,9 +154,6 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/ui-helpers.php')) {
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/security.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/security.php';
 }
-
-// --- Feature modules: skip during activation to prevent memory/fatal issues ---
-if ( ! $is_activating ) {
 
 // Include Robots.txt Editor (v6.0.0+)
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/robots/robots-controller.php')) {
@@ -360,8 +343,6 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/tier-labels.php')) {
     AlmaSEO_Tier_Labels::init();
 }
 
-} // end: ! $is_activating (feature modules)
-
 // Ensure almaseo_is_pro function exists as fallback
 // This should rarely be reached since bulkmeta-loader.php defines it first
 if (!function_exists('almaseo_is_pro')) {
@@ -373,7 +354,7 @@ if (!function_exists('almaseo_is_pro')) {
 }
 
 // Initialize auto-update system (v5.0.0+)
-if (!$is_activating && file_exists(plugin_dir_path(__FILE__) . 'includes/almaseo-update.php')) {
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/almaseo-update.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/almaseo-update.php';
 }
 
