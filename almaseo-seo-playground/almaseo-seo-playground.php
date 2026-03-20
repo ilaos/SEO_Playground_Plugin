@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
-Version: 8.9.10
+Version: 8.9.11
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 if (!defined('ALMASEO_MAIN_FILE'))       define('ALMASEO_MAIN_FILE', __FILE__);
 if (!defined('ALMASEO_PATH'))            define('ALMASEO_PATH', plugin_dir_path(__FILE__));
 if (!defined('ALMASEO_URL'))             define('ALMASEO_URL', plugin_dir_url(__FILE__));
-if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '8.9.10');
+if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '8.9.11');
 if (!defined('ALMASEO_VERSION'))         define('ALMASEO_VERSION', '6.5.0');
 if (!defined('ALMASEO_API_NAMESPACE'))   define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
 if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
@@ -32,40 +32,38 @@ if (!defined('ALMASEO_PLUGIN_DIR'))  define('ALMASEO_PLUGIN_DIR', ALMASEO_PATH);
 if (!defined('ALMASEO_PLUGIN_FILE')) define('ALMASEO_PLUGIN_FILE', ALMASEO_MAIN_FILE);
 
 // --- Third-party SEO plugin coexistence ---
-// When a full SEO plugin (AIOSEO, Yoast, RankMath, etc.) is active, our
-// frontend SEO output (meta tags, schema, OG, title filters) is redundant
-// and can cause fatal conflicts (e.g., AIOSEO Pro Helpers.php crash).
-// We defer to the active SEO plugin for frontend output and focus on our
-// AI-powered admin features (meta box, keyword suggestions, content tools).
-if ( ! function_exists( 'almaseo_has_conflicting_seo_frontend' ) ) {
-    function almaseo_has_conflicting_seo_frontend() {
-        return defined( 'WPSEO_VERSION' )
-            || class_exists( 'RankMath' )
-            || defined( 'AIOSEO_VERSION' )
-            || defined( 'SEOPRESS_VERSION' )
-            || defined( 'THE_SEO_FRAMEWORK_VERSION' );
+// When a full SEO plugin is active alongside us, merely loading our schema/
+// meta files can trigger fatal crashes in their code (e.g., AIOSEO Pro
+// Helpers.php:86). We detect active SEO plugins from the active_plugins
+// option BEFORE they load, and set a flag to skip our conflicting includes
+// on frontend requests. Admin always loads everything.
+if ( ! function_exists( 'almaseo_has_conflicting_seo_plugin_active' ) ) {
+    function almaseo_has_conflicting_seo_plugin_active() {
+        static $result = null;
+        if ( $result !== null ) return $result;
+        $active = (array) get_option( 'active_plugins', array() );
+        $patterns = array(
+            'all-in-one-seo-pack',     // AIOSEO Free & Pro
+            'wordpress-seo',           // Yoast SEO
+            'seo-by-rank-math',        // Rank Math
+            'wp-seopress',             // SEOPress
+            'autodescription',         // The SEO Framework
+        );
+        $result = false;
+        foreach ( $active as $plugin ) {
+            foreach ( $patterns as $pat ) {
+                if ( strpos( $plugin, $pat ) !== false ) {
+                    $result = true;
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
-add_action( 'plugins_loaded', function () {
-    if ( ! almaseo_has_conflicting_seo_frontend() || is_admin() ) {
-        return;
-    }
-    // Remove our frontend meta/schema/title hooks — let the other SEO plugin handle it.
-    remove_action( 'wp_head', 'almaseo_render_meta_tags', 1 );
-    remove_action( 'wp_head', 'almaseo_output_schema_jsonld', 5 );
-    remove_action( 'wp_head', 'almaseo_output_advanced_schema', 40 );
-    remove_filter( 'document_title_parts', 'almaseo_filter_document_title', 10 );
-    remove_filter( 'pre_get_document_title', 'almaseo_pre_get_document_title', 10 );
-    // Remove meta-social-handler singleton hooks.
-    $msh = AlmaSEO_Meta_Social_Handler::get_instance();
-    remove_action( 'wp_head', array( $msh, 'output_meta_tags' ), 1 );
-    // Remove search-appearance-frontend hooks.
-    if ( class_exists( 'AlmaSEO_Search_Appearance_Frontend' ) ) {
-        remove_filter( 'document_title_parts', array( 'AlmaSEO_Search_Appearance_Frontend', 'filter_title_parts' ), 10 );
-        remove_filter( 'pre_get_document_title', array( 'AlmaSEO_Search_Appearance_Frontend', 'pre_get_title' ), 10 );
-        remove_action( 'wp_head', array( 'AlmaSEO_Search_Appearance_Frontend', 'render_non_singular_meta' ), 1 );
-    }
-}, 20 );
+// On frontend requests when a conflicting SEO plugin is active, set a flag
+// so individual includes can be skipped below.
+define( 'ALMASEO_SKIP_FRONTEND_SEO', ! is_admin() && almaseo_has_conflicting_seo_plugin_active() );
 
 // Include License & Tier Helper (centralized license checking)
 // This MUST be loaded early before any feature modules that check licensing
@@ -79,19 +77,19 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/license/locked-ui.php')) {
 }
 
 // Include schema implementation (clean version to avoid conflicts)
-if (file_exists(ALMASEO_PLUGIN_DIR . 'includes/schema-clean.php')) {
+if ( ! ALMASEO_SKIP_FRONTEND_SEO && file_exists(ALMASEO_PLUGIN_DIR . 'includes/schema-clean.php')) {
     require_once ALMASEO_PLUGIN_DIR . 'includes/schema-clean.php';
 }
 
 // Include schema image fallback chain
-if (file_exists(ALMASEO_PLUGIN_DIR . 'includes/schema-image-fallback.php')) {
+if ( ! ALMASEO_SKIP_FRONTEND_SEO && file_exists(ALMASEO_PLUGIN_DIR . 'includes/schema-image-fallback.php')) {
     require_once ALMASEO_PLUGIN_DIR . 'includes/schema-image-fallback.php';
 }
 
 // Include safe schema scrubber for AIOSEO compatibility
-if (file_exists(ALMASEO_PLUGIN_DIR . 'includes/schema-scrubber-safe.php')) {
+if ( ! ALMASEO_SKIP_FRONTEND_SEO && file_exists(ALMASEO_PLUGIN_DIR . 'includes/schema-scrubber-safe.php')) {
     require_once ALMASEO_PLUGIN_DIR . 'includes/schema-scrubber-safe.php';
-} elseif (file_exists(ALMASEO_PLUGIN_DIR . 'includes/schema-scrubber.php')) {
+} elseif ( ! ALMASEO_SKIP_FRONTEND_SEO && file_exists(ALMASEO_PLUGIN_DIR . 'includes/schema-scrubber.php')) {
     // Fallback to standard scrubber if safe not available
     require_once ALMASEO_PLUGIN_DIR . 'includes/schema-scrubber.php';
 }
@@ -108,9 +106,7 @@ if (defined('WP_CLI') && WP_CLI) {
     }
 }
 
-// Include meta and social tags handler (admin-side meta box always loads;
-// the frontend wp_head hook inside the class skips when another SEO plugin
-// handles frontend output — see almaseo_has_conflicting_seo_frontend()).
+// Include meta and social tags handler
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/meta-social-handler.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/meta-social-handler.php';
 }
@@ -121,9 +117,8 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/schema-meta-registration.p
 }
 
 // Include Advanced Schema (Pro feature)
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/schema/schema-advanced-output.php')) {
+if ( ! ALMASEO_SKIP_FRONTEND_SEO && file_exists(plugin_dir_path(__FILE__) . 'includes/schema/schema-advanced-output.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/schema/schema-advanced-output.php';
-    // Hook advanced schema output into wp_head (priority 40 to run after basic schema)
     add_action('wp_head', 'almaseo_output_advanced_schema', 40);
 }
 
@@ -2392,7 +2387,9 @@ End of commented out schema output */
 require_once plugin_dir_path(__FILE__) . 'includes/ajax/seo-playground-ajax.php';
 
 // --- FRONT-END META TAG RENDERING ---
-require_once plugin_dir_path(__FILE__) . 'includes/frontend/meta-tags-renderer.php';
+if ( ! ALMASEO_SKIP_FRONTEND_SEO ) {
+    require_once plugin_dir_path(__FILE__) . 'includes/frontend/meta-tags-renderer.php';
+}
 // WooCommerce Settings Page
 if (!function_exists('almaseo_woocommerce_settings_page')) {
 function almaseo_woocommerce_settings_page() {
