@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
-Version: 8.9.4
+Version: 8.9.5
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 if (!defined('ALMASEO_MAIN_FILE'))       define('ALMASEO_MAIN_FILE', __FILE__);
 if (!defined('ALMASEO_PATH'))            define('ALMASEO_PATH', plugin_dir_path(__FILE__));
 if (!defined('ALMASEO_URL'))             define('ALMASEO_URL', plugin_dir_url(__FILE__));
-if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '8.9.4');
+if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '8.9.5');
 if (!defined('ALMASEO_VERSION'))         define('ALMASEO_VERSION', '6.5.0');
 if (!defined('ALMASEO_API_NAMESPACE'))   define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
 if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
@@ -415,6 +415,12 @@ add_action('admin_notices', function() {
         return;
     }
 
+    // Don't show until the setup wizard has been completed — let the user
+    // finish onboarding first without distractions.
+    if (!get_option('almaseo_setup_wizard_completed')) {
+        return;
+    }
+
     // Don't show if user already dismissed
     if (get_user_meta(get_current_user_id(), 'almaseo_connector_upgrade_dismissed', true)) {
         return;
@@ -553,6 +559,11 @@ function almaseo_detect_conflicting_seo_plugins() {
  */
 add_action( 'admin_notices', function () {
     if ( ! current_user_can( 'activate_plugins' ) ) {
+        return;
+    }
+
+    // Don't show until the setup wizard has been completed.
+    if ( ! get_option( 'almaseo_setup_wizard_completed' ) ) {
         return;
     }
 
@@ -1572,51 +1583,51 @@ function almaseo_get_comprehensive_connection_status() {
 }
 } // end function_exists guard: almaseo_get_comprehensive_connection_status
 
-// --- REDIRECT TO SETTINGS PAGE AFTER ACTIVATION ---
-if (!function_exists('almaseo_set_activation_redirect')) {
-    function almaseo_set_activation_redirect() {
-        add_option('almaseo_do_activation_redirect', true);
-        // Set transient for welcome screen
-        set_transient('almaseo_show_welcome_screen', true, 30);
+// --- REDIRECT TO SETUP WIZARD AFTER ACTIVATION ---
+// Uses a Playground-specific option name so the Connector plugin's shared
+// almaseo_set_activation_redirect() cannot hijack the redirect.
+function almaseo_playground_set_activation_redirect() {
+    add_option('almaseo_playground_do_activation_redirect', true);
 
-        // Check for existing dashboard connection on activation
+    // Check for existing dashboard connection on activation
+    if (function_exists('almaseo_sync_from_dashboard')) {
         almaseo_sync_from_dashboard();
+    }
 
-        // Attempt automatic connection on activation
-        $current_user_id = get_current_user_id();
-        if ($current_user_id) {
-            $user = get_user_by('ID', $current_user_id);
-            if ($user && user_can($user, 'manage_options')) {
-                $existing_password = get_option('almaseo_app_password', '');
+    // Attempt automatic connection on activation
+    $current_user_id = get_current_user_id();
+    if ($current_user_id) {
+        $user = get_user_by('ID', $current_user_id);
+        if ($user && user_can($user, 'manage_options')) {
+            $existing_password = get_option('almaseo_app_password', '');
 
-                // Only generate if no password exists
-                if (!$existing_password && function_exists('wp_is_application_passwords_available') && function_exists('wp_generate_application_password')) {
-                    if (wp_is_application_passwords_available()) {
-                        $label = 'AlmaSEO Auto-Connect ' . wp_date('Y-m-d');
-                        $new_password = wp_generate_application_password($user->ID, array(
-                            'name' => $label,
-                            'app_id' => 'almaseo-seo-playground'
-                        ));
+            // Only generate if no password exists
+            if (!$existing_password && function_exists('wp_is_application_passwords_available') && function_exists('wp_generate_application_password')) {
+                if (wp_is_application_passwords_available()) {
+                    $label = 'AlmaSEO Auto-Connect ' . wp_date('Y-m-d');
+                    $new_password = wp_generate_application_password($user->ID, array(
+                        'name' => $label,
+                        'app_id' => 'almaseo-seo-playground'
+                    ));
 
-                        if (is_wp_error($new_password)) {
-                            error_log('AlmaSEO: Auto-connect failed: ' . $new_password->get_error_message());
-                        } elseif ($new_password && is_array($new_password)) {
-                            update_option('almaseo_app_password', $new_password[0]);
-                            update_option('almaseo_connected_user', $user->user_login);
-                            update_option('almaseo_connected_date', current_time('mysql'));
-                            update_option('almaseo_auto_connected', true);
-                        }
+                    if (is_wp_error($new_password)) {
+                        error_log('AlmaSEO: Auto-connect failed: ' . $new_password->get_error_message());
+                    } elseif ($new_password && is_array($new_password)) {
+                        update_option('almaseo_app_password', $new_password[0]);
+                        update_option('almaseo_connected_user', $user->user_login);
+                        update_option('almaseo_connected_date', current_time('mysql'));
+                        update_option('almaseo_auto_connected', true);
                     }
                 }
             }
         }
     }
 }
-register_activation_hook(__FILE__, 'almaseo_set_activation_redirect');
+register_activation_hook(__FILE__, 'almaseo_playground_set_activation_redirect');
 
 add_action('admin_init', function() {
-    if (get_option('almaseo_do_activation_redirect', false)) {
-        delete_option('almaseo_do_activation_redirect');
+    if (get_option('almaseo_playground_do_activation_redirect', false)) {
+        delete_option('almaseo_playground_do_activation_redirect');
         if (!isset($_GET['activate-multi'])) {
             if (!get_option('almaseo_setup_wizard_completed')) {
                 wp_safe_redirect(admin_url('admin.php?page=almaseo-setup-wizard'));
@@ -1628,77 +1639,8 @@ add_action('admin_init', function() {
     }
 });
 
-// --- WELCOME NOTICE WITH GET STARTED LINK ---
-add_action('admin_notices', function() {
-    // Show welcome screen only on activation
-    if (get_transient('almaseo_show_welcome_screen')) {
-        delete_transient('almaseo_show_welcome_screen');
-        ?>
-        <div class="notice notice-success is-dismissible" style="padding: 20px; border-left: 4px solid #667eea;">
-            <h2 style="margin-top: 0; color: #23282d;">
-                🎯 Welcome to SEO Playground by AlmaSEO!
-            </h2>
-            
-            <p style="font-size: 16px; color: #555; margin: 15px 0;">
-                Your AI-powered SEO optimization toolkit is ready to use.
-            </p>
-            
-            <div style="margin: 20px 0;">
-                <h3 style="color: #23282d; margin-bottom: 10px;">✨ What's Included:</h3>
-                <ul style="list-style: disc; margin-left: 25px; color: #666;">
-                    <li>AI-powered title and description generation</li>
-                    <li>Intelligent keyword suggestions and analysis</li>
-                    <li>Real-time SEO scoring and recommendations</li>
-                    <li>Content intelligence and optimization tools</li>
-                    <li>Schema markup and meta health analysis</li>
-                </ul>
-            </div>
-            
-            <div style="margin: 20px 0;">
-                <h3 style="color: #23282d; margin-bottom: 10px;">🚀 Quick Start:</h3>
-                <ol style="margin-left: 25px; color: #666;">
-                    <li>Connect to AlmaSEO to enable AI features</li>
-                    <li>Edit any post or page</li>
-                    <li>Find the "AlmaSEO SEO Playground" meta box</li>
-                    <li>Use AI to generate optimized content</li>
-                </ol>
-            </div>
-            
-            <div style="margin-top: 20px;">
-                <a href="<?php echo admin_url('admin.php?page=seo-playground-connection'); ?>" class="button button-primary button-hero">
-                    Connect to AlmaSEO
-                </a>
-                <a href="<?php echo admin_url('post-new.php'); ?>" class="button button-secondary button-hero" style="margin-left: 10px;">
-                    Create New Post
-                </a>
-            </div>
-        </div>
-        <?php
-    } elseif (!get_user_meta(get_current_user_id(), 'almaseo_connector_dismissed_notice', true)) {
-        // Show simple connection reminder if not connected
-        $is_connected = get_option('almaseo_app_password') ? true : false;
-        if (!$is_connected) {
-            $settings_url = admin_url('admin.php?page=seo-playground-connection');
-            echo '<div class="notice notice-info is-dismissible almaseo-welcome-notice" style="border-left:4px solid #667eea;padding:12px;">'
-                .'<strong>AlmaSEO SEO Playground:</strong> '
-                .'<a href="' . esc_url($settings_url) . '" style="color:#667eea;font-weight:bold;">Connect to AlmaSEO</a> to unlock AI-powered SEO features.'
-                .'</div>';
-        }
-    }
-});
-
-add_action('admin_footer', function() {
-    // Dismiss notice via AJAX with nonce verification
-    $nonce = wp_create_nonce('almaseo_dismiss_notice');
-    echo '<script>jQuery(document).on("click", ".almaseo-welcome-notice .notice-dismiss", function(){
-        jQuery.post(ajaxurl, {action: "almaseo_dismiss_notice", nonce: "' . esc_js($nonce) . '"});
-    });</script>';
-});
-add_action('wp_ajax_almaseo_dismiss_notice', function() {
-    check_ajax_referer('almaseo_dismiss_notice', 'nonce');
-    update_user_meta(get_current_user_id(), 'almaseo_connector_dismissed_notice', 1);
-    wp_die();
-});
+// Welcome notices removed in v8.9.5 — the setup wizard is the welcome experience.
+// Connector/conflict notices appear after wizard completion (see above).
 
 // --- HELPER FUNCTIONS FOR CONNECTION STATUS & DISCONNECT ---
 if (!function_exists('almaseo_get_connection_status')) {
