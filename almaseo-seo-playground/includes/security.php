@@ -12,20 +12,25 @@ if (!defined('ABSPATH')) {
 /**
  * Check if current user can edit posts
  */
+if (!function_exists('almaseo_user_can_edit_posts')) {
 function almaseo_user_can_edit_posts() {
     return current_user_can('edit_posts');
 }
+} // end function_exists guard: almaseo_user_can_edit_posts
 
 /**
  * Check if current user can manage SEO settings
  */
+if (!function_exists('almaseo_user_can_manage_seo')) {
 function almaseo_user_can_manage_seo() {
     return current_user_can('edit_posts') || current_user_can('edit_pages');
 }
+} // end function_exists guard: almaseo_user_can_manage_seo
 
 /**
  * Verify nonce for AJAX requests
  */
+if (!function_exists('almaseo_verify_nonce')) {
 function almaseo_verify_nonce($nonce, $action = 'almaseo_nonce') {
     if (!wp_verify_nonce($nonce, $action)) {
         wp_die(__('Security check failed', 'almaseo-seo-playground'));
@@ -33,40 +38,48 @@ function almaseo_verify_nonce($nonce, $action = 'almaseo_nonce') {
     }
     return true;
 }
+} // end function_exists guard: almaseo_verify_nonce
 
 /**
  * Sanitize SEO title
  */
+if (!function_exists('almaseo_sanitize_seo_title')) {
 function almaseo_sanitize_seo_title($title) {
     $title = sanitize_text_field($title);
     $title = wp_strip_all_tags($title);
     $title = substr($title, 0, 60); // Limit to 60 characters
     return $title;
 }
+} // end function_exists guard: almaseo_sanitize_seo_title
 
 /**
  * Sanitize meta description
  */
+if (!function_exists('almaseo_sanitize_meta_description')) {
 function almaseo_sanitize_meta_description($description) {
     $description = sanitize_textarea_field($description);
     $description = wp_strip_all_tags($description);
     $description = substr($description, 0, 160); // Limit to 160 characters
     return $description;
 }
+} // end function_exists guard: almaseo_sanitize_meta_description
 
 /**
  * Sanitize SEO notes
  */
+if (!function_exists('almaseo_sanitize_notes')) {
 function almaseo_sanitize_notes($notes) {
     $notes = sanitize_textarea_field($notes);
     $notes = wp_kses_post($notes); // Allow basic HTML
     $notes = substr($notes, 0, 1000); // Limit to 1000 characters
     return $notes;
 }
+} // end function_exists guard: almaseo_sanitize_notes
 
 /**
  * Sanitize schema type
  */
+if (!function_exists('almaseo_sanitize_schema_type')) {
 function almaseo_sanitize_schema_type($type) {
     $allowed_types = array(
         'None', 'Article', 'BlogPosting', 'NewsArticle', 
@@ -81,17 +94,21 @@ function almaseo_sanitize_schema_type($type) {
     
     return 'None';
 }
+} // end function_exists guard: almaseo_sanitize_schema_type
 
 /**
  * Sanitize URL
  */
+if (!function_exists('almaseo_sanitize_url')) {
 function almaseo_sanitize_url($url) {
     return esc_url_raw($url);
 }
+} // end function_exists guard: almaseo_sanitize_url
 
 /**
  * Escape output for display
  */
+if (!function_exists('almaseo_esc_output')) {
 function almaseo_esc_output($text, $type = 'text') {
     switch ($type) {
         case 'html':
@@ -108,10 +125,12 @@ function almaseo_esc_output($text, $type = 'text') {
             return esc_html($text);
     }
 }
+} // end function_exists guard: almaseo_esc_output
 
 /**
  * Validate and sanitize AJAX data
  */
+if (!function_exists('almaseo_sanitize_ajax_data')) {
 function almaseo_sanitize_ajax_data($data) {
     $sanitized = array();
     
@@ -147,10 +166,12 @@ function almaseo_sanitize_ajax_data($data) {
     
     return $sanitized;
 }
+} // end function_exists guard: almaseo_sanitize_ajax_data
 
 /**
  * Rate limiting for API requests
  */
+if (!function_exists('almaseo_check_rate_limit')) {
 function almaseo_check_rate_limit($user_id = null) {
     if (!$user_id) {
         $user_id = get_current_user_id();
@@ -171,10 +192,12 @@ function almaseo_check_rate_limit($user_id = null) {
     set_transient($transient_key, $requests + 1, 60);
     return true;
 }
+} // end function_exists guard: almaseo_check_rate_limit
 
 /**
  * Log security events
  */
+if (!function_exists('almaseo_log_security_event')) {
 function almaseo_log_security_event($event_type, $details = array()) {
     if (!defined('WP_DEBUG') || !WP_DEBUG) {
         return;
@@ -190,18 +213,22 @@ function almaseo_log_security_event($event_type, $details = array()) {
     
     error_log('AlmaSEO Security: ' . json_encode($log_entry));
 }
+} // end function_exists guard: almaseo_log_security_event
 
 /**
  * Validate post type for SEO features
  */
+if (!function_exists('almaseo_is_valid_post_type')) {
 function almaseo_is_valid_post_type($post_type) {
     $allowed_post_types = apply_filters('almaseo_allowed_post_types', array('post', 'page'));
     return in_array($post_type, $allowed_post_types);
 }
+} // end function_exists guard: almaseo_is_valid_post_type
 
 /**
  * Check if SEO Playground should be displayed
  */
+if (!function_exists('almaseo_should_display_seo_playground')) {
 function almaseo_should_display_seo_playground() {
     // Check user capability
     if (!almaseo_user_can_manage_seo()) {
@@ -221,10 +248,12 @@ function almaseo_should_display_seo_playground() {
     
     return true;
 }
+} // end function_exists guard: almaseo_should_display_seo_playground
 
 /**
  * Sanitize file upload
  */
+if (!function_exists('almaseo_sanitize_file_upload')) {
 function almaseo_sanitize_file_upload($file) {
     $allowed_types = array('jpg', 'jpeg', 'png', 'gif', 'webp');
     $file_ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
@@ -240,23 +269,28 @@ function almaseo_sanitize_file_upload($file) {
     
     return $file;
 }
+} // end function_exists guard: almaseo_sanitize_file_upload
 
 /**
  * Generate secure token
  */
+if (!function_exists('almaseo_generate_secure_token')) {
 function almaseo_generate_secure_token($length = 32) {
     return wp_generate_password($length, false);
 }
+} // end function_exists guard: almaseo_generate_secure_token
 
 /**
  * Validate connection token
  */
+if (!function_exists('almaseo_validate_connection_token')) {
 function almaseo_validate_connection_token($token) {
     $stored_token = get_option('almaseo_connection_token');
-    
+
     if (!$stored_token || !$token) {
         return false;
     }
-    
+
     return hash_equals($stored_token, $token);
 }
+} // end function_exists guard: almaseo_validate_connection_token

@@ -28,6 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return bool True if Pro or higher tier is active, false otherwise
  */
+if (!function_exists('almaseo_is_pro_active')) {
 function almaseo_is_pro_active() {
     // If site is connected, trust the server-synced tier (no generous default)
     $is_connected = (bool) get_option( 'almaseo_app_password', '' );
@@ -41,6 +42,7 @@ function almaseo_is_pro_active() {
     // Pro and Agency tiers have Pro features enabled
     return in_array( $tier, array( 'pro', 'agency' ), true );
 }
+} // end function_exists guard: almaseo_is_pro_active
 
 /**
  * Check if a specific feature is available based on current license tier
@@ -82,6 +84,7 @@ function almaseo_is_pro_active() {
  * @param string $feature The feature identifier to check
  * @return bool True if the feature is available in the current tier, false otherwise
  */
+if (!function_exists('almaseo_feature_available')) {
 function almaseo_feature_available( $feature ) {
     // Define which features require Pro or higher
     $pro_features = array(
@@ -113,6 +116,7 @@ function almaseo_feature_available( $feature ) {
     // Free features are always available
     return true;
 }
+} // end function_exists guard: almaseo_feature_available
 
 /**
  * Get the current license tier
@@ -122,12 +126,14 @@ function almaseo_feature_available( $feature ) {
  *
  * @return string The current tier ('free', 'pro', or 'agency')
  */
+if (!function_exists('almaseo_get_license_tier')) {
 function almaseo_get_license_tier() {
     $is_connected = (bool) get_option( 'almaseo_app_password', '' );
     // Connected sites default to 'free' (server sets actual tier via sync)
     // Unconnected sites default to 'pro' for backward compatibility
     return get_option( 'almaseo_license_tier', $is_connected ? 'free' : 'pro' );
 }
+} // end function_exists guard: almaseo_get_license_tier
 
 /**
  * Set the license tier
@@ -138,6 +144,7 @@ function almaseo_get_license_tier() {
  * @param string $tier The tier to set ('free', 'pro', or 'agency')
  * @return bool True if the option was updated successfully
  */
+if (!function_exists('almaseo_set_license_tier')) {
 function almaseo_set_license_tier( $tier ) {
     // Validate tier value
     $valid_tiers = array( 'free', 'pro', 'agency' );
@@ -148,30 +155,36 @@ function almaseo_set_license_tier( $tier ) {
 
     return update_option( 'almaseo_license_tier', $tier );
 }
+} // end function_exists guard: almaseo_set_license_tier
 
 /**
  * Check if current tier is Free
  *
  * @return bool True if current tier is free
  */
+if (!function_exists('almaseo_is_free_tier')) {
 function almaseo_is_free_tier() {
     return almaseo_get_license_tier() === 'free';
 }
+} // end function_exists guard: almaseo_is_free_tier
 
 /**
  * Check if current tier is Agency
  *
  * @return bool True if current tier is agency
  */
+if (!function_exists('almaseo_is_agency_tier')) {
 function almaseo_is_agency_tier() {
     return almaseo_get_license_tier() === 'agency';
 }
+} // end function_exists guard: almaseo_is_agency_tier
 
 /**
  * Get a user-friendly display name for the current tier
  *
  * @return string The display name (e.g., 'Free', 'Pro', 'Agency')
  */
+if (!function_exists('almaseo_get_tier_display_name')) {
 function almaseo_get_tier_display_name() {
     $tier = almaseo_get_license_tier();
 
@@ -183,6 +196,7 @@ function almaseo_get_tier_display_name() {
 
     return isset( $display_names[ $tier ] ) ? $display_names[ $tier ] : 'Unknown';
 }
+} // end function_exists guard: almaseo_get_tier_display_name
 
 /**
  * Get all Pro-only feature identifiers
@@ -191,6 +205,7 @@ function almaseo_get_tier_display_name() {
  *
  * @return array Array of Pro feature identifiers
  */
+if (!function_exists('almaseo_get_pro_features')) {
 function almaseo_get_pro_features() {
     return array(
         'bulkmeta',
@@ -210,3 +225,4 @@ function almaseo_get_pro_features() {
         'snippet_targeting',
     );
 }
+} // end function_exists guard: almaseo_get_pro_features

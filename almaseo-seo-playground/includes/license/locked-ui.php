@@ -23,6 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param string $description Optional custom description text
  * @param string $upgrade_url Optional custom upgrade URL
  */
+if (!function_exists('almaseo_render_locked_feature')) {
 function almaseo_render_locked_feature( $feature_name = '', $description = '', $upgrade_url = '' ) {
     // Default values
     if ( empty( $feature_name ) ) {
@@ -88,6 +89,7 @@ function almaseo_render_locked_feature( $feature_name = '', $description = '', $
     </div>
     <?php
 }
+} // end function_exists guard: almaseo_render_locked_feature
 
 /**
  * Output inline CSS for locked feature screens
@@ -95,6 +97,7 @@ function almaseo_render_locked_feature( $feature_name = '', $description = '', $
  * This function outputs the CSS needed for the locked feature UI.
  * It's called automatically by almaseo_render_locked_feature().
  */
+if (!function_exists('almaseo_locked_feature_styles')) {
 function almaseo_locked_feature_styles() {
     static $styles_printed = false;
 
@@ -257,6 +260,7 @@ function almaseo_locked_feature_styles() {
     </style>
     <?php
 }
+} // end function_exists guard: almaseo_locked_feature_styles
 
 /**
  * Get feature-specific locked screen content
@@ -267,6 +271,7 @@ function almaseo_locked_feature_styles() {
  * @param string $feature The feature identifier
  * @return array Array with 'name', 'description', and 'url' keys
  */
+if (!function_exists('almaseo_get_locked_feature_content')) {
 function almaseo_get_locked_feature_content( $feature ) {
     $content = array(
         'bulkmeta' => array(
@@ -352,6 +357,7 @@ function almaseo_get_locked_feature_content( $feature ) {
         'url'         => 'https://almaseo.com/pro',
     );
 }
+} // end function_exists guard: almaseo_get_locked_feature_content
 
 /**
  * Render a feature-specific locked screen
@@ -361,6 +367,7 @@ function almaseo_get_locked_feature_content( $feature ) {
  *
  * @param string $feature The feature identifier from almaseo_feature_available()
  */
+if (!function_exists('almaseo_render_feature_locked')) {
 function almaseo_render_feature_locked( $feature ) {
     $content = almaseo_get_locked_feature_content( $feature );
 
@@ -370,3 +377,4 @@ function almaseo_render_feature_locked( $feature ) {
         $content['url']
     );
 }
+} // end function_exists guard: almaseo_render_feature_locked

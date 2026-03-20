@@ -15,6 +15,7 @@ if (!defined('ABSPATH')) {
 /**
  * Register schema meta fields
  */
+if (!function_exists('almaseo_register_schema_meta_fields')) {
 function almaseo_register_schema_meta_fields() {
     $post_types = array('post', 'page', 'product');
     
@@ -108,11 +109,13 @@ function almaseo_register_schema_meta_fields() {
         ));
     }
 }
+} // end function_exists guard: almaseo_register_schema_meta_fields
 add_action('init', 'almaseo_register_schema_meta_fields');
 
 /**
  * Ensure meta fields are available in REST API
  */
+if (!function_exists('almaseo_schema_rest_api_init')) {
 function almaseo_schema_rest_api_init() {
     $post_types = array('post', 'page', 'product');
     
@@ -153,4 +156,5 @@ function almaseo_schema_rest_api_init() {
         ));
     }
 }
+} // end function_exists guard: almaseo_schema_rest_api_init
 add_action('rest_api_init', 'almaseo_schema_rest_api_init');

@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Filter the document title
 add_filter('document_title_parts', 'almaseo_filter_document_title', 10);
+if (!function_exists('almaseo_filter_document_title')) {
 function almaseo_filter_document_title($title) {
     if (is_singular()) {
         global $post;
@@ -26,9 +27,11 @@ function almaseo_filter_document_title($title) {
     }
     return $title;
 }
+} // end function_exists guard: almaseo_filter_document_title
 
 // Also filter pre_get_document_title for themes that use it
 add_filter('pre_get_document_title', 'almaseo_pre_get_document_title', 10);
+if (!function_exists('almaseo_pre_get_document_title')) {
 function almaseo_pre_get_document_title($title) {
     if (is_singular()) {
         global $post;
@@ -40,9 +43,11 @@ function almaseo_pre_get_document_title($title) {
     }
     return $title;
 }
+} // end function_exists guard: almaseo_pre_get_document_title
 
 // Hook to add meta tags to the front-end
 add_action('wp_head', 'almaseo_render_meta_tags', 1);
+if (!function_exists('almaseo_render_meta_tags')) {
 function almaseo_render_meta_tags() {
     if (!is_singular()) {
         return;
@@ -162,3 +167,4 @@ function almaseo_render_meta_tags() {
         echo '</script>' . "\n";
     }
 }
+} // end function_exists guard: almaseo_render_meta_tags

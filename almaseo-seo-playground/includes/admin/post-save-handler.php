@@ -6,6 +6,7 @@
 if (!defined('ABSPATH')) exit;
 
 // Save SEO Playground data
+if (!function_exists('almaseo_save_seo_playground_meta')) {
 function almaseo_save_seo_playground_meta($post_id) {
     // Check if nonce is valid
     if (!isset($_POST['almaseo_seo_playground_nonce']) ||
@@ -272,4 +273,5 @@ function almaseo_save_seo_playground_meta($post_id) {
         wp_clear_scheduled_hook('almaseo_content_refresh_reminder', array($post_id));
     }
 }
+} // end function_exists guard: almaseo_save_seo_playground_meta
 add_action('save_post', 'almaseo_save_seo_playground_meta');

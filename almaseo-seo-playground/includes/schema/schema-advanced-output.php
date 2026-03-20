@@ -16,6 +16,7 @@ if (!defined('ABSPATH')) {
 /**
  * Main entry point for advanced schema output
  */
+if (!function_exists('almaseo_output_advanced_schema')) {
 function almaseo_output_advanced_schema() {
     // Guard: Only Pro users
     if (!almaseo_feature_available('schema_advanced')) {
@@ -79,6 +80,7 @@ function almaseo_output_advanced_schema() {
         echo '</script>' . "\n";
     }
 }
+} // end function_exists guard: almaseo_output_advanced_schema
 
 /**
  * Build Knowledge Graph node (Organization or Person)
@@ -86,6 +88,7 @@ function almaseo_output_advanced_schema() {
  * @param array $settings Advanced schema settings
  * @return array|null Knowledge Graph node or null if not configured
  */
+if (!function_exists('almaseo_build_knowledge_graph_node')) {
 function almaseo_build_knowledge_graph_node($settings) {
     // Require at least a name
     if (empty($settings['site_name'])) {
@@ -121,6 +124,7 @@ function almaseo_build_knowledge_graph_node($settings) {
 
     return $node;
 }
+} // end function_exists guard: almaseo_build_knowledge_graph_node
 
 /**
  * Build primary schema type node
@@ -129,6 +133,7 @@ function almaseo_build_knowledge_graph_node($settings) {
  * @param array $settings Advanced schema settings
  * @return array|null Primary schema node or null if not applicable
  */
+if (!function_exists('almaseo_build_primary_schema_node')) {
 function almaseo_build_primary_schema_node($post, $settings) {
     // Determine schema type
     $schema_type = almaseo_determine_schema_type($post, $settings);
@@ -154,6 +159,7 @@ function almaseo_build_primary_schema_node($post, $settings) {
             return almaseo_build_article_node($post, $schema_type);
     }
 }
+} // end function_exists guard: almaseo_build_primary_schema_node
 
 /**
  * Determine the schema type for a post
@@ -162,6 +168,7 @@ function almaseo_build_primary_schema_node($post, $settings) {
  * @param array $settings Advanced schema settings
  * @return string|null Schema type or null
  */
+if (!function_exists('almaseo_determine_schema_type')) {
 function almaseo_determine_schema_type($post, $settings) {
     // 1. Check per-post primary type
     $primary_type = get_post_meta($post->ID, '_almaseo_schema_primary_type', true);
@@ -188,6 +195,7 @@ function almaseo_determine_schema_type($post, $settings) {
     // 4. Fall back to Article
     return 'Article';
 }
+} // end function_exists guard: almaseo_determine_schema_type
 
 /**
  * Build Article/BlogPosting/NewsArticle node
@@ -196,6 +204,7 @@ function almaseo_determine_schema_type($post, $settings) {
  * @param string $type Schema type (Article, BlogPosting, NewsArticle)
  * @return array Article node
  */
+if (!function_exists('almaseo_build_article_node')) {
 function almaseo_build_article_node($post, $type = 'Article') {
     $seo_title = get_post_meta($post->ID, '_almaseo_title', true);
     $seo_description = get_post_meta($post->ID, '_almaseo_description', true);
@@ -241,6 +250,7 @@ function almaseo_build_article_node($post, $type = 'Article') {
 
     return $node;
 }
+} // end function_exists guard: almaseo_build_article_node
 
 /**
  * Build FAQPage node
@@ -248,6 +258,7 @@ function almaseo_build_article_node($post, $type = 'Article') {
  * @param WP_Post $post Current post
  * @return array FAQPage node
  */
+if (!function_exists('almaseo_build_faqpage_node')) {
 function almaseo_build_faqpage_node($post) {
     $seo_title = get_post_meta($post->ID, '_almaseo_title', true);
     $headline = $seo_title ?: get_the_title($post->ID);
@@ -268,6 +279,7 @@ function almaseo_build_faqpage_node($post) {
 
     return $node;
 }
+} // end function_exists guard: almaseo_build_faqpage_node
 
 /**
  * Extract Q&A pairs from content
@@ -275,6 +287,7 @@ function almaseo_build_faqpage_node($post) {
  * @param string $content Post content (HTML)
  * @return array Array of Question nodes
  */
+if (!function_exists('almaseo_extract_qa_pairs')) {
 function almaseo_extract_qa_pairs($content) {
     $qa_pairs = array();
 
@@ -302,6 +315,7 @@ function almaseo_extract_qa_pairs($content) {
 
     return $qa_pairs;
 }
+} // end function_exists guard: almaseo_extract_qa_pairs
 
 /**
  * Build HowTo node
@@ -309,6 +323,7 @@ function almaseo_extract_qa_pairs($content) {
  * @param WP_Post $post Current post
  * @return array HowTo node
  */
+if (!function_exists('almaseo_build_howto_node')) {
 function almaseo_build_howto_node($post) {
     $seo_title = get_post_meta($post->ID, '_almaseo_title', true);
     $seo_description = get_post_meta($post->ID, '_almaseo_description', true);
@@ -332,6 +347,7 @@ function almaseo_build_howto_node($post) {
 
     return $node;
 }
+} // end function_exists guard: almaseo_build_howto_node
 
 /**
  * Extract HowTo steps from content
@@ -339,6 +355,7 @@ function almaseo_build_howto_node($post) {
  * @param string $content Post content (HTML)
  * @return array Array of HowToStep nodes
  */
+if (!function_exists('almaseo_extract_howto_steps')) {
 function almaseo_extract_howto_steps($content) {
     $steps = array();
 
@@ -366,6 +383,7 @@ function almaseo_extract_howto_steps($content) {
 
     return $steps;
 }
+} // end function_exists guard: almaseo_extract_howto_steps
 
 /**
  * Build Service node
@@ -373,6 +391,7 @@ function almaseo_extract_howto_steps($content) {
  * @param WP_Post $post Current post
  * @return array Service node
  */
+if (!function_exists('almaseo_build_service_node')) {
 function almaseo_build_service_node($post) {
     $seo_title = get_post_meta($post->ID, '_almaseo_title', true);
     $seo_description = get_post_meta($post->ID, '_almaseo_description', true);
@@ -395,6 +414,7 @@ function almaseo_build_service_node($post) {
 
     return $node;
 }
+} // end function_exists guard: almaseo_build_service_node
 
 /**
  * Build LocalBusiness node
@@ -402,6 +422,7 @@ function almaseo_build_service_node($post) {
  * @param WP_Post $post Current post
  * @return array LocalBusiness node
  */
+if (!function_exists('almaseo_build_localbusiness_node')) {
 function almaseo_build_localbusiness_node($post) {
     $seo_title       = get_post_meta($post->ID, '_almaseo_title', true);
     $seo_description = get_post_meta($post->ID, '_almaseo_description', true);
@@ -507,3 +528,4 @@ function almaseo_build_localbusiness_node($post) {
 
     return $node;
 }
+} // end function_exists guard: almaseo_build_localbusiness_node

@@ -13,9 +13,11 @@ if (!defined('ABSPATH')) {
 /**
  * Check if AIOSEO is active
  */
+if (!function_exists('almaseo_is_aioseo_active')) {
 function almaseo_is_aioseo_active() {
     return defined('AIOSEO_VERSION') || class_exists('AIOSEO\\Plugin\\AIOSEO');
 }
+} // end function_exists guard: almaseo_is_aioseo_active
 
 /**
  * Output schema JSON-LD
@@ -123,17 +125,20 @@ function almaseo_output_schema_jsonld() {
 /**
  * Initialize schema output
  */
+if (!function_exists('almaseo_init_schema')) {
 function almaseo_init_schema() {
     // Only add hook if not in admin
     if (!is_admin()) {
         add_action('wp_head', 'almaseo_output_schema_jsonld', 5);
     }
 }
+} // end function_exists guard: almaseo_init_schema
 add_action('init', 'almaseo_init_schema');
 
 /**
  * Add schema meta box
  */
+if (!function_exists('almaseo_add_schema_meta_box')) {
 function almaseo_add_schema_meta_box() {
     add_meta_box(
         'almaseo_schema',
@@ -144,11 +149,13 @@ function almaseo_add_schema_meta_box() {
         'default'
     );
 }
+} // end function_exists guard: almaseo_add_schema_meta_box
 add_action('add_meta_boxes', 'almaseo_add_schema_meta_box');
 
 /**
  * Schema meta box content
  */
+if (!function_exists('almaseo_schema_meta_box_content')) {
 function almaseo_schema_meta_box_content($post) {
     wp_nonce_field('almaseo_schema_meta', 'almaseo_schema_nonce');
     
@@ -189,10 +196,12 @@ function almaseo_schema_meta_box_content($post) {
     <?php endif; ?>
     <?php
 }
+} // end function_exists guard: almaseo_schema_meta_box_content
 
 /**
  * Save schema meta box data
  */
+if (!function_exists('almaseo_save_schema_meta')) {
 function almaseo_save_schema_meta($post_id) {
     // Check nonce
     if (!isset($_POST['almaseo_schema_nonce']) || 
@@ -219,4 +228,5 @@ function almaseo_save_schema_meta($post_id) {
         update_post_meta($post_id, '_almaseo_schema_type', sanitize_text_field($_POST['almaseo_schema_type']));
     }
 }
+} // end function_exists guard: almaseo_save_schema_meta
 add_action('save_post', 'almaseo_save_schema_meta');

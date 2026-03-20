@@ -18,6 +18,7 @@ if (!defined('ABSPATH')) {
  * @param string $tooltip Optional tooltip text for additional information
  * @return void
  */
+if (!function_exists('almaseo_render_help')) {
 function almaseo_render_help($text, $tooltip = '') {
     // Sanitize and translate the main text
     $help_text = esc_html($text);
@@ -38,6 +39,7 @@ function almaseo_render_help($text, $tooltip = '') {
     
     echo '</p>';
 }
+} // end function_exists guard: almaseo_render_help
 
 /**
  * Render help text with learn more link
@@ -47,6 +49,7 @@ function almaseo_render_help($text, $tooltip = '') {
  * @param string $link_text Link text (defaults to "Learn more")
  * @return void
  */
+if (!function_exists('almaseo_render_help_with_link')) {
 function almaseo_render_help_with_link($text, $url, $link_text = '') {
     if (empty($link_text)) {
         $link_text = __('Learn more', 'almaseo');
@@ -60,6 +63,7 @@ function almaseo_render_help_with_link($text, $url, $link_text = '') {
     echo '</a>';
     echo '</p>';
 }
+} // end function_exists guard: almaseo_render_help_with_link
 
 /**
  * Render inline tip (shorter than help text)
@@ -68,6 +72,7 @@ function almaseo_render_help_with_link($text, $url, $link_text = '') {
  * @param string $type Type of tip: 'info', 'warning', 'success'
  * @return void
  */
+if (!function_exists('almaseo_render_tip')) {
 function almaseo_render_tip($text, $type = 'info') {
     $allowed_types = array('info', 'warning', 'success');
     if (!in_array($type, $allowed_types)) {
@@ -91,12 +96,14 @@ function almaseo_render_tip($text, $type = 'info') {
     echo esc_html($text);
     echo '</div>';
 }
+} // end function_exists guard: almaseo_render_tip
 
 /**
  * Check if we're on an AlmaSEO admin screen
  * 
  * @return bool
  */
+if (!function_exists('almaseo_is_admin_screen')) {
 function almaseo_is_admin_screen() {
     $screen = get_current_screen();
     if (!$screen) {
@@ -126,3 +133,4 @@ function almaseo_is_admin_screen() {
     
     return false;
 }
+} // end function_exists guard: almaseo_is_admin_screen

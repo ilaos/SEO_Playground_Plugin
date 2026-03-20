@@ -14,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Enqueue SEO Playground styles and scripts
+if (!function_exists('almaseo_enqueue_seo_playground_styles')) {
 function almaseo_enqueue_seo_playground_styles() {
     $screen = get_current_screen();
     
@@ -177,6 +178,7 @@ function almaseo_enqueue_seo_playground_styles() {
         ));
     }
 }
+} // end function_exists guard: almaseo_enqueue_seo_playground_styles
 add_action('admin_enqueue_scripts', 'almaseo_enqueue_seo_playground_styles');
 
 /**
@@ -184,6 +186,7 @@ add_action('admin_enqueue_scripts', 'almaseo_enqueue_seo_playground_styles');
  *
  * @param WP_Post $post The post object
  */
+if (!function_exists('almaseo_render_llm_optimization_panel')) {
 function almaseo_render_llm_optimization_panel($post) {
     $is_pro = almaseo_feature_available('llm_optimization');
     $is_connected = seo_playground_is_alma_connected();
@@ -315,8 +318,10 @@ function almaseo_render_llm_optimization_panel($post) {
     </div>
     <?php
 }
+} // end function_exists guard: almaseo_render_llm_optimization_panel
 
 // SEO Playground meta box callback
+if (!function_exists('almaseo_seo_playground_meta_box_callback')) {
 function almaseo_seo_playground_meta_box_callback($post) {
     // Add nonce for security
     wp_nonce_field('almaseo_seo_playground_nonce', 'almaseo_seo_playground_nonce');
@@ -4766,3 +4771,4 @@ function almaseo_seo_playground_meta_box_callback($post) {
     </div>
     <?php
 }
+} // end function_exists guard: almaseo_seo_playground_meta_box_callback

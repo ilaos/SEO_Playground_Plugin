@@ -17,6 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // AJAX handler for checking connection status
 add_action('wp_ajax_seo_playground_check_connection', 'seo_playground_ajax_check_connection');
+if (!function_exists('seo_playground_ajax_check_connection')) {
 function seo_playground_ajax_check_connection() {
     // Verify nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
@@ -37,8 +38,10 @@ function seo_playground_ajax_check_connection() {
         'message' => $is_connected ? 'Connected to AlmaSEO' : 'Not connected to AlmaSEO'
     ));
 }
+} // end function_exists guard: seo_playground_ajax_check_connection
 
 // AJAX handler for re-optimization check
+if (!function_exists('seo_playground_ajax_reoptimize_check')) {
 function seo_playground_ajax_reoptimize_check() {
     // Verify nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
@@ -123,9 +126,11 @@ function seo_playground_ajax_reoptimize_check() {
     // Return the re-optimization data
     wp_send_json_success($data);
 }
+} // end function_exists guard: seo_playground_ajax_reoptimize_check
 add_action('wp_ajax_seo_playground_reoptimize_check', 'seo_playground_ajax_reoptimize_check');
 
 // AJAX handler for AI rewrite
+if (!function_exists('seo_playground_ajax_rewrite')) {
 function seo_playground_ajax_rewrite() {
     // Verify nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
@@ -252,9 +257,11 @@ function seo_playground_ajax_rewrite() {
         )
     ));
 }
+} // end function_exists guard: seo_playground_ajax_rewrite
 add_action('wp_ajax_seo_playground_rewrite', 'seo_playground_ajax_rewrite');
 
 // AJAX handler for content brief generation
+if (!function_exists('seo_playground_ajax_generate_brief')) {
 function seo_playground_ajax_generate_brief() {
     // Verify nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
@@ -339,9 +346,11 @@ function seo_playground_ajax_generate_brief() {
     // Return the brief data
     wp_send_json_success($data);
 }
+} // end function_exists guard: seo_playground_ajax_generate_brief
 add_action('wp_ajax_seo_playground_generate_brief', 'seo_playground_ajax_generate_brief');
 
 // AJAX handler for FAQ generation
+if (!function_exists('seo_playground_ajax_generate_faqs')) {
 function seo_playground_ajax_generate_faqs() {
     // Verify nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
@@ -434,10 +443,12 @@ function seo_playground_ajax_generate_faqs() {
     // Return the FAQ data
     wp_send_json_success($data);
 }
+} // end function_exists guard: seo_playground_ajax_generate_faqs
 add_action('wp_ajax_seo_playground_generate_faqs', 'seo_playground_ajax_generate_faqs');
 
 // AJAX handler for post intelligence
 add_action('wp_ajax_seo_playground_post_insight', 'seo_playground_ajax_post_insight');
+if (!function_exists('seo_playground_ajax_post_insight')) {
 function seo_playground_ajax_post_insight() {
     // Verify nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
@@ -534,9 +545,11 @@ function seo_playground_ajax_post_insight() {
         'message' => 'Post intelligence generated successfully'
     ));
 }
+} // end function_exists guard: seo_playground_ajax_post_insight
 
 // AJAX handler for getting existing post insight
 add_action('wp_ajax_seo_playground_get_post_insight', 'seo_playground_ajax_get_post_insight');
+if (!function_exists('seo_playground_ajax_get_post_insight')) {
 function seo_playground_ajax_get_post_insight() {
     // Verify nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
@@ -581,9 +594,11 @@ function seo_playground_ajax_get_post_insight() {
         wp_send_json_error(array('message' => 'No existing insight found'));
     }
 }
+} // end function_exists guard: seo_playground_ajax_get_post_insight
 
 // AJAX handler for keyword intelligence
 add_action('wp_ajax_seo_playground_keyword_intelligence', 'seo_playground_ajax_keyword_intelligence');
+if (!function_exists('seo_playground_ajax_keyword_intelligence')) {
 function seo_playground_ajax_keyword_intelligence() {
     // Verify nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
@@ -690,9 +705,11 @@ function seo_playground_ajax_keyword_intelligence() {
         'message' => 'Keyword intelligence generated successfully'
     ));
 }
+} // end function_exists guard: seo_playground_ajax_keyword_intelligence
 
 // AJAX handler for getting existing keyword intelligence
 add_action('wp_ajax_seo_playground_get_keyword_intelligence', 'seo_playground_ajax_get_keyword_intelligence');
+if (!function_exists('seo_playground_ajax_get_keyword_intelligence')) {
 function seo_playground_ajax_get_keyword_intelligence() {
     // Verify nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
@@ -747,8 +764,10 @@ function seo_playground_ajax_get_keyword_intelligence() {
     
     wp_send_json_error(array('message' => 'No existing keyword intelligence found'));
 }
+} // end function_exists guard: seo_playground_ajax_get_keyword_intelligence
 
 // AJAX handler for saved snippets - Get snippets
+if (!function_exists('seo_playground_ajax_get_snippets')) {
 function seo_playground_ajax_get_snippets() {
     // Verify nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
@@ -793,9 +812,11 @@ function seo_playground_ajax_get_snippets() {
     
     wp_send_json_success(array('snippets' => $snippets));
 }
+} // end function_exists guard: seo_playground_ajax_get_snippets
 add_action('wp_ajax_seo_playground_get_snippets', 'seo_playground_ajax_get_snippets');
 
 // AJAX handler for saved snippets - Save snippet
+if (!function_exists('seo_playground_ajax_save_snippet')) {
 function seo_playground_ajax_save_snippet() {
     // Verify nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
@@ -891,9 +912,11 @@ function seo_playground_ajax_save_snippet() {
         'snippets' => $snippets
     ));
 }
+} // end function_exists guard: seo_playground_ajax_save_snippet
 add_action('wp_ajax_seo_playground_save_snippet', 'seo_playground_ajax_save_snippet');
 
 // AJAX handler for saved snippets - Delete snippet
+if (!function_exists('seo_playground_ajax_delete_snippet')) {
 function seo_playground_ajax_delete_snippet() {
     // Verify nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
@@ -975,10 +998,12 @@ function seo_playground_ajax_delete_snippet() {
         'snippets' => $snippets
     ));
 }
+} // end function_exists guard: seo_playground_ajax_delete_snippet
 add_action('wp_ajax_seo_playground_delete_snippet', 'seo_playground_ajax_delete_snippet');
 
 // AJAX handler for getting Google Search Console keywords
 add_action('wp_ajax_seo_playground_get_gsc_keywords', 'seo_playground_ajax_get_gsc_keywords');
+if (!function_exists('seo_playground_ajax_get_gsc_keywords')) {
 function seo_playground_ajax_get_gsc_keywords() {
     // Verify nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
@@ -1085,9 +1110,11 @@ function seo_playground_ajax_get_gsc_keywords() {
     
     wp_send_json_success($cache_data);
 }
+} // end function_exists guard: seo_playground_ajax_get_gsc_keywords
 
 // AJAX handler for refreshing GSC keywords (clears cache)
 add_action('wp_ajax_seo_playground_refresh_gsc_keywords', 'seo_playground_ajax_refresh_gsc_keywords');
+if (!function_exists('seo_playground_ajax_refresh_gsc_keywords')) {
 function seo_playground_ajax_refresh_gsc_keywords() {
     // Verify nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
@@ -1125,9 +1152,11 @@ function seo_playground_ajax_refresh_gsc_keywords() {
     
     wp_send_json_success(array('message' => 'Cache cleared successfully'));
 }
+} // end function_exists guard: seo_playground_ajax_refresh_gsc_keywords
 
 // AJAX handler for getting schema analysis
 add_action('wp_ajax_seo_playground_get_schema_analysis', 'seo_playground_ajax_get_schema_analysis');
+if (!function_exists('seo_playground_ajax_get_schema_analysis')) {
 function seo_playground_ajax_get_schema_analysis() {
     // Verify nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
@@ -1239,9 +1268,11 @@ function seo_playground_ajax_get_schema_analysis() {
     
     wp_send_json_success($cache_data);
 }
+} // end function_exists guard: seo_playground_ajax_get_schema_analysis
 
 // AJAX handler for refreshing schema analysis (clears cache)
 add_action('wp_ajax_seo_playground_refresh_schema_analysis', 'seo_playground_ajax_refresh_schema_analysis');
+if (!function_exists('seo_playground_ajax_refresh_schema_analysis')) {
 function seo_playground_ajax_refresh_schema_analysis() {
     // Verify nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
@@ -1281,9 +1312,11 @@ function seo_playground_ajax_refresh_schema_analysis() {
     
     wp_send_json_success(array('message' => 'Cache cleared successfully'));
 }
+} // end function_exists guard: seo_playground_ajax_refresh_schema_analysis
 
 // AJAX handler for getting meta health analysis
 add_action('wp_ajax_seo_playground_get_meta_health', 'seo_playground_ajax_get_meta_health');
+if (!function_exists('seo_playground_ajax_get_meta_health')) {
 function seo_playground_ajax_get_meta_health() {
     // Verify nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
@@ -1406,9 +1439,11 @@ function seo_playground_ajax_get_meta_health() {
     
     wp_send_json_success($cache_data);
 }
+} // end function_exists guard: seo_playground_ajax_get_meta_health
 
 // AJAX handler for refreshing meta health analysis (clears cache)
 add_action('wp_ajax_seo_playground_refresh_meta_health', 'seo_playground_ajax_refresh_meta_health');
+if (!function_exists('seo_playground_ajax_refresh_meta_health')) {
 function seo_playground_ajax_refresh_meta_health() {
     // Verify nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
@@ -1450,9 +1485,11 @@ function seo_playground_ajax_refresh_meta_health() {
     
     wp_send_json_success(array('message' => 'Cache cleared successfully'));
 }
+} // end function_exists guard: seo_playground_ajax_refresh_meta_health
 
 // AJAX handler for marking post as reoptimized
 add_action('wp_ajax_seo_playground_mark_as_reoptimized', 'seo_playground_ajax_mark_as_reoptimized');
+if (!function_exists('seo_playground_ajax_mark_as_reoptimized')) {
 function seo_playground_ajax_mark_as_reoptimized() {
     // Verify nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
@@ -1491,9 +1528,11 @@ function seo_playground_ajax_mark_as_reoptimized() {
         'formatted_time' => date('F j, Y \a\t g:i A', strtotime($current_time))
     ));
 }
+} // end function_exists guard: seo_playground_ajax_mark_as_reoptimized
 
 // AJAX handler for saving SEO note
 add_action('wp_ajax_seo_playground_save_note', 'seo_playground_ajax_save_note');
+if (!function_exists('seo_playground_ajax_save_note')) {
 function seo_playground_ajax_save_note() {
     // Verify nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
@@ -1524,9 +1563,11 @@ function seo_playground_ajax_save_note() {
         'character_count' => strlen($note_content)
     ));
 }
+} // end function_exists guard: seo_playground_ajax_save_note
 
 // AJAX handler for getting SEO note
 add_action('wp_ajax_seo_playground_get_note', 'seo_playground_ajax_get_note');
+if (!function_exists('seo_playground_ajax_get_note')) {
 function seo_playground_ajax_get_note() {
     // Verify nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
@@ -1552,3 +1593,4 @@ function seo_playground_ajax_get_note() {
         'character_count' => strlen($note_content)
     ));
 }
+} // end function_exists guard: seo_playground_ajax_get_note
