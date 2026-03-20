@@ -5,6 +5,7 @@
 
 if (!defined('ABSPATH')) exit;
 
+if (!function_exists('seo_playground_render_overview_page')) {
 function seo_playground_render_overview_page() {
     if (!current_user_can('manage_options')) {
         wp_die(__('You do not have sufficient permissions to access this page.'));
@@ -1196,3 +1197,4 @@ function seo_playground_render_overview_page() {
 
     wp_reset_postdata();
 }
+} // end function_exists guard: seo_playground_render_overview_page

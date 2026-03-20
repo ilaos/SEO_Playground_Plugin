@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+if (!function_exists('almaseo_welcome_screen_page')) {
 function almaseo_welcome_screen_page() {
     if (!current_user_can('manage_options')) {
         wp_die(__('You do not have sufficient permissions to access this page.'));
@@ -263,3 +264,4 @@ function almaseo_welcome_screen_page() {
     </div>
     <?php
 }
+} // end function_exists guard: almaseo_welcome_screen_page
