@@ -41,13 +41,12 @@ if ( ! defined( 'ABSPATH' ) ) {
     <nav class="almaseo-wizard-progress" aria-label="<?php esc_attr_e( 'Wizard progress', 'almaseo' ); ?>">
         <?php
         $steps = array(
-            1 => __( 'Site Type', 'almaseo' ),
+            1 => __( 'Welcome', 'almaseo' ),
             2 => __( 'Social', 'almaseo' ),
             3 => __( 'Titles', 'almaseo' ),
             4 => __( 'Sitemap', 'almaseo' ),
             5 => __( 'Verify', 'almaseo' ),
-            6 => __( 'Import', 'almaseo' ),
-            7 => __( 'Done', 'almaseo' ),
+            6 => __( 'Done', 'almaseo' ),
         );
         foreach ( $steps as $num => $label ) : ?>
             <div class="almaseo-wizard-step-indicator" data-step="<?php echo (int) $num; ?>">
@@ -60,45 +59,10 @@ if ( ! defined( 'ABSPATH' ) ) {
     <!-- Step panels -->
     <main class="almaseo-wizard-main">
 
-        <!-- Step 1: Site Type -->
+        <!-- Step 1: Welcome -->
         <section class="almaseo-wizard-panel" data-step="1">
-            <h2><?php esc_html_e( 'Welcome! What kind of site is this?', 'almaseo' ); ?></h2>
-            <p class="almaseo-wizard-desc"><?php esc_html_e( 'This helps us configure default SEO settings for your content.', 'almaseo' ); ?></p>
-
-            <div class="almaseo-wizard-cards">
-                <label class="almaseo-wizard-card">
-                    <input type="radio" name="site_type" value="blog">
-                    <div class="almaseo-wizard-card-inner">
-                        <span class="almaseo-wizard-card-icon">&#9998;</span>
-                        <strong><?php esc_html_e( 'Blog', 'almaseo' ); ?></strong>
-                        <span><?php esc_html_e( 'Articles, tutorials, personal writing', 'almaseo' ); ?></span>
-                    </div>
-                </label>
-                <label class="almaseo-wizard-card">
-                    <input type="radio" name="site_type" value="business">
-                    <div class="almaseo-wizard-card-inner">
-                        <span class="almaseo-wizard-card-icon">&#127970;</span>
-                        <strong><?php esc_html_e( 'Business / Corporate', 'almaseo' ); ?></strong>
-                        <span><?php esc_html_e( 'Company website, services, team pages', 'almaseo' ); ?></span>
-                    </div>
-                </label>
-                <label class="almaseo-wizard-card">
-                    <input type="radio" name="site_type" value="ecommerce">
-                    <div class="almaseo-wizard-card-inner">
-                        <span class="almaseo-wizard-card-icon">&#128722;</span>
-                        <strong><?php esc_html_e( 'eCommerce / Online Store', 'almaseo' ); ?></strong>
-                        <span><?php esc_html_e( 'Products, categories, shopping', 'almaseo' ); ?></span>
-                    </div>
-                </label>
-                <label class="almaseo-wizard-card">
-                    <input type="radio" name="site_type" value="portfolio">
-                    <div class="almaseo-wizard-card-inner">
-                        <span class="almaseo-wizard-card-icon">&#127912;</span>
-                        <strong><?php esc_html_e( 'Portfolio / Personal', 'almaseo' ); ?></strong>
-                        <span><?php esc_html_e( 'Showcase, resume, freelancer', 'almaseo' ); ?></span>
-                    </div>
-                </label>
-            </div>
+            <h2><?php esc_html_e( 'Welcome to SEO Playground', 'almaseo' ); ?></h2>
+            <p class="almaseo-wizard-desc"><?php esc_html_e( "Let's configure a few essentials to get your site optimized. This takes about 2 minutes — you can skip any step.", 'almaseo' ); ?></p>
         </section>
 
         <!-- Step 2: Social Profiles -->
@@ -232,18 +196,8 @@ if ( ! defined( 'ABSPATH' ) ) {
             </div>
         </section>
 
-        <!-- Step 6: Import -->
+        <!-- Step 6: Done -->
         <section class="almaseo-wizard-panel" data-step="6" style="display:none;">
-            <h2><?php esc_html_e( 'Import SEO Data', 'almaseo' ); ?></h2>
-            <p class="almaseo-wizard-desc"><?php esc_html_e( 'We\'ll check if you have data from another SEO plugin that can be imported.', 'almaseo' ); ?></p>
-
-            <div id="wiz-import-results" class="almaseo-wizard-import-results">
-                <p class="almaseo-wizard-detecting"><?php esc_html_e( 'Detecting available sources...', 'almaseo' ); ?></p>
-            </div>
-        </section>
-
-        <!-- Step 7: Done -->
-        <section class="almaseo-wizard-panel" data-step="7" style="display:none;">
             <div class="almaseo-wizard-done">
                 <div class="almaseo-wizard-done-icon">&#10003;</div>
                 <h2><?php esc_html_e( 'You\'re All Set!', 'almaseo' ); ?></h2>

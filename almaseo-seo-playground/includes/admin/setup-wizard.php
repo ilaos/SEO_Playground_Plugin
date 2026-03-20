@@ -3,8 +3,7 @@
  * AlmaSEO Setup Wizard
  *
  * First-run wizard that walks new users through essential site configuration:
- * site type, social profiles, search appearance, sitemap, verification codes,
- * and optional import from competing plugins.
+ * social profiles, search appearance, sitemap, and verification codes.
  *
  * @package AlmaSEO
  * @since   8.2.0
@@ -44,7 +43,7 @@ class AlmaSEO_Setup_Wizard {
             wp_die( esc_html__( 'You do not have sufficient permissions.', 'almaseo' ) );
         }
         // Enqueue assets so wp_print_styles / wp_print_scripts work in the template.
-        $ver = defined( 'ALMASEO_PLUGIN_VERSION' ) ? ALMASEO_PLUGIN_VERSION : '8.9.5';
+        $ver = defined( 'ALMASEO_PLUGIN_VERSION' ) ? ALMASEO_PLUGIN_VERSION : '8.9.7';
         wp_enqueue_style( 'almaseo-setup-wizard', ALMASEO_URL . 'assets/css/setup-wizard.css', array(), $ver );
         wp_enqueue_script( 'almaseo-setup-wizard', ALMASEO_URL . 'assets/js/setup-wizard.js', array( 'wp-api-fetch' ), $ver, true );
         wp_localize_script( 'almaseo-setup-wizard', 'almaseoWizard', self::get_localize_data() );
@@ -95,7 +94,7 @@ class AlmaSEO_Setup_Wizard {
             return;
         }
 
-        $ver = defined( 'ALMASEO_PLUGIN_VERSION' ) ? ALMASEO_PLUGIN_VERSION : '8.2.0';
+        $ver = defined( 'ALMASEO_PLUGIN_VERSION' ) ? ALMASEO_PLUGIN_VERSION : '8.9.7';
 
         wp_enqueue_style(
             'almaseo-setup-wizard',
@@ -151,25 +150,21 @@ class AlmaSEO_Setup_Wizard {
         }
 
         return array(
-            'restBase'   => esc_url_raw( rest_url( 'almaseo/v1' ) ),
-            'nonce'      => wp_create_nonce( 'wp_rest' ),
-            'importPage' => admin_url( 'admin.php?page=almaseo-import' ),
+            'restBase'      => esc_url_raw( rest_url( 'almaseo/v1' ) ),
+            'nonce'         => wp_create_nonce( 'wp_rest' ),
             'dashboardPage' => admin_url( 'admin.php?page=seo-playground' ),
-            'separators' => $separators,
-            'postTypes'  => $post_types,
-            'existing'   => array(
-                'siteType'     => get_option( 'almaseo_site_type', '' ),
-                'schema'       => $schema_settings,
+            'separators'    => $separators,
+            'postTypes'     => $post_types,
+            'existing'      => array(
+                'schema'           => $schema_settings,
                 'searchAppearance' => $sa_settings,
-                'sitemap'      => $sitemap_settings,
-                'verification' => $verification,
+                'sitemap'          => $sitemap_settings,
+                'verification'     => $verification,
             ),
-            'strings'    => array(
-                'saving'      => __( 'Saving...', 'almaseo' ),
-                'saved'       => __( 'Saved!', 'almaseo' ),
-                'error'       => __( 'An error occurred. Please try again.', 'almaseo' ),
-                'detecting'   => __( 'Detecting available sources...', 'almaseo' ),
-                'noSources'   => __( 'No SEO plugins detected. Nothing to import.', 'almaseo' ),
+            'strings'       => array(
+                'saving' => __( 'Saving...', 'almaseo' ),
+                'saved'  => __( 'Saved!', 'almaseo' ),
+                'error'  => __( 'An error occurred. Please try again.', 'almaseo' ),
             ),
         );
     }
@@ -192,7 +187,7 @@ class AlmaSEO_Setup_Wizard {
                 'step' => array(
                     'required'          => true,
                     'validate_callback' => function ( $val ) {
-                        return is_numeric( $val ) && (int) $val >= 1 && (int) $val <= 7;
+                        return is_numeric( $val ) && (int) $val >= 1 && (int) $val <= 6;
                     },
                 ),
                 'data' => array(
@@ -213,6 +208,14 @@ class AlmaSEO_Setup_Wizard {
     /**
      * REST callback: save a single wizard step.
      *
+     * Step mapping (v8.9.7+):
+     *   1 = Welcome (no data)
+     *   2 = Social Profiles
+     *   3 = Search Appearance
+     *   4 = Sitemap
+     *   5 = Verification Codes
+     *   6 = Done (handled by /wizard/complete)
+     *
      * @param WP_REST_Request $request Request object.
      * @return WP_REST_Response
      */
@@ -226,7 +229,8 @@ class AlmaSEO_Setup_Wizard {
 
         switch ( $step ) {
             case 1:
-                return self::save_step_site_type( $data );
+                // Welcome — nothing to save.
+                return new WP_REST_Response( array( 'success' => true ), 200 );
             case 2:
                 return self::save_step_social_profiles( $data );
             case 3:
@@ -236,9 +240,6 @@ class AlmaSEO_Setup_Wizard {
             case 5:
                 return self::save_step_verification( $data );
             case 6:
-                // Import step — detection only, no save needed.
-                return new WP_REST_Response( array( 'success' => true ), 200 );
-            case 7:
                 // Done step — handled by /wizard/complete.
                 return new WP_REST_Response( array( 'success' => true ), 200 );
             default:
@@ -259,24 +260,6 @@ class AlmaSEO_Setup_Wizard {
     /* ------------------------------------------------------------------
      *  Step Savers
      * ----------------------------------------------------------------*/
-
-    /**
-     * Step 1 — Site Type.
-     *
-     * @param array $data Submitted data.
-     * @return WP_REST_Response
-     */
-    private static function save_step_site_type( $data ) {
-        $allowed = array( 'blog', 'business', 'ecommerce', 'portfolio' );
-        $type    = isset( $data['site_type'] ) ? sanitize_text_field( $data['site_type'] ) : '';
-
-        if ( ! in_array( $type, $allowed, true ) ) {
-            return new WP_REST_Response( array( 'message' => 'Invalid site type.' ), 400 );
-        }
-
-        update_option( 'almaseo_site_type', $type );
-        return new WP_REST_Response( array( 'success' => true ), 200 );
-    }
 
     /**
      * Step 2 — Social Profiles.

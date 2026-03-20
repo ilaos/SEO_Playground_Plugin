@@ -2,7 +2,7 @@
  * AlmaSEO Setup Wizard
  *
  * Single-page wizard with step navigation, REST saves via wp.apiFetch,
- * import detection, and completion handling.
+ * and completion handling.
  *
  * @package AlmaSEO
  * @since   8.2.0
@@ -15,7 +15,7 @@
      *  State
      * ----------------------------------------------------------------*/
 
-    var TOTAL_STEPS  = 7;
+    var TOTAL_STEPS  = 6;
     var currentStep  = 1;
     var cfg          = window.almaseoWizard || {};
     var existing     = cfg.existing || {};
@@ -50,7 +50,7 @@
         $prevBtn.addEventListener('click', onPrev);
         $skipBtn.addEventListener('click', onSkip);
 
-        // Dashboard button on step 7.
+        // Dashboard button on final step.
         var dashBtn = document.getElementById('wiz-go-dashboard');
         if (dashBtn) {
             dashBtn.addEventListener('click', function (e) {
@@ -93,16 +93,16 @@
         $footer.style.display = (step === TOTAL_STEPS) ? 'none' : '';
 
         // Next button label.
-        if (step === TOTAL_STEPS - 1) {
-            $nextBtn.innerHTML = cfg.strings && cfg.strings.saved ? 'Finish' : 'Finish';
+        if (step === 1) {
+            $nextBtn.innerHTML = 'Get Started &rarr;';
+        } else if (step === TOTAL_STEPS - 1) {
+            $nextBtn.innerHTML = 'Finish';
         } else {
             $nextBtn.innerHTML = 'Save &amp; Continue &rarr;';
         }
 
-        // Trigger import detection when step 6 becomes visible.
-        if (step === 6) {
-            detectImportSources();
-        }
+        // Hide skip on welcome step.
+        $skipBtn.style.display = (step === 1) ? 'none' : '';
     }
 
     function onPrev() {
@@ -122,7 +122,7 @@
 
         var data = collectStepData(currentStep);
 
-        // If nothing to save (e.g. import step), just advance.
+        // If nothing to save (e.g. welcome step), just advance.
         if (data === null) {
             advanceOrFinish();
             return;
@@ -141,12 +141,21 @@
 
     /* ----------------------------------------------------------------
      *  Data Collection
+     *
+     *  Step mapping:
+     *    1 = Welcome (no data)
+     *    2 = Social Profiles
+     *    3 = Search Appearance
+     *    4 = Sitemap
+     *    5 = Verification
+     *    6 = Done (no data)
      * ----------------------------------------------------------------*/
 
     function collectStepData(step) {
         switch (step) {
             case 1:
-                return collectSiteType();
+                // Welcome — nothing to save.
+                return null;
             case 2:
                 return collectSocialProfiles();
             case 3:
@@ -155,17 +164,9 @@
                 return collectSitemap();
             case 5:
                 return collectVerification();
-            case 6:
-                // Import step — detection only, nothing to save.
-                return null;
             default:
                 return null;
         }
-    }
-
-    function collectSiteType() {
-        var checked = document.querySelector('input[name="site_type"]:checked');
-        return checked ? { site_type: checked.value } : null;
     }
 
     function collectSocialProfiles() {
@@ -260,59 +261,6 @@
     }
 
     /* ----------------------------------------------------------------
-     *  Import Detection (Step 6)
-     * ----------------------------------------------------------------*/
-
-    var importDetected = false;
-
-    function detectImportSources() {
-        if (importDetected) return;
-        importDetected = true;
-
-        var container = document.getElementById('wiz-import-results');
-        container.innerHTML = '<p class="almaseo-wizard-detecting">' + (cfg.strings.detecting || 'Detecting...') + '</p>';
-
-        wp.apiFetch({
-            path: '/almaseo/v1/import/detect',
-            method: 'GET',
-        }).then(function (sources) {
-            renderImportSources(container, sources);
-        }).catch(function () {
-            container.innerHTML = '<p class="almaseo-wizard-no-sources">' + (cfg.strings.error || 'Could not detect sources.') + '</p>';
-        });
-    }
-
-    function renderImportSources(container, sources) {
-        // sources is an array of { slug, name, available, meta_count, post_count } objects.
-        var available = [];
-        if (Array.isArray(sources)) {
-            available = sources.filter(function (s) { return s.available; });
-        }
-
-        if (available.length === 0) {
-            container.innerHTML = '<div class="almaseo-wizard-no-sources">' + (cfg.strings.noSources || 'No SEO plugins detected.') + '</div>';
-            return;
-        }
-
-        var html = '<div class="almaseo-wizard-import-cards">';
-        available.forEach(function (source) {
-            var count = source.meta_count || source.post_count || 0;
-            html += '<div class="almaseo-wizard-import-card">';
-            html +=   '<div class="almaseo-wizard-import-card-info">';
-            html +=     '<strong>' + escHtml(source.name) + '</strong>';
-            if (count > 0) {
-                html += '<span>' + count + ' items available</span>';
-            }
-            html +=   '</div>';
-            html +=   '<a href="' + escAttr(cfg.importPage) + '" target="_blank" class="almaseo-wizard-import-btn">Import</a>';
-            html += '</div>';
-        });
-        html += '</div>';
-
-        container.innerHTML = html;
-    }
-
-    /* ----------------------------------------------------------------
      *  Separator Picker Builder
      * ----------------------------------------------------------------*/
 
@@ -401,13 +349,7 @@
      * ----------------------------------------------------------------*/
 
     function prefillExisting() {
-        // Step 1: site type.
-        if (existing.siteType) {
-            var radio = document.querySelector('input[name="site_type"][value="' + existing.siteType + '"]');
-            if (radio) radio.checked = true;
-        }
-
-        // Step 2: social profiles.
+        // Social profiles.
         var schema = existing.schema || {};
         setVal('wiz-org-name', schema.site_name || '');
         setVal('wiz-logo-url', schema.site_logo_url || '');
@@ -419,7 +361,7 @@
         setVal('wiz-youtube', social.youtube || '');
         setVal('wiz-pinterest', social.pinterest || '');
 
-        // Step 3: search appearance.
+        // Search appearance.
         var sa = existing.searchAppearance || {};
         var special = sa.special || {};
         var homepage = special.homepage || {};
@@ -432,7 +374,7 @@
         setVal('wiz-post-title', postSettings.title_template || '');
         setVal('wiz-page-title', pageSettings.title_template || '');
 
-        // Step 5: verification codes.
+        // Verification codes.
         var codes = existing.verification || {};
         setVal('wiz-verify-google', codes.google || '');
         setVal('wiz-verify-bing', codes.bing || '');
