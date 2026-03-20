@@ -26,6 +26,31 @@ class AlmaSEO_Setup_Wizard {
         add_action( 'admin_menu', array( __CLASS__, 'add_admin_page' ) );
         add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
         add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+        // Intercept the wizard page early so WordPress never renders admin
+        // header/notices around our standalone HTML document.
+        add_action( 'admin_init', array( __CLASS__, 'maybe_render_standalone' ) );
+    }
+
+    /**
+     * If we are on the wizard page, render it standalone and exit
+     * before WordPress outputs admin header / notices.
+     */
+    public static function maybe_render_standalone() {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        if ( ! isset( $_GET['page'] ) || $_GET['page'] !== self::SLUG ) {
+            return;
+        }
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( esc_html__( 'You do not have sufficient permissions.', 'almaseo' ) );
+        }
+        // Enqueue assets so wp_print_styles / wp_print_scripts work in the template.
+        $ver = defined( 'ALMASEO_PLUGIN_VERSION' ) ? ALMASEO_PLUGIN_VERSION : '8.9.5';
+        wp_enqueue_style( 'almaseo-setup-wizard', ALMASEO_URL . 'assets/css/setup-wizard.css', array(), $ver );
+        wp_enqueue_script( 'almaseo-setup-wizard', ALMASEO_URL . 'assets/js/setup-wizard.js', array( 'wp-api-fetch' ), $ver, true );
+        wp_localize_script( 'almaseo-setup-wizard', 'almaseoWizard', self::get_localize_data() );
+
+        include ALMASEO_PATH . 'admin/pages/setup-wizard.php';
+        exit;
     }
 
     /* ------------------------------------------------------------------
