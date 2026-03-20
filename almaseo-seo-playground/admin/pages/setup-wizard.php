@@ -78,6 +78,10 @@ if ( ! defined( 'ABSPATH' ) ) {
                 <div class="almaseo-wizard-field">
                     <label for="wiz-logo-url"><?php esc_html_e( 'Logo URL', 'almaseo' ); ?></label>
                     <input type="url" id="wiz-logo-url" name="logo_url" placeholder="https://example.com/logo.png">
+                    <p class="almaseo-wizard-field-hint">
+                        <?php esc_html_e( 'Paste your logo URL, or find it in your', 'almaseo' ); ?>
+                        <a href="<?php echo esc_url( admin_url( 'upload.php' ) ); ?>" target="_blank"><?php esc_html_e( 'Media Library', 'almaseo' ); ?></a>.
+                    </p>
                 </div>
                 <hr>
                 <div class="almaseo-wizard-field">
