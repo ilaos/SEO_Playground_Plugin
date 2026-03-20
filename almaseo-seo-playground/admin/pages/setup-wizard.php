@@ -45,8 +45,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             2 => __( 'Social', 'almaseo' ),
             3 => __( 'Titles', 'almaseo' ),
             4 => __( 'Sitemap', 'almaseo' ),
-            5 => __( 'Verify', 'almaseo' ),
-            6 => __( 'Done', 'almaseo' ),
+            5 => __( 'Done', 'almaseo' ),
         );
         foreach ( $steps as $num => $label ) : ?>
             <div class="almaseo-wizard-step-indicator" data-step="<?php echo (int) $num; ?>">
@@ -114,7 +113,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         <!-- Step 3: Search Appearance -->
         <section class="almaseo-wizard-panel" data-step="3" style="display:none;">
             <h2><?php esc_html_e( 'Search Appearance', 'almaseo' ); ?></h2>
-            <p class="almaseo-wizard-desc"><?php esc_html_e( 'Configure how your pages appear in search engine results.', 'almaseo' ); ?></p>
+            <p class="almaseo-wizard-desc"><?php esc_html_e( 'These templates control how your pages appear in Google and other search engines. The defaults below work well for most sites — feel free to leave them as-is or customize them.', 'almaseo' ); ?></p>
 
             <div class="almaseo-wizard-form">
                 <div class="almaseo-wizard-field">
@@ -127,24 +126,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 
                 <div class="almaseo-wizard-field">
                     <label for="wiz-homepage-title"><?php esc_html_e( 'Homepage Title', 'almaseo' ); ?></label>
-                    <input type="text" id="wiz-homepage-title" name="homepage_title" placeholder="%%sitename%% %%sep%% %%tagline%%">
-                    <p class="almaseo-wizard-field-hint"><?php esc_html_e( 'Smart tags: %%sitename%%, %%tagline%%, %%sep%%', 'almaseo' ); ?></p>
+                    <input type="text" id="wiz-homepage-title" name="homepage_title">
+                    <p class="almaseo-wizard-field-hint"><?php esc_html_e( 'Tags like %%sitename%% and %%tagline%% are replaced automatically with your site info.', 'almaseo' ); ?></p>
                 </div>
 
                 <div class="almaseo-wizard-field">
                     <label for="wiz-homepage-desc"><?php esc_html_e( 'Homepage Meta Description', 'almaseo' ); ?></label>
-                    <textarea id="wiz-homepage-desc" name="homepage_description" rows="2" placeholder="%%tagline%%"></textarea>
+                    <textarea id="wiz-homepage-desc" name="homepage_description" rows="2"></textarea>
                 </div>
 
                 <div class="almaseo-wizard-field">
                     <label for="wiz-post-title"><?php esc_html_e( 'Post Title Template', 'almaseo' ); ?></label>
-                    <input type="text" id="wiz-post-title" name="post_title" placeholder="%%title%% %%sep%% %%sitename%%">
-                    <p class="almaseo-wizard-field-hint"><?php esc_html_e( 'Smart tags: %%title%%, %%sitename%%, %%sep%%', 'almaseo' ); ?></p>
+                    <input type="text" id="wiz-post-title" name="post_title">
                 </div>
 
                 <div class="almaseo-wizard-field">
                     <label for="wiz-page-title"><?php esc_html_e( 'Page Title Template', 'almaseo' ); ?></label>
-                    <input type="text" id="wiz-page-title" name="page_title" placeholder="%%title%% %%sep%% %%sitename%%">
+                    <input type="text" id="wiz-page-title" name="page_title">
                 </div>
             </div>
         </section>
@@ -164,6 +162,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
                 <div class="almaseo-wizard-field" id="wiz-sitemap-types-wrap">
                     <label><?php esc_html_e( 'Include in Sitemap', 'almaseo' ); ?></label>
+                    <p class="almaseo-wizard-field-hint"><?php esc_html_e( 'Only check the content types that belong to your site. If you see items from third-party plugins that you don\'t recognize, leave them unchecked.', 'almaseo' ); ?></p>
                     <div class="almaseo-wizard-checkboxes" id="wiz-sitemap-types">
                         <!-- Populated by JS from postTypes data -->
                     </div>
@@ -171,37 +170,8 @@ if ( ! defined( 'ABSPATH' ) ) {
             </div>
         </section>
 
-        <!-- Step 5: Verification Codes -->
+        <!-- Step 5: Done -->
         <section class="almaseo-wizard-panel" data-step="5" style="display:none;">
-            <h2><?php esc_html_e( 'Webmaster Verification', 'almaseo' ); ?></h2>
-            <p class="almaseo-wizard-desc"><?php esc_html_e( 'Enter verification codes to prove site ownership. You can find these in each platform\'s webmaster tools.', 'almaseo' ); ?></p>
-
-            <div class="almaseo-wizard-form">
-                <div class="almaseo-wizard-field">
-                    <label for="wiz-verify-google"><?php esc_html_e( 'Google Search Console', 'almaseo' ); ?></label>
-                    <input type="text" id="wiz-verify-google" name="verify_google" placeholder="<?php esc_attr_e( 'Verification code or full meta tag', 'almaseo' ); ?>">
-                </div>
-                <div class="almaseo-wizard-field">
-                    <label for="wiz-verify-bing"><?php esc_html_e( 'Bing Webmaster Tools', 'almaseo' ); ?></label>
-                    <input type="text" id="wiz-verify-bing" name="verify_bing" placeholder="<?php esc_attr_e( 'Verification code', 'almaseo' ); ?>">
-                </div>
-                <div class="almaseo-wizard-field">
-                    <label for="wiz-verify-pinterest"><?php esc_html_e( 'Pinterest', 'almaseo' ); ?></label>
-                    <input type="text" id="wiz-verify-pinterest" name="verify_pinterest" placeholder="<?php esc_attr_e( 'Verification code', 'almaseo' ); ?>">
-                </div>
-                <div class="almaseo-wizard-field">
-                    <label for="wiz-verify-yandex"><?php esc_html_e( 'Yandex Webmaster', 'almaseo' ); ?></label>
-                    <input type="text" id="wiz-verify-yandex" name="verify_yandex" placeholder="<?php esc_attr_e( 'Verification code', 'almaseo' ); ?>">
-                </div>
-                <div class="almaseo-wizard-field">
-                    <label for="wiz-verify-baidu"><?php esc_html_e( 'Baidu Webmaster', 'almaseo' ); ?></label>
-                    <input type="text" id="wiz-verify-baidu" name="verify_baidu" placeholder="<?php esc_attr_e( 'Verification code', 'almaseo' ); ?>">
-                </div>
-            </div>
-        </section>
-
-        <!-- Step 6: Done -->
-        <section class="almaseo-wizard-panel" data-step="6" style="display:none;">
             <div class="almaseo-wizard-done">
                 <div class="almaseo-wizard-done-icon">&#10003;</div>
                 <h2><?php esc_html_e( 'You\'re All Set!', 'almaseo' ); ?></h2>

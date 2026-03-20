@@ -3,7 +3,7 @@
  * AlmaSEO Setup Wizard
  *
  * First-run wizard that walks new users through essential site configuration:
- * social profiles, search appearance, sitemap, and verification codes.
+ * social profiles, search appearance, and sitemap.
  *
  * @package AlmaSEO
  * @since   8.2.0
@@ -43,7 +43,7 @@ class AlmaSEO_Setup_Wizard {
             wp_die( esc_html__( 'You do not have sufficient permissions.', 'almaseo' ) );
         }
         // Enqueue assets so wp_print_styles / wp_print_scripts work in the template.
-        $ver = defined( 'ALMASEO_PLUGIN_VERSION' ) ? ALMASEO_PLUGIN_VERSION : '8.9.7';
+        $ver = defined( 'ALMASEO_PLUGIN_VERSION' ) ? ALMASEO_PLUGIN_VERSION : '8.9.15';
         wp_enqueue_style( 'almaseo-setup-wizard', ALMASEO_URL . 'assets/css/setup-wizard.css', array(), $ver );
         wp_enqueue_script( 'almaseo-setup-wizard', ALMASEO_URL . 'assets/js/setup-wizard.js', array( 'wp-api-fetch' ), $ver, true );
         wp_localize_script( 'almaseo-setup-wizard', 'almaseoWizard', self::get_localize_data() );
@@ -94,7 +94,7 @@ class AlmaSEO_Setup_Wizard {
             return;
         }
 
-        $ver = defined( 'ALMASEO_PLUGIN_VERSION' ) ? ALMASEO_PLUGIN_VERSION : '8.9.7';
+        $ver = defined( 'ALMASEO_PLUGIN_VERSION' ) ? ALMASEO_PLUGIN_VERSION : '8.9.15';
 
         wp_enqueue_style(
             'almaseo-setup-wizard',
@@ -124,7 +124,6 @@ class AlmaSEO_Setup_Wizard {
         $schema_settings = get_option( 'almaseo_schema_advanced_settings', array() );
         $sa_settings     = get_option( 'almaseo_search_appearance', array() );
         $sitemap_settings = get_option( 'almaseo_sitemap_settings', array() );
-        $verification    = get_option( 'almaseo_verification_codes', array() );
 
         // Available separators ----------------------------------------------
         $separators = array(
@@ -159,7 +158,6 @@ class AlmaSEO_Setup_Wizard {
                 'schema'           => $schema_settings,
                 'searchAppearance' => $sa_settings,
                 'sitemap'          => $sitemap_settings,
-                'verification'     => $verification,
             ),
             'strings'       => array(
                 'saving' => __( 'Saving...', 'almaseo' ),
@@ -187,7 +185,7 @@ class AlmaSEO_Setup_Wizard {
                 'step' => array(
                     'required'          => true,
                     'validate_callback' => function ( $val ) {
-                        return is_numeric( $val ) && (int) $val >= 1 && (int) $val <= 6;
+                        return is_numeric( $val ) && (int) $val >= 1 && (int) $val <= 5;
                     },
                 ),
                 'data' => array(
@@ -208,13 +206,12 @@ class AlmaSEO_Setup_Wizard {
     /**
      * REST callback: save a single wizard step.
      *
-     * Step mapping (v8.9.7+):
+     * Step mapping (v8.9.15+):
      *   1 = Welcome (no data)
      *   2 = Social Profiles
      *   3 = Search Appearance
      *   4 = Sitemap
-     *   5 = Verification Codes
-     *   6 = Done (handled by /wizard/complete)
+     *   5 = Done (handled by /wizard/complete)
      *
      * @param WP_REST_Request $request Request object.
      * @return WP_REST_Response
@@ -238,8 +235,6 @@ class AlmaSEO_Setup_Wizard {
             case 4:
                 return self::save_step_sitemap( $data );
             case 5:
-                return self::save_step_verification( $data );
-            case 6:
                 // Done step — handled by /wizard/complete.
                 return new WP_REST_Response( array( 'success' => true ), 200 );
             default:
@@ -378,27 +373,6 @@ class AlmaSEO_Setup_Wizard {
         }
 
         update_option( 'almaseo_sitemap_settings', $existing );
-        return new WP_REST_Response( array( 'success' => true ), 200 );
-    }
-
-    /**
-     * Step 5 — Verification Codes.
-     * Saves to almaseo_verification_codes.
-     *
-     * @param array $data Submitted data.
-     * @return WP_REST_Response
-     */
-    private static function save_step_verification( $data ) {
-        $existing = get_option( 'almaseo_verification_codes', array() );
-        $keys     = array( 'google', 'bing', 'pinterest', 'yandex', 'baidu' );
-
-        foreach ( $keys as $key ) {
-            if ( isset( $data[ $key ] ) ) {
-                $existing[ $key ] = sanitize_text_field( $data[ $key ] );
-            }
-        }
-
-        update_option( 'almaseo_verification_codes', $existing );
         return new WP_REST_Response( array( 'success' => true ), 200 );
     }
 }

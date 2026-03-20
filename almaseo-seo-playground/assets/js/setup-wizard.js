@@ -15,7 +15,7 @@
      *  State
      * ----------------------------------------------------------------*/
 
-    var TOTAL_STEPS  = 6;
+    var TOTAL_STEPS  = 5;
     var currentStep  = 1;
     var cfg          = window.almaseoWizard || {};
     var existing     = cfg.existing || {};
@@ -147,8 +147,7 @@
      *    2 = Social Profiles
      *    3 = Search Appearance
      *    4 = Sitemap
-     *    5 = Verification
-     *    6 = Done (no data)
+     *    5 = Done (no data)
      * ----------------------------------------------------------------*/
 
     function collectStepData(step) {
@@ -162,8 +161,6 @@
                 return collectSearchAppearance();
             case 4:
                 return collectSitemap();
-            case 5:
-                return collectVerification();
             default:
                 return null;
         }
@@ -203,16 +200,6 @@
         return {
             enabled: enabled ? enabled.checked : true,
             post_types: postTypes,
-        };
-    }
-
-    function collectVerification() {
-        return {
-            google:    val('wiz-verify-google'),
-            bing:      val('wiz-verify-bing'),
-            pinterest: val('wiz-verify-pinterest'),
-            yandex:    val('wiz-verify-yandex'),
-            baidu:     val('wiz-verify-baidu'),
         };
     }
 
@@ -303,15 +290,21 @@
 
         var sitemapInclude = (existing.sitemap && existing.sitemap.include) || {};
 
+        // Core post types that should default to checked.
+        var coreTypes = { post: true, page: true };
+
         cfg.postTypes.forEach(function (pt) {
-            var isChecked = true; // default enabled
-            // Check existing settings.
+            var isChecked;
+            // Check existing settings first.
             if (pt.name === 'post' && sitemapInclude.posts !== undefined) {
                 isChecked = !!sitemapInclude.posts;
             } else if (pt.name === 'page' && sitemapInclude.pages !== undefined) {
                 isChecked = !!sitemapInclude.pages;
             } else if (sitemapInclude[pt.name] !== undefined) {
                 isChecked = !!sitemapInclude[pt.name];
+            } else {
+                // No existing setting — default core types to checked, others to unchecked.
+                isChecked = !!coreTypes[pt.name];
             }
 
             var label = document.createElement('label');
@@ -348,6 +341,14 @@
      *  Pre-fill existing settings
      * ----------------------------------------------------------------*/
 
+    // Default templates — used when no existing value is saved.
+    var DEFAULTS = {
+        homepage_title: '%%sitename%% %%sep%% %%tagline%%',
+        homepage_desc:  '%%tagline%%',
+        post_title:     '%%title%% %%sep%% %%sitename%%',
+        page_title:     '%%title%% %%sep%% %%sitename%%',
+    };
+
     function prefillExisting() {
         // Social profiles.
         var schema = existing.schema || {};
@@ -361,7 +362,7 @@
         setVal('wiz-youtube', social.youtube || '');
         setVal('wiz-pinterest', social.pinterest || '');
 
-        // Search appearance.
+        // Search appearance — use existing values or sensible defaults.
         var sa = existing.searchAppearance || {};
         var special = sa.special || {};
         var homepage = special.homepage || {};
@@ -369,18 +370,10 @@
         var postSettings = postTypes.post || {};
         var pageSettings = postTypes.page || {};
 
-        setVal('wiz-homepage-title', homepage.title_template || '');
-        setVal('wiz-homepage-desc', homepage.description_template || '');
-        setVal('wiz-post-title', postSettings.title_template || '');
-        setVal('wiz-page-title', pageSettings.title_template || '');
-
-        // Verification codes.
-        var codes = existing.verification || {};
-        setVal('wiz-verify-google', codes.google || '');
-        setVal('wiz-verify-bing', codes.bing || '');
-        setVal('wiz-verify-pinterest', codes.pinterest || '');
-        setVal('wiz-verify-yandex', codes.yandex || '');
-        setVal('wiz-verify-baidu', codes.baidu || '');
+        setVal('wiz-homepage-title', homepage.title_template || DEFAULTS.homepage_title);
+        setVal('wiz-homepage-desc', homepage.description_template || DEFAULTS.homepage_desc);
+        setVal('wiz-post-title', postSettings.title_template || DEFAULTS.post_title);
+        setVal('wiz-page-title', pageSettings.title_template || DEFAULTS.page_title);
     }
 
     /* ----------------------------------------------------------------
