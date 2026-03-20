@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
-Version: 8.9.12
+Version: 8.9.13
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -37,7 +37,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! ( defined( 'RES
     }
     if ( $almaseo_seo_conflict ) {
         // Define only the bare minimum constants, then stop loading.
-        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '8.9.12' );
+        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '8.9.13' );
         if ( ! defined( 'ALMASEO_PATH' ) )           define( 'ALMASEO_PATH', plugin_dir_path( __FILE__ ) );
         if ( ! defined( 'ALMASEO_URL' ) )            define( 'ALMASEO_URL', plugin_dir_url( __FILE__ ) );
         if ( ! defined( 'ALMASEO_MAIN_FILE' ) )      define( 'ALMASEO_MAIN_FILE', __FILE__ );
@@ -49,7 +49,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! ( defined( 'RES
 if (!defined('ALMASEO_MAIN_FILE'))       define('ALMASEO_MAIN_FILE', __FILE__);
 if (!defined('ALMASEO_PATH'))            define('ALMASEO_PATH', plugin_dir_path(__FILE__));
 if (!defined('ALMASEO_URL'))             define('ALMASEO_URL', plugin_dir_url(__FILE__));
-if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '8.9.12');
+if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '8.9.13');
 if (!defined('ALMASEO_VERSION'))         define('ALMASEO_VERSION', '6.5.0');
 if (!defined('ALMASEO_API_NAMESPACE'))   define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
 if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
@@ -58,6 +58,17 @@ if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https:/
 if (!defined('ALMASEO_PLUGIN_URL'))  define('ALMASEO_PLUGIN_URL', ALMASEO_URL);
 if (!defined('ALMASEO_PLUGIN_DIR'))  define('ALMASEO_PLUGIN_DIR', ALMASEO_PATH);
 if (!defined('ALMASEO_PLUGIN_FILE')) define('ALMASEO_PLUGIN_FILE', ALMASEO_MAIN_FILE);
+
+// --- Suppress the Connector plugin's "Welcome" banner ---
+// The Connector's welcome notice is an anonymous function we can't unhook,
+// but it checks this user meta before showing. Setting it silences the banner.
+add_action( 'admin_init', function () {
+    if ( function_exists( 'almaseo_detect_active_connector' ) && almaseo_detect_active_connector() ) {
+        if ( ! get_user_meta( get_current_user_id(), 'almaseo_connector_dismissed_notice', true ) ) {
+            update_user_meta( get_current_user_id(), 'almaseo_connector_dismissed_notice', 1 );
+        }
+    }
+} );
 
 // Note: third-party SEO plugin coexistence is handled by the early return
 // at the top of this file. If we reach this point, no conflicting SEO
@@ -1296,6 +1307,16 @@ add_action('admin_menu', function() {
         );
     }
     
+    // Add Setup Wizard submenu link so users can re-enter it
+    add_submenu_page(
+        'seo-playground',
+        'Setup Wizard - SEO Playground by AlmaSEO',
+        'Setup Wizard',
+        'manage_options',
+        'almaseo-setup-wizard',
+        array( 'AlmaSEO_Setup_Wizard', 'render_page' )
+    );
+
     // Add welcome page - hidden from menu
     global $wp_version;
     $parent_slug = version_compare($wp_version, '5.3', '>=') ? null : 'admin.php';
