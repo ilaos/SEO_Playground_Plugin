@@ -84,24 +84,12 @@ class AlmaSEO_Schema_Scrubber_Safe {
      * Setup safe filters that won't break other plugins
      */
     private function setup_safe_filters() {
-        // For AIOSEO, we need to be more careful
-        if (defined('AIOSEO_VERSION')) {
-            // Hook into their schema generation to return safe empty structures
-            add_filter('aioseo_schema_output', array($this, 'safe_empty_schema'), 999);
-            add_filter('aioseo_schema_graphs', array($this, 'safe_empty_graphs'), 999);
-            
-            // Try to disable their schema module if possible
-            add_filter('aioseo_schema_disable', '__return_true', 999);
-            
-            // Hook early to prevent their schema class from initializing
-            add_action('init', function() {
-                if (function_exists('aioseo') && isset(aioseo()->schema)) {
-                    // Remove their wp_head action
-                    remove_action('wp_head', array(aioseo()->schema, 'output'), 30);
-                }
-            }, 1);
-        }
-        
+        // AIOSEO: Do NOT hook into their internal filters (aioseo_schema_output,
+        // aioseo_schema_graphs, etc.) — returning empty arrays crashes their
+        // Helpers.php which expects specific data structures. The output buffer
+        // approach (template_redirect → scrub_schema) safely strips their JSON-LD
+        // from the final HTML without interfering with their internals.
+
         // Yoast SEO
         add_filter('wpseo_json_ld_output', '__return_false', 999);
         add_filter('wpseo_schema_graph_enabled', '__return_false', 999);
