@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
-Version: 8.9.8
+Version: 8.9.9
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 if (!defined('ALMASEO_MAIN_FILE'))       define('ALMASEO_MAIN_FILE', __FILE__);
 if (!defined('ALMASEO_PATH'))            define('ALMASEO_PATH', plugin_dir_path(__FILE__));
 if (!defined('ALMASEO_URL'))             define('ALMASEO_URL', plugin_dir_url(__FILE__));
-if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '8.9.8');
+if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '8.9.9');
 if (!defined('ALMASEO_VERSION'))         define('ALMASEO_VERSION', '6.5.0');
 if (!defined('ALMASEO_API_NAMESPACE'))   define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
 if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
@@ -30,6 +30,22 @@ if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https:/
 if (!defined('ALMASEO_PLUGIN_URL'))  define('ALMASEO_PLUGIN_URL', ALMASEO_URL);
 if (!defined('ALMASEO_PLUGIN_DIR'))  define('ALMASEO_PLUGIN_DIR', ALMASEO_PATH);
 if (!defined('ALMASEO_PLUGIN_FILE')) define('ALMASEO_PLUGIN_FILE', ALMASEO_MAIN_FILE);
+
+// --- AIOSEO Compatibility: Prevent fatal crash in Helpers.php ---
+// AIOSEO Pro's Schema\Helpers::getOutput() crashes with usort(false, ...)
+// when its internal graph query returns false instead of an array.
+// We defensively ensure their schema filter data is always an array.
+// Registered on plugins_loaded so AIOSEO constants are available.
+add_action( 'plugins_loaded', function () {
+    if ( defined( 'AIOSEO_VERSION' ) ) {
+        add_filter( 'aioseo_schema_output', function ( $data ) {
+            return is_array( $data ) ? $data : array();
+        }, 1 );
+        add_filter( 'aioseo_schema_graphs', function ( $data ) {
+            return is_array( $data ) ? $data : array();
+        }, 1 );
+    }
+}, 1 );
 
 // Include License & Tier Helper (centralized license checking)
 // This MUST be loaded early before any feature modules that check licensing
