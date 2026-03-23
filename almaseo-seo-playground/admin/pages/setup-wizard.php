@@ -177,15 +177,54 @@ if ( ! defined( 'ABSPATH' ) ) {
                 <h2><?php esc_html_e( 'You\'re All Set!', 'almaseo' ); ?></h2>
                 <p class="almaseo-wizard-desc"><?php esc_html_e( 'AlmaSEO SEO Playground is configured and ready to optimize your site.', 'almaseo' ); ?></p>
 
+                <?php
+                // Detect post-onboarding actions needed.
+                $connector_active = function_exists( 'almaseo_detect_active_connector' ) ? almaseo_detect_active_connector() : false;
+                $seo_conflicts    = function_exists( 'almaseo_detect_conflicting_seo_plugins' ) ? almaseo_detect_conflicting_seo_plugins() : array();
+
+                if ( $connector_active || ! empty( $seo_conflicts ) ) : ?>
+                    <div class="almaseo-wizard-done-actions" style="margin: 25px 0; text-align: left; max-width: 520px; margin-left: auto; margin-right: auto;">
+                        <h3 style="font-size: 15px; color: #23282d; margin: 0 0 15px 0;"><?php esc_html_e( 'Before you go, a couple of things to take care of:', 'almaseo' ); ?></h3>
+
+                        <?php if ( $connector_active ) :
+                            $deactivate_url = wp_nonce_url(
+                                admin_url( 'admin-post.php?action=almaseo_deactivate_connector' ),
+                                'almaseo_deactivate_connector'
+                            );
+                        ?>
+                            <div style="background: #f0f6ff; border-radius: 6px; padding: 15px; margin-bottom: 12px;">
+                                <p style="margin: 0 0 10px 0; color: #1d2327;">
+                                    <strong><?php esc_html_e( 'Deactivate the Connector Plugin', 'almaseo' ); ?></strong><br>
+                                    <?php esc_html_e( 'SEO Playground replaces the Connector — it includes everything the Connector does plus a full SEO toolkit. Your connection settings will be preserved.', 'almaseo' ); ?>
+                                </p>
+                                <a href="<?php echo esc_url( $deactivate_url ); ?>" class="almaseo-wizard-btn almaseo-wizard-btn-secondary" style="font-size: 13px; padding: 8px 16px;">
+                                    <?php esc_html_e( 'Deactivate Connector', 'almaseo' ); ?>
+                                </a>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if ( ! empty( $seo_conflicts ) ) :
+                            $plugin_names = implode( ', ', $seo_conflicts );
+                        ?>
+                            <div style="background: #fef8ee; border-radius: 6px; padding: 15px; margin-bottom: 12px;">
+                                <p style="margin: 0 0 10px 0; color: #1d2327;">
+                                    <strong><?php esc_html_e( 'Import Your SEO Data', 'almaseo' ); ?></strong><br>
+                                    <?php printf(
+                                        esc_html__( 'We detected %s. You can import your existing titles, descriptions, and keywords into AlmaSEO before deactivating it.', 'almaseo' ),
+                                        '<strong>' . esc_html( $plugin_names ) . '</strong>'
+                                    ); ?>
+                                </p>
+                                <a href="<?php echo esc_url( admin_url( 'admin.php?page=almaseo-import' ) ); ?>" class="almaseo-wizard-btn almaseo-wizard-btn-secondary" style="font-size: 13px; padding: 8px 16px;">
+                                    <?php esc_html_e( 'Go to Import', 'almaseo' ); ?>
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+
                 <div class="almaseo-wizard-done-links">
                     <a href="<?php echo esc_url( admin_url( 'admin.php?page=seo-playground' ) ); ?>" class="almaseo-wizard-btn almaseo-wizard-btn-primary" id="wiz-go-dashboard">
                         <?php esc_html_e( 'Go to Dashboard', 'almaseo' ); ?>
-                    </a>
-                    <a href="<?php echo esc_url( admin_url( 'admin.php?page=almaseo-settings' ) ); ?>" class="almaseo-wizard-btn almaseo-wizard-btn-secondary">
-                        <?php esc_html_e( 'Advanced Settings', 'almaseo' ); ?>
-                    </a>
-                    <a href="<?php echo esc_url( admin_url( 'admin.php?page=almaseo-search-appearance' ) ); ?>" class="almaseo-wizard-btn almaseo-wizard-btn-secondary">
-                        <?php esc_html_e( 'Search Appearance', 'almaseo' ); ?>
                     </a>
                 </div>
             </div>
