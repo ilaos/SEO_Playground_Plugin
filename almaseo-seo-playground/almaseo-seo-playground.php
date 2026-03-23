@@ -1643,6 +1643,8 @@ function almaseo_get_comprehensive_connection_status() {
 // --- REDIRECT TO SETUP WIZARD AFTER ACTIVATION ---
 // Uses a Playground-specific option name so the Connector plugin's shared
 // almaseo_set_activation_redirect() cannot hijack the redirect.
+// Guarded to prevent fatal if two Playground versions are installed simultaneously.
+if ( ! function_exists( 'almaseo_playground_set_activation_redirect' ) ) {
 function almaseo_playground_set_activation_redirect() {
     add_option('almaseo_playground_do_activation_redirect', true);
 
@@ -1680,6 +1682,7 @@ function almaseo_playground_set_activation_redirect() {
         }
     }
 }
+} // end function_exists guard: almaseo_playground_set_activation_redirect
 register_activation_hook(__FILE__, 'almaseo_playground_set_activation_redirect');
 
 add_action('admin_init', function() {
