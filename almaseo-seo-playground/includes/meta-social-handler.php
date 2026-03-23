@@ -11,6 +11,10 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if ( class_exists( 'AlmaSEO_Meta_Social_Handler' ) ) {
+    return;
+}
+
 class AlmaSEO_Meta_Social_Handler {
     
     private static $instance = null;
