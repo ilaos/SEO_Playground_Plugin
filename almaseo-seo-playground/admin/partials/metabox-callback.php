@@ -108,8 +108,6 @@ function almaseo_enqueue_seo_playground_styles() {
                 'unified-tabs', // Unified tab styles with emojis
                 'unified-health', // Unified health score styles
                 'seo-overview-consolidated', // SEO Overview styles
-                'search-console-polish',
-                'search-console-placeholder', // Search Console placeholder CSS
                 'schema-meta-tab', // Schema & Meta tab CSS
                 'ai-tools-polish',
                 'notes-history-polish',
@@ -141,7 +139,6 @@ function almaseo_enqueue_seo_playground_styles() {
             $tab_scripts = array(
                 'seo-overview-consolidated', // SEO Overview JavaScript
                 'unified-health', // Unified health score JavaScript
-                'search-console-polish',
                 'schema-meta-tab', // Schema & Meta tab JavaScript
                 'ai-tools-polish',
                 'notes-history-polish',
