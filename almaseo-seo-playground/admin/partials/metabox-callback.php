@@ -1903,14 +1903,22 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 <!-- ═══ State 6: Data Available (Main View) ═══ -->
                 <div class="almaseo-gsc-state" id="gsc-state-data" style="display: none;">
 
-                    <!-- Tab Header with Date Range -->
+                    <!-- Tab Header -->
                     <div class="gsc-data-header">
                         <div class="gsc-data-title-row">
-                            <h2 class="gsc-data-title">Search Performance</h2>
+                            <div>
+                                <h2 class="gsc-data-title">Search Performance for This Page</h2>
+                                <div class="gsc-page-url" id="gsc-page-url" title="<?php echo esc_attr($gsc_page_url); ?>">
+                                    <?php echo esc_html($gsc_page_url); ?>
+                                </div>
+                            </div>
                             <div class="gsc-index-badge gsc-badge-indexed" id="gsc-index-status">
                                 <span class="gsc-badge-dot"></span>
                                 <span id="gsc-index-label">Indexed</span>
                             </div>
+                        </div>
+                        <div class="gsc-data-context">
+                            This data is specific to the page you are currently editing — not your entire site. Use it to understand how this page is performing in Google Search and identify opportunities to improve its rankings.
                         </div>
                         <div class="gsc-data-controls">
                             <select class="gsc-date-range-selector" id="gsc-date-range" aria-label="Date range">
@@ -2175,7 +2183,26 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     font-size: 18px;
                     font-weight: 600;
                     color: #1e293b;
-                    margin: 0;
+                    margin: 0 0 4px 0;
+                }
+                .gsc-page-url {
+                    font-size: 12px;
+                    color: #64748b;
+                    max-width: 400px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    font-family: monospace;
+                }
+                .gsc-data-context {
+                    font-size: 13px;
+                    color: #64748b;
+                    line-height: 1.5;
+                    padding: 10px 14px;
+                    background: #f8fafc;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 6px;
+                    margin: 12px 0;
                 }
                 .gsc-data-controls {
                     display: flex;
