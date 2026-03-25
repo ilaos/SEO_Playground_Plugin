@@ -30,14 +30,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 if (!function_exists('almaseo_is_pro_active')) {
 function almaseo_is_pro_active() {
-    // If site is connected, trust the server-synced tier (no generous default)
-    $is_connected = (bool) get_option( 'almaseo_app_password', '' );
-    if ( $is_connected ) {
-        $tier = get_option( 'almaseo_license_tier', 'free' );
-    } else {
-        // Not connected: default to 'pro' for backward compatibility
-        $tier = get_option( 'almaseo_license_tier', 'pro' );
-    }
+    // Until tier enforcement is fully implemented (server-side sync + gating),
+    // default ALL sites to 'pro'. Once the tier sync endpoint is live and
+    // almaseo_license_tier is reliably set by the server, change the connected
+    // default back to 'free'.
+    $tier = get_option( 'almaseo_license_tier', 'pro' );
 
     // Pro and Agency tiers have Pro features enabled
     return in_array( $tier, array( 'pro', 'agency' ), true );
@@ -128,10 +125,9 @@ function almaseo_feature_available( $feature ) {
  */
 if (!function_exists('almaseo_get_license_tier')) {
 function almaseo_get_license_tier() {
-    $is_connected = (bool) get_option( 'almaseo_app_password', '' );
-    // Connected sites default to 'free' (server sets actual tier via sync)
-    // Unconnected sites default to 'pro' for backward compatibility
-    return get_option( 'almaseo_license_tier', $is_connected ? 'free' : 'pro' );
+    // Default all sites to 'pro' until tier enforcement is fully implemented.
+    // Once server-side tier sync is live, change default back to 'free' for connected sites.
+    return get_option( 'almaseo_license_tier', 'pro' );
 }
 } // end function_exists guard: almaseo_get_license_tier
 

@@ -2588,7 +2588,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     <strong style="color: #0c5460;">Connect to AlmaSEO to unlock advanced schema types and dashboard presets.</strong>
                     <p style="margin: 5px 0 0 0; color: #666; font-size: 13px;">Free features like Article schema and meta robots are always available.</p>
                 </div>
-                <a href="#tab-unlock-features" class="button button-secondary almaseo-tab-link" style="white-space: nowrap;">Connect Now →</a>
+                <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>" class="button button-secondary" style="white-space: nowrap;">Connect Now →</a>
             </div>
             <?php else: 
                 $last_sync = get_option('almaseo_last_sync', '');
@@ -2598,7 +2598,35 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 ✓ Connected to AlmaSEO • Last sync: <?php echo esc_html($sync_text); ?>
             </div>
             <?php endif; ?>
-            
+
+            <!-- Cornerstone Content -->
+            <div class="almaseo-card" style="margin-bottom: 0;">
+                <div class="almaseo-card-body" style="padding: 12px 16px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
+                        <input type="checkbox" name="almaseo_is_cornerstone" value="1"
+                               <?php checked( get_post_meta( $post->ID, '_almaseo_is_cornerstone', true ) ); ?> />
+                        <span class="dashicons dashicons-star-filled" style="color: #dba617;"></span>
+                        <strong><?php _e( 'Cornerstone Content', 'almaseo' ); ?></strong>
+                        <span style="color: #94a3b8; font-size: 12px; font-weight: normal; margin-left: 4px;"><?php _e( '— Mark as a key page for your SEO strategy', 'almaseo' ); ?></span>
+                    </label>
+                    <?php
+                    $cs_suggested = get_post_meta( $post->ID, '_almaseo_cornerstone_suggested', true );
+                    $cs_current   = get_post_meta( $post->ID, '_almaseo_is_cornerstone', true );
+                    if ( $cs_suggested && ! $cs_current ) :
+                        $cs_score  = get_post_meta( $post->ID, '_almaseo_cornerstone_score', true );
+                        $cs_reason = get_post_meta( $post->ID, '_almaseo_cornerstone_reason', true );
+                    ?>
+                    <div style="margin-top: 8px; padding: 8px 12px; background: linear-gradient(135deg, #f0f4ff 0%, #f8f9ff 100%); border: 1px solid #d0d5ff; border-radius: 4px; font-size: 12px;">
+                        <span style="font-weight: 600; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI</span>
+                        <?php printf( __( 'AlmaSEO suggests marking this as cornerstone content (score: %s/100).', 'almaseo' ), '<strong>' . intval( $cs_score ) . '</strong>' ); ?>
+                        <?php if ( $cs_reason ) : ?>
+                        <br><span style="color: #666;"><?php echo esc_html( $cs_reason ); ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
             <!-- Meta Robots Card -->
             <div class="almaseo-card">
                 <div class="almaseo-card-header">
@@ -3111,9 +3139,13 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     
                     <!-- Visual Social Previews -->
                     <div class="almaseo-social-previews" style="margin-top: 20px;">
-                        <h4 style="margin: 0 0 12px; font-size: 14px; font-weight: 600; color: #1d2327;">
-                            <?php _e( 'Social Sharing Preview', 'almaseo' ); ?>
-                        </h4>
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                            <h4 style="margin: 0; font-size: 14px; font-weight: 600; color: #1d2327;">
+                                <?php _e( 'Social Sharing Preview', 'almaseo' ); ?>
+                            </h4>
+                            <button type="button" class="button button-small" id="toggle-social-previews" style="font-size: 12px;">Show Previews</button>
+                        </div>
+                        <div id="social-previews-content" style="display: none;">
 
                         <?php
                         $sp_title       = get_post_meta( $post->ID, '_almaseo_og_title', true ) ?: ( $seo_title ?: get_the_title( $post->ID ) );
@@ -3124,6 +3156,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         ?>
 
                         <!-- Facebook Preview -->
+                        <p style="font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 6px 0;">Facebook / LinkedIn Preview</p>
                         <div class="almaseo-fb-preview" style="max-width: 500px; border: 1px solid #dadde1; border-radius: 3px; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #fff; margin-bottom: 16px;">
                             <div id="fb-preview-image" style="width: 100%; aspect-ratio: 1.91/1; background: #e4e6eb url('<?php echo esc_url( $sp_image ); ?>') center/cover no-repeat; position: relative;">
                                 <?php if ( empty( $sp_image ) ) : ?>
@@ -3146,6 +3179,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         </div>
 
                         <!-- Twitter/X Preview -->
+                        <p style="font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; margin: 16px 0 6px 0;">Twitter / X Preview</p>
                         <div class="almaseo-twitter-preview" id="twitter-preview-container" data-card-type="<?php echo esc_attr( $sp_tw_card ); ?>" style="max-width: 500px; border: 1px solid #cfd9de; border-radius: 16px; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #fff;">
                             <?php if ( $sp_tw_card === 'summary_large_image' ) : ?>
                             <!-- Large Image Card -->
@@ -3190,6 +3224,16 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         <p style="margin-top: 8px; font-size: 12px; color: #646970; font-style: italic;">
                             <?php _e( 'Previews are approximate. Actual appearance may vary by platform.', 'almaseo' ); ?>
                         </p>
+                        </div><!-- end social-previews-content -->
+                        <script>
+                        jQuery(document).ready(function($){
+                            $('#toggle-social-previews').on('click', function(){
+                                var $content = $('#social-previews-content');
+                                $content.slideToggle(200);
+                                $(this).text($content.is(':visible') ? 'Show Previews' : 'Hide Previews');
+                            });
+                        });
+                        </script>
                     </div>
 
                     <script>
@@ -3382,31 +3426,18 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 </div>
             </div>
             
-            <!-- Schema Type Selector -->
-            <div class="almaseo-field-group">
-                <label for="almaseo_schema_type">Schema Type</label>
-                <select id="almaseo_schema_type" name="almaseo_schema_type" class="almaseo-select">
-                    <option value="">None</option>
-                    <option value="Article" <?php selected($seo_schema_type, 'Article'); ?>>Article</option>
-                    <option value="BlogPosting" <?php selected($seo_schema_type, 'BlogPosting'); ?>>Blog Post</option>
-                    <option value="NewsArticle" <?php selected($seo_schema_type, 'NewsArticle'); ?>>News Article</option>
-                    <option value="Product" <?php selected($seo_schema_type, 'Product'); ?>>Product</option>
-                    <option value="Recipe" <?php selected($seo_schema_type, 'Recipe'); ?>>Recipe</option>
-                    <option value="Review" <?php selected($seo_schema_type, 'Review'); ?>>Review</option>
-                    <option value="FAQPage" <?php selected($seo_schema_type, 'FAQPage'); ?>>FAQ Page</option>
-                    <option value="HowTo" <?php selected($seo_schema_type, 'HowTo'); ?>>How-To Guide</option>
-                </select>
-            </div>
-            
-            <!-- Troubleshooting Schema Issues Help Section -->
+            <!-- Troubleshooting Schema Issues Help Section (collapsible) -->
             <div class="almaseo-card" style="margin-top: 20px; background: #f8f9fa; border: 1px solid #e0e0e0;">
-                <div class="almaseo-card-header" style="background: linear-gradient(135deg, #fff8e5 0%, #fffef5 100%); border-bottom: 1px solid #f0f0f1;">
-                    <h3 class="almaseo-card-title">
-                        <span class="card-icon">❓</span>
-                        Troubleshooting Schema Issues
+                <div class="almaseo-card-header" style="background: linear-gradient(135deg, #fff8e5 0%, #fffef5 100%); border-bottom: 1px solid #f0f0f1; cursor: pointer;" id="troubleshooting-toggle">
+                    <h3 class="almaseo-card-title" style="display: flex; align-items: center; justify-content: space-between;">
+                        <span>
+                            <span class="card-icon">❓</span>
+                            Troubleshooting Schema Issues
+                        </span>
+                        <span class="dashicons dashicons-arrow-down-alt2" id="troubleshooting-arrow" style="color: #94a3b8;"></span>
                     </h3>
                 </div>
-                <div class="almaseo-card-body">
+                <div class="almaseo-card-body" id="troubleshooting-content" style="display: none;">
                     <!-- Schema Markup Output Section -->
                     <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #e0e0e0;">
                         <h4 style="font-size: 15px; margin-bottom: 12px; color: #1d2327; font-weight: 600;">📋 Schema Markup Output</h4>
@@ -3509,31 +3540,16 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 </div>
             </div>
 
-            <!-- Cornerstone Content -->
-            <div class="almaseo-field-group" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #dcdcde;">
-                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                    <input type="checkbox" name="almaseo_is_cornerstone" value="1"
-                           <?php checked( get_post_meta( $post->ID, '_almaseo_is_cornerstone', true ) ); ?> />
-                    <span class="dashicons dashicons-star-filled" style="color: #dba617;"></span>
-                    <strong><?php _e( 'Cornerstone Content', 'almaseo' ); ?></strong>
-                </label>
-                <p class="field-hint"><?php _e( 'Mark this as a key page that should be prioritized in your SEO strategy.', 'almaseo' ); ?></p>
-                <?php
-                $cs_suggested = get_post_meta( $post->ID, '_almaseo_cornerstone_suggested', true );
-                $cs_current   = get_post_meta( $post->ID, '_almaseo_is_cornerstone', true );
-                if ( $cs_suggested && ! $cs_current ) :
-                    $cs_score  = get_post_meta( $post->ID, '_almaseo_cornerstone_score', true );
-                    $cs_reason = get_post_meta( $post->ID, '_almaseo_cornerstone_reason', true );
-                ?>
-                <div style="margin-top: 8px; padding: 8px 12px; background: linear-gradient(135deg, #f0f4ff 0%, #f8f9ff 100%); border: 1px solid #d0d5ff; border-radius: 4px; font-size: 12px;">
-                    <span style="font-weight: 600; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI</span>
-                    <?php printf( __( 'AlmaSEO suggests marking this as cornerstone content (score: %s/100).', 'almaseo' ), '<strong>' . intval( $cs_score ) . '</strong>' ); ?>
-                    <?php if ( $cs_reason ) : ?>
-                    <br><span style="color: #666;"><?php echo esc_html( $cs_reason ); ?></span>
-                    <?php endif; ?>
-                </div>
-                <?php endif; ?>
-            </div>
+            <script>
+            jQuery(document).ready(function($){
+                $('#troubleshooting-toggle').on('click', function(){
+                    var $content = $('#troubleshooting-content');
+                    var $arrow = $('#troubleshooting-arrow');
+                    $content.slideToggle(200);
+                    $arrow.toggleClass('dashicons-arrow-down-alt2 dashicons-arrow-up-alt2');
+                });
+            });
+            </script>
         </div>
         <!-- End Schema & Meta Tab -->
         
