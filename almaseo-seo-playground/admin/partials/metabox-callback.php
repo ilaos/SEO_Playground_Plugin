@@ -396,11 +396,10 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     <span class="tab-icon">🗒️</span>
                     <span class="tab-label">Notes & History</span>
                 </button>
-                <?php if (!$is_connected): ?>
+                <?php if (!$is_connected && function_exists('almaseo_is_free_tier') && almaseo_is_free_tier()): ?>
                 <button type="button" class="almaseo-tab-btn almaseo-unlock-tab" data-tab="unlock-features">
                     <span class="tab-icon">🔒</span>
-                    <span class="tab-label">Unlock AI Features</span>
-                    <span class="tab-badge">NEW</span>
+                    <span class="tab-label">Unlock Full Features</span>
                 </button>
                 <?php endif; ?>
             </div>
@@ -1776,761 +1775,740 @@ function almaseo_seo_playground_meta_box_callback($post) {
         
         <!-- Search Console Tab -->
         <div class="almaseo-tab-panel" id="tab-search-console">
-            <!-- Tab Header -->
-            <div class="almaseo-search-console-header">
-                <h2 class="almaseo-search-console-title">Google Search Console</h2>
-                <p class="almaseo-search-console-subtitle">Performance metrics from Google Search Console (coming soon).</p>
-            </div>
-            
-            <!-- Date Range Selector (Disabled) -->
-            <div class="almaseo-search-console-controls">
-                <div class="almaseo-date-range-wrapper">
-                    <select class="almaseo-date-range-selector" disabled aria-label="Date range selector">
-                        <option value="28" selected>Last 28 days</option>
-                        <option value="7">Last 7 days</option>
-                        <option value="90">Last 90 days</option>
-                    </select>
-                </div>
-            </div>
-            
-            <!-- Placeholder Card -->
-            <div class="almaseo-search-console-placeholder">
-                <div class="almaseo-placeholder-card">
-                    <div class="almaseo-placeholder-icon">
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5Z"/>
-                            <path d="M12 5L8 21l4-7 4 7-4-16"/>
+            <?php
+            // Determine the current page URL for GSC lookups
+            $gsc_page_url = get_permalink($post->ID);
+            $gsc_post_id = $post->ID;
+            ?>
+
+            <?php if (!$is_connected): ?>
+            <!-- ═══ State 1: Plugin Not Connected ═══ -->
+            <div class="almaseo-gsc-state" id="gsc-state-not-connected">
+                <div class="gsc-state-card">
+                    <div class="gsc-state-icon">
+                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
                         </svg>
                     </div>
-                    <h3 class="almaseo-placeholder-heading">Connect to AlmaSEO Dashboard</h3>
-                    <p class="almaseo-placeholder-body">
-                        To view Google Search Console data here, you'll connect your site from the AlmaSEO Dashboard (feature coming soon).
+                    <h3 class="gsc-state-heading">Connect to AlmaSEO Dashboard</h3>
+                    <p class="gsc-state-description">
+                        Link your site to your AlmaSEO Dashboard to access Google Search Console insights for this page.
                     </p>
-                    <button type="button" class="almaseo-placeholder-button" disabled>
-                        Coming Soon
-                    </button>
-                    <p class="almaseo-placeholder-note">
-                        OAuth connection will be enabled in a future update.
-                    </p>
+                    <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>" class="gsc-state-btn gsc-btn-primary">
+                        Connect My Site
+                    </a>
                 </div>
             </div>
-            
-            <!-- Schema Markup Section -->
-            <div class="almaseo-schema-section">
-                <div class="almaseo-field-group">
-                    <label for="almaseo_schema_type" class="almaseo-schema-label">
-                        📊 Schema Markup
-                    </label>
-                    
-                    <!-- AI Schema Suggestion -->
-                    <?php if ($is_connected && empty($seo_schema_type)): ?>
-                    <div class="schema-suggestion-container" id="schema-suggestion-container">
-                        <div class="schema-suggestion-loading" id="schema-suggestion-loading">
-                            <div class="suggestion-loading-spinner"></div>
-                            <div class="suggestion-loading-text">Analyzing content for schema type...</div>
+
+            <?php else: ?>
+            <!-- ═══ Connected: GSC states managed by JavaScript ═══ -->
+            <div class="almaseo-gsc-container"
+                 id="almaseo-gsc-container"
+                 data-post-id="<?php echo esc_attr($gsc_post_id); ?>"
+                 data-page-url="<?php echo esc_attr($gsc_page_url); ?>"
+                 data-nonce="<?php echo esc_attr(wp_create_nonce('almaseo_gsc_nonce')); ?>">
+
+                <!-- ═══ State 2: GSC Not Connected on Dashboard ═══ -->
+                <div class="almaseo-gsc-state" id="gsc-state-no-gsc" style="display: none;">
+                    <div class="gsc-state-card">
+                        <div class="gsc-state-icon">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"/>
+                                <path d="m21 21-4.35-4.35"/>
+                                <path d="M11 8v6"/>
+                                <path d="M8 11h6"/>
+                            </svg>
                         </div>
-                        <div class="schema-suggestion-content" id="schema-suggestion-content" style="display: none;">
-                            <div class="suggestion-icon">💡</div>
-                            <div class="suggestion-text">
-                                <strong>Suggested Schema Type:</strong> <span id="suggested-schema-type"></span>
-                            </div>
-                            <div class="suggestion-action">
-                                <button type="button" class="use-suggestion-btn" id="use-schema-suggestion">
-                                    Use This
-                                </button>
-                            </div>
-                        </div>
-                        <div class="schema-suggestion-error" id="schema-suggestion-error" style="display: none;">
-                            <div class="error-icon">⚠️</div>
-                            <div class="error-text">Could not fetch schema suggestion</div>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-                    
-                    <select id="almaseo_schema_type" 
-                            name="almaseo_schema_type" 
-                            class="almaseo-schema-select">
-                        <option value="">None (default)</option>
-                        <option value="Article" <?php selected($seo_schema_type, 'Article'); ?>>Article</option>
-                        <option value="BlogPosting" <?php selected($seo_schema_type, 'BlogPosting'); ?>>BlogPosting</option>
-                        <option value="NewsArticle" <?php selected($seo_schema_type, 'NewsArticle'); ?>>NewsArticle</option>
-                        <option value="Product" <?php selected($seo_schema_type, 'Product'); ?>>Product</option>
-                        <option value="Event" <?php selected($seo_schema_type, 'Event'); ?>>Event</option>
-                        <option value="FAQPage" <?php selected($seo_schema_type, 'FAQPage'); ?>>FAQPage</option>
-                        <option value="HowTo" <?php selected($seo_schema_type, 'HowTo'); ?>>HowTo</option>
-                        <option value="LocalBusiness" <?php selected($seo_schema_type, 'LocalBusiness'); ?>>LocalBusiness</option>
-                    </select>
-                    
-                    <?php if (!$is_connected): ?>
-                    <div class="schema-advanced-notice">
-                        <div class="notice-icon">🔒</div>
-                        <div class="notice-text">
-                            <strong>Advanced schema types</strong> (FAQPage, HowTo, LocalBusiness) are available with AlmaSEO connection.
-                        </div>
-                    </div>
-                    <?php endif; ?>
-                    
-                    <!-- Schema Preview -->
-                    <div class="schema-preview-container" id="schema-preview-container" style="display: none;">
-                        <div class="schema-preview-header">
-                            <strong>JSON-LD Preview</strong>
-                            <span class="schema-preview-note">This will be automatically generated for your content</span>
-                        </div>
-                        <div class="schema-preview-content" id="schema-preview-content">
-                            <!-- Preview content will be populated by JavaScript -->
-                        </div>
+                        <h3 class="gsc-state-heading">Connect Google Search Console</h3>
+                        <p class="gsc-state-description">
+                            Your site is linked to AlmaSEO, but Google Search Console hasn't been connected yet. Set it up in your dashboard to see page-level search data here.
+                        </p>
+                        <a href="https://app.almaseo.com/profile/google-services" target="_blank" class="gsc-state-btn gsc-btn-primary">
+                            Connect in Dashboard
+                            <span class="gsc-btn-arrow">&rarr;</span>
+                        </a>
+                        <p class="gsc-state-hint">Opens your AlmaSEO Dashboard &gt; Google Services</p>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Schema Analyzer Section -->
-            <?php if ($is_connected): ?>
-            <div class="almaseo-schema-analyzer-section" id="almaseo-schema-analyzer-section" style="display: none;">
-                <div class="almaseo-field-group">
-                    <label class="almaseo-schema-analyzer-label">
-                        🧪 Schema Analyzer (AI Powered)
-                        <span class="schema-analyzer-tooltip" title="AI-powered analysis of your schema markup implementation">ⓘ</span>
-                    </label>
-                    
-                    <div class="schema-analyzer-container">
-                        <!-- Empty State -->
-                        <div class="schema-analyzer-empty" id="schema-analyzer-empty">
-                            <div class="empty-icon">🧪</div>
-                            <div class="empty-text">Please select a Schema Type to begin.</div>
-                            <div class="empty-hint">Choose a schema type above to get AI-powered analysis</div>
+
+                <!-- ═══ State 3: Loading ═══ -->
+                <div class="almaseo-gsc-state" id="gsc-state-loading">
+                    <div class="gsc-state-card">
+                        <div class="gsc-loading-spinner"></div>
+                        <h3 class="gsc-state-heading">Fetching search performance...</h3>
+                        <p class="gsc-state-description">Loading Google Search Console data for this page.</p>
+                    </div>
+                    <!-- Skeleton placeholders -->
+                    <div class="gsc-skeleton-metrics">
+                        <div class="gsc-skeleton-card"></div>
+                        <div class="gsc-skeleton-card"></div>
+                        <div class="gsc-skeleton-card"></div>
+                        <div class="gsc-skeleton-card"></div>
+                    </div>
+                </div>
+
+                <!-- ═══ State 4: Page Not Indexed ═══ -->
+                <div class="almaseo-gsc-state" id="gsc-state-not-indexed" style="display: none;">
+                    <div class="gsc-state-card">
+                        <div class="gsc-state-icon">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#dba617" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                <line x1="12" y1="9" x2="12" y2="13"/>
+                                <line x1="12" y1="17" x2="12.01" y2="17"/>
+                            </svg>
                         </div>
-                        
-                        <!-- Analysis Content -->
-                        <div class="schema-analyzer-content" id="schema-analyzer-content" style="display: none;">
-                            <div class="schema-analysis-info-box">
-                                <div class="analysis-icon">🧠</div>
-                                <div class="analysis-text" id="schema-analysis-text">
-                                    <!-- Analysis text will be populated by JavaScript -->
-                                </div>
-                            </div>
-                            
-                            <div class="schema-analyzer-controls">
-                                <button type="button" class="schema-analyzer-btn" id="refresh-schema-analysis">
-                                    🔄 Reanalyze Schema
-                                </button>
-                            </div>
-                            
-                            <div class="schema-analyzer-timestamp" id="schema-analyzer-timestamp">
-                                <!-- Timestamp will be populated by JavaScript -->
-                            </div>
+                        <h3 class="gsc-state-heading">This page isn't indexed yet</h3>
+                        <p class="gsc-state-description">
+                            Google hasn't indexed this URL. It may be too new, blocked by robots.txt, or missing from your sitemap.
+                        </p>
+                        <div class="gsc-state-actions">
+                            <a href="https://search.google.com/search-console/inspect?resource_id=<?php echo esc_attr(urlencode(home_url())); ?>&id=<?php echo esc_attr(urlencode($gsc_page_url)); ?>" target="_blank" class="gsc-state-btn gsc-btn-secondary">
+                                Request Indexing in GSC
+                            </a>
                         </div>
-                        
-                        <div class="schema-analyzer-loading" id="schema-analyzer-loading" style="display: none;">
-                            <div class="schema-analyzer-loading-spinner"></div>
-                            <div class="schema-analyzer-loading-text">Analyzing...</div>
-                        </div>
-                        
-                        <div class="schema-analyzer-error" id="schema-analyzer-error" style="display: none;">
-                            <div class="error-icon">⚠️</div>
-                            <div class="error-text" id="schema-analyzer-error-text"></div>
+                        <div class="gsc-state-tips">
+                            <p><strong>Common reasons:</strong></p>
+                            <ul>
+                                <li>Page was recently published</li>
+                                <li>Page is blocked by robots.txt or a noindex tag</li>
+                                <li>Page is not linked from your sitemap</li>
+                                <li>Page has a canonical pointing elsewhere</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
-            </div>
-            <?php endif; ?>
-            
-            <!-- Meta Health Section -->
-            <?php if ($is_connected): ?>
-            <div class="almaseo-meta-health-section" id="almaseo-meta-health-section" style="display: none;">
-                <div class="almaseo-field-group">
-                    <label class="almaseo-meta-health-label">
-                        🧬 Meta Health (AI Feedback)
-                        <span class="meta-health-tooltip" title="Get AI feedback on your SEO title and meta description to improve clicks and clarity">ⓘ</span>
-                    </label>
-                    
-                    <div class="meta-health-container">
-                        <!-- Empty State -->
-                        <div class="meta-health-empty" id="meta-health-empty">
-                            <div class="empty-icon">🧬</div>
-                            <div class="empty-text">Please fill in both SEO Title and Meta Description to begin.</div>
-                            <div class="empty-hint">Add your SEO title and meta description above to get AI-powered feedback</div>
+
+                <!-- ═══ State 5: Indexed, No Data ═══ -->
+                <div class="almaseo-gsc-state" id="gsc-state-no-data" style="display: none;">
+                    <div class="gsc-state-card">
+                        <div class="gsc-state-icon">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 3v18h18"/>
+                                <path d="M18 17V9"/>
+                                <path d="M13 17V5"/>
+                                <path d="M8 17v-3"/>
+                            </svg>
                         </div>
-                        
-                        <!-- Analysis Content -->
-                        <div class="meta-health-content" id="meta-health-content" style="display: none;">
-                            <div class="meta-health-score-block">
-                                <div class="meta-score-circle" id="meta-score-circle">
-                                    <div class="score-number" id="meta-score-number">0</div>
-                                    <div class="score-label">Meta Score</div>
-                                </div>
-                            </div>
-                            
-                            <div class="meta-health-feedback">
-                                <div class="feedback-text" id="meta-health-feedback-text">
-                                    <!-- Feedback text will be populated by JavaScript -->
-                                </div>
-                            </div>
-                            
-                            <div class="meta-health-controls">
-                                <button type="button" class="meta-health-btn" id="analyze-metadata">
-                                    🔄 Analyze Metadata
-                                </button>
-                            </div>
-                            
-                            <div class="meta-health-timestamp" id="meta-health-timestamp">
-                                <!-- Timestamp will be populated by JavaScript -->
-                            </div>
-                        </div>
-                        
-                        <div class="meta-health-loading" id="meta-health-loading" style="display: none;">
-                            <div class="meta-health-loading-spinner"></div>
-                            <div class="meta-health-loading-text">Analyzing metadata...</div>
-                        </div>
-                        
-                        <div class="meta-health-error" id="meta-health-error" style="display: none;">
-                            <div class="error-icon">⚠️</div>
-                            <div class="error-text" id="meta-health-error-text"></div>
+                        <h3 class="gsc-state-heading">No search data yet</h3>
+                        <p class="gsc-state-description">
+                            This page is indexed but hasn't received any impressions in the selected time period. This is normal for newer or low-traffic pages.
+                        </p>
+                        <div class="gsc-index-badge gsc-badge-indexed">
+                            <span class="gsc-badge-dot"></span>
+                            Indexed by Google
                         </div>
                     </div>
                 </div>
-            </div>
-            <?php endif; ?>
-            
-            <!-- Content Aging Section (Consolidated) -->
-            <div class="almaseo-content-aging-section" id="almaseo-content-aging-section">
-                <div class="almaseo-field-group">
-                    <label class="almaseo-content-aging-label">
-                        📆 Content Aging
-                        <span class="content-aging-tooltip" title="Track content age and set refresh reminders for SEO freshness">ⓘ</span>
-                    </label>
-                    
-                    <div class="content-aging-container">
-                        <?php 
-                        $post_date = get_the_date('U', $post->ID);
-                        $post_modified = get_post_modified_time('U', false, $post->ID);
-                        $current_time = current_time('U');
-                        $days_old = floor(($current_time - $post_date) / (60 * 60 * 24));
-                        $days_since_update = floor(($current_time - $post_modified) / (60 * 60 * 24));
-                        
-                        // Format age display
-                        if ($days_old === 0) {
-                            $age_text = 'Published Today';
-                        } elseif ($days_old === 1) {
-                            $age_text = '1 Day Old';
-                        } elseif ($days_old < 30) {
-                            $age_text = $days_old . ' Days Old';
-                        } elseif ($days_old < 365) {
-                            $months = floor($days_old / 30);
-                            $age_text = $months . ' Month' . ($months !== 1 ? 's' : '') . ' Old';
-                        } else {
-                            $years = floor($days_old / 365);
-                            $age_text = $years . ' Year' . ($years !== 1 ? 's' : '') . ' Old';
-                        }
-                        
-                        // Get reminder settings
-                        $reminder_days = get_post_meta($post->ID, '_almaseo_update_reminder_days', true) ?: '';
-                        $reminder_enabled = get_post_meta($post->ID, '_almaseo_update_reminder_enabled', true) ?: '';
-                        $reminder_email = get_post_meta($post->ID, '_almaseo_update_reminder_email', true) ?: '';
-                        $scheduled_time = get_post_meta($post->ID, '_almaseo_update_reminder_scheduled', true) ?: '';
-                        $admin_email = get_option('admin_email');
-                        ?>
-                        
-                        <div class="content-aging-content">
-                            <!-- Age Display -->
-                            <div class="content-age-display">
-                                <div class="age-text">
-                                    <strong><?php echo esc_html($age_text); ?></strong>
-                                </div>
-                                <div class="age-subtitle">
-                                    Published: <?php echo get_the_date('F j, Y', $post->ID); ?>
-                                </div>
+
+                <!-- ═══ State 6: Data Available (Main View) ═══ -->
+                <div class="almaseo-gsc-state" id="gsc-state-data" style="display: none;">
+
+                    <!-- Tab Header with Date Range -->
+                    <div class="gsc-data-header">
+                        <div class="gsc-data-title-row">
+                            <h2 class="gsc-data-title">Search Performance</h2>
+                            <div class="gsc-index-badge gsc-badge-indexed" id="gsc-index-status">
+                                <span class="gsc-badge-dot"></span>
+                                <span id="gsc-index-label">Indexed</span>
                             </div>
-                            
-                            <!-- Mark as Refreshed Button -->
-                            <div class="content-aging-controls">
-                                <button type="button" class="content-aging-btn" id="mark-as-refreshed">
-                                    🔁 Mark as Refreshed
-                                </button>
+                        </div>
+                        <div class="gsc-data-controls">
+                            <select class="gsc-date-range-selector" id="gsc-date-range" aria-label="Date range">
+                                <option value="7">Last 7 days</option>
+                                <option value="28" selected>Last 28 days</option>
+                                <option value="90">Last 90 days</option>
+                            </select>
+                            <button type="button" class="gsc-refresh-btn" id="gsc-refresh-btn" title="Refresh data">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Performance Metric Cards -->
+                    <div class="gsc-metrics-grid">
+                        <div class="gsc-metric-card gsc-metric-clicks">
+                            <div class="gsc-metric-label">Clicks</div>
+                            <div class="gsc-metric-value" id="gsc-clicks">--</div>
+                            <div class="gsc-metric-trend" id="gsc-clicks-trend">
+                                <span class="gsc-trend-arrow"></span>
+                                <span class="gsc-trend-value"></span>
+                                <span class="gsc-trend-label">vs prev period</span>
                             </div>
-                            
-                            <!-- Update Reminder Settings -->
-                            <div class="update-reminder-section">
-                                <div class="reminder-toggle">
-                                    <label>
-                                        <input type="checkbox" 
-                                               id="almaseo_update_reminder_enabled" 
-                                               name="almaseo_update_reminder_enabled"
-                                               value="1" 
-                                               <?php checked($reminder_enabled, '1'); ?> />
-                                        Set content update reminder after 
-                                        <input type="number" 
-                                               id="almaseo_update_reminder_days" 
-                                               name="almaseo_update_reminder_days"
-                                               value="<?php echo esc_attr($reminder_days ?: '90'); ?>" 
-                                               min="1" 
-                                               max="365"
-                                               style="width: 60px;" /> days
-                                    </label>
-                                </div>
-                                
-                                <p class="description" style="margin: 8px 0 0 0; color: #666; font-size: 13px;">
-                                    <?php _e('We\'ll remind you via an admin notice on this site.', 'almaseo'); ?>
-                                    <?php if ($reminder_email): ?>
-                                        <br><?php echo sprintf(__('Also emailing %s', 'almaseo'), '<strong>' . esc_html($admin_email) . '</strong>'); ?>
-                                    <?php endif; ?>
-                                </p>
-                                
-                                <?php if ($reminder_enabled && $scheduled_time): ?>
-                                <div class="reminder-scheduled-pill" style="margin: 10px 0; display: inline-block; background: #e8f4f8; color: #0073aa; padding: 5px 12px; border-radius: 15px; font-size: 13px;">
-                                    <?php 
-                                    $scheduled_date = date_i18n(get_option('date_format'), $scheduled_time);
-                                    echo sprintf(__('Reminder set for %s', 'almaseo'), $scheduled_date); 
-                                    ?>
-                                    <a href="#" class="cancel-reminder" data-post-id="<?php echo $post->ID; ?>" data-nonce="<?php echo esc_attr(wp_create_nonce('almaseo_cancel_reminder')); ?>" style="margin-left: 8px; color: #d63638; text-decoration: none;">
-                                        <?php _e('Cancel', 'almaseo'); ?>
-                                    </a>
-                                </div>
-                                <script>
-                                jQuery(document).on('click', '.cancel-reminder', function(e) {
-                                    e.preventDefault();
-                                    var $link = jQuery(this);
-                                    jQuery.post(ajaxurl, {
-                                        action: 'almaseo_cancel_reminder',
-                                        nonce: $link.data('nonce'),
-                                        post_id: $link.data('post-id')
-                                    }, function(response) {
-                                        if (response.success) {
-                                            $link.closest('.reminder-scheduled-pill').fadeOut();
-                                        }
-                                    });
-                                });
-                                </script>
-                                <?php endif; ?>
-                                
-                                <div style="margin: 10px 0 0 0;">
-                                    <label>
-                                        <input type="checkbox" 
-                                               id="almaseo_update_reminder_email" 
-                                               name="almaseo_update_reminder_email"
-                                               value="1" 
-                                               <?php checked($reminder_email, '1'); ?> />
-                                        <?php echo sprintf(__('Also email me at %s', 'almaseo'), '<strong>' . esc_html($admin_email) . '</strong>'); ?>
-                                    </label>
-                                </div>
+                        </div>
+                        <div class="gsc-metric-card gsc-metric-impressions">
+                            <div class="gsc-metric-label">Impressions</div>
+                            <div class="gsc-metric-value" id="gsc-impressions">--</div>
+                            <div class="gsc-metric-trend" id="gsc-impressions-trend">
+                                <span class="gsc-trend-arrow"></span>
+                                <span class="gsc-trend-value"></span>
+                                <span class="gsc-trend-label">vs prev period</span>
+                            </div>
+                        </div>
+                        <div class="gsc-metric-card gsc-metric-ctr">
+                            <div class="gsc-metric-label">Avg CTR</div>
+                            <div class="gsc-metric-value" id="gsc-ctr">--</div>
+                            <div class="gsc-metric-trend" id="gsc-ctr-trend">
+                                <span class="gsc-trend-arrow"></span>
+                                <span class="gsc-trend-value"></span>
+                                <span class="gsc-trend-label">vs prev period</span>
+                            </div>
+                        </div>
+                        <div class="gsc-metric-card gsc-metric-position">
+                            <div class="gsc-metric-label">Avg Position</div>
+                            <div class="gsc-metric-value" id="gsc-position">--</div>
+                            <div class="gsc-metric-trend" id="gsc-position-trend">
+                                <span class="gsc-trend-arrow"></span>
+                                <span class="gsc-trend-value"></span>
+                                <span class="gsc-trend-label">vs prev period</span>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            
-            <!-- AI Keyword Suggestions Section -->
-            <?php if ($is_connected): ?>
-            <div class="almaseo-ai-keywords-section" id="almaseo-ai-keywords-section" style="display: none;">
-                <div class="almaseo-field-group">
-                    <label class="almaseo-ai-label">
-                        🎯 Keyword Suggestions (Powered by AlmaSEO AI)
-                    </label>
-                    
-                    <?php if ($is_connected): ?>
-                    <!-- Connected State: Show AI keyword suggestions placeholder -->
-                    <div class="almaseo-ai-keywords-connected">
-                        <div class="ai-keywords-message">
-                            Your AI assistant will suggest keywords based on your content and audience.
+
+                    <!-- Top Queries Table -->
+                    <div class="gsc-queries-section">
+                        <div class="gsc-queries-header">
+                            <h3 class="gsc-queries-title">Top Search Queries</h3>
+                            <span class="gsc-queries-subtitle">Queries that surfaced this page in search results</span>
                         </div>
-                        <div class="ai-keywords-placeholder">
-                            <div class="keyword-item">
-                                <span class="keyword-text">marketing tips</span>
-                                <span class="keyword-score">95%</span>
-                            </div>
-                            <div class="keyword-item">
-                                <span class="keyword-text">seo checklist</span>
-                                <span class="keyword-score">87%</span>
-                            </div>
-                            <div class="keyword-item">
-                                <span class="keyword-text">wordpress plugin</span>
-                                <span class="keyword-score">82%</span>
-                            </div>
+                        <div class="gsc-queries-table-wrapper">
+                            <table class="gsc-queries-table" id="gsc-queries-table">
+                                <thead>
+                                    <tr>
+                                        <th class="gsc-col-query">Query</th>
+                                        <th class="gsc-col-clicks">Clicks</th>
+                                        <th class="gsc-col-impressions">Impr.</th>
+                                        <th class="gsc-col-ctr">CTR</th>
+                                        <th class="gsc-col-position">Position</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="gsc-queries-tbody">
+                                    <!-- Rows populated by JavaScript -->
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="ai-keywords-note">
-                            <em>Real AI suggestions will appear here based on your content analysis.</em>
-                        </div>
-                    </div>
-                    <?php else: ?>
-                    <!-- Disconnected State: Show locked message -->
-                    <div class="almaseo-ai-keywords-locked">
-                        <div class="ai-keywords-locked-message">
-                            🔒 Connect to AlmaSEO to unlock intelligent keyword suggestions tailored to your content.
-                        </div>
-                        <div class="ai-keywords-locked-action">
-                            <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>" class="button button-primary">
-                                Connect to AlmaSEO
+                        <div class="gsc-queries-footer" id="gsc-queries-footer" style="display: none;">
+                            <a href="https://app.almaseo.com" target="_blank" class="gsc-view-all-link">
+                                View all queries in Dashboard &rarr;
                             </a>
                         </div>
                     </div>
-                    <?php endif; ?>
+
+                    <!-- Last Updated -->
+                    <div class="gsc-last-updated" id="gsc-last-updated"></div>
                 </div>
-            </div>
-            <?php endif; ?>
-            
-            <!-- Internal Link Suggestions Section -->
-            <?php if ($is_connected): ?>
-            <div class="almaseo-internal-links-section" id="almaseo-internal-links-section">
-                <div class="almaseo-field-group">
-                    <label class="almaseo-internal-links-label">
-                        🔗 Internal Link Suggestions (Powered by AlmaSEO)
-                    </label>
-                    
-                    <div class="internal-links-container">
-                        <div class="internal-links-loading" id="internal-links-loading">
-                            <div class="links-loading-spinner"></div>
-                            <div class="links-loading-text">Analyzing your content for internal link opportunities...</div>
+
+                <!-- ═══ State 7: API Error ═══ -->
+                <div class="almaseo-gsc-state" id="gsc-state-error" style="display: none;">
+                    <div class="gsc-state-card">
+                        <div class="gsc-state-icon">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#d63638" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="12"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
                         </div>
-                        
-                        <div class="internal-links-content" id="internal-links-content" style="display: none;">
-                            <div class="internal-links-list" id="internal-links-list">
-                                <!-- Links will be populated by JavaScript -->
-                            </div>
-                        </div>
-                        
-                        <div class="internal-links-error" id="internal-links-error" style="display: none;">
-                            <div class="error-icon">⚠️</div>
-                            <div class="error-text">Could not fetch internal link suggestions</div>
-                        </div>
-                        
-                        <div class="internal-links-no-results" id="internal-links-no-results" style="display: none;">
-                            <div class="no-results-icon">🔍</div>
-                            <div class="no-results-text">No strong internal link suggestions were found for this post.</div>
-                            <div class="no-results-hint">Try adding more content or specific topics to your post.</div>
-                        </div>
+                        <h3 class="gsc-state-heading">Couldn't load search data</h3>
+                        <p class="gsc-state-description" id="gsc-error-message">
+                            An error occurred while fetching Search Console data. Please try again.
+                        </p>
+                        <button type="button" class="gsc-state-btn gsc-btn-primary" id="gsc-retry-btn">
+                            Retry
+                        </button>
                     </div>
                 </div>
-            </div>
-            <?php endif; ?>
-            
-            <!-- AI Rewrite Assistant Section -->
-            <?php if ($is_connected): ?>
-            <div class="almaseo-rewrite-section" id="almaseo-rewrite-section">
-                <div class="almaseo-field-group">
-                    <label class="almaseo-rewrite-label">
-                        ✍️ AI Rewrite Assistant
-                    </label>
-                    
-                    <div class="rewrite-container">
-                        <div class="rewrite-input-area">
-                            <textarea id="rewrite-input" 
-                                      class="almaseo-textarea rewrite-textarea" 
-                                      placeholder="Paste content to rewrite..."
-                                      rows="4"></textarea>
-                            
-                            <div class="rewrite-controls">
-                                <select id="rewrite-type" class="rewrite-type-select">
-                                    <option value="paragraph">Paragraph</option>
-                                    <option value="title">SEO Title</option>
-                                    <option value="description">Meta Description</option>
-                                </select>
-                                
-                                <button type="button" class="rewrite-btn" id="rewrite-submit">
-                                    🔁 Rewrite with AlmaSEO
-                                </button>
-                            </div>
+
+                <!-- ═══ State 8: GSC Token Expired ═══ -->
+                <div class="almaseo-gsc-state" id="gsc-state-token-expired" style="display: none;">
+                    <div class="gsc-state-card">
+                        <div class="gsc-state-icon">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#dba617" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+                            </svg>
                         </div>
-                        
-                        <div class="rewrite-loading" id="rewrite-loading" style="display: none;">
-                            <div class="rewrite-loading-spinner"></div>
-                            <div class="rewrite-loading-text">Rewriting your content...</div>
-                        </div>
-                        
-                        <div class="rewrite-result" id="rewrite-result" style="display: none;">
-                            <div class="rewrite-result-header">
-                                <strong>Rewritten Content:</strong>
-                            </div>
-                            <div class="rewrite-result-content" id="rewrite-result-content">
-                                <!-- Rewritten content will be populated by JavaScript -->
-                            </div>
-                            <div class="rewrite-result-actions">
-                                <button type="button" class="rewrite-action-btn copy-rewrite-btn" id="copy-rewrite">
-                                    📋 Copy
-                                </button>
-                                <button type="button" class="rewrite-action-btn replace-rewrite-btn" id="replace-rewrite">
-                                    ↩️ Replace Input
-                                </button>
-                                <button type="button" class="rewrite-action-btn clear-rewrite-btn" id="clear-rewrite">
-                                    ❌ Clear
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="rewrite-error" id="rewrite-error" style="display: none;">
-                            <div class="error-icon">⚠️</div>
-                            <div class="error-text">Could not rewrite content</div>
-                        </div>
+                        <h3 class="gsc-state-heading">Search Console access needs renewal</h3>
+                        <p class="gsc-state-description">
+                            Your Google authorization has expired or been revoked. Please re-connect Google Search Console in your AlmaSEO Dashboard.
+                        </p>
+                        <a href="https://app.almaseo.com/profile/google-services" target="_blank" class="gsc-state-btn gsc-btn-primary">
+                            Re-connect in Dashboard
+                            <span class="gsc-btn-arrow">&rarr;</span>
+                        </a>
                     </div>
                 </div>
+
             </div>
+            <!-- End almaseo-gsc-container -->
             <?php endif; ?>
-            
-            <!-- Content Brief (AI-Powered) Section -->
-            <?php if ($is_connected): ?>
-            <div class="almaseo-content-brief-section" id="almaseo-content-brief-section">
-                <div class="almaseo-field-group">
-                    <label class="almaseo-content-brief-label">
-                        🧠 Content Brief (AI-Powered)
-                    </label>
-                    
-                    <div class="content-brief-container">
-                        <div class="content-brief-textarea-container">
-                            <textarea id="content-brief-textarea" 
-                                      class="almaseo-textarea content-brief-textarea" 
-                                      placeholder="Your AI-generated content brief will appear here..."
-                                      rows="8"
-                                      readonly></textarea>
-                        </div>
-                        
-                        <div class="content-brief-controls">
-                            <button type="button" class="content-brief-btn" id="generate-content-brief">
-                                🪄 Generate Brief
-                            </button>
-                            
-                            <div class="content-brief-loading" id="content-brief-loading" style="display: none;">
-                                <div class="content-brief-loading-spinner"></div>
-                                <div class="content-brief-loading-text">Generating content brief...</div>
-                            </div>
-                        </div>
-                        
-                        <div class="content-brief-error" id="content-brief-error" style="display: none;">
-                            <div class="error-icon">⚠️</div>
-                            <div class="error-text">Could not generate content brief</div>
-                        </div>
-                        
-                        <div class="content-brief-tooltip" id="content-brief-tooltip" style="display: none;">
-                            <div class="tooltip-icon">💡</div>
-                            <div class="tooltip-text">Note: Content Brief is not auto-inserted into page builder editors. Copy manually if needed.</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
-            
-            <!-- AI FAQ Generator Section -->
-            <?php if ($is_connected): ?>
-            <div class="almaseo-faq-generator-section" id="almaseo-faq-generator-section">
-                <div class="almaseo-field-group">
-                    <label class="almaseo-faq-generator-label">
-                        ❓ AI FAQ Generator
-                    </label>
-                    
-                    <div class="faq-generator-container">
-                        <div class="faq-generator-textarea-container">
-                            <textarea id="faq-generator-textarea" 
-                                      class="almaseo-textarea faq-generator-textarea" 
-                                      placeholder="Your AI-generated FAQs will appear here..."
-                                      rows="10"
-                                      readonly></textarea>
-                        </div>
-                        
-                        <div class="faq-generator-controls">
-                            <button type="button" class="faq-generator-btn" id="generate-faqs">
-                                ✨ Generate FAQs
-                            </button>
-                            
-                            <div class="faq-generator-loading" id="faq-generator-loading" style="display: none;">
-                                <div class="faq-generator-loading-spinner"></div>
-                                <div class="faq-generator-loading-text">Generating FAQs...</div>
-                            </div>
-                        </div>
-                        
-                        <div class="faq-generator-error" id="faq-generator-error" style="display: none;">
-                            <div class="error-icon">⚠️</div>
-                            <div class="error-text">Could not generate FAQs</div>
-                        </div>
-                        
-                        <div class="faq-generator-tooltip" id="faq-generator-tooltip" style="display: none;">
-                            <div class="tooltip-icon">💡</div>
-                            <div class="tooltip-text">Note: FAQs are not auto-inserted into page builder editors. Copy manually if needed.</div>
-                        </div>
-                        
-                        <div class="faq-generator-validation" id="faq-generator-validation" style="display: none;">
-                            <div class="validation-icon">📝</div>
-                            <div class="validation-text">Content must be at least 100 words to generate meaningful FAQs.</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
-            
-            <!-- Saved Prompts & Snippets Section -->
-            <?php if ($is_connected): ?>
-            <div class="almaseo-saved-snippets-section" id="almaseo-saved-snippets-section">
-                <div class="almaseo-field-group">
-                    <label class="almaseo-saved-snippets-label">
-                        💾 Saved Prompts & Snippets
-                    </label>
-                    
-                    <div class="saved-snippets-container">
-                        <div class="saved-snippets-header">
-                            <button type="button" class="new-snippet-btn" id="new-snippet-btn">
-                                + New Snippet
-                            </button>
-                        </div>
-                        
-                        <div class="saved-snippets-list" id="saved-snippets-list">
-                            <!-- Snippets will be populated by JavaScript -->
-                        </div>
-                        
-                        <div class="saved-snippets-empty" id="saved-snippets-empty">
-                            <div class="empty-icon">📝</div>
-                            <div class="empty-text">No saved snippets yet</div>
-                            <div class="empty-hint">Create your first snippet to get started</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
-            
-            <!-- SEO Scorecard Section -->
-            <?php if ($is_connected): ?>
-            <div class="almaseo-scorecard-section" id="almaseo-scorecard-section">
-                <div class="almaseo-field-group">
-                    <label class="almaseo-scorecard-label">
-                        ✅ SEO Scorecard & Publish Assistant
-                    </label>
-                    
-                    <div class="scorecard-container">
-                        <!-- SEO Confidence Score Indicator -->
-                        <div class="seo-confidence-score" id="seo-confidence-score" role="region" aria-label="SEO Confidence Score">
-                            <div class="confidence-score-title" id="confidence-score-title">SEO Confidence Score</div>
-                            <div class="confidence-score-ring" role="img" aria-labelledby="confidence-score-title">
-                                <svg class="confidence-ring" width="120" height="120" viewBox="0 0 120 120" aria-hidden="true">
-                                    <circle class="confidence-ring-bg" cx="60" cy="60" r="54" stroke-width="8" fill="none"/>
-                                    <circle class="confidence-ring-progress" cx="60" cy="60" r="54" stroke-width="8" fill="none" 
-                                            stroke-dasharray="339.292" stroke-dashoffset="339.292" 
-                                            transform="rotate(-90 60 60)"/>
-                                </svg>
-                                <div class="confidence-score-percentage" id="confidence-score-percentage" aria-live="polite">0%</div>
-                            </div>
-                            <div class="confidence-score-label" id="confidence-score-label" aria-live="polite">Analyzing...</div>
-                        </div>
-                        
-                        <div class="scorecard-header" id="scorecard-header">
-                            <div class="scorecard-summary">
-                                <span class="scorecard-title">Publish Checklist</span>
-                                <span class="scorecard-status" id="scorecard-status">Analyzing...</span>
-                            </div>
-                        </div>
-                        
-                        <div class="scorecard-checklist" id="scorecard-checklist">
-                            <div class="scorecard-item" data-check="seo-title">
-                                <div class="scorecard-icon" id="seo-title-icon">⏳</div>
-                                <div class="scorecard-text">
-                                    <span class="scorecard-label">SEO Title</span>
-                                    <span class="scorecard-tooltip">Check if SEO title field is filled</span>
-                                </div>
-                            </div>
-                            
-                            <div class="scorecard-item" data-check="meta-description">
-                                <div class="scorecard-icon" id="meta-description-icon">⏳</div>
-                                <div class="scorecard-text">
-                                    <span class="scorecard-label">Meta Description</span>
-                                    <span class="scorecard-tooltip">Check if meta description field is filled</span>
-                                </div>
-                            </div>
-                            
-                            <div class="scorecard-item" data-check="focus-keywords">
-                                <div class="scorecard-icon" id="focus-keywords-icon">⏳</div>
-                                <div class="scorecard-text">
-                                    <span class="scorecard-label">Focus Keyword(s)</span>
-                                    <span class="scorecard-tooltip">Check if keyword suggestions exist or field has text</span>
-                                </div>
-                            </div>
-                            
-                            <div class="scorecard-item" data-check="internal-links">
-                                <div class="scorecard-icon" id="internal-links-icon">⏳</div>
-                                <div class="scorecard-text">
-                                    <span class="scorecard-label">Internal Links</span>
-                                    <span class="scorecard-tooltip">At least 1 Alma-inserted internal link</span>
-                                </div>
-                            </div>
-                            
-                            <div class="scorecard-item" data-check="schema-type">
-                                <div class="scorecard-icon" id="schema-type-icon">⏳</div>
-                                <div class="scorecard-text">
-                                    <span class="scorecard-label">Schema Type</span>
-                                    <span class="scorecard-tooltip">Any schema other than "None" selected</span>
-                                </div>
-                            </div>
-                            
-                            <div class="scorecard-item" data-check="ai-rewrite">
-                                <div class="scorecard-icon" id="ai-rewrite-icon">⏳</div>
-                                <div class="scorecard-text">
-                                    <span class="scorecard-label">AI Rewrite</span>
-                                    <span class="scorecard-tooltip">Optional: Check if user has submitted rewrite</span>
-                                </div>
-                            </div>
-                            
-                            <div class="scorecard-item" data-check="content-length">
-                                <div class="scorecard-icon" id="content-length-icon">⏳</div>
-                                <div class="scorecard-text">
-                                    <span class="scorecard-label">Content Length</span>
-                                    <span class="scorecard-tooltip">Warn if content < 300 words</span>
-                                </div>
-                            </div>
-                            
-                            <div class="scorecard-item" data-check="reoptimization">
-                                <div class="scorecard-icon" id="reoptimization-icon">⏳</div>
-                                <div class="scorecard-text">
-                                    <span class="scorecard-label">Reoptimization Alert</span>
-                                    <span class="scorecard-tooltip">Show if reoptimize flag is TRUE</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="scorecard-footer" id="scorecard-footer" style="display: none;">
-                            <div class="scorecard-passed" id="scorecard-passed" style="display: none;">
-                                <div class="passed-icon">🎉</div>
-                                <div class="passed-text">Publish Checklist Passed!</div>
-                                <div class="passed-subtext">Your post is ready for publication.</div>
-                            </div>
-                            
-                            <div class="scorecard-warning" id="scorecard-warning" style="display: none;">
-                                <div class="warning-icon">⚠️</div>
-                                <div class="warning-text">Some improvements recommended</div>
-                                <div class="warning-subtext">Consider addressing the items above before publishing.</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
-            
-            <!-- SEO Playground Tips Section -->
-            <?php if ($is_connected): ?>
-            <div class="almaseo-seo-tips-section" id="almaseo-seo-tips-section">
-                <div class="almaseo-field-group">
-                    <label class="almaseo-seo-tips-label" for="seo-tips-toggle">
-                        💡 AlmaSEO SEO Playground Tips (From Alma)
-                        <span class="tips-tooltip" title="Helpful SEO tips to improve your workflow and results.">ⓘ</span>
-                    </label>
-                    
-                    <div class="seo-tips-container">
-                        <div class="seo-tips-header">
-                            <button type="button" class="seo-tips-toggle" id="seo-tips-toggle" aria-expanded="false">
-                                <span class="toggle-icon">▼</span>
-                                <span class="toggle-text">Show Tips</span>
-                            </button>
-                        </div>
-                        
-                        <div class="seo-tips-content" id="seo-tips-content" style="display: none;">
-                            <div class="seo-tips-display">
-                                <div class="tip-content" id="tip-content">
-                                    <!-- Tip content will be populated by JavaScript -->
-                                </div>
-                            </div>
-                            
-                            <div class="seo-tips-controls">
-                                <button type="button" class="shuffle-tip-btn" id="shuffle-tip-btn">
-                                    🔀 Shuffle Tip
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
+
+            <style>
+                /* ── GSC State Screens ── */
+                .almaseo-gsc-state { padding: 20px; }
+                .gsc-state-card {
+                    text-align: center;
+                    padding: 40px 30px;
+                    background: #f8fafc;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 8px;
+                }
+                .gsc-state-icon { margin-bottom: 16px; }
+                .gsc-state-icon svg { display: inline-block; }
+                .gsc-state-heading {
+                    font-size: 18px;
+                    font-weight: 600;
+                    color: #1e293b;
+                    margin: 0 0 8px 0;
+                }
+                .gsc-state-description {
+                    font-size: 14px;
+                    color: #64748b;
+                    margin: 0 0 20px 0;
+                    max-width: 480px;
+                    margin-left: auto;
+                    margin-right: auto;
+                    line-height: 1.5;
+                }
+                .gsc-state-btn {
+                    display: inline-block;
+                    padding: 10px 24px;
+                    border-radius: 6px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    text-decoration: none;
+                    cursor: pointer;
+                    border: none;
+                    transition: all 0.2s ease;
+                }
+                .gsc-btn-primary {
+                    background: #2271b1;
+                    color: #fff;
+                }
+                .gsc-btn-primary:hover { background: #135e96; color: #fff; }
+                .gsc-btn-secondary {
+                    background: #f0f6fc;
+                    color: #2271b1;
+                    border: 1px solid #2271b1;
+                }
+                .gsc-btn-secondary:hover { background: #e1ecf7; }
+                .gsc-btn-arrow { margin-left: 4px; }
+                .gsc-state-hint {
+                    font-size: 12px;
+                    color: #94a3b8;
+                    margin-top: 10px;
+                }
+                .gsc-state-tips {
+                    text-align: left;
+                    max-width: 400px;
+                    margin: 20px auto 0;
+                    font-size: 13px;
+                    color: #64748b;
+                }
+                .gsc-state-tips ul {
+                    margin: 6px 0 0 18px;
+                    padding: 0;
+                }
+                .gsc-state-tips li { margin-bottom: 4px; }
+                .gsc-state-actions { margin-bottom: 16px; }
+
+                /* ── Loading Spinner ── */
+                .gsc-loading-spinner {
+                    width: 40px;
+                    height: 40px;
+                    border: 3px solid #e2e8f0;
+                    border-top-color: #2271b1;
+                    border-radius: 50%;
+                    animation: gsc-spin 0.8s linear infinite;
+                    margin: 0 auto 16px;
+                }
+                @keyframes gsc-spin { to { transform: rotate(360deg); } }
+
+                /* ── Skeleton Placeholders ── */
+                .gsc-skeleton-metrics {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 12px;
+                    padding: 0 20px 20px;
+                }
+                .gsc-skeleton-card {
+                    height: 80px;
+                    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+                    background-size: 200% 100%;
+                    animation: gsc-shimmer 1.5s infinite;
+                    border-radius: 8px;
+                }
+                @keyframes gsc-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+                /* ── Index Badge ── */
+                .gsc-index-badge {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding: 4px 12px;
+                    border-radius: 20px;
+                    font-size: 12px;
+                    font-weight: 600;
+                }
+                .gsc-badge-indexed {
+                    background: #d4edda;
+                    color: #155724;
+                }
+                .gsc-badge-dot {
+                    width: 8px;
+                    height: 8px;
+                    border-radius: 50%;
+                    background: #28a745;
+                    display: inline-block;
+                }
+
+                /* ── Data Header ── */
+                .gsc-data-header {
+                    padding: 20px 20px 0;
+                }
+                .gsc-data-title-row {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    margin-bottom: 12px;
+                }
+                .gsc-data-title {
+                    font-size: 18px;
+                    font-weight: 600;
+                    color: #1e293b;
+                    margin: 0;
+                }
+                .gsc-data-controls {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                .gsc-date-range-selector {
+                    padding: 6px 12px;
+                    border: 1px solid #c3c4c7;
+                    border-radius: 4px;
+                    font-size: 13px;
+                    color: #1e293b;
+                    background: #fff;
+                    cursor: pointer;
+                }
+                .gsc-refresh-btn {
+                    padding: 6px 8px;
+                    border: 1px solid #c3c4c7;
+                    border-radius: 4px;
+                    background: #fff;
+                    cursor: pointer;
+                    color: #50575e;
+                    display: flex;
+                    align-items: center;
+                    transition: all 0.2s;
+                }
+                .gsc-refresh-btn:hover { background: #f0f0f1; color: #2271b1; }
+                .gsc-refresh-btn.spinning svg {
+                    animation: gsc-spin 0.8s linear infinite;
+                }
+
+                /* ── Metric Cards Grid ── */
+                .gsc-metrics-grid {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 12px;
+                    padding: 16px 20px;
+                }
+                .gsc-metric-card {
+                    background: #fff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 8px;
+                    padding: 16px;
+                    border-top: 3px solid #e2e8f0;
+                }
+                .gsc-metric-clicks { border-top-color: #4285f4; }
+                .gsc-metric-impressions { border-top-color: #5e35b1; }
+                .gsc-metric-ctr { border-top-color: #00897b; }
+                .gsc-metric-position { border-top-color: #e8710a; }
+                .gsc-metric-label {
+                    font-size: 12px;
+                    font-weight: 600;
+                    color: #64748b;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                    margin-bottom: 4px;
+                }
+                .gsc-metric-value {
+                    font-size: 28px;
+                    font-weight: 700;
+                    color: #1e293b;
+                    line-height: 1.2;
+                }
+                .gsc-metric-trend {
+                    margin-top: 6px;
+                    font-size: 12px;
+                    color: #64748b;
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                }
+                .gsc-trend-up { color: #16a34a; }
+                .gsc-trend-down { color: #dc2626; }
+                .gsc-trend-neutral { color: #64748b; }
+                /* For position, lower is better so invert colors */
+                .gsc-metric-position .gsc-trend-up { color: #dc2626; }
+                .gsc-metric-position .gsc-trend-down { color: #16a34a; }
+
+                /* ── Queries Table ── */
+                .gsc-queries-section {
+                    padding: 0 20px 20px;
+                }
+                .gsc-queries-header {
+                    margin-bottom: 12px;
+                }
+                .gsc-queries-title {
+                    font-size: 15px;
+                    font-weight: 600;
+                    color: #1e293b;
+                    margin: 0 0 2px 0;
+                }
+                .gsc-queries-subtitle {
+                    font-size: 12px;
+                    color: #94a3b8;
+                }
+                .gsc-queries-table-wrapper {
+                    overflow-x: auto;
+                }
+                .gsc-queries-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    font-size: 13px;
+                }
+                .gsc-queries-table th {
+                    text-align: left;
+                    padding: 8px 12px;
+                    background: #f8fafc;
+                    border-bottom: 2px solid #e2e8f0;
+                    font-weight: 600;
+                    color: #475569;
+                    font-size: 11px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+                .gsc-queries-table td {
+                    padding: 10px 12px;
+                    border-bottom: 1px solid #f1f5f9;
+                    color: #334155;
+                }
+                .gsc-queries-table tr:hover td {
+                    background: #f8fafc;
+                }
+                .gsc-col-query { min-width: 200px; }
+                .gsc-col-clicks,
+                .gsc-col-impressions,
+                .gsc-col-ctr,
+                .gsc-col-position {
+                    text-align: right;
+                    width: 80px;
+                }
+                .gsc-queries-table th.gsc-col-clicks,
+                .gsc-queries-table th.gsc-col-impressions,
+                .gsc-queries-table th.gsc-col-ctr,
+                .gsc-queries-table th.gsc-col-position {
+                    text-align: right;
+                }
+                .gsc-queries-footer {
+                    text-align: center;
+                    padding-top: 12px;
+                }
+                .gsc-view-all-link {
+                    font-size: 13px;
+                    color: #2271b1;
+                    text-decoration: none;
+                }
+                .gsc-view-all-link:hover { text-decoration: underline; }
+
+                /* ── Last Updated ── */
+                .gsc-last-updated {
+                    padding: 10px 20px;
+                    text-align: right;
+                    font-size: 11px;
+                    color: #94a3b8;
+                }
+
+                /* ── Responsive ── */
+                @media (max-width: 782px) {
+                    .gsc-metrics-grid { grid-template-columns: repeat(2, 1fr); }
+                    .gsc-skeleton-metrics { grid-template-columns: repeat(2, 1fr); }
+                    .gsc-metric-value { font-size: 22px; }
+                }
+            </style>
+
+            <script>
+            jQuery(document).ready(function($) {
+                var $container = $('#almaseo-gsc-container');
+                if (!$container.length) return; // State 1 (not connected) - no JS needed
+
+                var postId = $container.data('post-id');
+                var pageUrl = $container.data('page-url');
+                var nonce = $container.data('nonce');
+
+                // Show a specific state, hide all others
+                function showState(stateId) {
+                    $container.find('.almaseo-gsc-state').hide();
+                    $('#' + stateId).show();
+                }
+
+                // Format numbers with commas
+                function formatNumber(n) {
+                    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                }
+
+                // Update a trend indicator
+                function updateTrend($el, current, previous, isPosition) {
+                    if (previous === null || previous === undefined) {
+                        $el.find('.gsc-trend-value').text('--');
+                        $el.find('.gsc-trend-arrow').text('');
+                        return;
+                    }
+                    var diff = current - previous;
+                    var pct = previous !== 0 ? Math.abs((diff / previous) * 100).toFixed(1) : 0;
+                    var arrow, cls;
+
+                    if (Math.abs(diff) < 0.01) {
+                        arrow = '→'; cls = 'gsc-trend-neutral';
+                    } else if (diff > 0) {
+                        arrow = '↑'; cls = 'gsc-trend-up';
+                    } else {
+                        arrow = '↓'; cls = 'gsc-trend-down';
+                    }
+
+                    $el.removeClass('gsc-trend-up gsc-trend-down gsc-trend-neutral').addClass(cls);
+                    $el.find('.gsc-trend-arrow').text(arrow);
+                    $el.find('.gsc-trend-value').text(pct + '%');
+                }
+
+                // Render the data view
+                function renderData(data) {
+                    var m = data.metrics;
+
+                    // Summary cards
+                    $('#gsc-clicks').text(formatNumber(m.clicks));
+                    $('#gsc-impressions').text(formatNumber(m.impressions));
+                    $('#gsc-ctr').text((m.ctr * 100).toFixed(1) + '%');
+                    $('#gsc-position').text(m.position.toFixed(1));
+
+                    // Trends (compare to previous period)
+                    if (data.previous) {
+                        var p = data.previous;
+                        updateTrend($('#gsc-clicks-trend'), m.clicks, p.clicks);
+                        updateTrend($('#gsc-impressions-trend'), m.impressions, p.impressions);
+                        updateTrend($('#gsc-ctr-trend'), m.ctr, p.ctr);
+                        updateTrend($('#gsc-position-trend'), m.position, p.position, true);
+                    }
+
+                    // Queries table
+                    var $tbody = $('#gsc-queries-tbody').empty();
+                    if (data.queries && data.queries.length) {
+                        $.each(data.queries.slice(0, 10), function(i, q) {
+                            $tbody.append(
+                                '<tr>' +
+                                '<td class="gsc-col-query">' + $('<span>').text(q.query).html() + '</td>' +
+                                '<td class="gsc-col-clicks">' + formatNumber(q.clicks) + '</td>' +
+                                '<td class="gsc-col-impressions">' + formatNumber(q.impressions) + '</td>' +
+                                '<td class="gsc-col-ctr">' + (q.ctr * 100).toFixed(1) + '%</td>' +
+                                '<td class="gsc-col-position">' + q.position.toFixed(1) + '</td>' +
+                                '</tr>'
+                            );
+                        });
+                        if (data.queries.length > 10) {
+                            $('#gsc-queries-footer').show();
+                        }
+                    } else {
+                        $tbody.append('<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:20px;">No queries found for this page</td></tr>');
+                    }
+
+                    // Last updated
+                    $('#gsc-last-updated').text('Data last updated: ' + (data.last_updated || 'just now'));
+
+                    showState('gsc-state-data');
+                }
+
+                // Fetch GSC data from AlmaSEO dashboard
+                function fetchGSCData() {
+                    var days = $('#gsc-date-range').val() || 28;
+                    showState('gsc-state-loading');
+
+                    $.ajax({
+                        url: ajaxurl,
+                        type: 'POST',
+                        data: {
+                            action: 'almaseo_fetch_gsc_page_data',
+                            nonce: nonce,
+                            post_id: postId,
+                            page_url: pageUrl,
+                            days: days
+                        },
+                        timeout: 30000,
+                        success: function(response) {
+                            if (!response.success) {
+                                handleError(response.data);
+                                return;
+                            }
+                            var d = response.data;
+
+                            // Route to the right state based on API response
+                            if (d.status === 'gsc_not_connected') {
+                                showState('gsc-state-no-gsc');
+                            } else if (d.status === 'token_expired') {
+                                showState('gsc-state-token-expired');
+                            } else if (d.status === 'not_indexed') {
+                                showState('gsc-state-not-indexed');
+                            } else if (d.status === 'no_data') {
+                                showState('gsc-state-no-data');
+                            } else if (d.status === 'ok') {
+                                renderData(d);
+                            } else {
+                                handleError({ message: 'Unexpected response from server.' });
+                            }
+                        },
+                        error: function(xhr, status) {
+                            var msg = status === 'timeout'
+                                ? 'The request timed out. Please try again.'
+                                : 'Could not reach the server. Check your connection.';
+                            handleError({ message: msg });
+                        }
+                    });
+                }
+
+                function handleError(data) {
+                    var msg = (data && data.message) ? data.message : 'An unexpected error occurred.';
+                    $('#gsc-error-message').text(msg);
+                    showState('gsc-state-error');
+                }
+
+                // Event handlers
+                $('#gsc-date-range').on('change', fetchGSCData);
+                $('#gsc-refresh-btn').on('click', function() {
+                    $(this).addClass('spinning');
+                    fetchGSCData();
+                    setTimeout(function() { $('#gsc-refresh-btn').removeClass('spinning'); }, 1000);
+                });
+                $('#gsc-retry-btn').on('click', fetchGSCData);
+
+                // Fetch on tab activation (lazy load)
+                var gscLoaded = false;
+                $(document).on('click', '.almaseo-tab-btn[data-tab="search-console"]', function() {
+                    if (!gscLoaded) {
+                        gscLoaded = true;
+                        fetchGSCData();
+                    }
+                });
+
+                // If the tab is already active on load, fetch immediately
+                if ($('#tab-search-console').hasClass('active')) {
+                    gscLoaded = true;
+                    fetchGSCData();
+                }
+            });
+            </script>
         </div>
         <!-- End Search Console Tab -->
         
@@ -3973,8 +3951,8 @@ function almaseo_seo_playground_meta_box_callback($post) {
         </div>
         <!-- End Notes & History Tab -->
         
-        <?php if (!$is_connected): ?>
-        <!-- Unlock AI Features Tab -->
+        <?php if (!$is_connected && function_exists('almaseo_is_free_tier') && almaseo_is_free_tier()): ?>
+        <!-- Unlock Full Features Tab -->
         <div class="almaseo-tab-panel" id="tab-unlock-features">
             <div class="almaseo-unlock-container">
                 

@@ -1594,3 +1594,105 @@ function seo_playground_ajax_get_note() {
     ));
 }
 } // end function_exists guard: seo_playground_ajax_get_note
+
+// ════════════════════════════════════════════════════════════════
+// GSC Page Data — Fetch Search Console data for a specific page
+// ════════════════════════════════════════════════════════════════
+
+add_action('wp_ajax_almaseo_fetch_gsc_page_data', 'almaseo_ajax_fetch_gsc_page_data');
+if (!function_exists('almaseo_ajax_fetch_gsc_page_data')) {
+function almaseo_ajax_fetch_gsc_page_data() {
+    // Verify nonce
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'almaseo_gsc_nonce')) {
+        wp_send_json_error(array('message' => 'Invalid security token'));
+        return;
+    }
+
+    if (!current_user_can('edit_posts')) {
+        wp_send_json_error(array('message' => 'Insufficient permissions'));
+        return;
+    }
+
+    // Check connection
+    if (!seo_playground_is_alma_connected()) {
+        wp_send_json_error(array('message' => 'Not connected to AlmaSEO'));
+        return;
+    }
+
+    // Get parameters
+    $page_url = isset($_POST['page_url']) ? esc_url_raw($_POST['page_url']) : '';
+    $days = isset($_POST['days']) ? intval($_POST['days']) : 28;
+
+    if (empty($page_url)) {
+        wp_send_json_error(array('message' => 'page_url is required'));
+        return;
+    }
+
+    // Clamp days to allowed values
+    if (!in_array($days, array(7, 28, 90), true)) {
+        $days = 28;
+    }
+
+    // Get stored credentials
+    $app_password = get_option('almaseo_app_password', '');
+    $username = get_option('almaseo_connected_user', '');
+    $site_url = get_site_url();
+
+    if (empty($app_password) || empty($username)) {
+        wp_send_json_error(array('message' => 'Missing credentials'));
+        return;
+    }
+
+    // Check transient cache (5 min TTL per page+days combo)
+    $cache_key = 'almaseo_gsc_' . md5($page_url . '_' . $days);
+    $cached = get_transient($cache_key);
+    if ($cached !== false) {
+        wp_send_json_success($cached);
+        return;
+    }
+
+    // Call AlmaSEO Dashboard API
+    $api_url = 'https://api.almaseo.com/api/plugin/gsc-page-data';
+
+    $response = wp_remote_post($api_url, array(
+        'timeout' => 30,
+        'headers' => array(
+            'Content-Type'  => 'application/json',
+            'Authorization' => 'Basic ' . base64_encode($username . ':' . $app_password)
+        ),
+        'body' => wp_json_encode(array(
+            'site_url'  => $site_url,
+            'page_url'  => $page_url,
+            'days'      => $days
+        ))
+    ));
+
+    if (is_wp_error($response)) {
+        wp_send_json_error(array(
+            'message' => 'Could not reach AlmaSEO server: ' . $response->get_error_message()
+        ));
+        return;
+    }
+
+    $response_code = wp_remote_retrieve_response_code($response);
+    $response_body = wp_remote_retrieve_body($response);
+    $result = json_decode($response_body, true);
+
+    if ($response_code === 401) {
+        wp_send_json_error(array('message' => 'Authentication failed. Please reconnect your site.'));
+        return;
+    }
+
+    if ($response_code !== 200 || empty($result['success'])) {
+        $error_msg = isset($result['error']) ? $result['error'] : 'Unexpected error from AlmaSEO API';
+        wp_send_json_error(array('message' => $error_msg));
+        return;
+    }
+
+    // Cache successful responses for 5 minutes
+    $data = isset($result['data']) ? $result['data'] : $result;
+    set_transient($cache_key, $data, 5 * MINUTE_IN_SECONDS);
+
+    wp_send_json_success($data);
+}
+} // end function_exists guard: almaseo_ajax_fetch_gsc_page_data
