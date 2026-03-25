@@ -17,8 +17,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 <div class="wrap almaseo-import-wrap">
     <h1><?php esc_html_e( 'Import & Migrate SEO Data', 'almaseo' ); ?></h1>
     <p class="description">
-        <?php esc_html_e( 'Migrate everything from your previous SEO plugin in one place: post meta, taxonomy meta, global settings, and redirects. A verification report runs at the end to catch any issues.', 'almaseo' ); ?>
+        <?php esc_html_e( 'Migrate SEO data from your previous plugin into AlmaSEO. Each step scans your database for data stored by the detected plugin and copies it into AlmaSEO format. Only plugins with data on this site will appear below.', 'almaseo' ); ?>
     </p>
+    <div class="almaseo-import-supported-note">
+        <strong><?php esc_html_e( 'Currently supported plugins:', 'almaseo' ); ?></strong>
+        <?php esc_html_e( 'Yoast SEO, Rank Math, and All in One SEO (AIOSEO). Support for additional plugins (SEOPress, The SEO Framework, and others) is coming soon.', 'almaseo' ); ?>
+    </div>
 
     <!-- ============================================================
          Step 1: Post Meta (existing)
@@ -29,7 +33,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             <?php esc_html_e( 'Post Meta (Titles, Descriptions, Keywords, Social, Robots)', 'almaseo' ); ?>
         </h2>
         <p class="description">
-            <?php esc_html_e( 'Import per-page/post SEO data. This is the core migration step.', 'almaseo' ); ?>
+            <?php esc_html_e( 'Import the custom SEO titles, meta descriptions, focus keywords, Open Graph data, and robots directives that your previous SEO plugin stored on each post and page. This is the core migration step.', 'almaseo' ); ?>
         </p>
 
         <div id="almaseo-import-sources" class="almaseo-import-sources">
@@ -104,7 +108,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             <?php esc_html_e( 'Taxonomy Term Meta (Categories, Tags)', 'almaseo' ); ?>
         </h2>
         <p class="description">
-            <?php esc_html_e( 'Import SEO titles and descriptions set on categories, tags, and custom taxonomy terms.', 'almaseo' ); ?>
+            <?php esc_html_e( 'Import custom SEO titles and descriptions that were manually set on your categories, tags, and custom taxonomy terms inside the previous SEO plugin. This only covers terms where you (or the plugin) explicitly added SEO metadata — your WordPress categories and tags themselves are not affected.', 'almaseo' ); ?>
         </p>
 
         <div id="almaseo-term-sources" class="almaseo-import-sources">
@@ -207,7 +211,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             <?php esc_html_e( 'Redirects', 'almaseo' ); ?>
         </h2>
         <p class="description">
-            <?php esc_html_e( 'Import redirect rules from Rank Math, Yoast Premium, or the Redirection plugin.', 'almaseo' ); ?>
+            <?php esc_html_e( 'Import redirect rules (301, 302, etc.) stored by the previous plugin. Only shown if the detected plugin has redirect data in its database tables.', 'almaseo' ); ?>
         </p>
 
         <div id="almaseo-redirects-sources" class="almaseo-import-sources">

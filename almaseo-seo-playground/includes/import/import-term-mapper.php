@@ -81,6 +81,8 @@ class AlmaSEO_Import_Term_Mapper {
         $imported  = 0;
         $skipped   = 0;
         $processed = 0;
+        $not_found = 0;
+        $empty     = 0;
 
         foreach ( $rows as $row ) {
             $term_id = (int) $row['term_id'];
@@ -89,6 +91,7 @@ class AlmaSEO_Import_Term_Mapper {
             // Verify term still exists.
             $term = get_term( $term_id );
             if ( ! $term || is_wp_error( $term ) ) {
+                $not_found++;
                 continue;
             }
 
@@ -101,10 +104,28 @@ class AlmaSEO_Import_Term_Mapper {
                 'og_desc'     => '_almaseo_term_og_description',
             );
 
+            // Fields that can contain template variables (not noindex/canonical).
+            $template_fields = array( 'title', 'description', 'og_title', 'og_desc' );
+
+            $row_had_data = false;
             foreach ( $meta_map as $key => $meta_key ) {
                 if ( empty( $row[ $key ] ) ) {
                     continue;
                 }
+
+                $value = $row[ $key ];
+
+                // For AIOSEO source: convert #hash tags → %%tags%% and skip defaults.
+                if ( $source === 'aioseo' && in_array( $key, $template_fields, true ) ) {
+                    if ( class_exists( 'AlmaSEO_Import_Mapper_AIOSEO' ) ) {
+                        if ( AlmaSEO_Import_Mapper_AIOSEO::is_default_template( $value ) ) {
+                            continue;
+                        }
+                        $value = AlmaSEO_Import_Mapper_AIOSEO::convert_tags( $value );
+                    }
+                }
+
+                $row_had_data = true;
 
                 if ( ! $overwrite ) {
                     $existing = get_term_meta( $term_id, $meta_key, true );
@@ -114,8 +135,12 @@ class AlmaSEO_Import_Term_Mapper {
                     }
                 }
 
-                update_term_meta( $term_id, $meta_key, sanitize_text_field( $row[ $key ] ) );
+                update_term_meta( $term_id, $meta_key, sanitize_text_field( $value ) );
                 $imported++;
+            }
+
+            if ( ! $row_had_data ) {
+                $empty++;
             }
         }
 
@@ -125,6 +150,8 @@ class AlmaSEO_Import_Term_Mapper {
             'processed' => $processed,
             'imported'  => $imported,
             'skipped'   => $skipped,
+            'not_found' => $not_found,
+            'empty'     => $empty,
             'offset'    => $offset + $processed,
             'done'      => $done,
         );

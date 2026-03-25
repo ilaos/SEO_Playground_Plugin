@@ -368,3 +368,35 @@
     margin-top: 24px;
     margin-bottom: 6px;
 }
+
+/* ── Completed state banner ── */
+.almaseo-import-completed {
+    background: #f0faf0;
+    border: 1px solid #00a32a;
+    border-left-width: 4px;
+    border-radius: 3px;
+    padding: 14px 18px;
+    margin: 16px 0 0;
+    font-size: 14px;
+    line-height: 1.6;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.almaseo-import-completed .dashicons {
+    flex-shrink: 0;
+}
+
+/* Supported plugins note */
+.almaseo-import-supported-note {
+    background: #f0f6fc;
+    border: 1px solid #c3c4c7;
+    border-left: 4px solid #2271b1;
+    padding: 10px 14px;
+    margin: 12px 0 4px;
+    font-size: 13px;
+    line-height: 1.5;
+    border-radius: 2px;
+}

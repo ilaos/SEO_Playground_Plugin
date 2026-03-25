@@ -465,8 +465,14 @@
         initClassic: function() {
             // Wait for TinyMCE
             if (typeof tinyMCE !== 'undefined') {
-                tinyMCE.on('AddEditor', function() {
-                    AlmaSEO.init();
+                tinyMCE.on('AddEditor', function(e) {
+                    // Only initialize for the main post content editor.
+                    // Page builders (Fusion Builder, Elementor, etc.) create
+                    // their own TinyMCE instances — initializing on those
+                    // causes DOM mutations mid-render that break their modals.
+                    if (e.editor && e.editor.id === 'content') {
+                        AlmaSEO.init();
+                    }
                 });
             } else {
                 $(document).ready(() => AlmaSEO.init());
@@ -485,6 +491,13 @@
      * Main Initialization
      */
     AlmaSEO.init = function() {
+        // Prevent re-initialization (page builders like Fusion Builder may
+        // trigger this multiple times via TinyMCE AddEditor events)
+        if (AlmaSEO._initialized) {
+            return;
+        }
+        AlmaSEO._initialized = true;
+
         // Check user capabilities
         if (!this.Utils.canEditPosts()) {
             console.warn('AlmaSEO: User lacks edit_posts capability');

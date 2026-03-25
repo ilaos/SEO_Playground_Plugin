@@ -15,6 +15,82 @@ if ( ! defined( 'ABSPATH' ) ) {
 class AlmaSEO_Import_Mapper_AIOSEO {
 
     /**
+     * AIOSEO default title templates that should be skipped during per-post
+     * import.  These are the factory defaults AIOSEO writes to every row in
+     * aioseo_posts even when the user never customised anything.
+     *
+     * We normalise before comparing (lowercase, collapse whitespace) so minor
+     * formatting differences don't cause mismatches.
+     */
+    private static $default_templates = array(
+        // Post title defaults.
+        '#post_title #separator_sa #site_title',
+        '#post_title',
+        // Site/homepage defaults.
+        '#site_title #separator_sa #tagline',
+        '#site_title',
+        // Taxonomy/archive defaults.
+        '#taxonomy_title #separator_sa #site_title',
+        '#taxonomy_title',
+        '#archive_title #separator_sa #site_title',
+        // Description defaults (excerpt-based).
+        '#post_excerpt',
+        '#taxonomy_description',
+    );
+
+    /**
+     * Convert AIOSEO hash-style template variables to AlmaSEO %%tag%% format.
+     *
+     * This is the authoritative tag map used by both the per-post mapper and
+     * the term mapper.  The settings mapper has its own private copy — if you
+     * add a tag here, add it there too.
+     *
+     * @param string $text Raw AIOSEO value.
+     * @return string Value with tags converted to AlmaSEO format.
+     */
+    public static function convert_tags( $text ) {
+        static $replacements = null;
+
+        if ( $replacements === null ) {
+            $replacements = array(
+                '#post_title'           => '%%title%%',
+                '#site_title'           => '%%sitename%%',
+                '#tagline'              => '%%sitetagline%%',
+                '#separator_sa'         => '%%sep%%',
+                '#post_excerpt'         => '%%excerpt%%',
+                '#post_date'            => '%%date%%',
+                '#post_modified_date'   => '%%modified%%',
+                '#author_name'          => '%%author%%',
+                '#author_first_name'    => '%%author_first_name%%',
+                '#author_last_name'     => '%%author_last_name%%',
+                '#taxonomy_title'       => '%%term_title%%',
+                '#taxonomy_description' => '%%term_description%%',
+                '#search_term'          => '%%searchphrase%%',
+                '#post_id'              => '%%id%%',
+                '#current_year'         => '%%currentyear%%',
+                '#current_month'        => '%%currentmonth%%',
+                '#current_date'         => '%%currentdate%%',
+                '#category'             => '%%category%%',
+                '#page_number'          => '%%pagenumber%%',
+            );
+        }
+
+        return str_replace( array_keys( $replacements ), array_values( $replacements ), $text );
+    }
+
+    /**
+     * Check whether a raw AIOSEO value is just a default template (i.e. the
+     * user never customised it).  Returns true if the value should be skipped.
+     *
+     * @param string $raw_value Value straight from the aioseo_posts table.
+     * @return bool
+     */
+    public static function is_default_template( $raw_value ) {
+        $normalised = strtolower( trim( preg_replace( '/\s+/', ' ', $raw_value ) ) );
+        return in_array( $normalised, self::$default_templates, true );
+    }
+
+    /**
      * Get a batch of rows from the aioseo_posts table.
      *
      * @param int $offset Offset.
@@ -75,19 +151,45 @@ class AlmaSEO_Import_Mapper_AIOSEO {
     public static function map_row( $row ) {
         $mapped = array();
 
-        // Direct text mappings.
+        // Text fields that may contain AIOSEO template variables.
         $text_map = array(
             'title'               => '_almaseo_title',
             'description'         => '_almaseo_description',
-            'canonical_url'       => '_almaseo_canonical_url',
             'og_title'            => '_almaseo_og_title',
             'og_description'      => '_almaseo_og_description',
-            'og_image_custom_url' => '_almaseo_og_image',
             'twitter_title'       => '_almaseo_twitter_title',
             'twitter_description' => '_almaseo_twitter_description',
         );
 
+        // URL fields — no template conversion (URLs never contain tags).
+        $url_map = array(
+            'canonical_url'       => '_almaseo_canonical_url',
+            'og_image_custom_url' => '_almaseo_og_image',
+        );
+
         foreach ( $text_map as $aioseo_col => $almaseo_key ) {
+            if ( empty( $row[ $aioseo_col ] ) ) {
+                continue;
+            }
+
+            $raw = $row[ $aioseo_col ];
+
+            // Skip values that are just AIOSEO's factory default template —
+            // the user never customised this field, so importing it would
+            // overwrite AlmaSEO's own default with a redundant template.
+            if ( self::is_default_template( $raw ) ) {
+                continue;
+            }
+
+            // Convert any remaining AIOSEO #hash tags to AlmaSEO %%tags%%.
+            // Mixed values like "Pain and Aging #separator_sa #site_title"
+            // become "Pain and Aging %%sep%% %%sitename%%".
+            $converted = self::convert_tags( $raw );
+
+            $mapped[ $almaseo_key ] = sanitize_text_field( $converted );
+        }
+
+        foreach ( $url_map as $aioseo_col => $almaseo_key ) {
             if ( ! empty( $row[ $aioseo_col ] ) ) {
                 $mapped[ $almaseo_key ] = sanitize_text_field( $row[ $aioseo_col ] );
             }

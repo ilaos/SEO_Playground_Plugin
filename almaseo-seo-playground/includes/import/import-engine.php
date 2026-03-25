@@ -71,6 +71,31 @@ class AlmaSEO_Import_Engine {
 
         $done = count( $rows ) < self::BATCH_SIZE;
 
+        // Accumulate batch totals in a transient so the final save is accurate.
+        $status = get_option( 'almaseo_import_status', array() );
+        $prev   = ( $offset === 0 ) ? array() : ( isset( $status['posts'] ) ? $status['posts'] : array() );
+        $running_imported = ( isset( $prev['_running_imported'] ) ? $prev['_running_imported'] : 0 ) + $imported;
+        $running_skipped  = ( isset( $prev['_running_skipped'] ) ? $prev['_running_skipped'] : 0 ) + $skipped;
+
+        if ( $done ) {
+            $status['posts'] = array(
+                'completed' => true,
+                'source'    => $source,
+                'imported'  => $running_imported,
+                'skipped'   => $running_skipped,
+                'date'      => current_time( 'mysql' ),
+            );
+        } else {
+            // Store running totals (not yet completed).
+            $status['posts'] = array(
+                'completed'         => false,
+                'source'            => $source,
+                '_running_imported' => $running_imported,
+                '_running_skipped'  => $running_skipped,
+            );
+        }
+        update_option( 'almaseo_import_status', $status, false );
+
         return array(
             'processed' => $processed,
             'imported'  => $imported,

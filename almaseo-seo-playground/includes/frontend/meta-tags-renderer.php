@@ -22,7 +22,12 @@ function almaseo_filter_document_title($title) {
         if (!$post) return $title;
         $seo_title = get_post_meta($post->ID, '_almaseo_title', true);
         if (!empty($seo_title)) {
-            $title['title'] = $seo_title;
+            if (class_exists('AlmaSEO_Tag_Validator')) {
+                $seo_title = AlmaSEO_Tag_Validator::sanitize_seo_value($seo_title);
+            }
+            if (!empty($seo_title)) {
+                $title['title'] = $seo_title;
+            }
         }
     }
     return $title;
@@ -38,7 +43,12 @@ function almaseo_pre_get_document_title($title) {
         if (!$post) return $title;
         $seo_title = get_post_meta($post->ID, '_almaseo_title', true);
         if (!empty($seo_title)) {
-            return $seo_title;
+            if (class_exists('AlmaSEO_Tag_Validator')) {
+                $seo_title = AlmaSEO_Tag_Validator::sanitize_seo_value($seo_title);
+            }
+            if (!empty($seo_title)) {
+                return $seo_title;
+            }
         }
     }
     return $title;
@@ -91,9 +101,18 @@ function almaseo_render_meta_tags() {
     }
     echo '<link rel="canonical" href="' . esc_url($canonical_url) . '" />' . "\n";
 
-    // Get SEO title and description for fallback
-    $seo_title = get_post_meta($post_id, '_almaseo_title', true) ?: get_the_title($post_id);
-    $seo_description = get_post_meta($post_id, '_almaseo_description', true) ?: wp_trim_words($post->post_content, 30);
+    // Get SEO title and description for fallback — validate before using.
+    $seo_title_raw = get_post_meta($post_id, '_almaseo_title', true);
+    if (!empty($seo_title_raw) && class_exists('AlmaSEO_Tag_Validator')) {
+        $seo_title_raw = AlmaSEO_Tag_Validator::sanitize_seo_value($seo_title_raw);
+    }
+    $seo_title = !empty($seo_title_raw) ? $seo_title_raw : get_the_title($post_id);
+
+    $seo_desc_raw = get_post_meta($post_id, '_almaseo_description', true);
+    if (!empty($seo_desc_raw) && class_exists('AlmaSEO_Tag_Validator')) {
+        $seo_desc_raw = AlmaSEO_Tag_Validator::sanitize_seo_value($seo_desc_raw);
+    }
+    $seo_description = !empty($seo_desc_raw) ? $seo_desc_raw : wp_trim_words($post->post_content, 30);
 
     // Output standard meta description tag
     if (!empty($seo_description)) {

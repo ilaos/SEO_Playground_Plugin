@@ -52,21 +52,27 @@ class AlmaSEO_Import_Verifier {
 
         $title_map = array(); // Track titles for duplicate detection.
 
-        // Known template variable patterns from other plugins.
+        // Use the centralised validator patterns for foreign token detection.
+        // We still need the raw patterns + valid list for the detailed report
+        // (which specific tag was found, from which source).
         $foreign_patterns = array(
             'yoast'    => '/%%[a-z_]+%%/',
             'rankmath' => '/%[a-z_]+%/',
             'aioseo'   => '/#[a-z_]+/',
         );
 
-        // AlmaSEO's own valid tags (these are fine).
+        // AlmaSEO's own valid tags (these are fine).  Kept in sync with
+        // AlmaSEO_Tag_Validator::$valid_almaseo_tags.
         $valid_almaseo_tags = array(
             '%%title%%', '%%sitename%%', '%%sitetagline%%', '%%sep%%',
             '%%excerpt%%', '%%date%%', '%%modified%%', '%%author%%',
-            '%%category%%', '%%tag%%', '%%term_title%%', '%%term_description%%',
+            '%%author_first_name%%', '%%author_last_name%%',
+            '%%category%%', '%%tag%%', '%%primary_category%%',
+            '%%term_title%%', '%%term_description%%',
             '%%searchphrase%%', '%%page%%', '%%pagetotal%%', '%%pagenumber%%',
             '%%id%%', '%%year%%', '%%currentyear%%', '%%currentdate%%',
             '%%currentmonth%%', '%%currentday%%',
+            '%%focuskeyword%%', '%%pt_single%%', '%%pt_plural%%',
         );
 
         foreach ( $posts as $post ) {

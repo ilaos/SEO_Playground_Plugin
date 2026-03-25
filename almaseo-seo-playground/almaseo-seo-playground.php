@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
-Version: 8.9.19
+Version: 1.0.4
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -50,7 +50,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
     }
     if ( $almaseo_seo_conflict ) {
         // Define only the bare minimum constants, then stop loading.
-        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '8.9.19' );
+        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.0.4' );
         if ( ! defined( 'ALMASEO_PATH' ) )           define( 'ALMASEO_PATH', plugin_dir_path( __FILE__ ) );
         if ( ! defined( 'ALMASEO_URL' ) )            define( 'ALMASEO_URL', plugin_dir_url( __FILE__ ) );
         if ( ! defined( 'ALMASEO_MAIN_FILE' ) )      define( 'ALMASEO_MAIN_FILE', __FILE__ );
@@ -62,7 +62,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
 if (!defined('ALMASEO_MAIN_FILE'))       define('ALMASEO_MAIN_FILE', __FILE__);
 if (!defined('ALMASEO_PATH'))            define('ALMASEO_PATH', plugin_dir_path(__FILE__));
 if (!defined('ALMASEO_URL'))             define('ALMASEO_URL', plugin_dir_url(__FILE__));
-if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '8.9.19');
+if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.0.4');
 if (!defined('ALMASEO_VERSION'))         define('ALMASEO_VERSION', '6.5.0');
 if (!defined('ALMASEO_API_NAMESPACE'))   define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
 if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
@@ -368,6 +368,16 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/analytics/analytics-loader
 // Include Local Business Schema Types (v8.5.0+)
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/schema/local-business-types.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/schema/local-business-types.php';
+}
+
+// Include Tag Validator (used by rendering layer + import module for foreign token detection)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/import/import-tag-validator.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/import/import-tag-validator.php';
+}
+
+// Include AIOSEO mapper early so the validator can call convert_tags() on frontend
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/import/import-mapper-aioseo.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/import/import-mapper-aioseo.php';
 }
 
 // Include Import/Migration module (v8.1.0+) - Import from Yoast, Rank Math, AIOSEO
@@ -2283,12 +2293,18 @@ add_action('wp_head', function() {
     $post = get_post($post_id);
     if (!$post) return;
     
-    // HEADLINE: SEO Title → post title
+    // HEADLINE: SEO Title → post title (validate against foreign template tokens)
     $seo_title = get_post_meta($post_id, '_almaseo_title', true);
-    $headline = $seo_title ?: get_the_title($post_id);
-    
+    if (!empty($seo_title) && class_exists('AlmaSEO_Tag_Validator')) {
+        $seo_title = AlmaSEO_Tag_Validator::sanitize_seo_value($seo_title);
+    }
+    $headline = !empty($seo_title) ? $seo_title : get_the_title($post_id);
+
     // DESCRIPTION: SEO Meta Description → excerpt → first 160 chars (with entity cleaning)
     $desc = get_post_meta($post_id, '_almaseo_description', true);
+    if (!empty($desc) && class_exists('AlmaSEO_Tag_Validator')) {
+        $desc = AlmaSEO_Tag_Validator::sanitize_seo_value($desc);
+    }
     if (!$desc) {
         $excerpt = wp_strip_all_tags(get_the_excerpt($post_id));
         if (!$excerpt) {

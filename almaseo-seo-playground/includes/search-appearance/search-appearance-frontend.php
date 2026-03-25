@@ -81,13 +81,23 @@ class AlmaSEO_Search_Appearance_Frontend {
                 return '';
             }
 
-            // Manual override takes priority.
+            // Manual override takes priority — but only if it's a usable value
+            // (not a leftover foreign template like "#post_title").
             $manual = get_post_meta( $post->ID, '_almaseo_title', true );
             if ( ! empty( $manual ) ) {
-                return $manual;
+                if ( class_exists( 'AlmaSEO_Tag_Validator' ) ) {
+                    $manual = AlmaSEO_Tag_Validator::sanitize_seo_value( $manual );
+                }
+                if ( ! empty( $manual ) ) {
+                    // If the cleaned value contains %%tags%%, resolve them.
+                    if ( strpos( $manual, '%%' ) !== false ) {
+                        return AlmaSEO_Smart_Tags::replace( $manual, array( 'post' => $post ) );
+                    }
+                    return $manual;
+                }
             }
 
-            // Template fallback.
+            // Template fallback (manual was empty or invalid).
             $pt_settings = AlmaSEO_Search_Appearance_Settings::get_post_type_settings( $post->post_type );
             if ( ! empty( $pt_settings['title_template'] ) ) {
                 return AlmaSEO_Smart_Tags::replace( $pt_settings['title_template'], array(
@@ -106,7 +116,15 @@ class AlmaSEO_Search_Appearance_Frontend {
                 if ( $page_id ) {
                     $manual = get_post_meta( $page_id, '_almaseo_title', true );
                     if ( ! empty( $manual ) ) {
-                        return $manual;
+                        if ( class_exists( 'AlmaSEO_Tag_Validator' ) ) {
+                            $manual = AlmaSEO_Tag_Validator::sanitize_seo_value( $manual );
+                        }
+                        if ( ! empty( $manual ) ) {
+                            if ( strpos( $manual, '%%' ) !== false ) {
+                                return AlmaSEO_Smart_Tags::replace( $manual );
+                            }
+                            return $manual;
+                        }
                     }
                 }
             }
@@ -319,7 +337,11 @@ class AlmaSEO_Search_Appearance_Frontend {
 
         $manual_desc = get_post_meta( $post->ID, '_almaseo_description', true );
         if ( ! empty( $manual_desc ) ) {
-            return; // Manual override exists — meta-tags-renderer.php handles it.
+            // Only treat as override if the value is actually usable.
+            if ( ! class_exists( 'AlmaSEO_Tag_Validator' ) || AlmaSEO_Tag_Validator::is_usable_value( $manual_desc ) ) {
+                return; // Manual override exists — meta-tags-renderer.php handles it.
+            }
+            // Falls through to template fallback if value contains foreign tokens.
         }
 
         // Check if we should output a template-based description.

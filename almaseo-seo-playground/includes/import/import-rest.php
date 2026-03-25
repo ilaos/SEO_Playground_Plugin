@@ -147,6 +147,23 @@ class AlmaSEO_Import_REST {
             ),
         ) );
 
+        // --- Reset step status ---
+        register_rest_route( 'almaseo/v1', '/import/reset-step', array(
+            'methods'             => 'POST',
+            'callback'            => array( __CLASS__, 'reset_step' ),
+            'permission_callback' => function () {
+                return current_user_can( 'manage_options' );
+            },
+            'args'                => array(
+                'step' => array(
+                    'required'          => true,
+                    'validate_callback' => function ( $val ) {
+                        return in_array( $val, array( 'posts', 'terms', 'settings', 'redirects', 'verify' ), true );
+                    },
+                ),
+            ),
+        ) );
+
         // --- Post-Import Verification ---
         register_rest_route( 'almaseo/v1', '/import/verify', array(
             'methods'             => 'GET',
@@ -225,6 +242,17 @@ class AlmaSEO_Import_REST {
             ), 400 );
         }
 
+        // Persist completion state.
+        $status = get_option( 'almaseo_import_status', array() );
+        $status['settings'] = array(
+            'completed' => true,
+            'source'    => $source,
+            'imported'  => isset( $result['imported'] ) ? $result['imported'] : 0,
+            'skipped'   => isset( $result['skipped'] ) ? $result['skipped'] : 0,
+            'date'      => current_time( 'mysql' ),
+        );
+        update_option( 'almaseo_import_status', $status, false );
+
         return new WP_REST_Response( $result, 200 );
     }
 
@@ -255,6 +283,36 @@ class AlmaSEO_Import_REST {
                 'message' => $result->get_error_message(),
             ), 400 );
         }
+
+        // Accumulate batch totals and persist on completion.
+        $status  = get_option( 'almaseo_import_status', array() );
+        $prev    = ( $offset === 0 ) ? array() : ( isset( $status['terms'] ) ? $status['terms'] : array() );
+        $r_imp   = ( isset( $prev['_running_imported'] ) ? $prev['_running_imported'] : 0 ) + ( isset( $result['imported'] ) ? $result['imported'] : 0 );
+        $r_skip  = ( isset( $prev['_running_skipped'] ) ? $prev['_running_skipped'] : 0 ) + ( isset( $result['skipped'] ) ? $result['skipped'] : 0 );
+        $r_nf    = ( isset( $prev['_running_not_found'] ) ? $prev['_running_not_found'] : 0 ) + ( isset( $result['not_found'] ) ? $result['not_found'] : 0 );
+        $r_empty = ( isset( $prev['_running_empty'] ) ? $prev['_running_empty'] : 0 ) + ( isset( $result['empty'] ) ? $result['empty'] : 0 );
+
+        if ( ! empty( $result['done'] ) ) {
+            $status['terms'] = array(
+                'completed' => true,
+                'source'    => $source,
+                'imported'  => $r_imp,
+                'skipped'   => $r_skip,
+                'not_found' => $r_nf,
+                'empty'     => $r_empty,
+                'date'      => current_time( 'mysql' ),
+            );
+        } else {
+            $status['terms'] = array(
+                'completed'          => false,
+                'source'             => $source,
+                '_running_imported'  => $r_imp,
+                '_running_skipped'   => $r_skip,
+                '_running_not_found' => $r_nf,
+                '_running_empty'     => $r_empty,
+            );
+        }
+        update_option( 'almaseo_import_status', $status, false );
 
         return new WP_REST_Response( $result, 200 );
     }
@@ -287,7 +345,50 @@ class AlmaSEO_Import_REST {
             ), 400 );
         }
 
+        // Accumulate batch totals and persist on completion.
+        $status  = get_option( 'almaseo_import_status', array() );
+        $prev    = ( $offset === 0 ) ? array() : ( isset( $status['redirects'] ) ? $status['redirects'] : array() );
+        $r_imp   = ( isset( $prev['_running_imported'] ) ? $prev['_running_imported'] : 0 ) + ( isset( $result['imported'] ) ? $result['imported'] : 0 );
+        $r_skip  = ( isset( $prev['_running_skipped'] ) ? $prev['_running_skipped'] : 0 ) + ( isset( $result['skipped'] ) ? $result['skipped'] : 0 );
+
+        if ( ! empty( $result['done'] ) ) {
+            $status['redirects'] = array(
+                'completed' => true,
+                'source'    => $source,
+                'imported'  => $r_imp,
+                'skipped'   => $r_skip,
+                'date'      => current_time( 'mysql' ),
+            );
+        } else {
+            $status['redirects'] = array(
+                'completed'         => false,
+                'source'            => $source,
+                '_running_imported' => $r_imp,
+                '_running_skipped'  => $r_skip,
+            );
+        }
+        update_option( 'almaseo_import_status', $status, false );
+
         return new WP_REST_Response( $result, 200 );
+    }
+
+    /* ------------------------------------------------------------------
+     *  Reset Step
+     * ----------------------------------------------------------------*/
+
+    /**
+     * Reset a step's completion status so the user can re-import.
+     */
+    public static function reset_step( WP_REST_Request $request ) {
+        $step   = $request->get_param( 'step' );
+        $status = get_option( 'almaseo_import_status', array() );
+
+        if ( isset( $status[ $step ] ) ) {
+            unset( $status[ $step ] );
+            update_option( 'almaseo_import_status', $status, false );
+        }
+
+        return new WP_REST_Response( array( 'reset' => true, 'step' => $step ), 200 );
     }
 
     /* ------------------------------------------------------------------
@@ -300,6 +401,17 @@ class AlmaSEO_Import_REST {
     public static function verify( WP_REST_Request $request ) {
         $limit = (int) $request->get_param( 'limit' );
         $report = AlmaSEO_Import_Verifier::verify( $limit );
+
+        // Persist completion state.
+        $status = get_option( 'almaseo_import_status', array() );
+        $status['verify'] = array(
+            'completed'     => true,
+            'total_scanned' => isset( $report['total_scanned'] ) ? $report['total_scanned'] : 0,
+            'issues'        => isset( $report['issues']['total'] ) ? $report['issues']['total'] : 0,
+            'date'          => current_time( 'mysql' ),
+        );
+        update_option( 'almaseo_import_status', $status, false );
+
         return new WP_REST_Response( $report, 200 );
     }
 }

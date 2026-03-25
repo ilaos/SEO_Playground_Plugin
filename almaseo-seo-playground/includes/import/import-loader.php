@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $import_dir = __DIR__ . '/';
 
+require_once $import_dir . 'import-tag-validator.php';
 require_once $import_dir . 'import-detector.php';
 require_once $import_dir . 'import-mapper-yoast.php';
 require_once $import_dir . 'import-mapper-rankmath.php';

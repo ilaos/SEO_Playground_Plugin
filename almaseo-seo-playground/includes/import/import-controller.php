@@ -62,18 +62,19 @@ class AlmaSEO_Import_Controller {
         );
 
         wp_localize_script( 'almaseo-import', 'almaseoImport', array(
-            'restBase' => rest_url( 'almaseo/v1/import/' ),
-            'nonce'    => wp_create_nonce( 'wp_rest' ),
-            'strings'  => array(
-                'detecting'   => __( 'Detecting...', 'almaseo' ),
-                'importing'   => __( 'Importing...', 'almaseo' ),
-                'done'        => __( 'Import complete!', 'almaseo' ),
-                'error'       => __( 'An error occurred.', 'almaseo' ),
-                'noData'      => __( 'No data found from any SEO plugin.', 'almaseo' ),
+            'restBase'     => rest_url( 'almaseo/v1/import/' ),
+            'nonce'        => wp_create_nonce( 'wp_rest' ),
+            'importStatus' => get_option( 'almaseo_import_status', array() ),
+            'strings'      => array(
+                'detecting'    => __( 'Detecting...', 'almaseo' ),
+                'importing'    => __( 'Importing...', 'almaseo' ),
+                'done'         => __( 'Import complete!', 'almaseo' ),
+                'error'        => __( 'An error occurred.', 'almaseo' ),
+                'noData'       => __( 'No data found from any SEO plugin.', 'almaseo' ),
                 'confirmStart' => __( 'Start importing data? Existing AlmaSEO data will not be overwritten unless you check "Overwrite existing".', 'almaseo' ),
-                'processed'   => __( 'Processed', 'almaseo' ),
-                'imported'    => __( 'Imported', 'almaseo' ),
-                'skipped'     => __( 'Skipped', 'almaseo' ),
+                'processed'    => __( 'Processed', 'almaseo' ),
+                'imported'     => __( 'Imported', 'almaseo' ),
+                'skipped'      => __( 'Skipped', 'almaseo' ),
             ),
         ) );
     }

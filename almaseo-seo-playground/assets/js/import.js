@@ -11,8 +11,72 @@
 (function () {
     'use strict';
 
-    var config  = window.almaseoImport || {};
-    var strings = config.strings || {};
+    var config       = window.almaseoImport || {};
+    var strings      = config.strings || {};
+    var savedStatus  = config.importStatus || {};
+
+    /* ================================================================
+       Completion state helpers
+       ================================================================ */
+
+    /**
+     * Render a "completed" banner inside a section, hiding the controls.
+     *
+     * @param {string}      stepKey   Key in savedStatus (posts, terms, settings, redirects, verify).
+     * @param {HTMLElement}  section   The .almaseo-import-section wrapper.
+     * @param {Array}        hideEls  Elements to hide when completed.
+     */
+    function renderCompleted(stepKey, section, hideEls) {
+        var info = savedStatus[stepKey];
+        if (!info || !info.completed) return false;
+
+        hideEls.forEach(function (el) { if (el) el.style.display = 'none'; });
+
+        var labels = { yoast: 'Yoast SEO', rankmath: 'Rank Math', aioseo: 'All in One SEO' };
+        var sourceName = labels[info.source] || info.source || '';
+
+        var html = '<div class="almaseo-import-completed">';
+        html += '<span class="dashicons dashicons-yes-alt" style="color:#46b450;font-size:20px;"></span> ';
+        html += '<strong>Completed</strong>';
+        if (sourceName) html += ' &mdash; imported from ' + esc(sourceName);
+
+        var parts = [];
+        if (info.imported) parts.push(info.imported + ' imported');
+        if (info.skipped) parts.push(info.skipped + ' skipped');
+        if (info.not_found) parts.push(info.not_found + ' not found (deleted)');
+        if (info.empty) parts.push(info.empty + ' empty');
+        if (parts.length) html += ' (' + parts.join(', ') + ')';
+
+        if (info.date) html += ' <small style="color:#888;">on ' + esc(info.date) + '</small>';
+        html += ' <button type="button" class="button button-small almaseo-import-reset-btn" data-step="' + stepKey + '" style="margin-left:12px;">Re-import</button>';
+        html += '</div>';
+
+        section.insertAdjacentHTML('beforeend', html);
+        return true;
+    }
+
+    /** Bind reset buttons (delegated). */
+    document.addEventListener('click', function (e) {
+        var btn = e.target.closest('.almaseo-import-reset-btn');
+        if (!btn) return;
+        var step = btn.getAttribute('data-step');
+        if (!confirm('Reset this step and re-import?')) return;
+
+        btn.disabled = true;
+        btn.textContent = 'Resetting...';
+
+        wp.apiFetch({
+            path: 'almaseo/v1/import/reset-step',
+            method: 'POST',
+            data: { step: step }
+        }).then(function () {
+            window.location.reload();
+        }).catch(function () {
+            btn.disabled = false;
+            btn.textContent = 'Re-import';
+            alert('Failed to reset step.');
+        });
+    });
 
     /* ================================================================
        STEP 1: Post Meta (existing)
@@ -34,8 +98,10 @@
     var detected   = {};
     var totalPosts = 0;
 
-    /* ── Detect post meta ── */
-    detect();
+    /* ── Check saved state first, then detect ── */
+    var postsSection = document.getElementById('almaseo-import-section-posts');
+    var postsCompleted = renderCompleted('posts', postsSection, [$sources, $controls, $progress]);
+    if (!postsCompleted) detect();
 
     function detect() {
         wp.apiFetch({ path: 'almaseo/v1/import/detect' }).then(function (data) {
@@ -66,6 +132,10 @@
             var src = data[key];
             var isActive = !!src.plugin_active;
             var hasData = !!src.available;
+
+            // Only show sources that have data or are actively installed.
+            if (!hasData && !isActive) continue;
+
             var cls = hasData ? (isActive ? ' active' : ' legacy') : ' unavailable';
             var badge = '';
             var label = '';
@@ -90,7 +160,8 @@
                     }
                 }
             } else {
-                label = 'No data detected';
+                // Plugin is active but has 0 records — show it but note no data.
+                label = 'Installed but no custom data found';
             }
 
             html += '<div class="almaseo-source-card' + cls + '">';
@@ -210,12 +281,16 @@
 
     var termDetected = {};
 
-    wp.apiFetch({ path: 'almaseo/v1/import/detect-terms' }).then(function (data) {
-        termDetected = data;
-        renderDetectedCards(data, $termSources, $termSelect, $termControls, $termStartBtn);
-    }).catch(function () {
-        $termSources.innerHTML = '<p class="almaseo-import-nodata">Could not detect taxonomy data.</p>';
-    });
+    var termsSection = document.getElementById('almaseo-import-section-terms');
+    var termsCompleted = renderCompleted('terms', termsSection, [$termSources, $termControls, $termProgress]);
+    if (!termsCompleted) {
+        wp.apiFetch({ path: 'almaseo/v1/import/detect-terms' }).then(function (data) {
+            termDetected = data;
+            renderDetectedCards(data, $termSources, $termSelect, $termControls, $termStartBtn);
+        }).catch(function () {
+            $termSources.innerHTML = '<p class="almaseo-import-nodata">Could not detect taxonomy data.</p>';
+        });
+    }
 
     $termSelect.addEventListener('change', function () {
         $termStartBtn.disabled = !this.value;
@@ -245,11 +320,15 @@
     var $settingsStartBtn = document.getElementById('almaseo-settings-start-btn');
     var $settingsResult   = document.getElementById('almaseo-settings-result');
 
-    wp.apiFetch({ path: 'almaseo/v1/import/detect-settings' }).then(function (data) {
-        renderDetectedCards(data, $settingsSources, $settingsSelect, $settingsControls, $settingsStartBtn);
-    }).catch(function () {
-        $settingsSources.innerHTML = '<p class="almaseo-import-nodata">Could not detect global settings.</p>';
-    });
+    var settingsSection = document.getElementById('almaseo-import-section-settings');
+    var settingsCompleted = renderCompleted('settings', settingsSection, [$settingsSources, $settingsControls, $settingsResult]);
+    if (!settingsCompleted) {
+        wp.apiFetch({ path: 'almaseo/v1/import/detect-settings' }).then(function (data) {
+            renderDetectedCards(data, $settingsSources, $settingsSelect, $settingsControls, $settingsStartBtn);
+        }).catch(function () {
+            $settingsSources.innerHTML = '<p class="almaseo-import-nodata">Could not detect global settings.</p>';
+        });
+    }
 
     $settingsSelect.addEventListener('change', function () {
         $settingsStartBtn.disabled = !this.value;
@@ -297,12 +376,16 @@
 
     var redirectsDetected = {};
 
-    wp.apiFetch({ path: 'almaseo/v1/import/detect-redirects' }).then(function (data) {
-        redirectsDetected = data;
-        renderDetectedCards(data, $redirectsSources, $redirectsSelect, $redirectsControls, $redirectsStartBtn);
-    }).catch(function () {
-        $redirectsSources.innerHTML = '<p class="almaseo-import-nodata">Could not detect redirect data.</p>';
-    });
+    var redirectsSection = document.getElementById('almaseo-import-section-redirects');
+    var redirectsCompleted = renderCompleted('redirects', redirectsSection, [$redirectsSources, $redirectsControls, $redirectsProgress]);
+    if (!redirectsCompleted) {
+        wp.apiFetch({ path: 'almaseo/v1/import/detect-redirects' }).then(function (data) {
+            redirectsDetected = data;
+            renderDetectedCards(data, $redirectsSources, $redirectsSelect, $redirectsControls, $redirectsStartBtn);
+        }).catch(function () {
+            $redirectsSources.innerHTML = '<p class="almaseo-import-nodata">Could not detect redirect data.</p>';
+        });
+    }
 
     $redirectsSelect.addEventListener('change', function () {
         $redirectsStartBtn.disabled = !this.value;
@@ -328,6 +411,12 @@
     var $verifyBtn     = document.getElementById('almaseo-verify-btn');
     var $verifyLoading = document.getElementById('almaseo-verify-loading');
     var $verifyReport  = document.getElementById('almaseo-verify-report');
+
+    var verifySection = document.getElementById('almaseo-import-section-verify');
+    var verifyCompleted = renderCompleted('verify', verifySection, [$verifyBtn.parentNode]);
+    if (verifyCompleted) {
+        // Still allow re-running verify — the reset button handles it.
+    }
 
     $verifyBtn.addEventListener('click', function () {
         $verifyBtn.style.display = 'none';
@@ -450,9 +539,11 @@
                 overwrite: overwriteCheckbox ? overwriteCheckbox.checked : false
             }
         }).then(function (result) {
-            totals.processed += result.processed || 0;
-            totals.imported  += result.imported  || 0;
-            totals.skipped   += result.skipped   || 0;
+            totals.processed  += result.processed || 0;
+            totals.imported   += result.imported  || 0;
+            totals.skipped    += result.skipped   || 0;
+            totals.not_found  = (totals.not_found || 0) + (result.not_found || 0);
+            totals.empty      = (totals.empty || 0) + (result.empty || 0);
 
             var pct = totalCount > 0 ? Math.min(Math.round((totals.processed / totalCount) * 100), 100) : 50;
             $bar.style.width = pct + '%';
@@ -462,8 +553,14 @@
 
             if (result.done) {
                 $bar.style.width = '100%';
-                $status.innerHTML = '<span class="almaseo-import-done">Done! ' +
-                    totals.imported + ' imported, ' + totals.skipped + ' skipped.</span>';
+                var doneMsg = 'Done! ' + totals.imported + ' imported, ' + totals.skipped + ' skipped.';
+                if (totals.not_found > 0) {
+                    doneMsg += ' ' + totals.not_found + ' record(s) skipped — the original post or term no longer exists.';
+                }
+                if (totals.empty > 0) {
+                    doneMsg += ' ' + totals.empty + ' record(s) had no usable SEO data (empty or template-only values).';
+                }
+                $status.innerHTML = '<span class="almaseo-import-done">' + doneMsg + '</span>';
                 return;
             }
 
@@ -485,6 +582,10 @@
             var src = data[key];
             var isActive = !!src.plugin_active;
             var hasData = !!src.available;
+
+            // Only show sources that have data or are actively installed.
+            if (!hasData && !isActive) continue;
+
             var cls = hasData ? (isActive ? ' active' : ' legacy') : ' unavailable';
             var badge = '';
             var label = '';
@@ -499,7 +600,8 @@
                 badge = ' <span class="almaseo-badge almaseo-badge-legacy">Legacy data</span>';
                 label = hasCount ? countVal + ' records with legacy data' : 'Legacy settings found';
             } else {
-                label = 'No data detected';
+                // Plugin is active but has 0 records.
+                label = 'Installed but no custom data found';
             }
 
             html += '<div class="almaseo-source-card' + cls + '">';
@@ -521,7 +623,7 @@
         $container.innerHTML = html;
 
         if (available.length === 0) {
-            $container.innerHTML += '<div class="almaseo-import-nodata">No data detected for this step.</div>';
+            $container.innerHTML += '<div class="almaseo-import-nodata">No data detected for this step. This means none of the supported SEO plugins (Yoast SEO, Rank Math, All in One SEO) have stored data of this type on your site, or the plugin has already been removed.</div>';
             return;
         }
 

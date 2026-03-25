@@ -184,7 +184,12 @@ function almaseo_health_check_title($post) {
 function almaseo_health_check_meta_desc($post_id) {
     // Check our meta field (correct key: _almaseo_description)
     $meta_desc = get_post_meta($post_id, '_almaseo_description', true);
-    
+
+    // Ignore foreign template tokens (e.g. leftover "#post_excerpt" from AIOSEO import).
+    if (!empty($meta_desc) && class_exists('AlmaSEO_Tag_Validator') && !AlmaSEO_Tag_Validator::is_usable_value($meta_desc)) {
+        $meta_desc = '';
+    }
+
     if (empty($meta_desc)) {
         // Check post excerpt
         $post = get_post($post_id);

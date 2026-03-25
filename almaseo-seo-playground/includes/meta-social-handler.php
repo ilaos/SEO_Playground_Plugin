@@ -148,19 +148,24 @@ class AlmaSEO_Meta_Social_Handler {
      * Validate canonical URL
      */
     private function validate_canonical_url($url, $post_id) {
+        // Guard against null/non-string values (PHP 8.1+).
+        if ( ! is_string( $url ) || $url === '' ) {
+            return get_permalink($post_id);
+        }
+
         // Must be absolute
         if (strpos($url, 'http') !== 0) {
             return get_permalink($post_id);
         }
-        
+
         // Remove spaces
         $url = str_replace(' ', '', $url);
-        
+
         // Strip fragment unless intentional
         if (strpos($url, '#') !== false && !get_post_meta($post_id, '_almaseo_canonical_keep_fragment', true)) {
             $url = strtok($url, '#');
         }
-        
+
         return esc_url($url);
     }
     
@@ -353,6 +358,9 @@ class AlmaSEO_Meta_Social_Handler {
      * Ensure URL is absolute
      */
     private function ensure_absolute_url($url) {
+        if ( ! is_string( $url ) || $url === '' ) {
+            return '';
+        }
         if (strpos($url, 'http') === 0) {
             return $url;
         }
@@ -466,8 +474,8 @@ class AlmaSEO_Meta_Social_Handler {
         
         foreach ($social_fields as $field) {
             if (isset($_POST[$field])) {
-                $value = $_POST[$field];
-                
+                $value = (string) ( $_POST[$field] ?? '' );
+
                 // Special handling for images
                 if (strpos($field, '_image') !== false) {
                     $value = esc_url_raw($value);
