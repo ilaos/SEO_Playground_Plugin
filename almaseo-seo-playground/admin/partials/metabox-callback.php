@@ -1781,36 +1781,36 @@ function almaseo_seo_playground_meta_box_callback($post) {
             $gsc_post_id = $post->ID;
             ?>
 
-            <?php if (!$is_connected): ?>
-            <!-- ═══ State 1: Plugin Not Connected ═══ -->
-            <div class="almaseo-gsc-state" id="gsc-state-not-connected">
-                <div class="gsc-state-card">
-                    <div class="gsc-state-icon">
-                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-                        </svg>
-                    </div>
-                    <h3 class="gsc-state-heading">Connect to AlmaSEO Dashboard</h3>
-                    <p class="gsc-state-description">
-                        Link your site to your AlmaSEO Dashboard to access Google Search Console insights for this page.
-                    </p>
-                    <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>" class="gsc-state-btn gsc-btn-primary">
-                        Connect My Site
-                    </a>
-                </div>
-            </div>
-
-            <?php else: ?>
-            <!-- ═══ Connected: GSC states managed by JavaScript ═══ -->
+            <!-- ═══ GSC Container — always rendered, JS manages states ═══ -->
             <div class="almaseo-gsc-container"
                  id="almaseo-gsc-container"
                  data-post-id="<?php echo esc_attr($gsc_post_id); ?>"
                  data-page-url="<?php echo esc_attr($gsc_page_url); ?>"
-                 data-nonce="<?php echo esc_attr(wp_create_nonce('almaseo_gsc_nonce')); ?>">
+                 data-nonce="<?php echo esc_attr(wp_create_nonce('almaseo_gsc_nonce')); ?>"
+                 data-connected="<?php echo $is_connected ? '1' : '0'; ?>">
 
-                <!-- ═══ State 2: GSC Not Connected on Dashboard ═══ -->
-                <div class="almaseo-gsc-state" id="gsc-state-no-gsc" style="display: none;">
+                <!-- ═══ State 1: Connection Issue (fallback) ═══ -->
+                <div class="almaseo-gsc-state" id="gsc-state-not-connected" style="display: none;">
+                    <div class="gsc-state-card">
+                        <div class="gsc-state-icon">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#dba617" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                <line x1="12" y1="9" x2="12" y2="13"/>
+                                <line x1="12" y1="17" x2="12.01" y2="17"/>
+                            </svg>
+                        </div>
+                        <h3 class="gsc-state-heading">AlmaSEO connection not detected</h3>
+                        <p class="gsc-state-description">
+                            The plugin couldn't verify a connection to your AlmaSEO Dashboard. Please check your connection settings.
+                        </p>
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>" class="gsc-state-btn gsc-btn-secondary">
+                            Check Connection Settings
+                        </a>
+                    </div>
+                </div>
+
+                <!-- ═══ State 2: GSC Not Connected on Dashboard (default visible) ═══ -->
+                <div class="almaseo-gsc-state" id="gsc-state-no-gsc">
                     <div class="gsc-state-card">
                         <div class="gsc-state-icon">
                             <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1822,10 +1822,11 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         </div>
                         <h3 class="gsc-state-heading">Connect Google Search Console</h3>
                         <p class="gsc-state-description">
-                            Your site is linked to AlmaSEO, but Google Search Console hasn't been connected yet. Set it up in your dashboard to see page-level search data here.
+                            See how this page performs in Google Search — clicks, impressions, top queries, and ranking position — all right here while you edit.
+                            Connect your Search Console account in your AlmaSEO Dashboard to get started.
                         </p>
                         <a href="https://app.almaseo.com/profile/google-services" target="_blank" class="gsc-state-btn gsc-btn-primary">
-                            Connect in Dashboard
+                            Connect Search Console
                             <span class="gsc-btn-arrow">&rarr;</span>
                         </a>
                         <p class="gsc-state-hint">Opens your AlmaSEO Dashboard &gt; Google Services</p>
@@ -1833,7 +1834,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 </div>
 
                 <!-- ═══ State 3: Loading ═══ -->
-                <div class="almaseo-gsc-state" id="gsc-state-loading">
+                <div class="almaseo-gsc-state" id="gsc-state-loading" style="display: none;">
                     <div class="gsc-state-card">
                         <div class="gsc-loading-spinner"></div>
                         <h3 class="gsc-state-heading">Fetching search performance...</h3>
@@ -2042,7 +2043,6 @@ function almaseo_seo_playground_meta_box_callback($post) {
 
             </div>
             <!-- End almaseo-gsc-container -->
-            <?php endif; ?>
 
             <style>
                 /* ── GSC State Screens ── */
@@ -2344,17 +2344,28 @@ function almaseo_seo_playground_meta_box_callback($post) {
             <script>
             jQuery(document).ready(function($) {
                 var $container = $('#almaseo-gsc-container');
-                if (!$container.length) return; // State 1 (not connected) - no JS needed
+                if (!$container.length) return;
 
                 var postId = $container.data('post-id');
                 var pageUrl = $container.data('page-url');
                 var nonce = $container.data('nonce');
+                var isConnected = $container.data('connected') === 1 || $container.data('connected') === '1';
 
                 // Show a specific state, hide all others
                 function showState(stateId) {
                     $container.find('.almaseo-gsc-state').hide();
                     $('#' + stateId).show();
                 }
+
+                // If plugin connection is not detected, show fallback and stop
+                if (!isConnected) {
+                    showState('gsc-state-not-connected');
+                    return;
+                }
+
+                // Connection exists — default is State 2 (GSC not connected).
+                // On tab click we'll fetch data; if GSC IS connected the API
+                // will return data and we'll transition to the right state.
 
                 // Format numbers with commas
                 function formatNumber(n) {
