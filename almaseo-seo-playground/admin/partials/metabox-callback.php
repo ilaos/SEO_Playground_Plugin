@@ -1809,7 +1809,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     </div>
                 </div>
 
-                <!-- ═══ State 2: GSC Not Connected on Dashboard (default visible) ═══ -->
+                <!-- ═══ State 2: Default — prompt to load GSC data ═══ -->
                 <div class="almaseo-gsc-state" id="gsc-state-no-gsc">
                     <div class="gsc-state-card">
                         <div class="gsc-state-icon">
@@ -1820,16 +1820,17 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 <path d="M8 11h6"/>
                             </svg>
                         </div>
-                        <h3 class="gsc-state-heading">Connect Google Search Console</h3>
+                        <h3 class="gsc-state-heading">Google Search Console</h3>
                         <p class="gsc-state-description">
                             See how this page performs in Google Search — clicks, impressions, top queries, and ranking position — all right here while you edit.
-                            Connect your Search Console account in your AlmaSEO Dashboard to get started.
                         </p>
-                        <a href="https://app.almaseo.com/profile/google-services" target="_blank" class="gsc-state-btn gsc-btn-primary">
-                            Connect Search Console
-                            <span class="gsc-btn-arrow">&rarr;</span>
-                        </a>
-                        <p class="gsc-state-hint">Opens your AlmaSEO Dashboard &gt; Google Services</p>
+                        <button type="button" id="gsc-connect-btn" class="gsc-state-btn gsc-btn-primary">
+                            Load Search Data
+                        </button>
+                        <p class="gsc-state-hint">
+                            Don't have Search Console connected yet?
+                            <a href="https://app.almaseo.com/profile/google-services" target="_blank">Connect it in your Dashboard</a>
+                        </p>
                     </div>
                 </div>
 
@@ -2495,29 +2496,43 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     showState('gsc-state-error');
                 }
 
-                // Event handlers
-                $('#gsc-date-range').on('change', fetchGSCData);
+                // Track whether GSC has been confirmed connected this session
+                var gscConfirmed = false;
+
+                // Event handlers (only active once data view is showing)
+                $('#gsc-date-range').on('change', function() {
+                    if (gscConfirmed) fetchGSCData();
+                });
                 $('#gsc-refresh-btn').on('click', function() {
+                    if (!gscConfirmed) return;
                     $(this).addClass('spinning');
                     fetchGSCData();
                     setTimeout(function() { $('#gsc-refresh-btn').removeClass('spinning'); }, 1000);
                 });
                 $('#gsc-retry-btn').on('click', fetchGSCData);
 
-                // Fetch on tab activation (lazy load)
-                var gscLoaded = false;
-                $(document).on('click', '.almaseo-tab-btn[data-tab="search-console"]', function() {
-                    if (!gscLoaded) {
-                        gscLoaded = true;
-                        fetchGSCData();
-                    }
+                // "Connect Search Console" button — triggers the first data fetch
+                // to check if GSC is actually connected on the dashboard
+                $(document).on('click', '#gsc-connect-btn', function(e) {
+                    e.preventDefault();
+                    fetchGSCData();
                 });
 
-                // If the tab is already active on load, fetch immediately
-                if ($('#tab-search-console').hasClass('active')) {
-                    gscLoaded = true;
-                    fetchGSCData();
-                }
+                // On successful data load, mark GSC as confirmed so future
+                // tab visits auto-fetch without showing the connect screen
+                var origRenderData = renderData;
+                renderData = function(data) {
+                    gscConfirmed = true;
+                    origRenderData(data);
+                };
+
+                // Tab activation — only auto-fetch if GSC was previously confirmed
+                $(document).on('click', '.almaseo-tab-btn[data-tab="search-console"]', function() {
+                    if (gscConfirmed) {
+                        fetchGSCData();
+                    }
+                    // Otherwise State 2 stays visible — user clicks "Connect Search Console"
+                });
             });
             </script>
         </div>
