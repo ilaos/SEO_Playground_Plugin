@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
-Version: 1.1.1
+Version: 1.1.2
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -50,7 +50,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
     }
     if ( $almaseo_seo_conflict ) {
         // Define only the bare minimum constants, then stop loading.
-        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.1.1' );
+        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.1.2' );
         if ( ! defined( 'ALMASEO_PATH' ) )           define( 'ALMASEO_PATH', plugin_dir_path( __FILE__ ) );
         if ( ! defined( 'ALMASEO_URL' ) )            define( 'ALMASEO_URL', plugin_dir_url( __FILE__ ) );
         if ( ! defined( 'ALMASEO_MAIN_FILE' ) )      define( 'ALMASEO_MAIN_FILE', __FILE__ );
@@ -62,7 +62,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
 if (!defined('ALMASEO_MAIN_FILE'))       define('ALMASEO_MAIN_FILE', __FILE__);
 if (!defined('ALMASEO_PATH'))            define('ALMASEO_PATH', plugin_dir_path(__FILE__));
 if (!defined('ALMASEO_URL'))             define('ALMASEO_URL', plugin_dir_url(__FILE__));
-if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.1.1');
+if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.1.2');
 if (!defined('ALMASEO_VERSION'))         define('ALMASEO_VERSION', '6.5.0');
 if (!defined('ALMASEO_API_NAMESPACE'))   define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
 if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
@@ -1725,22 +1725,23 @@ if (!function_exists('almaseo_get_connection_status')) {
     function almaseo_get_connection_status() {
         $connected_user = get_option('almaseo_connected_user', '');
         $connected_date = get_option('almaseo_connected_date', '');
+        $app_password = get_option('almaseo_app_password', '');
 
-        // Check if synced from dashboard
-        if (get_option('almaseo_dashboard_synced')) {
-            $app_password = get_option('almaseo_app_password', '');
-            if ($app_password || $connected_user) {
-                return array(
-                    'connected' => true,
-                    'connected_user' => $connected_user,
-                    'connected_date' => $connected_date ? date('M j, Y', strtotime($connected_date)) : 'Recently',
-                    'site_url' => get_site_url(),
-                    'connection_type' => get_option('almaseo_connection_type', 'dashboard_initiated')
-                );
-            }
+        // Primary check: if we have an app password, the site is connected.
+        // The almaseo_dashboard_synced flag may not always be set (e.g. older
+        // connections or dashboard-initiated installs), so we don't gate on it.
+        if ($app_password) {
+            return array(
+                'connected' => true,
+                'connected_user' => $connected_user,
+                'connected_date' => $connected_date ? date('M j, Y', strtotime($connected_date)) : 'Recently',
+                'site_url' => get_site_url(),
+                'connection_type' => get_option('almaseo_connection_type', 'dashboard_initiated')
+            );
         }
 
-        // If no stored connection data, check if any AlmaSEO app passwords exist
+        // Secondary check: if we have a connected_user but no app_password stored
+        // in our option, scan WP Application Passwords for an AlmaSEO entry
         if (!$connected_user && class_exists('WP_Application_Passwords')) {
             // Check all users for AlmaSEO application passwords
             $users = get_users(array('role' => 'administrator'));
