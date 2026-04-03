@@ -68,7 +68,7 @@
    Container Styles
    ======================================== */
 
-div[class*="-container"]:not(.almaseo-container) {
+.almaseo-seo-playground div[class*="-container"]:not(.almaseo-container) {
     position: relative;
     min-height: 100px;
 }
@@ -77,25 +77,25 @@ div[class*="-container"]:not(.almaseo-container) {
    Empty States - Consistent Design
    ======================================== */
 
-div[class*="-empty"] {
+.almaseo-seo-playground div[class*="-empty"] {
     text-align: center;
     padding: 30px 20px;
     color: #666;
 }
 
-div[class*="-empty"] .empty-icon {
+.almaseo-seo-playground div[class*="-empty"] .empty-icon {
     font-size: 48px;
     margin-bottom: 15px;
     opacity: 0.5;
 }
 
-div[class*="-empty"] .empty-text {
+.almaseo-seo-playground div[class*="-empty"] .empty-text {
     font-size: 14px;
     color: #666;
     margin-bottom: 8px;
 }
 
-div[class*="-empty"] .empty-hint {
+.almaseo-seo-playground div[class*="-empty"] .empty-hint {
     font-size: 13px;
     color: #999;
 }
@@ -104,7 +104,7 @@ div[class*="-empty"] .empty-hint {
    Loading States - Unified Design
    ======================================== */
 
-div[class*="-loading"] {
+.almaseo-seo-playground div[class*="-loading"] {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -113,7 +113,7 @@ div[class*="-loading"] {
     min-height: 150px;
 }
 
-div[class*="-loading-spinner"] {
+.almaseo-seo-playground div[class*="-loading-spinner"] {
     width: 32px;
     height: 32px;
     border: 3px solid #f0f0f0;
@@ -128,7 +128,7 @@ div[class*="-loading-spinner"] {
     to { transform: rotate(360deg); }
 }
 
-div[class*="-loading-text"] {
+.almaseo-seo-playground div[class*="-loading-text"] {
     font-size: 13px;
     color: #666;
     text-align: center;
@@ -178,7 +178,7 @@ div[class*="-loading-text"] {
    Timestamp Formatting
    ======================================== */
 
-div[class*="-timestamp"] {
+.almaseo-seo-playground div[class*="-timestamp"] {
     font-size: 11px;
     color: #999;
     margin-top: 10px;
@@ -186,7 +186,7 @@ div[class*="-timestamp"] {
     border-top: 1px solid #f0f0f0;
 }
 
-div[class*="-timestamp"] small {
+.almaseo-seo-playground div[class*="-timestamp"] small {
     display: block;
 }
 
@@ -194,7 +194,7 @@ div[class*="-timestamp"] small {
    Error States
    ======================================== */
 
-div[class*="-error"]:not(.error-icon):not(.error-text) {
+.almaseo-seo-playground div[class*="-error"]:not(.error-icon):not(.error-text) {
     background: #fff5f5;
     border: 1px solid #ffcccb;
     border-radius: 4px;
@@ -205,13 +205,13 @@ div[class*="-error"]:not(.error-icon):not(.error-text) {
     gap: 10px;
 }
 
-div[class*="-error"] .error-icon {
+.almaseo-seo-playground div[class*="-error"] .error-icon {
     font-size: 20px;
     line-height: 1;
     flex-shrink: 0;
 }
 
-div[class*="-error"] .error-text {
+.almaseo-seo-playground div[class*="-error"] .error-text {
     font-size: 13px;
     color: #dc3232;
     flex: 1;
@@ -221,7 +221,7 @@ div[class*="-error"] .error-text {
    Success States
    ======================================== */
 
-div[class*="-success"]:not(.success-icon):not(.success-text) {
+.almaseo-seo-playground div[class*="-success"]:not(.success-icon):not(.success-text) {
     background: #f0f8f0;
     border: 1px solid #c3e6c3;
     border-radius: 4px;
@@ -232,13 +232,13 @@ div[class*="-success"]:not(.success-icon):not(.success-text) {
     gap: 10px;
 }
 
-div[class*="-success"] .success-icon {
+.almaseo-seo-playground div[class*="-success"] .success-icon {
     font-size: 20px;
     line-height: 1;
     color: #46b450;
 }
 
-div[class*="-success"] .success-text {
+.almaseo-seo-playground div[class*="-success"] .success-text {
     font-size: 13px;
     color: #46b450;
 }
@@ -398,7 +398,7 @@ div[class*="-success"] .success-text {
         font-size: 14px;
     }
     
-    div[class*="-empty"] .empty-icon {
+    .almaseo-seo-playground div[class*="-empty"] .empty-icon {
         font-size: 36px;
     }
     
@@ -443,7 +443,7 @@ div[class*="-success"] .success-text {
         box-shadow: 0 2px 8px rgba(255, 255, 255, 0.02);
     }
     
-    div[class*="-empty"] .empty-text {
+    .almaseo-seo-playground div[class*="-empty"] .empty-text {
         color: #aaa;
     }
     
@@ -498,7 +498,7 @@ div[class*="-success"] .success-text {
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-    * {
+    .almaseo-seo-playground * {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;

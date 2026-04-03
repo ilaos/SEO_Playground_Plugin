@@ -16,11 +16,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Enqueue SEO Playground styles and scripts
 if (!function_exists('almaseo_enqueue_seo_playground_styles')) {
 function almaseo_enqueue_seo_playground_styles() {
-    // Skip when Avada Fusion Builder is active to prevent template corruption
-    if ( isset( $_GET['fb-edit'] ) || isset( $_GET['builder'] ) || isset( $_GET['fusion_load_nonce'] ) ) {
-        return;
-    }
-
     $screen = get_current_screen();
     
     // Enqueue admin help CSS on AlmaSEO screens
