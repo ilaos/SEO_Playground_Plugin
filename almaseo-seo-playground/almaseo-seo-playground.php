@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
-Version: 1.2.0
+Version: 1.3.0
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -50,7 +50,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
     }
     if ( $almaseo_seo_conflict ) {
         // Define only the bare minimum constants, then stop loading.
-        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.2.0' );
+        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.3.0' );
         if ( ! defined( 'ALMASEO_PATH' ) )           define( 'ALMASEO_PATH', plugin_dir_path( __FILE__ ) );
         if ( ! defined( 'ALMASEO_URL' ) )            define( 'ALMASEO_URL', plugin_dir_url( __FILE__ ) );
         if ( ! defined( 'ALMASEO_MAIN_FILE' ) )      define( 'ALMASEO_MAIN_FILE', __FILE__ );
@@ -62,7 +62,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
 if (!defined('ALMASEO_MAIN_FILE'))       define('ALMASEO_MAIN_FILE', __FILE__);
 if (!defined('ALMASEO_PATH'))            define('ALMASEO_PATH', plugin_dir_path(__FILE__));
 if (!defined('ALMASEO_URL'))             define('ALMASEO_URL', plugin_dir_url(__FILE__));
-if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.2.0');
+if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.3.0');
 if (!defined('ALMASEO_VERSION'))         define('ALMASEO_VERSION', '6.5.0');
 if (!defined('ALMASEO_API_NAMESPACE'))   define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
 if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
@@ -1067,7 +1067,7 @@ add_action('rest_api_init', function () {
 
     register_rest_route(ALMASEO_API_NAMESPACE, '/update-meta', array(
         'methods'  => 'POST',
-        'callback' => 'almaseo_reserved_endpoint',
+        'callback' => 'almaseo_handle_update_meta',
         'permission_callback' => 'almaseo_api_auth_check',
     ));
 
@@ -1248,6 +1248,84 @@ if (!function_exists('almaseo_get_site_capabilities')) {
                 )
             )
         );
+    }
+}
+
+// Handle SEO metadata updates from the AlmaSEO dashboard
+if (!function_exists('almaseo_handle_update_meta')) {
+    function almaseo_handle_update_meta($request) {
+        $post_id = $request->get_param('post_id');
+        $meta    = $request->get_param('meta');
+
+        if (!$post_id) {
+            return new WP_Error('missing_post_id', 'Post ID is required.', array('status' => 400));
+        }
+
+        if (!$meta || !is_array($meta)) {
+            return new WP_Error('missing_meta', 'Meta data is required.', array('status' => 400));
+        }
+
+        $post = get_post($post_id);
+        if (!$post) {
+            return new WP_Error('post_not_found', 'Post not found.', array('status' => 404));
+        }
+
+        // Map incoming field names to Playground post meta keys
+        $field_map = array(
+            'title'               => '_almaseo_title',
+            'description'         => '_almaseo_description',
+            'canonical_url'       => '_almaseo_canonical_url',
+            'og_title'            => '_almaseo_og_title',
+            'og_description'      => '_almaseo_og_description',
+            'og_image'            => '_almaseo_og_image',
+            'twitter_title'       => '_almaseo_twitter_title',
+            'twitter_description' => '_almaseo_twitter_description',
+            'twitter_card'        => '_almaseo_twitter_card',
+        );
+
+        $updated_fields = array();
+        $errors         = array();
+
+        foreach ($meta as $key => $value) {
+            if (!isset($field_map[$key])) {
+                continue;
+            }
+
+            $meta_key = $field_map[$key];
+
+            // Sanitize based on field type
+            if (strpos($key, '_image') !== false || $key === 'canonical_url') {
+                $value = esc_url_raw($value);
+            } elseif ($key === 'twitter_card') {
+                $value = sanitize_text_field($value);
+            } else {
+                $value = wp_strip_all_tags($value);
+            }
+
+            $result = update_post_meta($post_id, $meta_key, $value);
+            if ($result !== false) {
+                $updated_fields[] = $key;
+            } else {
+                $errors[] = "Failed to update {$key}";
+            }
+        }
+
+        // Handle robots directives if provided
+        if (isset($meta['robots_noindex'])) {
+            update_post_meta($post_id, '_almaseo_robots_index', $meta['robots_noindex'] ? 'noindex' : '');
+            $updated_fields[] = 'robots_noindex';
+        }
+        if (isset($meta['robots_nofollow'])) {
+            update_post_meta($post_id, '_almaseo_robots_follow', $meta['robots_nofollow'] ? 'nofollow' : '');
+            $updated_fields[] = 'robots_nofollow';
+        }
+
+        return rest_ensure_response(array(
+            'success'        => empty($errors),
+            'method'         => 'almaseo_playground_direct',
+            'updated_fields' => $updated_fields,
+            'errors'         => $errors,
+        ));
     }
 }
 
