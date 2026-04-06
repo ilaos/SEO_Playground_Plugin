@@ -1755,14 +1755,14 @@ function almaseo_seo_playground_meta_box_callback($post) {
         </script>
         
         <style>
-        @keyframes spin {
+        @keyframes almaseo-field-spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
-        .dashicons.spin {
-            animation: spin 1s linear infinite;
+        .almaseo-seo-playground .dashicons.spin {
+            animation: almaseo-field-spin 1s linear infinite;
         }
-        .field-highlight {
+        .almaseo-seo-playground .field-highlight {
             background-color: #fffbcc !important;
             border-color: #dba617 !important;
             box-shadow: 0 0 5px rgba(219, 166, 23, 0.5) !important;
@@ -3555,319 +3555,60 @@ function almaseo_seo_playground_meta_box_callback($post) {
         
         <!-- AI Tools Tab -->
         <div class="almaseo-tab-panel" id="tab-ai-tools">
-            <?php if (!$is_connected || $user_tier === 'free'): ?>
-            <!-- Upsell Screen for Unconnected/Free Users -->
+            <!-- AI Tools — Coming Soon (all tiers see the same view) -->
             <div class="almaseo-ai-upsell-screen">
                 <div class="upsell-hero">
-                    <h2>🚀 Unlock AI-Powered SEO Tools</h2>
+                    <h2>AI-Powered SEO Tools</h2>
                     <p class="upsell-subtitle">
-                        <?php if (!$is_connected): ?>
-                        Connect to AlmaSEO to access powerful AI features that will transform your content optimization workflow.
-                        <?php else: ?>
-                        You're on the <strong>Free tier</strong>. Upgrade to Pro or Max to unlock AI-powered features that will transform your content optimization.
-                        <?php endif; ?>
+                        These tools are in active development. When ready, they’ll help you optimize content directly from the editor.
                     </p>
                 </div>
-                
+
                 <div class="locked-features-grid">
                     <div class="locked-feature">
-                        <div class="feature-icon">🔒</div>
+                        <div class="feature-icon">🕐</div>
                         <h3>✏️ AI Rewrite</h3>
-                        <p>Instantly rewrite and improve your content with AI that understands SEO best practices.</p>
-                        <span class="feature-badge">Premium Feature</span>
+                        <p>Rewrite and improve your content in different tones — professional, casual, friendly, and more.</p>
+                        <span class="feature-badge" style="background: #f0f6ff; color: #2271b1;">Coming Soon</span>
                     </div>
-                    
+
                     <div class="locked-feature">
-                        <div class="feature-icon">🔒</div>
+                        <div class="feature-icon">🕐</div>
                         <h3>💡 AI Title Generator</h3>
-                        <p>Generate compelling, SEO-optimized titles that drive clicks and rankings.</p>
-                        <span class="feature-badge">Premium Feature</span>
+                        <p>Generate SEO-optimized title suggestions based on your post content.</p>
+                        <span class="feature-badge" style="background: #f0f6ff; color: #2271b1;">Coming Soon</span>
                     </div>
-                    
+
                     <div class="locked-feature">
-                        <div class="feature-icon">🔒</div>
-                        <h3>📝 AI Description Generator</h3>
-                        <p>Create perfect meta descriptions that improve CTR and search visibility.</p>
-                        <span class="feature-badge">Premium Feature</span>
-                    </div>
-                    
-                    <div class="locked-feature">
-                        <div class="feature-icon">🔒</div>
-                        <h3>🎯 Smart Schema Suggestions</h3>
-                        <p>Get AI-powered schema markup recommendations based on your content.</p>
-                        <span class="feature-badge">Premium Feature</span>
-                    </div>
-                    
-                    <div class="locked-feature">
-                        <div class="feature-icon">🔒</div>
-                        <h3>🔍 Keyword Boost</h3>
-                        <p>Advanced keyword research with competition analysis and search intent detection.</p>
-                        <span class="feature-badge">Premium Feature</span>
-                    </div>
-                    
-                    <div class="locked-feature">
-                        <div class="feature-icon">🔒</div>
-                        <h3>📊 Content Intelligence</h3>
-                        <p>Deep content analysis with readability scores and optimization suggestions.</p>
-                        <span class="feature-badge">Premium Feature</span>
+                        <div class="feature-icon">🕐</div>
+                        <h3>📝 AI Meta Description Generator</h3>
+                        <p>Create optimized meta descriptions constrained to the ideal 155–160 character length.</p>
+                        <span class="feature-badge" style="background: #f0f6ff; color: #2271b1;">Coming Soon</span>
                     </div>
                 </div>
-                
+
+                <?php if (!$is_connected): ?>
                 <div class="upsell-benefits">
-                    <h3>✨ Why Connect to AlmaSEO?</h3>
+                    <h3>Why Connect to AlmaSEO?</h3>
                     <ul class="benefits-list">
-                        <li>✅ <strong>Free Trial Available</strong> - Try all features risk-free</li>
-                        <li>✅ <strong>Instant Setup</strong> - Connect in less than 60 seconds</li>
-                        <li>✅ <strong>No Credit Card Required</strong> - Start optimizing immediately</li>
-                        <li>✅ <strong>Unlimited AI Generations</strong> - No usage limits during trial</li>
-                        <li>✅ <strong>Priority Support</strong> - Get help when you need it</li>
+                        <li>✅ <strong>Instant Setup</strong> – Connect in less than 60 seconds</li>
+                        <li>✅ <strong>Full SEO Toolkit</strong> – Schema markup, sitemaps, meta management, and health scoring included free</li>
+                        <li>✅ <strong>Content Publishing</strong> – Publish articles directly from the AlmaSEO dashboard to your site</li>
+                        <li>✅ <strong>AI Tools on the Roadmap</strong> – Rewrite, title, and meta description generators are in active development</li>
                     </ul>
                 </div>
-                
+
                 <div class="upsell-cta-section">
                     <div class="cta-buttons">
                         <a href="<?php echo admin_url('admin.php?page=seo-playground-connection'); ?>" class="cta-btn-primary">
-                            🔓 Connect to AlmaSEO (Free Trial)
+                            Connect to AlmaSEO
                         </a>
-                        <a href="https://almaseo.com/pricing?utm_source=plugin&utm_medium=ai_tools&utm_campaign=upsell" target="_blank" class="cta-btn-secondary">
-                            💡 Learn More About Pricing
+                        <a href="https://almaseo.com" target="_blank" class="cta-btn-secondary">
+                            Visit AlmaSEO.com
                         </a>
                     </div>
-                    
-                    <div class="already-connected">
-                        <p>🧠 Already connected? <a href="<?php echo admin_url('admin.php?page=seo-playground-connection'); ?>">Check your connection status</a></p>
-                    </div>
                 </div>
-                
-                <div class="upsell-testimonial">
-                    <blockquote>
-                        "AlmaSEO's AI tools saved me hours of work. The content suggestions are spot-on and my rankings have improved significantly!"
-                        <cite>- Sarah M., Content Manager</cite>
-                    </blockquote>
-                </div>
-            </div>
-            <?php elseif ($can_use_ai): ?>
-            <!-- AI Rewrite Assistant Panel for Pro/Max Users -->
-            <?php if ($user_tier === 'pro'): ?>
-            <div class="ai-usage-indicator">
-                <span class="usage-label">AI Generations Remaining:</span>
-                <span class="usage-count"><?php echo $generations_info['remaining']; ?>/<?php echo $generations_info['total']; ?></span>
-                <div class="usage-bar">
-                    <div class="usage-progress" style="width: <?php echo ($generations_info['remaining'] / $generations_info['total']) * 100; ?>%"></div>
-                </div>
-            </div>
-            <?php endif; ?>
-            
-            <div class="ai-rewrite-panel">
-                <div class="almaseo-field-group" role="region" aria-labelledby="ai-rewrite-heading">
-                    <div class="panel-header">
-                        <div class="panel-title" id="ai-rewrite-heading">
-                            <span class="panel-icon" aria-hidden="true">✍️</span>
-                            <span>AI Rewrite Assistant</span>
-                            <span class="panel-tooltip" role="tooltip" aria-label="Rewrite your content with AI for better engagement">ⓘ</span>
-                        </div>
-                    </div>
-                    
-                    <div class="ai-rewrite-input-section">
-                        <textarea id="ai-rewrite-input" 
-                                  class="ai-rewrite-textarea" 
-                                  placeholder="Paste or type content you want to rewrite..."
-                                  aria-label="Content to rewrite"
-                                  rows="5"></textarea>
-                        
-                        <div class="ai-rewrite-controls">
-                            <select id="ai-rewrite-tone" class="ai-rewrite-tone-select" aria-label="Select rewrite tone">
-                                <option value="professional">Professional</option>
-                                <option value="casual">Casual</option>
-                                <option value="friendly">Friendly</option>
-                                <option value="formal">Formal</option>
-                                <option value="creative">Creative</option>
-                            </select>
-                            
-                            <button type="button" class="ai-rewrite-btn" id="ai-rewrite-submit" aria-label="Rewrite content">
-                                <span class="btn-icon" aria-hidden="true">🔄</span>
-                                <span>Rewrite with AI</span>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="ai-rewrite-output-section" id="ai-rewrite-output-section">
-                        <div class="ai-rewrite-output-label">
-                            <span aria-hidden="true">✨</span>
-                            <span>Rewritten Content</span>
-                        </div>
-                        <div class="ai-rewrite-output">
-                            <div class="ai-rewrite-output-text" id="ai-rewrite-output-text" aria-live="polite"></div>
-                        </div>
-                        <div class="ai-rewrite-output-actions">
-                            <button type="button" class="ai-output-action-btn" id="ai-copy-rewrite" aria-label="Copy rewritten content">
-                                <span aria-hidden="true">📋</span> Copy
-                            </button>
-                            <button type="button" class="ai-output-action-btn primary" id="ai-apply-rewrite" aria-label="Apply rewritten content">
-                                <span aria-hidden="true">✔️</span> Apply
-                            </button>
-                            <button type="button" class="ai-output-action-btn" id="ai-regenerate-rewrite" aria-label="Regenerate content">
-                                <span aria-hidden="true">🔄</span> Regenerate
-                            </button>
-                            <button type="button" class="ai-output-action-btn" id="ai-clear-rewrite" aria-label="Clear results">
-                                <span aria-hidden="true">❌</span> Clear
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="ai-rewrite-loading" style="display: none;" aria-hidden="true">
-                        <div class="ai-rewrite-spinner"></div>
-                        <div class="ai-rewrite-loading-text">Rewriting your content...</div>
-                    </div>
-                    
-                    <div class="ai-rewrite-error" style="display: none;" role="alert">
-                        <span class="ai-rewrite-error-icon" aria-hidden="true">⚠️</span>
-                        <span class="ai-rewrite-error-text"></span>
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
-            
-            <!-- Title Generator Panel -->
-            <?php if ($is_connected): ?>
-            <div class="ai-title-generator-panel">
-                <div class="almaseo-field-group" role="region" aria-labelledby="ai-title-heading">
-                    <div class="panel-header">
-                        <div class="panel-title" id="ai-title-heading">
-                            <span class="panel-icon" aria-hidden="true">📝</span>
-                            <span>AI Title Generator</span>
-                            <span class="panel-tooltip" role="tooltip" aria-label="Generate compelling SEO titles">ⓘ</span>
-                        </div>
-                    </div>
-                    
-                    <div class="ai-title-input-section">
-                        <input type="text" 
-                               id="ai-title-context" 
-                               class="ai-title-context-input" 
-                               placeholder="Enter topic or keywords (optional - will use post content if empty)"
-                               aria-label="Title generation context">
-                        
-                        <button type="button" class="ai-title-generate-btn" id="ai-generate-titles" aria-label="Generate title suggestions">
-                            <span aria-hidden="true">✨</span>
-                            <span>Generate Titles</span>
-                        </button>
-                    </div>
-                    
-                    <div class="ai-title-suggestions" id="ai-title-suggestions">
-                        <div class="ai-title-suggestions-label">Generated Titles</div>
-                        <div class="ai-title-suggestions-list" id="ai-title-suggestions-list" role="list">
-                            <!-- Title suggestions will be populated here -->
-                        </div>
-                    </div>
-                    
-                    <div class="ai-title-loading" style="display: none;" aria-hidden="true">
-                        <div class="ai-rewrite-spinner"></div>
-                        <div class="ai-rewrite-loading-text">Generating title suggestions...</div>
-                    </div>
-                    
-                    <div class="ai-title-error" style="display: none;" role="alert">
-                        <span aria-hidden="true">⚠️</span>
-                        <span class="error-text"></span>
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
-            
-            <!-- Meta Description Generator Panel -->
-            <?php if ($is_connected): ?>
-            <div class="ai-meta-generator-panel">
-                <div class="almaseo-field-group" role="region" aria-labelledby="ai-meta-heading">
-                    <div class="panel-header">
-                        <div class="panel-title" id="ai-meta-heading">
-                            <span class="panel-icon" aria-hidden="true">📄</span>
-                            <span>AI Meta Description Generator</span>
-                            <span class="panel-tooltip" role="tooltip" aria-label="Generate optimized meta descriptions">ⓘ</span>
-                        </div>
-                    </div>
-                    
-                    <div class="ai-meta-input-section">
-                        <input type="text" 
-                               id="ai-meta-keywords" 
-                               class="ai-meta-keywords-input" 
-                               placeholder="Target keywords (optional)"
-                               aria-label="Target keywords for meta description">
-                        
-                        <button type="button" class="ai-meta-generate-btn" id="ai-generate-meta" aria-label="Generate meta description">
-                            <span aria-hidden="true">✨</span>
-                            <span>Generate Meta Description</span>
-                        </button>
-                    </div>
-                    
-                    <div class="ai-meta-output" id="ai-meta-output">
-                        <div class="ai-meta-output-text" id="ai-meta-output-text" aria-live="polite"></div>
-                        <div class="ai-meta-char-count">
-                            <span class="ai-meta-char-indicator"></span>
-                            <span>Characters: <span id="ai-meta-char-count">0</span>/160</span>
-                        </div>
-                        <button type="button" class="ai-output-action-btn primary" id="ai-apply-meta" aria-label="Apply meta description">
-                            <span aria-hidden="true">✔️</span> Apply to Meta Description
-                        </button>
-                    </div>
-                    
-                    <div class="ai-meta-loading" style="display: none;" aria-hidden="true">
-                        <div class="ai-rewrite-spinner"></div>
-                        <div class="ai-rewrite-loading-text">Generating meta description...</div>
-                    </div>
-                    
-                    <div class="ai-meta-error" style="display: none;" role="alert">
-                        <span aria-hidden="true">⚠️</span>
-                        <span class="error-text"></span>
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
-            
-            <!-- AI Suggestions Panel -->
-            <?php if ($is_connected): ?>
-            <div class="ai-suggestions-panel">
-                <div class="almaseo-field-group" role="region" aria-labelledby="ai-suggestions-heading">
-                    <div class="panel-header">
-                        <div class="panel-title" id="ai-suggestions-heading">
-                            <span class="panel-icon" aria-hidden="true">💡</span>
-                            <span>AI SEO Suggestions</span>
-                            <span class="panel-tooltip" role="tooltip" aria-label="Get AI-powered SEO recommendations">ⓘ</span>
-                        </div>
-                        <button type="button" class="ai-refresh-btn" id="ai-refresh-suggestions" aria-label="Refresh suggestions">
-                            <span aria-hidden="true">🔄</span> Refresh
-                        </button>
-                    </div>
-                    
-                    <div class="ai-suggestions-grid" id="ai-suggestions-grid" role="list">
-                        <!-- AI suggestions will be populated here -->
-                    </div>
-                    
-                    <div class="ai-suggestions-loading" style="display: none;" aria-hidden="true">
-                        <div class="ai-rewrite-spinner"></div>
-                        <div class="ai-rewrite-loading-text">Analyzing your content...</div>
-                    </div>
-                    
-                    <div class="ai-empty-state" id="ai-suggestions-empty" style="display: none;">
-                        <div class="ai-empty-icon" aria-hidden="true">🤖</div>
-                        <div class="ai-empty-title">No Suggestions Yet</div>
-                        <div class="ai-empty-description">Add more content to get AI-powered SEO suggestions</div>
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
-            
-            <!-- Usage Indicator -->
-            <div class="ai-usage-indicator" role="status" aria-label="Content usage statistics">
-                <div class="ai-word-count">
-                    <span aria-hidden="true">📊</span>
-                    Words: <span class="ai-word-count-value">0</span>
-                </div>
-                <div class="ai-token-usage">
-                    <span aria-hidden="true">🎯</span>
-                    Tokens: <span class="ai-token-count-value">0</span>
-                    <div class="ai-usage-bar">
-                        <div class="ai-usage-bar-fill" style="width: 0%"></div>
-                    </div>
-                </div>
+                <?php endif; ?>
             </div>
         </div>
         <!-- End AI Tools Tab -->

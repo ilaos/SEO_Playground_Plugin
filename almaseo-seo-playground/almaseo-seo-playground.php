@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
-Version: 1.3.2
+Version: 1.3.3
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -50,7 +50,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
     }
     if ( $almaseo_seo_conflict ) {
         // Define only the bare minimum constants, then stop loading.
-        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.3.2' );
+        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.3.3' );
         if ( ! defined( 'ALMASEO_PATH' ) )           define( 'ALMASEO_PATH', plugin_dir_path( __FILE__ ) );
         if ( ! defined( 'ALMASEO_URL' ) )            define( 'ALMASEO_URL', plugin_dir_url( __FILE__ ) );
         if ( ! defined( 'ALMASEO_MAIN_FILE' ) )      define( 'ALMASEO_MAIN_FILE', __FILE__ );
@@ -2086,15 +2086,15 @@ function almaseo_fetch_user_tier() {
     ));
     
     if (is_wp_error($response)) {
-        // Log error and return default tier
+        // Log error — default to max tier for connected users when API is unreachable
         if (defined('WP_DEBUG') && WP_DEBUG) {
             error_log('[AlmaSEO] Tier fetch failed: ' . $response->get_error_message());
         }
         return array(
-            'tier' => 'free',
+            'tier' => 'max',
             'limits' => array(
-                'monthly_articles' => 0,
-                'ai_generations' => 0
+                'monthly_articles' => -1,
+                'ai_generations' => -1
             ),
             'error' => $response->get_error_message()
         );
@@ -2108,7 +2108,7 @@ function almaseo_fetch_user_tier() {
         
         // Structure the tier data
         $tier_data = array(
-            'tier' => isset($data['tier']) ? strtolower($data['tier']) : 'free',
+            'tier' => isset($data['tier']) ? strtolower($data['tier']) : 'max',
             'limits' => array(
                 'monthly_articles' => isset($data['limits']['monthly_articles']) ? intval($data['limits']['monthly_articles']) : 0,
                 'ai_generations' => isset($data['limits']['ai_generations']) ? intval($data['limits']['ai_generations']) : 0,
@@ -2139,12 +2139,12 @@ function almaseo_fetch_user_tier() {
         
         return $tier_data;
     } else {
-        // API returned error, use default tier
+        // API returned non-200 — default to max tier for connected users
         return array(
-            'tier' => 'free',
+            'tier' => 'max',
             'limits' => array(
-                'monthly_articles' => 0,
-                'ai_generations' => 0
+                'monthly_articles' => -1,
+                'ai_generations' => -1
             ),
             'error' => 'API returned status code: ' . $response_code
         );
@@ -2158,16 +2158,15 @@ function almaseo_fetch_user_tier() {
  */
 if (!function_exists('almaseo_get_user_tier')) {
 function almaseo_get_user_tier() {
-    // Quick check from options first
-    $stored_tier = get_option('almaseo_user_tier', false);
-    
-    if ($stored_tier === false || empty($stored_tier)) {
-        // Fetch fresh tier data
-        $tier_data = almaseo_fetch_user_tier();
-        return $tier_data['tier'];
+    // Check if we have cached tier data (set by almaseo_fetch_user_tier with 1-hour expiry)
+    $cached_tier = get_transient('almaseo_user_tier_data');
+    if ($cached_tier !== false && isset($cached_tier['tier'])) {
+        return $cached_tier['tier'];
     }
-    
-    return $stored_tier;
+
+    // No valid cache — fetch fresh tier data
+    $tier_data = almaseo_fetch_user_tier();
+    return $tier_data['tier'];
 }
 } // end function_exists guard: almaseo_get_user_tier
 
