@@ -213,11 +213,14 @@ class Autofill_Generator {
         $generated = self::generate_all( $post );
         $result    = array();
 
-        // Map: field key => array of meta keys (primary + fallbacks).
-        // Checks all keys when reading; writes to all keys for consistency.
+        // Map: field key => array of meta keys to write (primary first).
+        // Primary keys MUST match what the metabox + frontend renderer read:
+        //   Title:       _almaseo_title       (metabox-callback.php:335, meta-tags-renderer.php:23)
+        //   Description: _almaseo_description (metabox-callback.php:339, meta-tags-renderer.php:111)
+        // Also writes to the Bulk Meta Editor's keys for table display consistency.
         $meta_map = array(
-            'meta_title'       => array( '_almaseo_meta_title', '_almaseo_title' ),
-            'meta_description' => array( '_almaseo_meta_description', '_almaseo_desc' ),
+            'meta_title'       => array( '_almaseo_title', '_almaseo_meta_title' ),
+            'meta_description' => array( '_almaseo_description', '_almaseo_meta_description' ),
             'focus_keyword'    => array( '_almaseo_focus_keyword' ),
             'og_title'         => array( '_almaseo_og_title' ),
             'og_description'   => array( '_almaseo_og_description' ),

@@ -305,18 +305,24 @@ class BulkMeta_Controller {
         if (isset($data['meta_title'])) {
             $title = sanitize_text_field($data['meta_title']);
             if (empty($title)) {
+                delete_post_meta($post_id, '_almaseo_title');
                 delete_post_meta($post_id, '_almaseo_meta_title');
             } else {
+                // Write to both the canonical key (used by metabox + frontend)
+                // and the bulk-meta key (used by this table's display)
+                update_post_meta($post_id, '_almaseo_title', $title);
                 update_post_meta($post_id, '_almaseo_meta_title', $title);
             }
             $updated = true;
         }
-        
+
         if (isset($data['meta_description'])) {
             $description = sanitize_textarea_field($data['meta_description']);
             if (empty($description)) {
+                delete_post_meta($post_id, '_almaseo_description');
                 delete_post_meta($post_id, '_almaseo_meta_description');
             } else {
+                update_post_meta($post_id, '_almaseo_description', $description);
                 update_post_meta($post_id, '_almaseo_meta_description', $description);
             }
             $updated = true;
