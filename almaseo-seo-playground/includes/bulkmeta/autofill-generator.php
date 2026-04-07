@@ -40,86 +40,105 @@ class Autofill_Generator {
     );
 
     /**
-     * Title templates scored to hit 70+ on the headline analyzer.
-     * Each template targets: power word, emotional word, number, 6-13 words, 50-60 chars.
-     *
-     * Placeholders:
-     *   {topic}    — cleaned post title / main keyword
-     *   {year}     — current year
-     *   {number}   — contextual number (category count, word-derived, etc.)
-     *   {power}    — random power word
-     *   {emotion}  — random emotional word
-     *   {site}     — site name
-     */
-    private static $title_templates = array(
-        '{number} {power} {topic} Tips for {year}',
-        '{power} Guide to {topic} | {emotion} {year} Tips',
-        'Top {number} {topic} Strategies | {power} {year} Guide',
-        '{number} {emotion} {topic} Ideas | {power} Guide',
-        'Why {topic} Is {power} | {number} {emotion} Insights',
-        '{power} {topic} in {year} | {number} {emotion} Tips',
-        '{topic}: {number} {power} Ways to Get {emotion} Results',
-        'How {topic} Can {power} Results | {number} {emotion} Tips',
-    );
-
-    /**
      * Generate SEO title from post data.
+     *
+     * Strategy: Start from the ACTUAL post title and enhance it for SEO,
+     * rather than replacing it with a generic template. This preserves
+     * the page's real meaning while improving headline score.
      *
      * @param \WP_Post $post The post object.
      * @return string Generated title (50-60 chars target).
      */
     public static function generate_title( $post ) {
-        $topic = self::extract_topic( $post );
-        $year  = date( 'Y' );
-        $number = self::pick_number( $post );
-        $power  = self::pick_word( self::$power_words );
-        $emotion = self::pick_word( self::$emotional_words );
-        $site   = get_bloginfo( 'name' );
+        $raw_title = trim( $post->post_title ?? '' );
+        $year      = date( 'Y' );
+        $site      = get_bloginfo( 'name' );
 
-        // Try templates until we get one in the 50-60 char range
-        $templates = self::$title_templates;
-        shuffle( $templates );
+        if ( empty( $raw_title ) ) {
+            return '';
+        }
 
-        $best_title = '';
-        $best_diff  = PHP_INT_MAX;
+        // Step 1: Clean the title (remove existing site name suffixes, pipes, dashes)
+        $title = preg_replace( '/\s*[\|\-–—]\s*' . preg_quote( $site, '/' ) . '\s*$/i', '', $raw_title );
+        $title = trim( $title );
 
-        foreach ( $templates as $tpl ) {
-            $title = str_replace(
-                array( '{topic}', '{year}', '{number}', '{power}', '{emotion}', '{site}' ),
-                array( $topic, $year, $number, ucfirst( $power ), ucfirst( $emotion ), $site ),
-                $tpl
-            );
-
-            $title = self::clean_title( $title );
-            $len   = mb_strlen( $title );
-
-            // Perfect range
-            if ( $len >= 50 && $len <= 60 ) {
-                return $title;
-            }
-
-            // Track closest to ideal (55 chars center)
-            $diff = abs( $len - 55 );
-            if ( $diff < $best_diff ) {
-                $best_diff  = $diff;
-                $best_title = $title;
+        // Step 2: Check if title already contains a power word
+        $title_lower = strtolower( $title );
+        $title_words = preg_split( '/\s+/', $title_lower );
+        $has_power   = false;
+        foreach ( self::$power_words as $pw ) {
+            if ( in_array( $pw, $title_words, true ) ) {
+                $has_power = true;
+                break;
             }
         }
 
-        // If best is too long, trim at word boundary
-        if ( mb_strlen( $best_title ) > 65 ) {
-            $best_title = self::truncate_at_word( $best_title, 60 );
+        // Step 3: Check if title already contains a number
+        $has_number = (bool) preg_match( '/\d/', $title );
+
+        // Step 4: Build the enhanced title
+        // Strategy: only add elements if there's room. Never force additions
+        // that would make the title too long or nonsensical.
+        $len = mb_strlen( $title );
+        $enhanced = $title;
+
+        // If title is already 50-60 chars and has a power word, it's good as-is
+        if ( $len >= 50 && $len <= 60 && $has_power ) {
+            return self::clean_title( $enhanced );
         }
 
-        // If best is too short, append site name
-        if ( mb_strlen( $best_title ) < 45 && ! empty( $site ) ) {
-            $with_site = $best_title . ' | ' . $site;
+        // Only try enhancements if there's room (title under ~45 chars)
+        if ( $len < 45 ) {
+            // Try adding year if not present
+            if ( ! preg_match( '/20\d{2}/', $enhanced ) ) {
+                $with_year = $enhanced . ' in ' . $year;
+                if ( mb_strlen( $with_year ) <= 60 ) {
+                    $enhanced = $with_year;
+                }
+            }
+
+            // Add a power word if none present and there's still room
+            if ( ! $has_power && mb_strlen( $enhanced ) < 50 ) {
+                $contextual_powers = array( 'essential', 'complete', 'proven', 'expert', 'comprehensive' );
+                $power = $contextual_powers[ array_rand( $contextual_powers ) ];
+
+                $with_power = ucfirst( $power ) . ' ' . $enhanced;
+                if ( mb_strlen( $with_power ) <= 60 ) {
+                    $enhanced = $with_power;
+                }
+            }
+        }
+
+        // If still too short, append site name with pipe
+        if ( mb_strlen( $enhanced ) < 45 && ! empty( $site ) ) {
+            $with_site = $enhanced . ' | ' . $site;
             if ( mb_strlen( $with_site ) <= 65 ) {
-                $best_title = $with_site;
+                $enhanced = $with_site;
             }
         }
 
-        return $best_title;
+        // If original title was already long (45+ chars), just add site name if it fits
+        if ( $enhanced === $title && $len >= 45 && $len < 55 && ! empty( $site ) ) {
+            $with_site = $title . ' | ' . $site;
+            if ( mb_strlen( $with_site ) <= 65 ) {
+                $enhanced = $with_site;
+            }
+        }
+
+        // If too long, trim intelligently
+        if ( mb_strlen( $enhanced ) > 65 ) {
+            $simple = $title . ' | ' . $site;
+            if ( mb_strlen( $simple ) <= 65 ) {
+                $enhanced = $simple;
+            } else if ( $len <= 65 ) {
+                // Original title fits on its own
+                $enhanced = $title;
+            } else {
+                $enhanced = self::truncate_at_word( $title, 57 ) . '...';
+            }
+        }
+
+        return self::clean_title( $enhanced );
     }
 
     /**
