@@ -791,6 +791,259 @@
         }
     };
     
+    // ===================================================================
+    // Auto-Fill Module
+    // ===================================================================
+    const AutoFill = {
+        pendingIds: [],
+
+        init: function() {
+            this.bindEvents();
+        },
+
+        bindEvents: function() {
+            const self = this;
+
+            // Auto-Fill Selected — uses checked rows
+            $('#autofill-selected').on('click', function() {
+                const ids = self.getSelectedIds();
+                if (ids.length === 0) {
+                    BulkMetaEditor.showToast('Please select at least one post', 'error');
+                    return;
+                }
+                self.runAutofill(ids);
+            });
+
+            // Auto-Fill All Empty — fetches all posts with missing metadata
+            $('#autofill-all-empty').on('click', function() {
+                if (!confirm('This will auto-generate metadata for ALL posts/pages with empty fields. Continue?')) {
+                    return;
+                }
+                self.autofillAllEmpty();
+            });
+
+            // Preview — shows what would be generated
+            $('#autofill-preview').on('click', function() {
+                const ids = self.getSelectedIds();
+                if (ids.length === 0) {
+                    BulkMetaEditor.showToast('Please select at least one post to preview', 'error');
+                    return;
+                }
+                self.showPreview(ids);
+            });
+
+            // Modal close
+            $(document).on('click', '.autofill-modal-close', function() {
+                $('#autofill-preview-modal').hide();
+            });
+
+            // Confirm apply from preview modal
+            $('#autofill-confirm-apply').on('click', function() {
+                if (self.pendingIds.length > 0) {
+                    $('#autofill-preview-modal').hide();
+                    self.runAutofill(self.pendingIds);
+                }
+            });
+        },
+
+        getSelectedIds: function() {
+            const ids = [];
+            $('.post-checkbox:checked').each(function() {
+                ids.push(parseInt($(this).val(), 10));
+            });
+            return ids;
+        },
+
+        async runAutofill(ids) {
+            const overwrite = $('#autofill-overwrite').prop('checked');
+            const $status = $('#autofill-status');
+
+            $status.text('Generating metadata...');
+            showOverlay();
+
+            try {
+                const result = await wp.apiFetch({
+                    path: '/almaseo/v1/bulkmeta/autofill',
+                    method: 'POST',
+                    data: {
+                        ids: ids,
+                        fields: [],
+                        overwrite: overwrite
+                    }
+                });
+
+                const msg = `Auto-filled ${result.success} post(s)` +
+                    (result.skipped ? `, ${result.skipped} skipped` : '') +
+                    (result.failed ? `, ${result.failed} failed` : '');
+
+                BulkMetaEditor.showToast(msg, 'success');
+                $status.text(msg);
+
+                // Reload the table to show updated values
+                BulkMetaEditor.loadPosts();
+
+            } catch (error) {
+                const msg = `Auto-fill failed: ${error?.message || 'Unknown error'}`;
+                showError(msg);
+                $status.text(msg);
+            } finally {
+                hideOverlay();
+            }
+        },
+
+        async autofillAllEmpty() {
+            const $status = $('#autofill-status');
+            $status.text('Scanning for posts with empty metadata...');
+            showOverlay();
+
+            try {
+                // First, fetch all post IDs with missing metadata (paginated)
+                let allIds = [];
+                let page = 1;
+                let hasMore = true;
+
+                while (hasMore) {
+                    const resp = await wp.apiFetch({
+                        path: `/almaseo/v1/bulkmeta?missing=1&per_page=100&page=${page}&type=post,page&status=publish,draft`
+                    });
+
+                    const rows = Array.isArray(resp) ? resp : (resp.posts || resp.items || []);
+
+                    if (rows.length === 0) {
+                        hasMore = false;
+                    } else {
+                        rows.forEach(r => allIds.push(r.id));
+                        page++;
+                        // Safety limit
+                        if (page > 50) hasMore = false;
+                    }
+                }
+
+                if (allIds.length === 0) {
+                    BulkMetaEditor.showToast('No posts with empty metadata found!', 'info');
+                    $status.text('No empty metadata found.');
+                    hideOverlay();
+                    return;
+                }
+
+                $status.text(`Found ${allIds.length} post(s) with empty metadata. Generating...`);
+
+                // Process in batches of 20
+                let totalSuccess = 0;
+                let totalFailed = 0;
+
+                for (let i = 0; i < allIds.length; i += 20) {
+                    const batch = allIds.slice(i, i + 20);
+                    $status.text(`Processing batch ${Math.floor(i/20) + 1} of ${Math.ceil(allIds.length/20)}...`);
+
+                    const result = await wp.apiFetch({
+                        path: '/almaseo/v1/bulkmeta/autofill',
+                        method: 'POST',
+                        data: {
+                            ids: batch,
+                            fields: [],
+                            overwrite: false
+                        }
+                    });
+
+                    totalSuccess += result.success || 0;
+                    totalFailed += result.failed || 0;
+                }
+
+                const msg = `Done! Auto-filled ${totalSuccess} post(s)` +
+                    (totalFailed ? `, ${totalFailed} failed` : '');
+
+                BulkMetaEditor.showToast(msg, 'success');
+                $status.text(msg);
+
+                // Reload table
+                BulkMetaEditor.loadPosts();
+
+            } catch (error) {
+                const msg = `Auto-fill failed: ${error?.message || 'Unknown error'}`;
+                showError(msg);
+                $status.text(msg);
+            } finally {
+                hideOverlay();
+            }
+        },
+
+        async showPreview(ids) {
+            this.pendingIds = ids;
+            const overwrite = $('#autofill-overwrite').prop('checked');
+            const $modal = $('#autofill-preview-modal');
+            const $body = $('#autofill-preview-body');
+
+            $body.html('<p>Loading preview...</p>');
+            $modal.show();
+
+            try {
+                const previews = await wp.apiFetch({
+                    path: '/almaseo/v1/bulkmeta/autofill/preview',
+                    method: 'POST',
+                    data: {
+                        ids: ids,
+                        fields: [],
+                        overwrite: overwrite
+                    }
+                });
+
+                if (!previews || previews.length === 0) {
+                    $body.html('<p>No posts to preview.</p>');
+                    return;
+                }
+
+                let html = '<table class="wp-list-table widefat fixed striped" style="font-size:13px;">';
+                html += '<thead><tr>';
+                html += '<th style="width:20%;">Post</th>';
+                html += '<th style="width:25%;">Field</th>';
+                html += '<th style="width:25%;">Current</th>';
+                html += '<th style="width:25%;">Generated</th>';
+                html += '<th style="width:5%;">Action</th>';
+                html += '</tr></thead><tbody>';
+
+                previews.forEach(p => {
+                    const fields = ['meta_title', 'meta_description', 'focus_keyword', 'og_title', 'og_description'];
+                    const labels = {
+                        meta_title: 'SEO Title',
+                        meta_description: 'Meta Description',
+                        focus_keyword: 'Focus Keyword',
+                        og_title: 'OG Title',
+                        og_description: 'OG Description'
+                    };
+
+                    let firstRow = true;
+                    fields.forEach(f => {
+                        if (!p[f]) return;
+                        const d = p[f];
+                        const actionIcon = d.will_fill
+                            ? '<span class="dashicons dashicons-yes-alt" style="color:#00a32a;" title="Will be filled"></span>'
+                            : '<span class="dashicons dashicons-minus" style="color:#999;" title="Already has value — will skip"></span>';
+                        const currentStyle = d.current ? '' : 'color:#d63638;font-style:italic;';
+                        const currentText = d.current || '(empty)';
+
+                        html += '<tr>';
+                        if (firstRow) {
+                            html += `<td rowspan="${fields.filter(ff => p[ff]).length}"><strong>${p.title}</strong></td>`;
+                            firstRow = false;
+                        }
+                        html += `<td>${labels[f] || f}</td>`;
+                        html += `<td style="${currentStyle}">${currentText}</td>`;
+                        html += `<td style="color:#2271b1;">${d.generated}</td>`;
+                        html += `<td>${actionIcon}</td>`;
+                        html += '</tr>';
+                    });
+                });
+
+                html += '</tbody></table>';
+                $body.html(html);
+
+            } catch (error) {
+                $body.html(`<p class="notice notice-error" style="padding:10px;">Preview failed: ${error?.message || 'Unknown error'}</p>`);
+            }
+        }
+    };
+
     // Initialize when DOM is ready - defensive approach
     if (typeof jQuery !== 'undefined') {
         jQuery(function($) {
@@ -798,6 +1051,7 @@
             if ($('.almaseo-bulk-meta').length > 0 || $('#bulkmeta-table').length > 0 || $('#almaseo-bulkmeta').length > 0) {
                 console.log('Initializing BulkMetaEditor...');
                 BulkMetaEditor.init();
+                AutoFill.init();
             }
         });
     } else {

@@ -31,6 +31,7 @@ if (!function_exists('almaseo_is_pro')) {
     }
 }
 
-// Load controller and REST API
+// Load controller, REST API, and auto-fill generator
 require_once plugin_dir_path(__FILE__) . 'bulkmeta-controller.php';
 require_once plugin_dir_path(__FILE__) . 'bulkmeta-rest.php';
+require_once plugin_dir_path(__FILE__) . 'autofill-generator.php';

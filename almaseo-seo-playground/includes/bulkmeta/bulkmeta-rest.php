@@ -193,6 +193,52 @@ class BulkMeta_REST {
             )
         ));
         
+        // Auto-fill preview endpoint — shows what would be generated
+        register_rest_route($namespace, '/bulkmeta/autofill/preview', array(
+            'methods' => \WP_REST_Server::CREATABLE,
+            'callback' => array(__CLASS__, 'autofill_preview'),
+            'permission_callback' => array(__CLASS__, 'check_permission'),
+            'args' => array(
+                'ids' => array(
+                    'type' => 'array',
+                    'required' => true,
+                    'items' => array( 'type' => 'integer' )
+                ),
+                'fields' => array(
+                    'type' => 'array',
+                    'default' => array(),
+                    'items' => array( 'type' => 'string' )
+                ),
+                'overwrite' => array(
+                    'type' => 'boolean',
+                    'default' => false
+                )
+            )
+        ));
+
+        // Auto-fill apply endpoint — generates and saves metadata
+        register_rest_route($namespace, '/bulkmeta/autofill', array(
+            'methods' => \WP_REST_Server::CREATABLE,
+            'callback' => array(__CLASS__, 'autofill_apply'),
+            'permission_callback' => array(__CLASS__, 'check_permission'),
+            'args' => array(
+                'ids' => array(
+                    'type' => 'array',
+                    'required' => true,
+                    'items' => array( 'type' => 'integer' )
+                ),
+                'fields' => array(
+                    'type' => 'array',
+                    'default' => array(),
+                    'items' => array( 'type' => 'string' )
+                ),
+                'overwrite' => array(
+                    'type' => 'boolean',
+                    'default' => false
+                )
+            )
+        ));
+
         // Test endpoint for debugging
         register_rest_route($namespace, '/bulkmeta/test', array(
             'methods' => \WP_REST_Server::READABLE,
@@ -475,6 +521,94 @@ class BulkMeta_REST {
         return new \WP_REST_Response($term_list, 200);
     }
     
+    /**
+     * Auto-fill preview — returns what would be generated without saving.
+     */
+    public static function autofill_preview( $request ) {
+        require_once __DIR__ . '/autofill-generator.php';
+
+        $ids       = array_map( 'intval', $request->get_param( 'ids' ) );
+        $fields    = $request->get_param( 'fields' ) ?: array();
+        $overwrite = (bool) $request->get_param( 'overwrite' );
+        $previews  = array();
+
+        foreach ( $ids as $post_id ) {
+            $post = get_post( $post_id );
+            if ( ! $post ) {
+                continue;
+            }
+
+            $generated = Autofill_Generator::generate_all( $post );
+            $current   = array(
+                'meta_title'       => (string) get_post_meta( $post_id, '_almaseo_meta_title', true ),
+                'meta_description' => (string) get_post_meta( $post_id, '_almaseo_meta_description', true ),
+                'focus_keyword'    => (string) get_post_meta( $post_id, '_almaseo_focus_keyword', true ),
+                'og_title'         => (string) get_post_meta( $post_id, '_almaseo_og_title', true ),
+                'og_description'   => (string) get_post_meta( $post_id, '_almaseo_og_description', true ),
+            );
+
+            $preview = array(
+                'id'    => $post_id,
+                'title' => $post->post_title,
+            );
+
+            foreach ( $generated as $key => $value ) {
+                if ( ! empty( $fields ) && ! in_array( $key, $fields, true ) ) {
+                    continue;
+                }
+                $will_fill = $overwrite || empty( $current[ $key ] );
+                $preview[ $key ] = array(
+                    'current'   => $current[ $key ],
+                    'generated' => $value,
+                    'will_fill' => $will_fill,
+                );
+            }
+
+            $previews[] = $preview;
+        }
+
+        return rest_ensure_response( $previews );
+    }
+
+    /**
+     * Auto-fill apply — generates and saves metadata for selected posts.
+     */
+    public static function autofill_apply( $request ) {
+        require_once __DIR__ . '/autofill-generator.php';
+
+        $ids       = array_map( 'intval', $request->get_param( 'ids' ) );
+        $fields    = $request->get_param( 'fields' ) ?: array();
+        $overwrite = (bool) $request->get_param( 'overwrite' );
+
+        $results = array(
+            'success' => 0,
+            'skipped' => 0,
+            'failed'  => 0,
+            'details' => array(),
+        );
+
+        foreach ( $ids as $post_id ) {
+            if ( ! current_user_can( 'edit_post', $post_id ) ) {
+                $results['failed']++;
+                continue;
+            }
+
+            $applied = Autofill_Generator::apply( $post_id, $fields, $overwrite );
+
+            if ( ! empty( $applied ) ) {
+                $results['success']++;
+                $results['details'][] = array(
+                    'id'     => $post_id,
+                    'filled' => $applied,
+                );
+            } else {
+                $results['skipped']++;
+            }
+        }
+
+        return rest_ensure_response( $results );
+    }
+
     /**
      * Test endpoint for debugging
      */

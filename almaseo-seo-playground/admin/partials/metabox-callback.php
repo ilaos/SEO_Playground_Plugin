@@ -248,6 +248,14 @@ function almaseo_render_llm_optimization_panel($post) {
                         <span>Analyzing clarity...</span>
                     </ul>
                 </div>
+
+                <div class="almaseo-llm-card" data-section="content-structure">
+                    <h3><span class="dashicons dashicons-editor-table"></span> Content Structure</h3>
+                    <div class="almaseo-llm-structure-content almaseo-llm-loading">
+                        <div class="almaseo-llm-spinner"></div>
+                        <span>Analyzing structure...</span>
+                    </div>
+                </div>
             </div>
 
             <!-- Right Column: Pro Insights or Lock Card -->
@@ -536,8 +544,12 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         <div class="char-bar-marker good-zone" style="left: 85.7%" aria-label="60 character mark"></div>
                     </div>
                 </div>
-                <p class="field-subtext" style="margin: 5px 0 0 0; color: #666; font-size: 12px; font-style: italic;">
-                    <?php printf(esc_html__('Or let AlmaSEO generate optimized titles automatically → %sUpgrade%s', 'almaseo'), '<a href="' . esc_url(admin_url('admin.php?page=seo-playground-connection')) . '">', '</a>'); ?>
+                <p class="field-subtext" style="margin: 5px 0 0 0; color: #666; font-size: 12px; display: flex; align-items: center; gap: 8px;">
+                    <button type="button" class="button button-small almaseo-autofill-btn" data-field="title" style="font-size: 11px; line-height: 22px; padding: 0 8px;">
+                        <span class="dashicons dashicons-edit-page" style="font-size: 14px; line-height: 22px; width: 14px; height: 14px;"></span>
+                        <?php esc_html_e('Auto-Generate Title', 'almaseo'); ?>
+                    </button>
+                    <span style="font-style: italic; color: #666;"><?php esc_html_e('Generate an SEO-optimized title from your content', 'almaseo'); ?></span>
                 </p>
 
                 <!-- Headline Analyzer -->
@@ -828,8 +840,12 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         <div class="char-bar-marker good-end" style="left: 88.9%" aria-label="160 character mark"></div>
                     </div>
                 </div>
-                <p class="field-subtext" style="margin: 5px 0 0 0; color: #666; font-size: 12px; font-style: italic;">
-                    <?php printf(esc_html__('Or use AlmaSEO AI to auto-create optimized meta descriptions → %sUpgrade%s', 'almaseo'), '<a href="' . esc_url(admin_url('admin.php?page=seo-playground-connection')) . '">', '</a>'); ?>
+                <p class="field-subtext" style="margin: 5px 0 0 0; color: #666; font-size: 12px; display: flex; align-items: center; gap: 8px;">
+                    <button type="button" class="button button-small almaseo-autofill-btn" data-field="description" style="font-size: 11px; line-height: 22px; padding: 0 8px;">
+                        <span class="dashicons dashicons-edit-page" style="font-size: 14px; line-height: 22px; width: 14px; height: 14px;"></span>
+                        <?php esc_html_e('Auto-Generate Description', 'almaseo'); ?>
+                    </button>
+                    <span style="font-style: italic; color: #666;"><?php esc_html_e('Generate from your page content', 'almaseo'); ?></span>
                 </p>
             </div>
 
@@ -4333,10 +4349,162 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 }
             }
 
+            // Render content structure analysis
+            renderContentStructure(data);
+
             // Render sections if available
             if (data.sections && data.sections.length > 0) {
                 renderLLMSections(data.sections);
             }
+        }
+
+        /**
+         * Render Content Structure analysis card
+         */
+        function renderContentStructure(data) {
+            var $container = $('.almaseo-llm-structure-content');
+            $container.removeClass('almaseo-llm-loading');
+
+            if (!data.heading_hierarchy && !data.paragraph_analysis) {
+                $container.html('<p style="color: #999;">Content structure analysis not available.</p>');
+                return;
+            }
+
+            var html = '';
+
+            // --- Heading Hierarchy ---
+            if (data.heading_hierarchy) {
+                var hh = data.heading_hierarchy;
+                html += '<div class="almaseo-llm-structure-section">';
+                html += '<h4>Heading Hierarchy</h4>';
+
+                if (hh.hierarchy_valid) {
+                    html += '<div class="almaseo-llm-structure-ok"><span class="dashicons dashicons-yes-alt"></span> Heading hierarchy is valid</div>';
+                } else if (hh.hierarchy_issues && hh.hierarchy_issues.length > 0) {
+                    hh.hierarchy_issues.forEach(function(issue) {
+                        html += '<div class="almaseo-llm-structure-warn"><span class="dashicons dashicons-warning"></span> ' + escapeHtml(issue) + '</div>';
+                    });
+                }
+
+                if (hh.vague_headings && hh.vague_headings.length > 0) {
+                    hh.vague_headings.forEach(function(heading) {
+                        html += '<div class="almaseo-llm-structure-warn"><span class="dashicons dashicons-warning"></span> Vague heading: "' + escapeHtml(heading) + '"</div>';
+                    });
+                }
+
+                if (hh.question_heading_count > 0) {
+                    html += '<div class="almaseo-llm-structure-ok"><span class="dashicons dashicons-yes-alt"></span> ' + hh.question_heading_count + ' question heading' + (hh.question_heading_count > 1 ? 's' : '') + ' detected (good for FAQ)</div>';
+                }
+
+                html += '</div>';
+            }
+
+            // --- Paragraph Health ---
+            if (data.paragraph_analysis) {
+                var pa = data.paragraph_analysis;
+                html += '<div class="almaseo-llm-structure-section">';
+                html += '<h4>Paragraph Health</h4>';
+
+                html += '<div class="almaseo-llm-structure-stats">';
+                html += '<span class="almaseo-llm-structure-stat">' + pa.total_paragraphs + ' paragraphs</span>';
+                html += '<span class="almaseo-llm-structure-stat">Avg ' + pa.avg_words_per_paragraph + ' words</span>';
+                html += '<span class="almaseo-llm-structure-stat">' + pa.paragraphs_optimal + ' optimal</span>';
+                html += '</div>';
+
+                if (pa.wall_of_text_detected) {
+                    html += '<div class="almaseo-llm-structure-warn"><span class="dashicons dashicons-warning"></span> Wall of text detected (' + pa.longest_paragraph_words + ' words in one paragraph)</div>';
+                }
+                if (pa.paragraphs_too_long > 0) {
+                    html += '<div class="almaseo-llm-structure-warn"><span class="dashicons dashicons-warning"></span> ' + pa.paragraphs_too_long + ' paragraph' + (pa.paragraphs_too_long > 1 ? 's' : '') + ' over 150 words</div>';
+                }
+                if (pa.total_paragraphs > 0 && !pa.wall_of_text_detected && pa.paragraphs_too_long === 0) {
+                    html += '<div class="almaseo-llm-structure-ok"><span class="dashicons dashicons-yes-alt"></span> Paragraph lengths are well-balanced</div>';
+                }
+
+                html += '</div>';
+            }
+
+            // --- Answer Positioning ---
+            if (data.answer_positioning) {
+                var ap = data.answer_positioning;
+                html += '<div class="almaseo-llm-structure-section">';
+                html += '<h4>Answer Positioning</h4>';
+
+                if (ap.starts_with_fluff) {
+                    html += '<div class="almaseo-llm-structure-warn"><span class="dashicons dashicons-warning"></span> Content starts with filler: "' + escapeHtml(ap.fluff_detected) + '"</div>';
+                } else if (ap.has_direct_answer) {
+                    html += '<div class="almaseo-llm-structure-ok"><span class="dashicons dashicons-yes-alt"></span> Opens with a direct answer</div>';
+                } else {
+                    html += '<div class="almaseo-llm-structure-neutral"><span class="dashicons dashicons-info"></span> Consider leading with a direct answer to the main question</div>';
+                }
+
+                html += '</div>';
+            }
+
+            // --- FAQ Structure ---
+            if (data.faq_structure) {
+                var faq = data.faq_structure;
+                html += '<div class="almaseo-llm-structure-section">';
+                html += '<h4>FAQ Structure</h4>';
+
+                if (faq.has_faq_structure) {
+                    html += '<div class="almaseo-llm-structure-ok"><span class="dashicons dashicons-yes-alt"></span> FAQ-style content detected (' + faq.question_heading_count + ' question headings)</div>';
+                } else if (faq.question_heading_count === 1) {
+                    html += '<div class="almaseo-llm-structure-neutral"><span class="dashicons dashicons-info"></span> 1 question heading found — add more for a FAQ structure</div>';
+                } else {
+                    html += '<div class="almaseo-llm-structure-neutral"><span class="dashicons dashicons-info"></span> No FAQ-style headings — consider adding question-based H2s</div>';
+                }
+
+                html += '</div>';
+            }
+
+            // --- Formatting ---
+            if (data.formatting) {
+                var fmt = data.formatting;
+                html += '<div class="almaseo-llm-structure-section">';
+                html += '<h4>Formatting Elements</h4>';
+
+                html += '<div class="almaseo-llm-structure-stats">';
+                if (fmt.has_lists) html += '<span class="almaseo-llm-structure-stat">' + (fmt.ul_count + fmt.ol_count) + ' list' + ((fmt.ul_count + fmt.ol_count) > 1 ? 's' : '') + ' (' + fmt.li_count + ' items)</span>';
+                if (fmt.has_tables) html += '<span class="almaseo-llm-structure-stat">' + fmt.table_count + ' table' + (fmt.table_count > 1 ? 's' : '') + '</span>';
+                if (fmt.blockquote_count > 0) html += '<span class="almaseo-llm-structure-stat">' + fmt.blockquote_count + ' blockquote' + (fmt.blockquote_count > 1 ? 's' : '') + '</span>';
+                html += '</div>';
+
+                // Mini score bar
+                var fmtColor = getScoreColor(fmt.formatting_score);
+                html += '<div class="almaseo-llm-mini-bar-container">';
+                html += '<span class="almaseo-llm-mini-bar-label">Formatting score: ' + fmt.formatting_score + '</span>';
+                html += '<div class="almaseo-llm-mini-bar"><div class="almaseo-llm-mini-bar-fill" style="width: ' + fmt.formatting_score + '%; background: ' + fmtColor + '"></div></div>';
+                html += '</div>';
+
+                if (!fmt.has_lists && !fmt.has_tables) {
+                    html += '<div class="almaseo-llm-structure-warn"><span class="dashicons dashicons-warning"></span> No lists or tables — add structured elements for better AI extraction</div>';
+                }
+
+                html += '</div>';
+            }
+
+            // --- Summary / TL;DR ---
+            if (data.summary_detection) {
+                var sd = data.summary_detection;
+                html += '<div class="almaseo-llm-structure-section">';
+                html += '<h4>Summary & TL;DR</h4>';
+
+                if (sd.has_tldr || sd.has_key_takeaways) {
+                    var label = sd.has_key_takeaways ? 'Key Takeaways' : 'TL;DR';
+                    html += '<div class="almaseo-llm-structure-ok"><span class="dashicons dashicons-yes-alt"></span> ' + label + ' found at ' + sd.summary_location + ' of content</div>';
+                } else {
+                    html += '<div class="almaseo-llm-structure-neutral"><span class="dashicons dashicons-info"></span> Consider adding a TL;DR or Key Takeaways section</div>';
+                }
+
+                if (sd.has_table_of_contents) {
+                    html += '<div class="almaseo-llm-structure-ok"><span class="dashicons dashicons-yes-alt"></span> Table of Contents detected</div>';
+                }
+
+                html += '</div>';
+            }
+
+            $container.html(html);
         }
 
         /**
@@ -4437,7 +4605,9 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 'thin_content': 'Thin content',
                 'ambiguous_pronouns': 'Ambiguous pronouns',
                 'vague_language': 'Vague language',
-                'missing_specifics': 'Missing specifics'
+                'missing_specifics': 'Missing specifics',
+                'wall_of_text': 'Wall of text',
+                'starts_with_fluff': 'Starts with filler'
             };
             return labels[flag] || flag;
         }
@@ -4554,6 +4724,79 @@ function almaseo_seo_playground_meta_box_callback($post) {
             </div>
         </div>
     </div>
+    <!-- Auto-Fill Buttons Handler -->
+    <script>
+    (function() {
+        var btns = document.querySelectorAll('.almaseo-autofill-btn');
+        if (!btns.length) return;
+
+        var postId = document.getElementById('post_ID')
+                     ? document.getElementById('post_ID').value
+                     : 0;
+
+        var nonce = document.getElementById('almaseo_nonce')
+                    ? document.getElementById('almaseo_nonce').value
+                    : '';
+
+        btns.forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                var field = this.getAttribute('data-field');
+                var origText = this.innerHTML;
+                this.innerHTML = '<span class="dashicons dashicons-update" style="font-size:14px;line-height:22px;width:14px;height:14px;animation:rotation 1s linear infinite;"></span> Generating...';
+                this.disabled = true;
+
+                var fd = new FormData();
+                fd.append('action', 'almaseo_autofill_field');
+                fd.append('post_id', postId);
+                fd.append('field', field);
+                fd.append('nonce', nonce);
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', ajaxurl, true);
+                xhr.onload = function() {
+                    btn.innerHTML = origText;
+                    btn.disabled = false;
+
+                    try {
+                        var resp = JSON.parse(xhr.responseText);
+                        if (resp.success && resp.data && resp.data.value) {
+                            var value = resp.data.value;
+                            if (field === 'title') {
+                                var input = document.getElementById('almaseo_seo_title');
+                                if (input) {
+                                    input.value = value;
+                                    input.dispatchEvent(new Event('input', {bubbles: true}));
+                                    input.dispatchEvent(new Event('change', {bubbles: true}));
+                                }
+                            } else if (field === 'description') {
+                                var textarea = document.getElementById('almaseo_seo_description');
+                                if (textarea) {
+                                    textarea.value = value;
+                                    textarea.dispatchEvent(new Event('input', {bubbles: true}));
+                                    textarea.dispatchEvent(new Event('change', {bubbles: true}));
+                                }
+                            }
+                        } else {
+                            alert('Auto-fill failed: ' + (resp.data && resp.data.message ? resp.data.message : 'Unknown error'));
+                        }
+                    } catch (ex) {
+                        alert('Auto-fill error: ' + ex.message);
+                    }
+                };
+                xhr.onerror = function() {
+                    btn.innerHTML = origText;
+                    btn.disabled = false;
+                    alert('Auto-fill request failed.');
+                };
+                xhr.send(fd);
+            });
+        });
+    })();
+    </script>
+    <style>
+    @keyframes rotation { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    </style>
     <?php
 }
 } // end function_exists guard: almaseo_seo_playground_meta_box_callback

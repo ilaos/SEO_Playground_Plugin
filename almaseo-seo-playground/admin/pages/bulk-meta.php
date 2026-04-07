@@ -87,6 +87,39 @@ $post_types = get_post_types(array('public' => true), 'objects');
     <!-- Clear float to prevent overlap -->
     <div style="clear: both; height: 20px;"></div>
     
+    <!-- Auto-Fill Actions -->
+    <div class="autofill-actions-wrapper" style="margin: 12px 0; padding: 14px 18px; background: #f0f6fc; border: 1px solid #c3d4e6; border-left: 4px solid #2271b1; border-radius: 4px;">
+        <div class="autofill-actions" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <span class="dashicons dashicons-admin-generic" style="color: #2271b1; font-size: 20px; line-height: 30px;"></span>
+            <strong style="font-size: 13px;"><?php echo esc_html__('Auto-Fill', 'almaseo'); ?></strong>
+
+            <label style="font-size: 13px;">
+                <input type="checkbox" id="autofill-overwrite">
+                <?php echo esc_html__('Overwrite existing', 'almaseo'); ?>
+            </label>
+
+            <button type="button" class="button button-primary" id="autofill-selected" title="<?php echo esc_attr__('Auto-generate metadata for selected posts', 'almaseo'); ?>">
+                <span class="dashicons dashicons-edit-page" style="font-size: 16px; line-height: 28px; margin-right: 2px;"></span>
+                <?php echo esc_html__('Auto-Fill Selected', 'almaseo'); ?>
+            </button>
+
+            <button type="button" class="button" id="autofill-all-empty" title="<?php echo esc_attr__('Auto-generate metadata for all posts with missing fields', 'almaseo'); ?>">
+                <span class="dashicons dashicons-welcome-write-blog" style="font-size: 16px; line-height: 28px; margin-right: 2px;"></span>
+                <?php echo esc_html__('Auto-Fill All Empty', 'almaseo'); ?>
+            </button>
+
+            <button type="button" class="button" id="autofill-preview" title="<?php echo esc_attr__('Preview what will be generated before applying', 'almaseo'); ?>">
+                <span class="dashicons dashicons-visibility" style="font-size: 16px; line-height: 28px; margin-right: 2px;"></span>
+                <?php echo esc_html__('Preview', 'almaseo'); ?>
+            </button>
+
+            <span class="autofill-status" id="autofill-status" style="font-size: 12px; color: #646970;"></span>
+        </div>
+        <p class="description" style="margin: 6px 0 0 32px; font-size: 12px; color: #646970;">
+            <?php echo esc_html__('Generates SEO-optimized titles, descriptions, focus keywords, and Open Graph fields from your existing content. Only fills empty fields unless "Overwrite existing" is checked.', 'almaseo'); ?>
+        </p>
+    </div>
+
     <!-- Bulk Actions -->
     <div class="bulk-actions-wrapper" style="display:none;">
         <div class="bulk-actions">
@@ -191,6 +224,35 @@ $post_types = get_post_types(array('public' => true), 'objects');
     
     <!-- Pixel Width Tester Canvas (hidden) -->
     <canvas id="pixel-tester" style="display:none;"></canvas>
+</div>
+
+<!-- Auto-Fill Preview Modal -->
+<div id="autofill-preview-modal" style="display:none;">
+    <div class="autofill-modal-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100000;display:flex;align-items:center;justify-content:center;">
+        <div class="autofill-modal-content" style="background:#fff;border-radius:8px;max-width:900px;width:90%;max-height:80vh;overflow:auto;box-shadow:0 8px 32px rgba(0,0,0,.2);">
+            <div style="padding:20px 24px;border-bottom:1px solid #ddd;display:flex;align-items:center;justify-content:space-between;">
+                <h2 style="margin:0;font-size:18px;">
+                    <span class="dashicons dashicons-visibility" style="margin-right:6px;color:#2271b1;"></span>
+                    <?php echo esc_html__('Auto-Fill Preview', 'almaseo'); ?>
+                </h2>
+                <button type="button" class="autofill-modal-close" style="background:none;border:none;cursor:pointer;font-size:20px;color:#666;padding:4px;">
+                    <span class="dashicons dashicons-no-alt"></span>
+                </button>
+            </div>
+            <div id="autofill-preview-body" style="padding:20px 24px;">
+                <p><?php echo esc_html__('Loading preview...', 'almaseo'); ?></p>
+            </div>
+            <div style="padding:16px 24px;border-top:1px solid #ddd;display:flex;gap:10px;justify-content:flex-end;">
+                <button type="button" class="button autofill-modal-close">
+                    <?php echo esc_html__('Cancel', 'almaseo'); ?>
+                </button>
+                <button type="button" class="button button-primary" id="autofill-confirm-apply">
+                    <span class="dashicons dashicons-yes" style="font-size:16px;line-height:28px;margin-right:2px;"></span>
+                    <?php echo esc_html__('Apply All', 'almaseo'); ?>
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Post Row Template -->
