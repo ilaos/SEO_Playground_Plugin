@@ -859,7 +859,7 @@
             const $status = $('#autofill-status');
 
             $status.html('<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite;font-size:14px;vertical-align:middle;"></span> Generating metadata...').css('color', '#2271b1');
-            showOverlay();
+            $('#autofill-selected, #autofill-all-empty, #autofill-preview').prop('disabled', true);
 
             try {
                 const result = await wp.apiFetch({
@@ -888,19 +888,25 @@
                 this.showResultBanner(msg, 'error');
                 $status.html('<span class="dashicons dashicons-warning" style="color:#d63638;font-size:14px;vertical-align:middle;"></span> ' + msg).css('color', '#d63638');
             } finally {
-                hideOverlay();
+                $('#autofill-selected, #autofill-all-empty, #autofill-preview').prop('disabled', false);
             }
         },
 
         async autofillAllEmpty() {
             const $status = $('#autofill-status');
+            const $btn = $('#autofill-all-empty');
             $status.html('<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite;font-size:14px;vertical-align:middle;"></span> Scanning for posts with empty metadata...').css('color', '#2271b1');
-            showOverlay();
+            // Disable buttons instead of blanking the screen
+            $btn.prop('disabled', true);
+            $('#autofill-selected, #autofill-preview').prop('disabled', true);
 
             try {
-                // Fetch ALL posts (not using the missing filter — it has meta_query issues).
-                // Instead, check each post's actual metadata client-side.
+                // Fetch ALL posts and check metadata client-side.
+                // A post is "empty" if title_fallback or desc_fallback is non-empty
+                // (the API sets fallback when the real SEO field is empty),
+                // OR if title_chars/desc_chars is 0.
                 let allIds = [];
+                let totalScanned = 0;
                 let page = 1;
                 let hasMore = true;
 
@@ -914,28 +920,31 @@
                     if (rows.length === 0) {
                         hasMore = false;
                     } else {
-                        // Only include posts where title OR description is empty
+                        totalScanned += rows.length;
+                        $status.html(`<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite;font-size:14px;vertical-align:middle;"></span> Scanned ${totalScanned} posts...`);
+
                         rows.forEach(r => {
-                            const hasTitle = (r.seo_title || r.meta_title || '').trim();
-                            const hasDesc = (r.meta_desc || r.meta_description || '').trim();
-                            if (!hasTitle || !hasDesc) {
+                            // title_fallback is non-empty = SEO title is empty
+                            // desc_fallback is non-empty = meta description is empty
+                            // Also check title_chars/desc_chars as backup signal
+                            const titleEmpty = !!(r.title_fallback) || (r.title_chars === 0);
+                            const descEmpty = !!(r.desc_fallback) || (r.desc_chars === 0);
+                            if (titleEmpty || descEmpty) {
                                 allIds.push(r.id);
                             }
                         });
                         page++;
-                        // Safety limit
                         if (page > 50) hasMore = false;
                     }
                 }
 
                 if (allIds.length === 0) {
-                    this.showResultBanner('All posts already have metadata — nothing to fill!', 'success');
+                    this.showResultBanner(`Scanned ${totalScanned} posts — all already have metadata!`, 'success');
                     $status.html('<span class="dashicons dashicons-yes-alt" style="color:#00a32a;font-size:14px;vertical-align:middle;"></span> All posts already have metadata.').css('color', '#00a32a');
-                    hideOverlay();
                     return;
                 }
 
-                $status.text(`Found ${allIds.length} post(s) with empty metadata. Generating...`);
+                $status.html(`<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite;font-size:14px;vertical-align:middle;"></span> Found ${allIds.length} post(s) with empty metadata. Generating...`);
 
                 // Process in batches of 20
                 let totalSuccess = 0;
@@ -943,7 +952,7 @@
 
                 for (let i = 0; i < allIds.length; i += 20) {
                     const batch = allIds.slice(i, i + 20);
-                    $status.text(`Processing batch ${Math.floor(i/20) + 1} of ${Math.ceil(allIds.length/20)}...`);
+                    $status.html(`<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite;font-size:14px;vertical-align:middle;"></span> Processing batch ${Math.floor(i/20) + 1} of ${Math.ceil(allIds.length/20)}...`);
 
                     const result = await wp.apiFetch({
                         path: '/almaseo/v1/bulkmeta/autofill',
@@ -973,7 +982,8 @@
                 this.showResultBanner(msg, 'error');
                 $status.html('<span class="dashicons dashicons-warning" style="color:#d63638;font-size:14px;vertical-align:middle;"></span> ' + msg).css('color', '#d63638');
             } finally {
-                hideOverlay();
+                // Re-enable buttons
+                $('#autofill-all-empty, #autofill-selected, #autofill-preview').prop('disabled', false);
             }
         },
 
