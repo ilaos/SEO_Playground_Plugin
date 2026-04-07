@@ -29,7 +29,7 @@ $post_types = get_post_types(array('public' => true), 'objects');
     </div>
 
     <!-- Auto-Fill Actions -->
-    <div class="autofill-actions-wrapper" style="margin: 0 0 16px 0; padding: 14px 18px; background: #f0f6fc; border: 1px solid #c3d4e6; border-left: 4px solid #2271b1; border-radius: 4px;">
+    <div class="autofill-actions-wrapper" style="margin: 0 0 8px 0; padding: 14px 18px; background: #f0f6fc; border: 1px solid #c3d4e6; border-left: 4px solid #2271b1; border-radius: 4px;">
         <div class="autofill-actions" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
             <span class="dashicons dashicons-admin-generic" style="color: #2271b1; font-size: 20px; line-height: 30px;"></span>
             <strong style="font-size: 13px;"><?php echo esc_html__('Auto-Fill', 'almaseo'); ?></strong>

@@ -894,18 +894,19 @@
 
         async autofillAllEmpty() {
             const $status = $('#autofill-status');
-            $status.text('Scanning for posts with empty metadata...');
+            $status.html('<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite;font-size:14px;vertical-align:middle;"></span> Scanning for posts with empty metadata...').css('color', '#2271b1');
             showOverlay();
 
             try {
-                // First, fetch all post IDs with missing metadata (paginated)
+                // Fetch ALL posts (not using the missing filter — it has meta_query issues).
+                // Instead, check each post's actual metadata client-side.
                 let allIds = [];
                 let page = 1;
                 let hasMore = true;
 
                 while (hasMore) {
                     const resp = await wp.apiFetch({
-                        path: `/almaseo/v1/bulkmeta?missing=1&per_page=100&page=${page}&type=post,page&status=publish,draft`
+                        path: `/almaseo/v1/bulkmeta?per_page=100&page=${page}&type=post,page&status=publish,draft`
                     });
 
                     const rows = Array.isArray(resp) ? resp : (resp.posts || resp.items || []);
@@ -913,7 +914,14 @@
                     if (rows.length === 0) {
                         hasMore = false;
                     } else {
-                        rows.forEach(r => allIds.push(r.id));
+                        // Only include posts where title OR description is empty
+                        rows.forEach(r => {
+                            const hasTitle = (r.seo_title || r.meta_title || '').trim();
+                            const hasDesc = (r.meta_desc || r.meta_description || '').trim();
+                            if (!hasTitle || !hasDesc) {
+                                allIds.push(r.id);
+                            }
+                        });
                         page++;
                         // Safety limit
                         if (page > 50) hasMore = false;
@@ -921,8 +929,8 @@
                 }
 
                 if (allIds.length === 0) {
-                    BulkMetaEditor.showToast('No posts with empty metadata found!', 'info');
-                    $status.text('No empty metadata found.');
+                    this.showResultBanner('All posts already have metadata — nothing to fill!', 'success');
+                    $status.html('<span class="dashicons dashicons-yes-alt" style="color:#00a32a;font-size:14px;vertical-align:middle;"></span> All posts already have metadata.').css('color', '#00a32a');
                     hideOverlay();
                     return;
                 }
