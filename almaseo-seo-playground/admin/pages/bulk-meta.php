@@ -30,26 +30,28 @@ $post_types = get_post_types(array('public' => true), 'objects');
 
     <!-- Auto-Fill Actions -->
     <div class="autofill-actions-wrapper" style="margin: 0 0 8px 0; padding: 14px 18px; background: #f0f6fc; border: 1px solid #c3d4e6; border-left: 4px solid #2271b1; border-radius: 4px;">
-        <div class="autofill-actions" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <div class="autofill-actions" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
             <span class="dashicons dashicons-admin-generic" style="color: #2271b1; font-size: 20px; line-height: 30px;"></span>
             <strong style="font-size: 13px;"><?php echo esc_html__('Auto-Fill', 'almaseo'); ?></strong>
 
-            <label style="font-size: 13px;">
-                <input type="checkbox" id="autofill-overwrite">
-                <?php echo esc_html__('Overwrite existing', 'almaseo'); ?>
-            </label>
-
-            <button type="button" class="button button-primary" id="autofill-selected" title="<?php echo esc_attr__('Auto-generate metadata for selected posts', 'almaseo'); ?>">
+            <button type="button" class="button button-primary" id="autofill-selected" title="<?php echo esc_attr__('Auto-generate metadata for checked posts only', 'almaseo'); ?>">
                 <span class="dashicons dashicons-edit-page" style="font-size: 16px; line-height: 28px; margin-right: 2px;"></span>
                 <?php echo esc_html__('Auto-Fill Selected', 'almaseo'); ?>
             </button>
 
-            <button type="button" class="button" id="autofill-all-empty" title="<?php echo esc_attr__('Auto-generate metadata for all posts with missing fields', 'almaseo'); ?>">
+            <button type="button" class="button" id="autofill-all-empty" title="<?php echo esc_attr__('Scan site and fill only posts/pages with missing metadata', 'almaseo'); ?>">
                 <span class="dashicons dashicons-welcome-write-blog" style="font-size: 16px; line-height: 28px; margin-right: 2px;"></span>
                 <?php echo esc_html__('Auto-Fill All Empty', 'almaseo'); ?>
             </button>
 
-            <button type="button" class="button" id="autofill-preview" title="<?php echo esc_attr__('Preview what will be generated before applying', 'almaseo'); ?>">
+            <button type="button" class="button" id="autofill-entire-site" title="<?php echo esc_attr__('Regenerate metadata for every post and page on the site — overwrites existing', 'almaseo'); ?>" style="color: #b32d2e; border-color: #b32d2e;">
+                <span class="dashicons dashicons-update" style="font-size: 16px; line-height: 28px; margin-right: 2px;"></span>
+                <?php echo esc_html__('Auto-Fill Entire Site', 'almaseo'); ?>
+            </button>
+
+            <span style="color: #c3c4c7;">|</span>
+
+            <button type="button" class="button" id="autofill-preview" title="<?php echo esc_attr__('Preview what will be generated for selected posts', 'almaseo'); ?>">
                 <span class="dashicons dashicons-visibility" style="font-size: 16px; line-height: 28px; margin-right: 2px;"></span>
                 <?php echo esc_html__('Preview', 'almaseo'); ?>
             </button>
@@ -57,7 +59,7 @@ $post_types = get_post_types(array('public' => true), 'objects');
             <span class="autofill-status" id="autofill-status" style="font-size: 12px; color: #646970;"></span>
         </div>
         <p class="description" style="margin: 6px 0 0 32px; font-size: 12px; color: #646970;">
-            <?php echo esc_html__('Generates SEO-optimized titles, descriptions, focus keywords, and Open Graph fields from your existing content. Only fills empty fields unless "Overwrite existing" is checked.', 'almaseo'); ?>
+            <?php echo esc_html__('Generates SEO-optimized titles, descriptions, focus keywords, and Open Graph fields from your existing content.', 'almaseo'); ?>
         </p>
     </div>
 

@@ -804,25 +804,40 @@
         bindEvents: function() {
             const self = this;
 
-            // Auto-Fill Selected — uses checked rows
+            // Auto-Fill Selected — overwrites checked rows
             $('#autofill-selected').on('click', function() {
                 const ids = self.getSelectedIds();
                 if (ids.length === 0) {
                     BulkMetaEditor.showToast('Please select at least one post', 'error');
                     return;
                 }
-                self.runAutofill(ids);
+                if (!confirm(`Regenerate metadata for ${ids.length} selected post(s)? This will overwrite existing metadata.`)) {
+                    return;
+                }
+                self.runAutofill(ids, true);
             });
 
-            // Auto-Fill All Empty — fetches all posts with missing metadata
+            // Auto-Fill All Empty — only fills posts with missing metadata
             $('#autofill-all-empty').on('click', function() {
-                if (!confirm('This will auto-generate metadata for ALL posts/pages with empty fields. Continue?')) {
+                if (!confirm('This will scan the entire site and fill metadata only for posts/pages that have empty fields. Existing metadata will NOT be changed. Continue?')) {
                     return;
                 }
                 self.autofillAllEmpty();
             });
 
-            // Preview — shows what would be generated
+            // Auto-Fill Entire Site — overwrites everything
+            $('#autofill-entire-site').on('click', function() {
+                if (!confirm('⚠️ This will REGENERATE metadata for EVERY post and page on your site, overwriting all existing titles and descriptions.\n\nThis cannot be undone. Are you sure?')) {
+                    return;
+                }
+                // Double confirm for safety
+                if (!confirm('Final confirmation: Overwrite ALL metadata on the entire site?')) {
+                    return;
+                }
+                self.autofillEntireSite();
+            });
+
+            // Preview — shows what would be generated for selected posts
             $('#autofill-preview').on('click', function() {
                 const ids = self.getSelectedIds();
                 if (ids.length === 0) {
@@ -841,7 +856,7 @@
             $('#autofill-confirm-apply').on('click', function() {
                 if (self.pendingIds.length > 0) {
                     $('#autofill-preview-modal').hide();
-                    self.runAutofill(self.pendingIds);
+                    self.runAutofill(self.pendingIds, true);
                 }
             });
         },
@@ -854,8 +869,7 @@
             return ids;
         },
 
-        async runAutofill(ids) {
-            const overwrite = $('#autofill-overwrite').prop('checked');
+        async runAutofill(ids, overwrite = false) {
             const $status = $('#autofill-status');
 
             $status.html('<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite;font-size:14px;vertical-align:middle;"></span> Generating metadata...').css('color', '#2271b1');
@@ -888,7 +902,7 @@
                 this.showResultBanner(msg, 'error');
                 $status.html('<span class="dashicons dashicons-warning" style="color:#d63638;font-size:14px;vertical-align:middle;"></span> ' + msg).css('color', '#d63638');
             } finally {
-                $('#autofill-selected, #autofill-all-empty, #autofill-preview').prop('disabled', false);
+                $('#autofill-selected, #autofill-all-empty, #autofill-preview, #autofill-entire-site').prop('disabled', false);
             }
         },
 
@@ -983,7 +997,85 @@
                 $status.html('<span class="dashicons dashicons-warning" style="color:#d63638;font-size:14px;vertical-align:middle;"></span> ' + msg).css('color', '#d63638');
             } finally {
                 // Re-enable buttons
-                $('#autofill-all-empty, #autofill-selected, #autofill-preview').prop('disabled', false);
+                $('#autofill-all-empty, #autofill-selected, #autofill-preview, #autofill-entire-site').prop('disabled', false);
+            }
+        },
+
+        async autofillEntireSite() {
+            const $status = $('#autofill-status');
+            const allBtns = '#autofill-all-empty, #autofill-selected, #autofill-preview, #autofill-entire-site';
+            $(allBtns).prop('disabled', true);
+            $status.html('<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite;font-size:14px;vertical-align:middle;"></span> Collecting all posts and pages...').css('color', '#2271b1');
+
+            try {
+                // Fetch ALL post/page IDs
+                let allIds = [];
+                let page = 1;
+                let hasMore = true;
+
+                while (hasMore) {
+                    const resp = await wp.apiFetch({
+                        path: `/almaseo/v1/bulkmeta?per_page=100&page=${page}&type=post,page&status=publish,draft`
+                    });
+
+                    const rows = Array.isArray(resp) ? resp : (resp.posts || resp.items || []);
+
+                    if (rows.length === 0) {
+                        hasMore = false;
+                    } else {
+                        rows.forEach(r => allIds.push(r.id));
+                        $status.html(`<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite;font-size:14px;vertical-align:middle;"></span> Found ${allIds.length} posts so far...`);
+                        page++;
+                        if (page > 50) hasMore = false;
+                    }
+                }
+
+                if (allIds.length === 0) {
+                    this.showResultBanner('No posts or pages found on the site.', 'error');
+                    $status.text('No posts found.');
+                    return;
+                }
+
+                $status.html(`<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite;font-size:14px;vertical-align:middle;"></span> Regenerating metadata for ${allIds.length} posts...`);
+
+                // Process in batches of 20 with overwrite=true
+                let totalSuccess = 0;
+                let totalFailed = 0;
+
+                for (let i = 0; i < allIds.length; i += 20) {
+                    const batch = allIds.slice(i, i + 20);
+                    const batchNum = Math.floor(i / 20) + 1;
+                    const totalBatches = Math.ceil(allIds.length / 20);
+                    $status.html(`<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite;font-size:14px;vertical-align:middle;"></span> Processing batch ${batchNum} of ${totalBatches} (${i + batch.length}/${allIds.length} posts)...`);
+
+                    const result = await wp.apiFetch({
+                        path: '/almaseo/v1/bulkmeta/autofill',
+                        method: 'POST',
+                        data: {
+                            ids: batch,
+                            fields: [],
+                            overwrite: true
+                        }
+                    });
+
+                    totalSuccess += result.success || 0;
+                    totalFailed += result.failed || 0;
+                }
+
+                const msg = `Done! Regenerated metadata for ${totalSuccess} post(s)` +
+                    (totalFailed ? `, ${totalFailed} failed` : '');
+
+                this.showResultBanner(msg, 'success');
+                $status.html('<span class="dashicons dashicons-yes-alt" style="color:#00a32a;font-size:14px;vertical-align:middle;"></span> ' + msg).css('color', '#00a32a');
+
+                BulkMetaEditor.loadPosts();
+
+            } catch (error) {
+                const msg = `Auto-fill failed: ${error?.message || 'Unknown error'}`;
+                this.showResultBanner(msg, 'error');
+                $status.html('<span class="dashicons dashicons-warning" style="color:#d63638;font-size:14px;vertical-align:middle;"></span> ' + msg).css('color', '#d63638');
+            } finally {
+                $(allBtns).prop('disabled', false);
             }
         },
 
