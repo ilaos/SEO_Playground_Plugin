@@ -52,7 +52,11 @@ class AlmaSEO_Breadcrumbs_Settings {
      * Enqueue color picker scripts on settings page
      */
     public function enqueue_color_picker($hook) {
-        if ($hook !== 'seo-playground_page_almaseo-settings') {
+        // Match the settings page hook — WordPress generates it as {parent}_page_{slug}
+        // but sanitization can vary, so also check the query string as a fallback.
+        $is_settings_page = (strpos($hook, 'almaseo-settings') !== false)
+            || (isset($_GET['page']) && $_GET['page'] === 'almaseo-settings');
+        if (!$is_settings_page) {
             return;
         }
 
