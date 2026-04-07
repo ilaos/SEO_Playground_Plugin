@@ -69,6 +69,13 @@ class AlmaSEO_Breadcrumbs_Loader {
         // Register shortcode
         add_shortcode('almaseo_breadcrumbs', array($this, 'shortcode_handler'));
 
+        // Register legacy AIOSEO shortcode so migrated sites render our breadcrumbs
+        // instead of showing raw [aioseo_breadcrumbs] text on the frontend.
+        // Only registers if AIOSEO hasn't already claimed the shortcode.
+        if ( ! shortcode_exists( 'aioseo_breadcrumbs' ) ) {
+            add_shortcode( 'aioseo_breadcrumbs', array( $this, 'shortcode_handler' ) );
+        }
+
         // Enqueue frontend styles when needed
         add_action('wp_enqueue_scripts', array($this, 'maybe_enqueue_styles'));
 
