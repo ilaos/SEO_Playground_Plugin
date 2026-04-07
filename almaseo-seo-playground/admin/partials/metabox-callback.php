@@ -190,49 +190,92 @@ function almaseo_render_llm_optimization_panel($post) {
     ?>
     <div class="almaseo-llm-panel" data-post-id="<?php echo esc_attr($post->ID); ?>" data-is-pro-llm="<?php echo $is_pro ? '1' : '0'; ?>">
         <div class="almaseo-llm-header">
-            <h2>🤖 LLM Optimization (AI-Ready Content)</h2>
-            <p>See how AI systems like ChatGPT, Gemini, and Claude understand this page — and how to make it more reliable as a source.</p>
+            <h2>AI Readiness Analysis</h2>
+            <p>See how AI systems like ChatGPT, Gemini, and Google AI Overviews understand this page — and what to improve.</p>
         </div>
 
         <?php if (!$is_connected): ?>
             <div class="almaseo-llm-connection-notice">
                 <span class="dashicons dashicons-warning"></span>
                 <div>
-                    <strong>Connect to AlmaSEO for Enhanced LLM Analysis</strong>
+                    <strong>Connect to AlmaSEO for Enhanced Analysis</strong>
                     <p>Get deeper insights powered by our AI engine. <a href="<?php echo admin_url('admin.php?page=seo-playground-connection'); ?>">Connect now &rarr;</a></p>
                 </div>
             </div>
         <?php endif; ?>
 
-        <!-- Summary Style Selector -->
-        <div class="almaseo-llm-style-selector">
-            <label for="almaseo-llm-summary-style">
-                <span class="dashicons dashicons-admin-appearance"></span>
-                <strong>Summary Style:</strong>
-            </label>
-            <select id="almaseo-llm-summary-style" class="almaseo-llm-style-dropdown">
-                <option value="concise">Concise</option>
-                <option value="detailed">Detailed</option>
-                <option value="business">Business</option>
-                <option value="technical">Technical</option>
-                <option value="creative">Creative</option>
-                <option value="academic">Academic</option>
-                <option value="qa" <?php echo !$is_pro ? 'disabled' : ''; ?>>Q&A Format <?php echo !$is_pro ? '(Pro)' : ''; ?></option>
-                <option value="ai_answer" <?php echo !$is_pro ? 'disabled' : ''; ?>>AI Answer <?php echo !$is_pro ? '(Pro)' : ''; ?></option>
-            </select>
+        <!-- 1. AI Readiness Snapshot (scores at the top) -->
+        <?php if ($is_pro): ?>
+        <div class="almaseo-llm-card almaseo-llm-card-highlight" data-section="scores">
+            <h3><span class="dashicons dashicons-chart-area"></span> AI Readiness Snapshot</h3>
+            <div class="almaseo-llm-scores almaseo-llm-loading">
+                <div class="almaseo-llm-spinner"></div>
+                <span>Calculating scores...</span>
+            </div>
+        </div>
+        <?php else: ?>
+        <div class="almaseo-llm-card almaseo-llm-lock-card">
+            <div class="almaseo-llm-lock-icon">
+                <span class="dashicons dashicons-lock"></span>
+            </div>
+            <h3>AI Readiness Snapshot</h3>
+            <p class="almaseo-llm-lock-subtitle">Pro unlocks AI readiness scoring so you can measure how well AI systems can use your content.</p>
+            <ul class="almaseo-llm-lock-features">
+                <li><span class="dashicons dashicons-yes"></span> <strong>AI Readiness Score (0-100)</strong></li>
+                <li><span class="dashicons dashicons-yes"></span> <strong>Answer Strength Score</strong> — how usable this page is as an AI source</li>
+                <li><span class="dashicons dashicons-yes"></span> <strong>Score explanations</strong> showing exactly what to fix</li>
+                <li><span class="dashicons dashicons-yes"></span> <strong>Schema &amp; internal link suggestions</strong></li>
+            </ul>
+            <a href="https://almaseo.com" target="_blank" class="almaseo-llm-upgrade-btn">
+                <span class="dashicons dashicons-star-filled"></span>
+                Learn More
+            </a>
+        </div>
+        <?php endif; ?>
+
+        <!-- 2. Top Issues -->
+        <div class="almaseo-llm-card" data-section="top-issues" style="display:none;">
+            <h3><span class="dashicons dashicons-flag"></span> Top Issues</h3>
+            <div class="almaseo-llm-top-issues">
+                <!-- Populated by JavaScript -->
+            </div>
         </div>
 
-        <div class="almaseo-llm-grid">
-            <!-- Left Column: Free Insights -->
-            <div class="almaseo-llm-column almaseo-llm-column-left">
-                <div class="almaseo-llm-card" data-section="summary">
-                    <h3><span class="dashicons dashicons-media-document"></span> LLM Summary Preview</h3>
-                    <div class="almaseo-llm-summary-text almaseo-llm-loading">
-                        <div class="almaseo-llm-spinner"></div>
-                        <span>Loading summary...</span>
-                    </div>
-                </div>
+        <!-- 3. Summary Preview with style selector -->
+        <div class="almaseo-llm-card" data-section="summary">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+                <h3 style="margin: 0;"><span class="dashicons dashicons-media-document"></span> AI Summary Preview</h3>
+                <select id="almaseo-llm-summary-style" class="almaseo-llm-style-dropdown" style="min-width: 140px;">
+                    <option value="concise">Concise</option>
+                    <option value="detailed">Detailed</option>
+                    <option value="business">Business</option>
+                    <option value="technical">Technical</option>
+                    <option value="creative">Creative</option>
+                    <option value="academic">Academic</option>
+                    <option value="qa" <?php echo !$is_pro ? 'disabled' : ''; ?>>Q&A Format <?php echo !$is_pro ? '(Pro)' : ''; ?></option>
+                    <option value="ai_answer" <?php echo !$is_pro ? 'disabled' : ''; ?>>AI Answer <?php echo !$is_pro ? '(Pro)' : ''; ?></option>
+                </select>
+            </div>
+            <div class="almaseo-llm-summary-text almaseo-llm-loading">
+                <div class="almaseo-llm-spinner"></div>
+                <span>Loading summary...</span>
+            </div>
+        </div>
 
+        <!-- 4. Section-Level Breakdown -->
+        <div class="almaseo-llm-sections-container" style="display:none;">
+            <div class="almaseo-llm-card">
+                <h3><span class="dashicons dashicons-editor-alignleft"></span> Section Breakdown</h3>
+                <p class="description">How each section of your content performs for AI understanding.</p>
+                <div class="almaseo-llm-sections-list">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Supporting Detail Cards -->
+        <div class="almaseo-llm-grid">
+            <div class="almaseo-llm-column almaseo-llm-column-left">
                 <div class="almaseo-llm-card" data-section="entities">
                     <h3><span class="dashicons dashicons-tag"></span> Key Entities</h3>
                     <ul class="almaseo-llm-entities-list almaseo-llm-loading">
@@ -242,13 +285,15 @@ function almaseo_render_llm_optimization_panel($post) {
                 </div>
 
                 <div class="almaseo-llm-card" data-section="clarity">
-                    <h3><span class="dashicons dashicons-visibility"></span> Clarity & Ambiguity</h3>
+                    <h3><span class="dashicons dashicons-visibility"></span> Content Clarity</h3>
                     <ul class="almaseo-llm-ambiguities-list almaseo-llm-loading">
                         <div class="almaseo-llm-spinner"></div>
                         <span>Analyzing clarity...</span>
                     </ul>
                 </div>
+            </div>
 
+            <div class="almaseo-llm-column almaseo-llm-column-right">
                 <div class="almaseo-llm-card" data-section="content-structure">
                     <h3><span class="dashicons dashicons-editor-table"></span> Content Structure</h3>
                     <div class="almaseo-llm-structure-content almaseo-llm-loading">
@@ -256,67 +301,23 @@ function almaseo_render_llm_optimization_panel($post) {
                         <span>Analyzing structure...</span>
                     </div>
                 </div>
-            </div>
 
-            <!-- Right Column: Pro Insights or Lock Card -->
-            <div class="almaseo-llm-column almaseo-llm-column-right">
                 <?php if ($is_pro): ?>
-                    <!-- Pro Features: Scores and Insights -->
-                    <div class="almaseo-llm-card almaseo-llm-card-highlight" data-section="scores">
-                        <h3><span class="dashicons dashicons-chart-area"></span> LLM Optimization Scores</h3>
-                        <div class="almaseo-llm-scores almaseo-llm-loading">
-                            <div class="almaseo-llm-spinner"></div>
-                            <span>Calculating scores...</span>
-                        </div>
+                <div class="almaseo-llm-card" data-section="schema">
+                    <h3><span class="dashicons dashicons-admin-links"></span> Advanced Insights</h3>
+                    <div class="almaseo-llm-insights almaseo-llm-loading">
+                        <div class="almaseo-llm-spinner"></div>
+                        <span>Loading insights...</span>
                     </div>
-
-                    <div class="almaseo-llm-card" data-section="schema">
-                        <h3><span class="dashicons dashicons-admin-links"></span> Advanced Insights</h3>
-                        <div class="almaseo-llm-insights almaseo-llm-loading">
-                            <div class="almaseo-llm-spinner"></div>
-                            <span>Loading insights...</span>
-                        </div>
-                    </div>
-                <?php else: ?>
-                    <!-- Free Tier: Lock Card -->
-                    <div class="almaseo-llm-card almaseo-llm-lock-card">
-                        <div class="almaseo-llm-lock-icon">
-                            <span class="dashicons dashicons-lock"></span>
-                        </div>
-                        <h3>Advanced LLM Insights</h3>
-                        <p class="almaseo-llm-lock-subtitle">Pro unlocks deeper AI-focused analysis so your content becomes a trusted source for LLMs.</p>
-                        <ul class="almaseo-llm-lock-features">
-                            <li><span class="dashicons dashicons-yes"></span> <strong>LLM Optimization Score (0–100)</strong></li>
-                            <li><span class="dashicons dashicons-yes"></span> <strong>Answerability Score</strong> — how usable this page is as an AI answer source</li>
-                            <li><span class="dashicons dashicons-yes"></span> <strong>Schema enhancement suggestions</strong> for AI grounding</li>
-                            <li><span class="dashicons dashicons-yes"></span> <strong>Internal link suggestions</strong> to strengthen topic clusters</li>
-                            <li><span class="dashicons dashicons-yes"></span> Advanced clarity analysis</li>
-                        </ul>
-                        <a href="https://almaseo.com/pricing" target="_blank" class="almaseo-llm-upgrade-btn">
-                            <span class="dashicons dashicons-star-filled"></span>
-                            Upgrade to Pro for Full LLM Insights
-                        </a>
-                        <p class="almaseo-llm-lock-note">Get 30+ advanced SEO features with Pro</p>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <!-- Section-Level Analysis (Pro or Limited Free) -->
-        <div class="almaseo-llm-sections-container" style="display:none;">
-            <div class="almaseo-llm-card">
-                <h3><span class="dashicons dashicons-editor-alignleft"></span> Section-Level Analysis</h3>
-                <p class="description">See how each section of your content performs for LLM understanding.</p>
-                <div class="almaseo-llm-sections-list">
-                    <!-- Populated by JavaScript -->
                 </div>
+                <?php endif; ?>
             </div>
         </div>
 
         <div class="almaseo-llm-footer">
             <button type="button" class="button button-primary almaseo-llm-refresh">
                 <span class="dashicons dashicons-update"></span>
-                Refresh LLM Analysis
+                Refresh Analysis
             </button>
             <span class="almaseo-llm-status"></span>
         </div>
@@ -4169,8 +4170,9 @@ function almaseo_seo_playground_meta_box_callback($post) {
             if (!postId) return;
 
             // Set loading state
-            $('.almaseo-llm-status').text('Loading analysis...');
-            $('.almaseo-llm-summary-text, .almaseo-llm-entities-list, .almaseo-llm-ambiguities-list, .almaseo-llm-scores, .almaseo-llm-insights').addClass('almaseo-llm-loading');
+            $('.almaseo-llm-status').text('Loading analysis...').show();
+            $('.almaseo-llm-summary-text, .almaseo-llm-entities-list, .almaseo-llm-ambiguities-list, .almaseo-llm-scores, .almaseo-llm-insights, .almaseo-llm-structure-content').addClass('almaseo-llm-loading');
+            $('[data-section="top-issues"]').hide();
 
             // Make AJAX request to REST endpoint
             $.ajax({
@@ -4273,7 +4275,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 $ambiguities.html('<li style="color: #10b981;"><span class="dashicons dashicons-yes-alt"></span> No clarity issues detected</li>');
             }
 
-            // Pro Features: Scores
+            // Scores (AI Readiness + Answer Strength)
             var $scores = $('.almaseo-llm-scores');
             if ($scores.length) {
                 $scores.removeClass('almaseo-llm-loading');
@@ -4284,28 +4286,40 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 var llmColor = getScoreColor(llmScore);
                 var answerColor = getScoreColor(answerabilityScore);
 
-                var scoresHtml = '<div class="almaseo-llm-score-item">' +
-                    '<div class="almaseo-llm-score-label">LLM Optimization Score</div>' +
+                var scoresHtml = '<div class="almaseo-llm-score-row">';
+
+                // AI Readiness score
+                scoresHtml += '<div class="almaseo-llm-score-item">' +
+                    '<div class="almaseo-llm-score-label">AI Readiness</div>' +
                     '<div class="almaseo-llm-score-value" style="color: ' + llmColor + '">' + llmScore + '</div>' +
                     '<div class="almaseo-llm-score-bar"><div class="almaseo-llm-score-fill" style="width: ' + llmScore + '%; background: ' + llmColor + '"></div></div>' +
-                    '</div>' +
-                    '<div class="almaseo-llm-score-item">' +
-                    '<div class="almaseo-llm-score-label">Answerability Score</div>' +
+                    '<ul class="almaseo-llm-score-reasons">' + buildScoreReasons(data, 'llm') + '</ul>' +
+                    '</div>';
+
+                // Answer Strength score
+                scoresHtml += '<div class="almaseo-llm-score-item">' +
+                    '<div class="almaseo-llm-score-label">Answer Strength</div>' +
                     '<div class="almaseo-llm-score-value" style="color: ' + answerColor + '">' + answerabilityScore + '</div>' +
                     '<div class="almaseo-llm-score-bar"><div class="almaseo-llm-score-fill" style="width: ' + answerabilityScore + '%; background: ' + answerColor + '"></div></div>' +
+                    '<ul class="almaseo-llm-score-reasons">' + buildScoreReasons(data, 'answer') + '</ul>' +
                     '</div>';
+
+                scoresHtml += '</div>';
 
                 // Status message
                 if (llmScore >= 75 && answerabilityScore >= 75) {
-                    scoresHtml += '<p class="almaseo-llm-score-status" style="color: #10b981;"><span class="dashicons dashicons-yes-alt"></span> Great for AI answers!</p>';
+                    scoresHtml += '<p class="almaseo-llm-score-status" style="color: #10b981;"><span class="dashicons dashicons-yes-alt"></span> Strong — AI systems can reliably use this content</p>';
                 } else if (llmScore >= 50 || answerabilityScore >= 50) {
-                    scoresHtml += '<p class="almaseo-llm-score-status" style="color: #f59e0b;"><span class="dashicons dashicons-warning"></span> Needs improvement</p>';
+                    scoresHtml += '<p class="almaseo-llm-score-status" style="color: #f59e0b;"><span class="dashicons dashicons-warning"></span> Moderate — some improvements would help AI systems use this content</p>';
                 } else {
-                    scoresHtml += '<p class="almaseo-llm-score-status" style="color: #dc3232;"><span class="dashicons dashicons-dismiss"></span> Needs structure</p>';
+                    scoresHtml += '<p class="almaseo-llm-score-status" style="color: #dc3232;"><span class="dashicons dashicons-dismiss"></span> Weak — AI systems will struggle to extract useful answers from this content</p>';
                 }
 
                 $scores.html(scoresHtml);
             }
+
+            // Top Issues
+            renderTopIssues(data);
 
             // Pro Features: Insights
             var $insights = $('.almaseo-llm-insights');
@@ -4356,6 +4370,133 @@ function almaseo_seo_playground_meta_box_callback($post) {
             if (data.sections && data.sections.length > 0) {
                 renderLLMSections(data.sections);
             }
+        }
+
+        /**
+         * Build "Why this score" reasons from existing data
+         */
+        function buildScoreReasons(data, type) {
+            var reasons = [];
+
+            if (type === 'llm') {
+                // AI Readiness reasons
+                var wc = data.paragraph_analysis ? data.paragraph_analysis.total_paragraphs : 0;
+                if ((data.llm_score || 0) < 75) {
+                    if (data.heading_hierarchy && !data.heading_hierarchy.hierarchy_valid) {
+                        reasons.push('<li>Heading structure has issues</li>');
+                    }
+                    if (data.heading_hierarchy && data.heading_hierarchy.vague_headings && data.heading_hierarchy.vague_headings.length > 0) {
+                        reasons.push('<li>' + data.heading_hierarchy.vague_headings.length + ' vague heading' + (data.heading_hierarchy.vague_headings.length > 1 ? 's' : '') + ' detected</li>');
+                    }
+                    if (data.paragraph_analysis && data.paragraph_analysis.wall_of_text_detected) {
+                        reasons.push('<li>Contains a wall of text (300+ words in one block)</li>');
+                    }
+                    if (data.formatting && data.formatting.formatting_score < 30) {
+                        reasons.push('<li>Few or no lists, tables, or structured elements</li>');
+                    }
+                    if (data.answer_positioning && data.answer_positioning.starts_with_fluff) {
+                        reasons.push('<li>Content opens with filler instead of a direct answer</li>');
+                    }
+                    if (data.summary_detection && !data.summary_detection.has_tldr && !data.summary_detection.has_key_takeaways) {
+                        reasons.push('<li>No summary or key takeaways section</li>');
+                    }
+                    if (!data.faq_structure || !data.faq_structure.has_faq_structure) {
+                        reasons.push('<li>No FAQ-style question headings</li>');
+                    }
+                }
+                if (reasons.length === 0) {
+                    reasons.push('<li style="color: #10b981;">All key signals are strong</li>');
+                }
+            } else {
+                // Answer Strength reasons
+                if ((data.answerability_score || 0) < 75) {
+                    if (data.answer_positioning && !data.answer_positioning.has_direct_answer) {
+                        reasons.push('<li>No direct answer pattern in the opening</li>');
+                    }
+                    if (data.answer_positioning && data.answer_positioning.starts_with_fluff) {
+                        reasons.push('<li>Opens with filler text</li>');
+                    }
+                    if (!data.faq_structure || !data.faq_structure.has_faq_structure) {
+                        reasons.push('<li>No FAQ structure detected</li>');
+                    }
+                    if (data.formatting && !data.formatting.has_lists && !data.formatting.has_tables) {
+                        reasons.push('<li>No lists or tables for AI to extract</li>');
+                    }
+                    if (data.summary_detection && !data.summary_detection.has_tldr && !data.summary_detection.has_table_of_contents) {
+                        reasons.push('<li>No summary or table of contents</li>');
+                    }
+                    if (data.heading_hierarchy && data.heading_hierarchy.question_heading_count === 0) {
+                        reasons.push('<li>No question-based headings</li>');
+                    }
+                }
+                if (reasons.length === 0) {
+                    reasons.push('<li style="color: #10b981;">Content is well-structured for AI answers</li>');
+                }
+            }
+
+            return reasons.slice(0, 4).join('');
+        }
+
+        /**
+         * Render Top Issues card from existing analysis data
+         */
+        function renderTopIssues(data) {
+            var issues = [];
+
+            // Check each signal and build prioritized issue list
+            if (data.paragraph_analysis && data.paragraph_analysis.wall_of_text_detected) {
+                issues.push({icon: 'dashicons-warning', text: 'Wall of text — a paragraph has ' + data.paragraph_analysis.longest_paragraph_words + '+ words. Break it into shorter blocks.', severity: 'high'});
+            }
+            if (data.heading_hierarchy && !data.heading_hierarchy.hierarchy_valid && data.heading_hierarchy.hierarchy_issues) {
+                issues.push({icon: 'dashicons-warning', text: 'Heading structure broken — ' + data.heading_hierarchy.hierarchy_issues[0], severity: 'high'});
+            }
+            if (data.answer_positioning && data.answer_positioning.starts_with_fluff) {
+                issues.push({icon: 'dashicons-warning', text: 'Content starts with filler ("' + escapeHtml(data.answer_positioning.fluff_detected) + '"). Lead with the main point.', severity: 'high'});
+            }
+            if (data.heading_hierarchy && data.heading_hierarchy.vague_headings && data.heading_hierarchy.vague_headings.length >= 2) {
+                issues.push({icon: 'dashicons-info', text: data.heading_hierarchy.vague_headings.length + ' vague headings (e.g., "' + escapeHtml(data.heading_hierarchy.vague_headings[0]) + '"). Use specific, descriptive headings.', severity: 'medium'});
+            }
+            if (data.formatting && data.formatting.formatting_score < 20) {
+                issues.push({icon: 'dashicons-info', text: 'No lists, tables, or structured formatting. AI extracts structured content more reliably.', severity: 'medium'});
+            }
+            if (data.summary_detection && !data.summary_detection.has_tldr && !data.summary_detection.has_key_takeaways) {
+                issues.push({icon: 'dashicons-info', text: 'No summary or key takeaways section. Adding one helps AI cite your content.', severity: 'medium'});
+            }
+            if (!data.faq_structure || !data.faq_structure.has_faq_structure) {
+                if (data.heading_hierarchy && data.heading_hierarchy.question_heading_count === 0) {
+                    issues.push({icon: 'dashicons-info', text: 'No question-based headings. FAQ-style content is highly extractable by AI.', severity: 'low'});
+                }
+            }
+
+            // Thin content from sections
+            if (data.sections) {
+                var thinCount = 0;
+                data.sections.forEach(function(s) {
+                    if (s.flags && s.flags.indexOf('thin_content') !== -1) thinCount++;
+                });
+                if (thinCount > 0) {
+                    issues.push({icon: 'dashicons-info', text: thinCount + ' section' + (thinCount > 1 ? 's' : '') + ' too short to be useful for AI extraction (under 30 words).', severity: 'medium'});
+                }
+            }
+
+            var $card = $('[data-section="top-issues"]');
+            if (issues.length === 0) {
+                $card.hide();
+                return;
+            }
+
+            // Show top 5
+            var html = '';
+            issues.slice(0, 5).forEach(function(issue) {
+                var color = issue.severity === 'high' ? '#dc3232' : issue.severity === 'medium' ? '#f59e0b' : '#64748b';
+                html += '<div class="almaseo-llm-issue-item" style="border-left-color: ' + color + ';">';
+                html += '<span class="dashicons ' + issue.icon + '" style="color: ' + color + ';"></span>';
+                html += '<span>' + issue.text + '</span>';
+                html += '</div>';
+            });
+
+            $card.find('.almaseo-llm-top-issues').html(html);
+            $card.show();
         }
 
         /**
@@ -4543,19 +4684,19 @@ function almaseo_seo_playground_meta_box_callback($post) {
 
                 // Clarity (Free for all)
                 sectionsHtml += '<div class="almaseo-llm-section-score-pill" style="border-color: ' + clarityColor + ';">';
-                sectionsHtml += '<span class="label">Clarity:</span>';
+                sectionsHtml += '<span class="label">Content Clarity:</span>';
                 sectionsHtml += '<span class="value" style="color: ' + clarityColor + ';">' + section.clarity_score + '</span>';
                 sectionsHtml += '</div>';
 
-                // LLM Readiness & Answerability (Pro only or show locked)
+                // AI Readiness & Answer Strength (Pro only or show locked)
                 if (isPro) {
                     sectionsHtml += '<div class="almaseo-llm-section-score-pill" style="border-color: ' + llmColor + ';">';
-                    sectionsHtml += '<span class="label">LLM:</span>';
+                    sectionsHtml += '<span class="label">AI Readiness:</span>';
                     sectionsHtml += '<span class="value" style="color: ' + llmColor + ';">' + section.llm_readiness + '</span>';
                     sectionsHtml += '</div>';
 
                     sectionsHtml += '<div class="almaseo-llm-section-score-pill" style="border-color: ' + answerColor + ';">';
-                    sectionsHtml += '<span class="label">Answerability:</span>';
+                    sectionsHtml += '<span class="label">Answer Strength:</span>';
                     sectionsHtml += '<span class="value" style="color: ' + answerColor + ';">' + section.answerability + '</span>';
                     sectionsHtml += '</div>';
                 } else {
@@ -4602,12 +4743,12 @@ function almaseo_seo_playground_meta_box_callback($post) {
          */
         function getFlagLabel(flag) {
             var labels = {
-                'thin_content': 'Thin content',
-                'ambiguous_pronouns': 'Ambiguous pronouns',
-                'vague_language': 'Vague language',
-                'missing_specifics': 'Missing specifics',
-                'wall_of_text': 'Wall of text',
-                'starts_with_fluff': 'Starts with filler'
+                'thin_content': 'Too short for AI extraction',
+                'ambiguous_pronouns': 'Unclear references (it, this, that)',
+                'vague_language': 'Vague wording (many, some, few)',
+                'missing_specifics': 'No specific names or terms',
+                'wall_of_text': 'Wall of text — break into shorter blocks',
+                'starts_with_fluff': 'Opens with filler text'
             };
             return labels[flag] || flag;
         }

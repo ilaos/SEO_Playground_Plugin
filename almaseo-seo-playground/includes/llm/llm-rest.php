@@ -113,19 +113,23 @@ function almaseo_llm_gather_post_data($post_id, $post) {
     $schema_type = get_post_meta($post_id, '_seo_playground_schema_type', true);
     $keyword_suggestions = get_post_meta($post_id, '_seo_playground_keyword_suggestions', true);
 
+    // Strip shortcodes before analysis to prevent [shortcode] text from
+    // polluting word counts, entity extraction, and paragraph analysis
+    $clean_html = strip_shortcodes($post->post_content);
+
     // Get content
-    $content = wp_strip_all_tags($post->post_content);
+    $content = wp_strip_all_tags($clean_html);
     $word_count = str_word_count($content);
 
     // Get headings
-    preg_match_all('/<h([1-6])[^>]*>(.*?)<\/h\1>/i', $post->post_content, $matches);
+    preg_match_all('/<h([1-6])[^>]*>(.*?)<\/h\1>/i', $clean_html, $matches);
     $heading_count = count($matches[0]);
 
     return array(
         'post_id'          => $post_id,
         'title'            => $post->post_title,
         'content'          => $content,
-        'raw_html'         => $post->post_content,
+        'raw_html'         => $clean_html,
         'word_count'       => $word_count,
         'heading_count'    => $heading_count,
         'seo_title'        => $seo_title,
