@@ -217,8 +217,16 @@ class AlmaSEO_Breadcrumbs_Renderer {
         $color_link_hover = !empty($settings['color_link_hover']) ? $settings['color_link_hover'] : '#005177';
         $color_text       = !empty($settings['color_text']) ? $settings['color_text'] : '#1e1e1e';
         $color_separator  = !empty($settings['color_separator']) ? $settings['color_separator'] : '#757575';
+        $font_size        = !empty($settings['font_size']) ? intval($settings['font_size']) : 14;
+        $font_weight      = !empty($settings['font_weight']) ? $settings['font_weight'] : 'normal';
+        $font_style       = !empty($settings['font_style']) ? $settings['font_style'] : 'normal';
 
         $css = "
+.{$instance_id} {
+    font-size: {$font_size}px;
+    font-weight: {$font_weight};
+    font-style: {$font_style};
+}
 .{$instance_id} .breadcrumb-item a {
     color: {$color_link};
 }

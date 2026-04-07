@@ -59,10 +59,30 @@ class AlmaSEO_Breadcrumbs_Settings {
         wp_enqueue_style('wp-color-picker');
         wp_enqueue_script('wp-color-picker');
 
-        // Inline script to initialize color pickers
+        // Inline script to initialize color pickers and live font preview
         wp_add_inline_script('wp-color-picker', "
             jQuery(document).ready(function($) {
                 $('.almaseo-color-picker').wpColorPicker();
+
+                // Live font preview update
+                var preview = document.getElementById('almaseo-breadcrumb-font-preview');
+                if (preview) {
+                    $('input[name=\"almaseo_breadcrumbs_settings[font_size]\"]').on('input', function() {
+                        preview.style.fontSize = this.value + 'px';
+                    });
+                    $('select[name=\"almaseo_breadcrumbs_settings[font_weight]\"]').on('change', function() {
+                        preview.style.fontWeight = this.value;
+                    });
+                    $('select[name=\"almaseo_breadcrumbs_settings[font_style]\"]').on('change', function() {
+                        preview.style.fontStyle = this.value;
+                    });
+                    $('select[name=\"almaseo_breadcrumbs_settings[separator]\"]').on('change', function() {
+                        var decoded = $('<textarea/>').html(this.value).text();
+                        preview.querySelectorAll('.almaseo-sep-char').forEach(function(el) {
+                            el.textContent = decoded;
+                        });
+                    });
+                }
             });
         ");
     }
@@ -75,7 +95,7 @@ class AlmaSEO_Breadcrumbs_Settings {
             'type'              => 'array',
             'default'           => array(
                 'enabled'                => true,
-                'separator'              => '>',
+                'separator'              => '&gt;',
                 'home_text'              => __('Home', 'almaseo'),
                 'show_on_home'           => false,
                 'show_current'           => true,
@@ -87,6 +107,9 @@ class AlmaSEO_Breadcrumbs_Settings {
                 'color_link_hover'       => '#005177',
                 'color_text'             => '#1e1e1e',
                 'color_separator'        => '#757575',
+                'font_size'              => '14',
+                'font_weight'            => 'normal',
+                'font_style'             => 'normal',
             ),
             'sanitize_callback' => array($this, 'sanitize_settings'),
         ));
@@ -121,6 +144,17 @@ class AlmaSEO_Breadcrumbs_Settings {
         $sanitized['color_link_hover'] = isset($input['color_link_hover']) ? sanitize_hex_color($input['color_link_hover']) : '#005177';
         $sanitized['color_text']       = isset($input['color_text']) ? sanitize_hex_color($input['color_text']) : '#1e1e1e';
         $sanitized['color_separator']  = isset($input['color_separator']) ? sanitize_hex_color($input['color_separator']) : '#757575';
+
+        // Font settings
+        $sanitized['font_size'] = isset($input['font_size']) ? max(10, min(24, intval($input['font_size']))) : 14;
+
+        $valid_weights = array('normal', 'bold', '300', '500', '600', '700');
+        $sanitized['font_weight'] = isset($input['font_weight']) && in_array($input['font_weight'], $valid_weights, true)
+            ? $input['font_weight'] : 'normal';
+
+        $valid_styles = array('normal', 'italic');
+        $sanitized['font_style'] = isset($input['font_style']) && in_array($input['font_style'], $valid_styles, true)
+            ? $input['font_style'] : 'normal';
 
         return $sanitized;
     }
@@ -222,6 +256,88 @@ class AlmaSEO_Breadcrumbs_Settings {
                 </tr>
 
                 <tr>
+                    <th scope="row">
+                        <label for="almaseo_breadcrumbs_separator"><?php esc_html_e('Separator', 'almaseo'); ?></label>
+                    </th>
+                    <td>
+                        <?php
+                        $separators = array(
+                            '&gt;'    => '> (chevron)',
+                            '&raquo;' => '» (double angle)',
+                            '/'       => '/ (slash)',
+                            '|'       => '| (pipe)',
+                            '&rarr;'  => '→ (arrow)',
+                            '&bull;'  => '• (bullet)',
+                            '–'       => '– (dash)',
+                        );
+                        $current_sep = $settings['separator'] ?? '&gt;';
+                        ?>
+                        <select id="almaseo_breadcrumbs_separator"
+                                name="almaseo_breadcrumbs_settings[separator]"
+                                style="min-width: 200px;">
+                            <?php foreach ($separators as $value => $label) : ?>
+                                <option value="<?php echo esc_attr($value); ?>" <?php selected($current_sep, $value); ?>>
+                                    <?php echo esc_html(html_entity_decode($label)); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <p class="description">
+                            <?php esc_html_e('Character displayed between breadcrumb items.', 'almaseo'); ?>
+                        </p>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th scope="row"><?php esc_html_e('Font', 'almaseo'); ?></th>
+                    <td>
+                        <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end;">
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <?php esc_html_e('Size (px)', 'almaseo'); ?>
+                                </label>
+                                <input type="number"
+                                       name="almaseo_breadcrumbs_settings[font_size]"
+                                       value="<?php echo esc_attr($settings['font_size'] ?? '14'); ?>"
+                                       min="10" max="24" step="1"
+                                       style="width: 80px;">
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <?php esc_html_e('Weight', 'almaseo'); ?>
+                                </label>
+                                <select name="almaseo_breadcrumbs_settings[font_weight]" style="min-width: 140px;">
+                                    <option value="300" <?php selected($settings['font_weight'] ?? 'normal', '300'); ?>><?php esc_html_e('Light (300)', 'almaseo'); ?></option>
+                                    <option value="normal" <?php selected($settings['font_weight'] ?? 'normal', 'normal'); ?>><?php esc_html_e('Normal (400)', 'almaseo'); ?></option>
+                                    <option value="500" <?php selected($settings['font_weight'] ?? 'normal', '500'); ?>><?php esc_html_e('Medium (500)', 'almaseo'); ?></option>
+                                    <option value="600" <?php selected($settings['font_weight'] ?? 'normal', '600'); ?>><?php esc_html_e('Semi-Bold (600)', 'almaseo'); ?></option>
+                                    <option value="bold" <?php selected($settings['font_weight'] ?? 'normal', 'bold'); ?>><?php esc_html_e('Bold (700)', 'almaseo'); ?></option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; margin-bottom: 5px; font-weight: 500;">
+                                    <?php esc_html_e('Style', 'almaseo'); ?>
+                                </label>
+                                <select name="almaseo_breadcrumbs_settings[font_style]" style="min-width: 120px;">
+                                    <option value="normal" <?php selected($settings['font_style'] ?? 'normal', 'normal'); ?>><?php esc_html_e('Normal', 'almaseo'); ?></option>
+                                    <option value="italic" <?php selected($settings['font_style'] ?? 'normal', 'italic'); ?>><?php esc_html_e('Italic', 'almaseo'); ?></option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- Live preview -->
+                        <div style="margin-top: 12px; padding: 10px 14px; background: #fff; border: 1px solid #ddd; border-radius: 4px; max-width: 600px;">
+                            <label style="display: block; margin-bottom: 6px; font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.5px;"><?php esc_html_e('Preview', 'almaseo'); ?></label>
+                            <div id="almaseo-breadcrumb-font-preview" style="font-size: <?php echo esc_attr($settings['font_size'] ?? '14'); ?>px; font-weight: <?php echo esc_attr($settings['font_weight'] ?? 'normal'); ?>; font-style: <?php echo esc_attr($settings['font_style'] ?? 'normal'); ?>;">
+                                <span style="color: <?php echo esc_attr($settings['color_link'] ?? '#0073aa'); ?>;">Home</span>
+                                <span class="almaseo-sep-char" style="color: <?php echo esc_attr($settings['color_separator'] ?? '#757575'); ?>; margin: 0 6px;"><?php echo $current_sep; ?></span>
+                                <span style="color: <?php echo esc_attr($settings['color_link'] ?? '#0073aa'); ?>;">Services</span>
+                                <span class="almaseo-sep-char" style="color: <?php echo esc_attr($settings['color_separator'] ?? '#757575'); ?>; margin: 0 6px;"><?php echo $current_sep; ?></span>
+                                <span style="color: <?php echo esc_attr($settings['color_text'] ?? '#1e1e1e'); ?>;">Current Page</span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
                     <th scope="row"><?php esc_html_e('Colors', 'almaseo'); ?></th>
                     <td>
                         <div style="display: flex; flex-wrap: wrap; gap: 20px;">
@@ -267,7 +383,7 @@ class AlmaSEO_Breadcrumbs_Settings {
                             </div>
                         </div>
                         <p class="description" style="margin-top: 10px;">
-                            <?php esc_html_e('Customize the colors of your breadcrumb navigation.', 'almaseo'); ?>
+                            <?php esc_html_e('Click any color field to open the color picker.', 'almaseo'); ?>
                         </p>
                     </td>
                 </tr>
