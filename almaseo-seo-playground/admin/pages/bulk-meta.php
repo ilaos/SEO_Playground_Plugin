@@ -84,11 +84,9 @@ $post_types = get_post_types(array('public' => true), 'objects');
         </div>
     </div>
     
-    <!-- Clear float to prevent overlap -->
-    <div style="clear: both; height: 10px;"></div>
-
-    <!-- Auto-Fill Actions -->
-    <div class="autofill-actions-wrapper" style="margin: 20px 0 12px 0; padding: 14px 18px; background: #f0f6fc; border: 1px solid #c3d4e6; border-left: 4px solid #2271b1; border-radius: 4px; overflow: visible; clear: both;">
+    <!-- Auto-Fill Actions — wrapped in a block-level container to escape tablenav overflow:hidden -->
+    <div style="display: block; clear: both; overflow: visible; padding-top: 1px;">
+    <div class="autofill-actions-wrapper" style="margin: 16px 0 12px 0; padding: 14px 18px; background: #f0f6fc; border: 1px solid #c3d4e6; border-left: 4px solid #2271b1; border-radius: 4px;">
         <div class="autofill-actions" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
             <span class="dashicons dashicons-admin-generic" style="color: #2271b1; font-size: 20px; line-height: 30px;"></span>
             <strong style="font-size: 13px;"><?php echo esc_html__('Auto-Fill', 'almaseo'); ?></strong>
@@ -119,6 +117,7 @@ $post_types = get_post_types(array('public' => true), 'objects');
             <?php echo esc_html__('Generates SEO-optimized titles, descriptions, focus keywords, and Open Graph fields from your existing content. Only fills empty fields unless "Overwrite existing" is checked.', 'almaseo'); ?>
         </p>
     </div>
+    </div><!-- end autofill outer wrapper -->
 
     <!-- Bulk Actions -->
     <div class="bulk-actions-wrapper" style="display:none;">

@@ -700,3 +700,106 @@
         margin-left: 0;
     }
 }
+
+/* === Content Structure Card === */
+.almaseo-llm-structure-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.almaseo-llm-structure-section {
+    padding: 12px 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.almaseo-llm-structure-section:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.almaseo-llm-structure-section h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 8px 0;
+}
+
+.almaseo-llm-structure-ok,
+.almaseo-llm-structure-warn,
+.almaseo-llm-structure-neutral {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 4px 0;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.almaseo-llm-structure-ok {
+    color: #10b981;
+}
+
+.almaseo-llm-structure-warn {
+    color: #f59e0b;
+}
+
+.almaseo-llm-structure-neutral {
+    color: #64748b;
+}
+
+.almaseo-llm-structure-ok .dashicons,
+.almaseo-llm-structure-warn .dashicons,
+.almaseo-llm-structure-neutral .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.almaseo-llm-structure-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.almaseo-llm-structure-stat {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #f1f5f9;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+}
+
+/* === Mini Progress Bar === */
+.almaseo-llm-mini-bar-container {
+    margin: 8px 0;
+}
+
+.almaseo-llm-mini-bar-label {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.almaseo-llm-mini-bar {
+    width: 100%;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.almaseo-llm-mini-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.4s ease;
+}

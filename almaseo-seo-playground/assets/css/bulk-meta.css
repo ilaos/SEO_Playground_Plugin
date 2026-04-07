@@ -870,3 +870,9 @@ button:focus,
         color: #93c5fd;
     }
 }
+
+/* Auto-Fill spinner animation */
+@keyframes rotation {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}

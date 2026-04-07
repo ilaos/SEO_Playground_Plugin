@@ -213,27 +213,32 @@ class Autofill_Generator {
         $generated = self::generate_all( $post );
         $result    = array();
 
+        // Map: field key => array of meta keys (primary + fallbacks).
+        // Checks all keys when reading; writes to all keys for consistency.
         $meta_map = array(
-            'meta_title'       => '_almaseo_meta_title',
-            'meta_description' => '_almaseo_meta_description',
-            'focus_keyword'    => '_almaseo_focus_keyword',
-            'og_title'         => '_almaseo_og_title',
-            'og_description'   => '_almaseo_og_description',
+            'meta_title'       => array( '_almaseo_meta_title', '_almaseo_title' ),
+            'meta_description' => array( '_almaseo_meta_description', '_almaseo_desc' ),
+            'focus_keyword'    => array( '_almaseo_focus_keyword' ),
+            'og_title'         => array( '_almaseo_og_title' ),
+            'og_description'   => array( '_almaseo_og_description' ),
         );
 
-        foreach ( $meta_map as $key => $meta_key ) {
+        foreach ( $meta_map as $key => $meta_keys ) {
             // Skip if not in requested fields (when fields are specified)
             if ( ! empty( $fields ) && ! in_array( $key, $fields, true ) ) {
-                $result[ $key ] = (string) get_post_meta( $post_id, $meta_key, true );
+                $result[ $key ] = self::read_meta( $post_id, $meta_keys );
                 continue;
             }
 
-            $current = (string) get_post_meta( $post_id, $meta_key, true );
+            $current = self::read_meta( $post_id, $meta_keys );
 
             if ( $overwrite || empty( $current ) ) {
                 $value = isset( $generated[ $key ] ) ? $generated[ $key ] : '';
                 if ( ! empty( $value ) ) {
-                    update_post_meta( $post_id, $meta_key, sanitize_text_field( $value ) );
+                    // Write to all keys so both primary and fallback are populated
+                    foreach ( $meta_keys as $mk ) {
+                        update_post_meta( $post_id, $mk, sanitize_text_field( $value ) );
+                    }
                     $result[ $key ] = $value;
                 } else {
                     $result[ $key ] = $current;
@@ -249,6 +254,19 @@ class Autofill_Generator {
     // ------------------------------------------------------------------
     // Helpers
     // ------------------------------------------------------------------
+
+    /**
+     * Read a meta value, trying multiple keys (primary + fallbacks).
+     */
+    private static function read_meta( $post_id, $keys ) {
+        foreach ( $keys as $k ) {
+            $val = (string) get_post_meta( $post_id, $k, true );
+            if ( ! empty( $val ) ) {
+                return $val;
+            }
+        }
+        return '';
+    }
 
     /**
      * Extract a clean topic phrase from the post title.

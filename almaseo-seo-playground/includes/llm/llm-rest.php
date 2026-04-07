@@ -125,6 +125,7 @@ function almaseo_llm_gather_post_data($post_id, $post) {
         'post_id'          => $post_id,
         'title'            => $post->post_title,
         'content'          => $content,
+        'raw_html'         => $post->post_content,
         'word_count'       => $word_count,
         'heading_count'    => $heading_count,
         'seo_title'        => $seo_title,
@@ -210,10 +211,6 @@ function almaseo_llm_generate_local_analysis($post_id, $post_data, $style = 'con
     // Extract entities with confidence scores
     $entities = almaseo_llm_extract_entities_with_confidence($post_data['content']);
 
-    // Calculate basic scores
-    $llm_score = almaseo_llm_calculate_local_score($post_id, $post_data);
-    $answerability_score = almaseo_llm_calculate_answerability($post_data);
-
     // Detect ambiguities (very basic)
     $ambiguities = almaseo_llm_detect_ambiguities($post_data['content']);
 
@@ -228,6 +225,29 @@ function almaseo_llm_generate_local_analysis($post_id, $post_data, $style = 'con
 
     // Cluster suggestions (basic - get related posts)
     $cluster_suggestions = almaseo_llm_get_cluster_suggestions($post_id, $post_data);
+
+    // --- Tier 1 Content Structure Analysis ---
+    $raw_html = isset($post_data['raw_html']) ? $post_data['raw_html'] : '';
+    $heading_hierarchy   = almaseo_llm_analyze_heading_hierarchy($raw_html);
+    $paragraph_analysis  = almaseo_llm_analyze_paragraphs($raw_html);
+    $answer_positioning  = almaseo_llm_analyze_answer_positioning($raw_html);
+    $faq_structure       = almaseo_llm_detect_faq_structure($raw_html, $heading_hierarchy);
+    $formatting          = almaseo_llm_analyze_formatting($raw_html);
+    $summary_detection   = almaseo_llm_detect_summary_tldr($raw_html);
+
+    // Bundle structure data for scoring
+    $structure = array(
+        'heading_hierarchy'  => $heading_hierarchy,
+        'paragraph_analysis' => $paragraph_analysis,
+        'answer_positioning' => $answer_positioning,
+        'faq_structure'      => $faq_structure,
+        'formatting'         => $formatting,
+        'summary_detection'  => $summary_detection,
+    );
+
+    // Calculate scores (revised to use structure data)
+    $llm_score = almaseo_llm_calculate_local_score($post_id, $post_data, $structure);
+    $answerability_score = almaseo_llm_calculate_answerability($post_data, $structure);
 
     // Available summary styles with tier info
     $summary_styles = array(
@@ -252,6 +272,13 @@ function almaseo_llm_generate_local_analysis($post_id, $post_data, $style = 'con
         'evergreen_hint'      => $evergreen_hint,
         'cluster_suggestions' => $cluster_suggestions,
         'summary_styles'      => $summary_styles,
+        // Tier 1 structure analysis
+        'heading_hierarchy'   => $heading_hierarchy,
+        'paragraph_analysis'  => $paragraph_analysis,
+        'answer_positioning'  => $answer_positioning,
+        'faq_structure'       => $faq_structure,
+        'formatting'          => $formatting,
+        'summary_detection'   => $summary_detection,
     );
 
     // Add section-level analysis if requested
@@ -375,47 +402,65 @@ function almaseo_llm_extract_basic_entities($content) {
  * @param array $post_data Post data
  * @return int Score 0-100
  */
-function almaseo_llm_calculate_local_score($post_id, $post_data) {
+function almaseo_llm_calculate_local_score($post_id, $post_data, $structure = array()) {
     $score = 0;
 
-    // Word count (max 30 points)
+    // Word count (max 20 points)
     if ($post_data['word_count'] >= 1000) {
-        $score += 30;
-    } elseif ($post_data['word_count'] >= 500) {
         $score += 20;
+    } elseif ($post_data['word_count'] >= 500) {
+        $score += 15;
     } elseif ($post_data['word_count'] >= 300) {
         $score += 10;
     }
 
-    // Headings (max 20 points)
-    if ($post_data['heading_count'] >= 5) {
-        $score += 20;
+    // Heading hierarchy (max 15 points)
+    if (!empty($structure['heading_hierarchy'])) {
+        $hh = $structure['heading_hierarchy'];
+        if ($hh['hierarchy_valid']) $score += 10;
+        if (empty($hh['vague_headings'])) $score += 5;
     } elseif ($post_data['heading_count'] >= 3) {
-        $score += 15;
-    } elseif ($post_data['heading_count'] >= 1) {
+        $score += 10; // Fallback for old callers without structure
+    }
+
+    // SEO meta (max 15 points)
+    if (!empty($post_data['seo_title'])) $score += 5;
+    if (!empty($post_data['meta_description'])) $score += 5;
+    if (!empty($post_data['keyword_suggestions'])) $score += 5;
+
+    // Schema (max 10 points)
+    if (!empty($post_data['schema_type']) && $post_data['schema_type'] !== 'none') {
         $score += 10;
     }
 
-    // SEO meta (max 25 points)
-    if (!empty($post_data['seo_title'])) {
-        $score += 10;
-    }
-    if (!empty($post_data['meta_description'])) {
-        $score += 10;
-    }
-    if (!empty($post_data['keyword_suggestions'])) {
+    // Formatting (max 10 points)
+    if (!empty($structure['formatting'])) {
+        $score += min(10, intval($structure['formatting']['formatting_score'] / 10));
+    } elseif (preg_match('/<[ou]l[\s>]/i', isset($post_data['raw_html']) ? $post_data['raw_html'] : '')) {
         $score += 5;
     }
 
-    // Schema (max 15 points)
-    if (!empty($post_data['schema_type']) && $post_data['schema_type'] !== 'none') {
-        $score += 15;
+    // Paragraph structure (max 10 points)
+    if (!empty($structure['paragraph_analysis'])) {
+        $pa = $structure['paragraph_analysis'];
+        if (!$pa['wall_of_text_detected']) $score += 5;
+        if ($pa['avg_words_per_paragraph'] >= 30 && $pa['avg_words_per_paragraph'] <= 150) $score += 5;
     }
 
-    // Content structure (max 10 points)
-    $has_lists = preg_match('/<[ou]l>/', get_post($post_id)->post_content);
-    if ($has_lists) {
-        $score += 10;
+    // Answer positioning (max 10 points)
+    if (!empty($structure['answer_positioning'])) {
+        $ap = $structure['answer_positioning'];
+        if (!$ap['starts_with_fluff']) $score += 5;
+        if ($ap['has_direct_answer']) $score += 5;
+    }
+
+    // Summary/FAQ bonus (max 10 points)
+    if (!empty($structure['summary_detection'])) {
+        $sd = $structure['summary_detection'];
+        if ($sd['has_tldr'] || $sd['has_key_takeaways']) $score += 5;
+    }
+    if (!empty($structure['faq_structure']) && $structure['faq_structure']['has_faq_structure']) {
+        $score += 5;
     }
 
     return min(100, $score);
@@ -427,35 +472,65 @@ function almaseo_llm_calculate_local_score($post_id, $post_data) {
  * @param array $post_data Post data
  * @return int Score 0-100
  */
-function almaseo_llm_calculate_answerability($post_data) {
+function almaseo_llm_calculate_answerability($post_data, $structure = array()) {
     $score = 0;
 
-    // Word count adequacy (max 40 points)
+    // Word count adequacy (max 20 points)
     if ($post_data['word_count'] >= 800) {
-        $score += 40;
+        $score += 20;
     } elseif ($post_data['word_count'] >= 400) {
-        $score += 30;
+        $score += 15;
     } elseif ($post_data['word_count'] >= 200) {
-        $score += 20;
-    }
-
-    // Structure (max 30 points)
-    if ($post_data['heading_count'] >= 4) {
-        $score += 30;
-    } elseif ($post_data['heading_count'] >= 2) {
-        $score += 20;
-    } elseif ($post_data['heading_count'] >= 1) {
         $score += 10;
     }
 
-    // Meta description provides context (max 15 points)
-    if (!empty($post_data['meta_description'])) {
-        $score += 15;
+    // Heading structure (max 15 points)
+    if ($post_data['heading_count'] >= 4) {
+        $score += 10;
+    } elseif ($post_data['heading_count'] >= 2) {
+        $score += 7;
+    } elseif ($post_data['heading_count'] >= 1) {
+        $score += 3;
+    }
+    if (!empty($structure['heading_hierarchy']) && $structure['heading_hierarchy']['question_heading_count'] > 0) {
+        $score += 5;
     }
 
-    // Title clarity (max 15 points)
+    // Meta description (max 10 points)
+    if (!empty($post_data['meta_description'])) {
+        $score += 10;
+    }
+
+    // Title clarity (max 10 points)
     if (!empty($post_data['title']) && strlen($post_data['title']) >= 10) {
-        $score += 15;
+        $score += 10;
+    }
+
+    // Answer positioning (max 15 points)
+    if (!empty($structure['answer_positioning'])) {
+        $ap = $structure['answer_positioning'];
+        if (!$ap['starts_with_fluff']) $score += 5;
+        if ($ap['has_direct_answer']) $score += 10;
+    }
+
+    // FAQ structure (max 15 points)
+    if (!empty($structure['faq_structure'])) {
+        $faq = $structure['faq_structure'];
+        if ($faq['has_faq_structure']) $score += 10;
+        if ($faq['question_heading_ratio'] > 0.3) $score += 5;
+    }
+
+    // Formatting (max 10 points)
+    if (!empty($structure['formatting'])) {
+        $fmt = $structure['formatting'];
+        if ($fmt['has_lists']) $score += 5;
+        if ($fmt['has_tables']) $score += 5;
+    }
+
+    // Summary/TL;DR (max 5 points)
+    if (!empty($structure['summary_detection'])) {
+        $sd = $structure['summary_detection'];
+        if ($sd['has_tldr'] || $sd['has_key_takeaways'] || $sd['has_table_of_contents']) $score += 5;
     }
 
     return min(100, $score);
@@ -902,5 +977,399 @@ function almaseo_llm_detect_section_flags($text, $is_title = false) {
         $flags[] = 'missing_specifics';
     }
 
+    // Wall of text (paragraph over 300 words)
+    if (!$is_title && $word_count > 300) {
+        $flags[] = 'wall_of_text';
+    }
+
     return $flags;
+}
+
+/**
+ * =========================================================================
+ * Tier 1 Content Structure Analysis Functions
+ * Ported from analysis/content_structure.py (AlmaSEO dashboard)
+ * =========================================================================
+ */
+
+/**
+ * Analyze heading hierarchy, vague headings, and question headings
+ *
+ * @param string $raw_html Raw post HTML content
+ * @return array Heading hierarchy analysis
+ */
+function almaseo_llm_analyze_heading_hierarchy($raw_html) {
+    $vague_headings_list = array(
+        'introduction', 'intro', 'conclusion', 'summary', 'overview',
+        'more info', 'more information', 'learn more', 'read more',
+        'about', 'about us', 'details', 'information', 'info',
+        'welcome', 'home', 'main', 'content', 'section',
+        'click here', 'continue', 'next', 'previous',
+        'get started', 'start here', 'begin',
+    );
+
+    preg_match_all('/<h([1-6])[^>]*>(.*?)<\/h\1>/is', $raw_html, $matches, PREG_SET_ORDER);
+
+    $h1_count = 0;
+    $total_headings = count($matches);
+    $hierarchy_valid = true;
+    $hierarchy_issues = array();
+    $vague_headings = array();
+    $question_headings = array();
+    $prev_level = 0;
+
+    foreach ($matches as $match) {
+        $level = intval($match[1]);
+        $text = trim(wp_strip_all_tags($match[2]));
+
+        if ($level === 1) {
+            $h1_count++;
+        }
+
+        // Check hierarchy: flag if level skips (e.g., H1 directly to H3)
+        if ($prev_level > 0 && $level > $prev_level + 1) {
+            $hierarchy_valid = false;
+            $hierarchy_issues[] = 'H' . $level . ' follows H' . $prev_level . ' (skipped H' . ($prev_level + 1) . ')';
+        }
+        $prev_level = $level;
+
+        // Check for vague headings
+        $text_lower = strtolower($text);
+        foreach ($vague_headings_list as $vague) {
+            if ($text_lower === $vague || strpos($text_lower, $vague) === 0) {
+                $vague_headings[] = $text;
+                break;
+            }
+        }
+
+        // Check for question headings
+        if (preg_match('/\?\s*$/', $text) || preg_match('/^(what|how|why|when|where|who|which|can|do|does|is|are|should)\b/i', $text)) {
+            $question_headings[] = $text;
+        }
+    }
+
+    // Additional hierarchy checks
+    if ($h1_count > 1) {
+        $hierarchy_valid = false;
+        $hierarchy_issues[] = 'Multiple H1 tags found (' . $h1_count . ')';
+    }
+    if ($h1_count === 0 && $total_headings > 0) {
+        $hierarchy_valid = false;
+        $hierarchy_issues[] = 'No H1 tag found';
+    }
+
+    return array(
+        'h1_count'               => $h1_count,
+        'total_headings'         => $total_headings,
+        'hierarchy_valid'        => $hierarchy_valid,
+        'hierarchy_issues'       => $hierarchy_issues,
+        'vague_headings'         => $vague_headings,
+        'question_headings'      => $question_headings,
+        'question_heading_count' => count($question_headings),
+    );
+}
+
+/**
+ * Analyze paragraph structure and detect walls of text
+ *
+ * @param string $raw_html Raw post HTML content
+ * @return array Paragraph analysis
+ */
+function almaseo_llm_analyze_paragraphs($raw_html) {
+    preg_match_all('/<p[^>]*>(.*?)<\/p>/is', $raw_html, $matches);
+
+    $total = 0;
+    $total_words = 0;
+    $too_long = 0;
+    $optimal = 0;
+    $too_short = 0;
+    $wall_detected = false;
+    $longest = 0;
+
+    foreach ($matches[1] as $inner) {
+        $text = trim(wp_strip_all_tags($inner));
+        if (strlen($text) <= 20) {
+            continue; // Skip UI elements, captions, etc.
+        }
+
+        $wc = str_word_count($text);
+        $total++;
+        $total_words += $wc;
+
+        if ($wc > 300) {
+            $wall_detected = true;
+        }
+
+        if ($wc > 150) {
+            $too_long++;
+        } elseif ($wc < 30) {
+            $too_short++;
+        } else {
+            $optimal++;
+        }
+
+        if ($wc > $longest) {
+            $longest = $wc;
+        }
+    }
+
+    // Fallback for classic editor content without <p> tags
+    if ($total === 0) {
+        $plain = wp_strip_all_tags($raw_html);
+        $paragraphs = preg_split('/\n\s*\n/', $plain);
+        foreach ($paragraphs as $para) {
+            $text = trim($para);
+            if (strlen($text) <= 20) continue;
+            $wc = str_word_count($text);
+            $total++;
+            $total_words += $wc;
+            if ($wc > 300) $wall_detected = true;
+            if ($wc > 150) $too_long++;
+            elseif ($wc < 30) $too_short++;
+            else $optimal++;
+            if ($wc > $longest) $longest = $wc;
+        }
+    }
+
+    return array(
+        'total_paragraphs'        => $total,
+        'avg_words_per_paragraph' => $total > 0 ? round($total_words / $total, 1) : 0,
+        'paragraphs_too_long'     => $too_long,
+        'paragraphs_optimal'      => $optimal,
+        'paragraphs_too_short'    => $too_short,
+        'wall_of_text_detected'   => $wall_detected,
+        'longest_paragraph_words' => $longest,
+    );
+}
+
+/**
+ * Analyze answer positioning in the opening content
+ *
+ * @param string $raw_html Raw post HTML content
+ * @return array Answer positioning analysis
+ */
+function almaseo_llm_analyze_answer_positioning($raw_html) {
+    $plain = wp_strip_all_tags($raw_html);
+    $words = preg_split('/\s+/', trim($plain));
+    $first_100 = implode(' ', array_slice($words, 0, 100));
+    $first_100_lower = strtolower($first_100);
+
+    // Fluff patterns (test against start of content)
+    $fluff_patterns = array(
+        '/^welcome\s+to\b/i',
+        '/^at\s+\w+\s*,?\s*(we|our)\b/i',
+        '/^thank\s+you\s+for\b/i',
+        '/^hello\b/i',
+        '/^hi\b/i',
+        '/^greetings\b/i',
+        '/^we\s+are\s+(pleased|happy|excited|thrilled)\b/i',
+        '/^(our|the)\s+company\b/i',
+        '/^since\s+\d{4}\b/i',
+        '/^for\s+(over|more\s+than)\s+\d+\s+years\b/i',
+    );
+
+    // Direct answer patterns
+    $answer_patterns = array(
+        '/^(the\s+)?(answer|solution|cost|price|time|result)\s+is\b/i',
+        '/^(yes|no)\s*[,.]/i',
+        '/^(it\s+)?(takes?|costs?|requires?)\s+/i',
+        '/^\d+\s*(hours?|days?|weeks?|months?|dollars?|\$|percent|%)/i',
+        '/^(you\s+)?(can|should|must|need\s+to|will)\b/i',
+        '/^(this|that|it)\s+(is|means|requires)\b/i',
+        '/^(there\s+are|here\s+are)\s+\d+\b/i',
+        '/^(the\s+)?(best|top|most|primary|main)\b/i',
+    );
+
+    // Question patterns
+    $question_patterns = array(
+        '/\?\s*$/',
+        '/^(what|how|why|when|where|who|which|can|do|does|is|are|should)\b/i',
+    );
+
+    $starts_with_fluff = false;
+    $fluff_detected = '';
+    $has_direct_answer = false;
+    $starts_with_question = false;
+
+    foreach ($fluff_patterns as $pattern) {
+        if (preg_match($pattern, $first_100, $fluff_match)) {
+            $starts_with_fluff = true;
+            $fluff_detected = $fluff_match[0];
+            break;
+        }
+    }
+
+    foreach ($answer_patterns as $pattern) {
+        if (preg_match($pattern, $first_100)) {
+            $has_direct_answer = true;
+            break;
+        }
+    }
+
+    foreach ($question_patterns as $pattern) {
+        if (preg_match($pattern, $first_100)) {
+            $starts_with_question = true;
+            break;
+        }
+    }
+
+    return array(
+        'starts_with_fluff'    => $starts_with_fluff,
+        'fluff_detected'       => $fluff_detected,
+        'has_direct_answer'    => $has_direct_answer,
+        'starts_with_question' => $starts_with_question,
+    );
+}
+
+/**
+ * Detect FAQ-style content structure from question headings
+ *
+ * @param string $raw_html Raw post HTML content
+ * @param array $heading_hierarchy Result from almaseo_llm_analyze_heading_hierarchy()
+ * @return array FAQ structure analysis
+ */
+function almaseo_llm_detect_faq_structure($raw_html, $heading_hierarchy) {
+    $question_count = $heading_hierarchy['question_heading_count'];
+    $total = $heading_hierarchy['total_headings'];
+    $ratio = $total > 0 ? round($question_count / $total, 2) : 0;
+
+    return array(
+        'has_faq_structure'      => $question_count >= 2,
+        'question_heading_count' => $question_count,
+        'question_heading_ratio' => $ratio,
+        'faq_questions'          => array_slice($heading_hierarchy['question_headings'], 0, 10),
+    );
+}
+
+/**
+ * Analyze formatting elements (lists, tables, blockquotes)
+ *
+ * @param string $raw_html Raw post HTML content
+ * @return array Formatting analysis with score
+ */
+function almaseo_llm_analyze_formatting($raw_html) {
+    preg_match_all('/<ul[\s>]/i', $raw_html, $ul_matches);
+    preg_match_all('/<ol[\s>]/i', $raw_html, $ol_matches);
+    preg_match_all('/<li[\s>]/i', $raw_html, $li_matches);
+    preg_match_all('/<blockquote[\s>]/i', $raw_html, $bq_matches);
+
+    $ul_count = count($ul_matches[0]);
+    $ol_count = count($ol_matches[0]);
+    $li_count = count($li_matches[0]);
+    $bq_count = count($bq_matches[0]);
+
+    // Count tables with >1 row (exclude layout tables)
+    $table_count = 0;
+    preg_match_all('/<table[^>]*>(.*?)<\/table>/is', $raw_html, $table_matches);
+    foreach ($table_matches[1] as $table_inner) {
+        preg_match_all('/<tr[\s>]/i', $table_inner, $rows);
+        if (count($rows[0]) > 1) {
+            $table_count++;
+        }
+    }
+
+    $has_lists = ($ul_count + $ol_count) > 0;
+    $has_tables = $table_count > 0;
+
+    // Formatting score (0-100)
+    $score = 0;
+    if ($has_lists) $score += 30;
+    if ($li_count >= 10) $score += 30;
+    elseif ($li_count >= 5) $score += 20;
+    if ($has_tables) $score += 20;
+    if ($bq_count >= 1) $score += 10;
+    $score = min(100, $score);
+
+    return array(
+        'ul_count'         => $ul_count,
+        'ol_count'         => $ol_count,
+        'li_count'         => $li_count,
+        'table_count'      => $table_count,
+        'blockquote_count' => $bq_count,
+        'has_lists'        => $has_lists,
+        'has_tables'       => $has_tables,
+        'formatting_score' => $score,
+    );
+}
+
+/**
+ * Detect TL;DR, key takeaways, and table of contents
+ *
+ * @param string $raw_html Raw post HTML content
+ * @return array Summary/TL;DR detection
+ */
+function almaseo_llm_detect_summary_tldr($raw_html) {
+    // Extract all headings with their position
+    preg_match_all('/<h([1-6])[^>]*>(.*?)<\/h\1>/is', $raw_html, $matches, PREG_SET_ORDER);
+
+    $tldr_patterns = array(
+        '/\btl;?dr\b/i',
+        '/\bkey\s+takeaways?\b/i',
+        '/\bquick\s+summary\b/i',
+        '/\bin\s+short\b/i',
+        '/\bbottom\s+line\b/i',
+        '/\bkey\s+points?\b/i',
+        '/\bquick\s+answer\b/i',
+        '/\bthe\s+short\s+answer\b/i',
+    );
+
+    $toc_patterns = array(
+        '/\btable\s+of\s+contents?\b/i',
+        '/\bin\s+this\s+(article|post|guide)\b/i',
+        '/\bwhat\s+we\'?ll\s+cover\b/i',
+    );
+
+    $has_tldr = false;
+    $has_key_takeaways = false;
+    $has_toc = false;
+    $summary_location = 'none';
+    $total = count($matches);
+
+    foreach ($matches as $i => $match) {
+        $text = trim(wp_strip_all_tags($match[2]));
+
+        // Check TL;DR patterns
+        foreach ($tldr_patterns as $pattern) {
+            if (preg_match($pattern, $text)) {
+                $has_tldr = true;
+                if (preg_match('/takeaway|key\s+point/i', $text)) {
+                    $has_key_takeaways = true;
+                }
+                // Determine position
+                if ($total > 0) {
+                    if ($i < $total / 3) {
+                        $summary_location = 'top';
+                    } elseif ($i > 2 * $total / 3) {
+                        $summary_location = 'bottom';
+                    } else {
+                        $summary_location = 'middle';
+                    }
+                }
+                break 2; // Found one, stop looking
+            }
+        }
+
+        // Check TOC patterns
+        foreach ($toc_patterns as $pattern) {
+            if (preg_match($pattern, $text)) {
+                $has_toc = true;
+                break;
+            }
+        }
+    }
+
+    // Also check for TOC via jump links (≥3 anchor links in content)
+    if (!$has_toc) {
+        preg_match_all('/href\s*=\s*["\']#[^"\']+["\']/i', $raw_html, $anchor_matches);
+        if (count($anchor_matches[0]) >= 3) {
+            $has_toc = true;
+        }
+    }
+
+    return array(
+        'has_tldr'               => $has_tldr,
+        'has_key_takeaways'      => $has_key_takeaways,
+        'has_table_of_contents'  => $has_toc,
+        'summary_location'       => $summary_location,
+    );
 }

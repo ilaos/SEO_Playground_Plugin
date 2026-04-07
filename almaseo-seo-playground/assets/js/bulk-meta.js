@@ -858,7 +858,7 @@
             const overwrite = $('#autofill-overwrite').prop('checked');
             const $status = $('#autofill-status');
 
-            $status.text('Generating metadata...');
+            $status.html('<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite;font-size:14px;vertical-align:middle;"></span> Generating metadata...').css('color', '#2271b1');
             showOverlay();
 
             try {
@@ -876,16 +876,17 @@
                     (result.skipped ? `, ${result.skipped} skipped` : '') +
                     (result.failed ? `, ${result.failed} failed` : '');
 
-                BulkMetaEditor.showToast(msg, 'success');
-                $status.text(msg);
+                // Show persistent success banner above the table
+                this.showResultBanner(msg, 'success');
+                $status.html('<span class="dashicons dashicons-yes-alt" style="color:#00a32a;font-size:14px;vertical-align:middle;"></span> ' + msg).css('color', '#00a32a');
 
                 // Reload the table to show updated values
                 BulkMetaEditor.loadPosts();
 
             } catch (error) {
                 const msg = `Auto-fill failed: ${error?.message || 'Unknown error'}`;
-                showError(msg);
-                $status.text(msg);
+                this.showResultBanner(msg, 'error');
+                $status.html('<span class="dashicons dashicons-warning" style="color:#d63638;font-size:14px;vertical-align:middle;"></span> ' + msg).css('color', '#d63638');
             } finally {
                 hideOverlay();
             }
@@ -953,19 +954,57 @@
                 const msg = `Done! Auto-filled ${totalSuccess} post(s)` +
                     (totalFailed ? `, ${totalFailed} failed` : '');
 
-                BulkMetaEditor.showToast(msg, 'success');
-                $status.text(msg);
+                this.showResultBanner(msg, 'success');
+                $status.html('<span class="dashicons dashicons-yes-alt" style="color:#00a32a;font-size:14px;vertical-align:middle;"></span> ' + msg).css('color', '#00a32a');
 
                 // Reload table
                 BulkMetaEditor.loadPosts();
 
             } catch (error) {
                 const msg = `Auto-fill failed: ${error?.message || 'Unknown error'}`;
-                showError(msg);
-                $status.text(msg);
+                this.showResultBanner(msg, 'error');
+                $status.html('<span class="dashicons dashicons-warning" style="color:#d63638;font-size:14px;vertical-align:middle;"></span> ' + msg).css('color', '#d63638');
             } finally {
                 hideOverlay();
             }
+        },
+
+        showResultBanner(message, type) {
+            // Remove any previous banner
+            $('#autofill-result-banner').remove();
+
+            const isSuccess = type === 'success';
+            const icon = isSuccess ? 'dashicons-yes-alt' : 'dashicons-warning';
+            const bgColor = isSuccess ? '#edfaef' : '#fcf0f1';
+            const borderColor = isSuccess ? '#00a32a' : '#d63638';
+            const textColor = isSuccess ? '#00450a' : '#8a1116';
+
+            const banner = $(`
+                <div id="autofill-result-banner" style="
+                    margin: 12px 0;
+                    padding: 12px 18px;
+                    background: ${bgColor};
+                    border: 1px solid ${borderColor};
+                    border-left: 4px solid ${borderColor};
+                    border-radius: 4px;
+                    color: ${textColor};
+                    font-size: 14px;
+                    font-weight: 500;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                ">
+                    <span class="dashicons ${icon}" style="font-size: 20px; color: ${borderColor};"></span>
+                    <span>${message}</span>
+                    <button type="button" style="margin-left: auto; background: none; border: none; cursor: pointer; color: ${textColor}; font-size: 18px; padding: 0 4px;" onclick="this.parentElement.remove();">&times;</button>
+                </div>
+            `);
+
+            // Insert before the table
+            $('.almaseo-bulkmeta-wrapper').before(banner);
+
+            // Auto-remove after 15 seconds
+            setTimeout(() => banner.fadeOut(400, function() { $(this).remove(); }), 15000);
         },
 
         async showPreview(ids) {
