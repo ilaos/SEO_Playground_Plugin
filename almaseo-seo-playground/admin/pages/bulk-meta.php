@@ -27,66 +27,9 @@ $post_types = get_post_types(array('public' => true), 'objects');
     <div id="almaseo-bulkmeta-error" class="notice notice-error" style="display:none;">
         <p></p>
     </div>
-    
-    <!-- Filters -->
-    <div class="tablenav top">
-        <div id="almaseo-filters">
-            <!-- Post Type Filter -->
-            <select id="post-type-filter" class="postform">
-                <?php foreach ($post_types as $type) : ?>
-                    <?php if ($type->name === 'attachment') continue; ?>
-                    <option value="<?php echo esc_attr($type->name); ?>" <?php selected($type->name, 'post'); ?>>
-                        <?php echo esc_html($type->labels->name); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-            
-            <!-- Status Filter -->
-            <select id="status-filter" class="postform">
-                <option value=""><?php echo esc_html__('All Statuses', 'almaseo'); ?></option>
-                <option value="publish"><?php echo esc_html__('Published', 'almaseo'); ?></option>
-                <option value="draft"><?php echo esc_html__('Draft', 'almaseo'); ?></option>
-                <option value="publish,draft" selected><?php echo esc_html__('Published & Draft', 'almaseo'); ?></option>
-                <option value="pending"><?php echo esc_html__('Pending', 'almaseo'); ?></option>
-                <option value="private"><?php echo esc_html__('Private', 'almaseo'); ?></option>
-            </select>
-            
-            <!-- Taxonomy Filter -->
-            <select id="taxonomy-filter" class="postform">
-                <option value=""><?php echo esc_html__('All Categories', 'almaseo'); ?></option>
-            </select>
-            
-            <!-- Term Filter -->
-            <select id="term-filter" class="postform" style="display:none;">
-                <option value=""><?php echo esc_html__('Select Term', 'almaseo'); ?></option>
-            </select>
-            
-            <!-- Missing Only Toggle -->
-            <label class="missing-toggle">
-                <input type="checkbox" id="missing-only">
-                <?php echo esc_html__('Missing metadata', 'almaseo'); ?>
-            </label>
-            
-            <!-- Date Range -->
-            <input type="date" id="date-from" placeholder="<?php echo esc_attr__('From', 'almaseo'); ?>" title="<?php echo esc_attr__('Date From', 'almaseo'); ?>">
-            <input type="date" id="date-to" placeholder="<?php echo esc_attr__('To', 'almaseo'); ?>" title="<?php echo esc_attr__('Date To', 'almaseo'); ?>">
-            
-            <!-- Search -->
-            <input type="search" id="search-box" placeholder="<?php echo esc_attr__('Search posts...', 'almaseo'); ?>">
-            
-            <button type="button" class="button" id="search-button">
-                <?php echo esc_html__('Search', 'almaseo'); ?>
-            </button>
-            
-            <button type="button" class="button button-primary" id="apply-filters">
-                <?php echo esc_html__('Apply Filters', 'almaseo'); ?>
-            </button>
-        </div>
-    </div>
-    
-    <!-- Auto-Fill Actions — wrapped in a block-level container to escape tablenav overflow:hidden -->
-    <div style="display: block; clear: both; overflow: visible; padding-top: 1px;">
-    <div class="autofill-actions-wrapper" style="margin: 16px 0 12px 0; padding: 14px 18px; background: #f0f6fc; border: 1px solid #c3d4e6; border-left: 4px solid #2271b1; border-radius: 4px;">
+
+    <!-- Auto-Fill Actions -->
+    <div class="autofill-actions-wrapper" style="margin: 0 0 16px 0; padding: 14px 18px; background: #f0f6fc; border: 1px solid #c3d4e6; border-left: 4px solid #2271b1; border-radius: 4px;">
         <div class="autofill-actions" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
             <span class="dashicons dashicons-admin-generic" style="color: #2271b1; font-size: 20px; line-height: 30px;"></span>
             <strong style="font-size: 13px;"><?php echo esc_html__('Auto-Fill', 'almaseo'); ?></strong>
@@ -117,7 +60,62 @@ $post_types = get_post_types(array('public' => true), 'objects');
             <?php echo esc_html__('Generates SEO-optimized titles, descriptions, focus keywords, and Open Graph fields from your existing content. Only fills empty fields unless "Overwrite existing" is checked.', 'almaseo'); ?>
         </p>
     </div>
-    </div><!-- end autofill outer wrapper -->
+
+    <!-- Filters -->
+    <div class="tablenav top">
+        <div id="almaseo-filters">
+            <!-- Post Type Filter -->
+            <select id="post-type-filter" class="postform">
+                <?php foreach ($post_types as $type) : ?>
+                    <?php if ($type->name === 'attachment') continue; ?>
+                    <option value="<?php echo esc_attr($type->name); ?>" <?php selected($type->name, 'post'); ?>>
+                        <?php echo esc_html($type->labels->name); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+
+            <!-- Status Filter -->
+            <select id="status-filter" class="postform">
+                <option value=""><?php echo esc_html__('All Statuses', 'almaseo'); ?></option>
+                <option value="publish"><?php echo esc_html__('Published', 'almaseo'); ?></option>
+                <option value="draft"><?php echo esc_html__('Draft', 'almaseo'); ?></option>
+                <option value="publish,draft" selected><?php echo esc_html__('Published & Draft', 'almaseo'); ?></option>
+                <option value="pending"><?php echo esc_html__('Pending', 'almaseo'); ?></option>
+                <option value="private"><?php echo esc_html__('Private', 'almaseo'); ?></option>
+            </select>
+
+            <!-- Taxonomy Filter -->
+            <select id="taxonomy-filter" class="postform">
+                <option value=""><?php echo esc_html__('All Categories', 'almaseo'); ?></option>
+            </select>
+
+            <!-- Term Filter -->
+            <select id="term-filter" class="postform" style="display:none;">
+                <option value=""><?php echo esc_html__('Select Term', 'almaseo'); ?></option>
+            </select>
+
+            <!-- Missing Only Toggle -->
+            <label class="missing-toggle">
+                <input type="checkbox" id="missing-only">
+                <?php echo esc_html__('Missing metadata', 'almaseo'); ?>
+            </label>
+
+            <!-- Date Range -->
+            <input type="date" id="date-from" placeholder="<?php echo esc_attr__('From', 'almaseo'); ?>" title="<?php echo esc_attr__('Date From', 'almaseo'); ?>">
+            <input type="date" id="date-to" placeholder="<?php echo esc_attr__('To', 'almaseo'); ?>" title="<?php echo esc_attr__('Date To', 'almaseo'); ?>">
+
+            <!-- Search -->
+            <input type="search" id="search-box" placeholder="<?php echo esc_attr__('Search posts...', 'almaseo'); ?>">
+
+            <button type="button" class="button" id="search-button">
+                <?php echo esc_html__('Search', 'almaseo'); ?>
+            </button>
+
+            <button type="button" class="button button-primary" id="apply-filters">
+                <?php echo esc_html__('Apply Filters', 'almaseo'); ?>
+            </button>
+        </div>
+    </div>
 
     <!-- Bulk Actions -->
     <div class="bulk-actions-wrapper" style="display:none;">

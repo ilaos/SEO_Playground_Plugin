@@ -325,28 +325,40 @@ class BulkMeta_REST {
         }
         
         // Handle missing metadata filter
+        // A post is "missing" if BOTH the primary AND fallback meta keys are empty/absent.
+        // We use a nested meta_query: (title primary empty AND title fallback empty) OR (desc primary empty AND desc fallback empty)
         $missing = $request->get_param('missing');
         if (!empty($missing)) {
             $args['meta_query'] = array(
                 'relation' => 'OR',
+                // Title missing: both _almaseo_meta_title AND _almaseo_title are empty/absent
                 array(
-                    'key' => '_almaseo_meta_title',
-                    'compare' => 'NOT EXISTS'
+                    'relation' => 'AND',
+                    array(
+                        'relation' => 'OR',
+                        array( 'key' => '_almaseo_meta_title', 'compare' => 'NOT EXISTS' ),
+                        array( 'key' => '_almaseo_meta_title', 'value' => '', 'compare' => '=' ),
+                    ),
+                    array(
+                        'relation' => 'OR',
+                        array( 'key' => '_almaseo_title', 'compare' => 'NOT EXISTS' ),
+                        array( 'key' => '_almaseo_title', 'value' => '', 'compare' => '=' ),
+                    ),
                 ),
+                // Description missing: both _almaseo_meta_description AND _almaseo_desc are empty/absent
                 array(
-                    'key' => '_almaseo_meta_title',
-                    'value' => '',
-                    'compare' => '='
+                    'relation' => 'AND',
+                    array(
+                        'relation' => 'OR',
+                        array( 'key' => '_almaseo_meta_description', 'compare' => 'NOT EXISTS' ),
+                        array( 'key' => '_almaseo_meta_description', 'value' => '', 'compare' => '=' ),
+                    ),
+                    array(
+                        'relation' => 'OR',
+                        array( 'key' => '_almaseo_desc', 'compare' => 'NOT EXISTS' ),
+                        array( 'key' => '_almaseo_desc', 'value' => '', 'compare' => '=' ),
+                    ),
                 ),
-                array(
-                    'key' => '_almaseo_meta_description',
-                    'compare' => 'NOT EXISTS'
-                ),
-                array(
-                    'key' => '_almaseo_meta_description',
-                    'value' => '',
-                    'compare' => '='
-                )
             );
         }
         

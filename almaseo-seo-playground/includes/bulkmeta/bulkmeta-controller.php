@@ -155,28 +155,36 @@ class BulkMeta_Controller {
         
         $args = wp_parse_args($args, $defaults);
         
-        // Handle "missing only" filter
+        // Handle "missing only" filter — checks both primary and fallback meta keys
         if (!empty($args['missing_only'])) {
             $args['meta_query'][] = array(
                 'relation' => 'OR',
                 array(
-                    'key' => '_almaseo_meta_title',
-                    'compare' => 'NOT EXISTS'
+                    'relation' => 'AND',
+                    array(
+                        'relation' => 'OR',
+                        array( 'key' => '_almaseo_meta_title', 'compare' => 'NOT EXISTS' ),
+                        array( 'key' => '_almaseo_meta_title', 'value' => '', 'compare' => '=' ),
+                    ),
+                    array(
+                        'relation' => 'OR',
+                        array( 'key' => '_almaseo_title', 'compare' => 'NOT EXISTS' ),
+                        array( 'key' => '_almaseo_title', 'value' => '', 'compare' => '=' ),
+                    ),
                 ),
                 array(
-                    'key' => '_almaseo_meta_title',
-                    'value' => '',
-                    'compare' => '='
+                    'relation' => 'AND',
+                    array(
+                        'relation' => 'OR',
+                        array( 'key' => '_almaseo_meta_description', 'compare' => 'NOT EXISTS' ),
+                        array( 'key' => '_almaseo_meta_description', 'value' => '', 'compare' => '=' ),
+                    ),
+                    array(
+                        'relation' => 'OR',
+                        array( 'key' => '_almaseo_desc', 'compare' => 'NOT EXISTS' ),
+                        array( 'key' => '_almaseo_desc', 'value' => '', 'compare' => '=' ),
+                    ),
                 ),
-                array(
-                    'key' => '_almaseo_meta_description',
-                    'compare' => 'NOT EXISTS'
-                ),
-                array(
-                    'key' => '_almaseo_meta_description',
-                    'value' => '',
-                    'compare' => '='
-                )
             );
         }
         
