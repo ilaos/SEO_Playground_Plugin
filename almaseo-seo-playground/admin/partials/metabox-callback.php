@@ -285,7 +285,7 @@ function almaseo_render_llm_optimization_panel($post) {
                 </div>
 
                 <div class="almaseo-llm-card" data-section="clarity">
-                    <h3><span class="dashicons dashicons-visibility"></span> Content Clarity</h3>
+                    <h3><span class="dashicons dashicons-visibility"></span> Language Clarity</h3>
                     <ul class="almaseo-llm-ambiguities-list almaseo-llm-loading">
                         <div class="almaseo-llm-spinner"></div>
                         <span>Analyzing clarity...</span>
@@ -4207,11 +4207,23 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 // Already shown in PHP, don't duplicate
             }
 
-            // Summary
+            // Summary with context
             var $summary = $('.almaseo-llm-summary-text');
             $summary.removeClass('almaseo-llm-loading');
             if (data.summary) {
-                $summary.html('<p>' + escapeHtml(data.summary) + '</p>');
+                var summaryHtml = '<p class="almaseo-llm-summary-context">This is roughly how AI systems may interpret and summarize your page:</p>';
+                summaryHtml += '<div class="almaseo-llm-summary-excerpt">' + escapeHtml(data.summary) + '</div>';
+
+                // Conditional warning if signals suggest poor extractability
+                var hasWeakSignals = (data.llm_score && data.llm_score < 50) ||
+                    (data.heading_hierarchy && !data.heading_hierarchy.hierarchy_valid) ||
+                    (data.paragraph_analysis && data.paragraph_analysis.wall_of_text_detected) ||
+                    (data.heading_hierarchy && data.heading_hierarchy.total_headings === 0);
+                if (hasWeakSignals) {
+                    summaryHtml += '<p class="almaseo-llm-summary-warning"><span class="dashicons dashicons-warning"></span> This summary may be incomplete due to missing structure, weak context, or limited detail.</p>';
+                }
+
+                $summary.html(summaryHtml);
             } else {
                 $summary.html('<p style="color: #999;">No summary available.</p>');
             }
@@ -4241,6 +4253,8 @@ function almaseo_seo_playground_meta_box_callback($post) {
 
                     entitiesHtml += '</li>';
                 });
+                $entities.html(entitiesHtml);
+                entitiesHtml += '<li class="almaseo-llm-entity-disclaimer">Entities are detected using basic pattern matching and may include non-specific terms.</li>';
                 $entities.html(entitiesHtml);
             } else {
                 $entities.html('<li style="color: #999;">No entities detected.</li>');
@@ -4291,6 +4305,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 // AI Readiness score
                 scoresHtml += '<div class="almaseo-llm-score-item">' +
                     '<div class="almaseo-llm-score-label">AI Readiness</div>' +
+                    '<div class="almaseo-llm-score-sublabel">Structure & extractability</div>' +
                     '<div class="almaseo-llm-score-value" style="color: ' + llmColor + '">' + llmScore + '</div>' +
                     '<div class="almaseo-llm-score-bar"><div class="almaseo-llm-score-fill" style="width: ' + llmScore + '%; background: ' + llmColor + '"></div></div>' +
                     '<ul class="almaseo-llm-score-reasons">' + buildScoreReasons(data, 'llm') + '</ul>' +
@@ -4299,6 +4314,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 // Answer Strength score
                 scoresHtml += '<div class="almaseo-llm-score-item">' +
                     '<div class="almaseo-llm-score-label">Answer Strength</div>' +
+                    '<div class="almaseo-llm-score-sublabel">Direct answer clarity</div>' +
                     '<div class="almaseo-llm-score-value" style="color: ' + answerColor + '">' + answerabilityScore + '</div>' +
                     '<div class="almaseo-llm-score-bar"><div class="almaseo-llm-score-fill" style="width: ' + answerabilityScore + '%; background: ' + answerColor + '"></div></div>' +
                     '<ul class="almaseo-llm-score-reasons">' + buildScoreReasons(data, 'answer') + '</ul>' +
@@ -4306,13 +4322,13 @@ function almaseo_seo_playground_meta_box_callback($post) {
 
                 scoresHtml += '</div>';
 
-                // Status message
+                // Status message — tiered
                 if (llmScore >= 75 && answerabilityScore >= 75) {
-                    scoresHtml += '<p class="almaseo-llm-score-status" style="color: #10b981;"><span class="dashicons dashicons-yes-alt"></span> Strong — AI systems can reliably use this content</p>';
+                    scoresHtml += '<p class="almaseo-llm-score-status" style="color: #10b981;"><span class="dashicons dashicons-yes-alt"></span> High AI Visibility — This page is well-structured for AI-generated answers</p>';
                 } else if (llmScore >= 50 || answerabilityScore >= 50) {
-                    scoresHtml += '<p class="almaseo-llm-score-status" style="color: #f59e0b;"><span class="dashicons dashicons-warning"></span> Moderate — some improvements would help AI systems use this content</p>';
+                    scoresHtml += '<p class="almaseo-llm-score-status" style="color: #f59e0b;"><span class="dashicons dashicons-warning"></span> Moderate AI Visibility — This page may appear in AI answers but could be improved</p>';
                 } else {
-                    scoresHtml += '<p class="almaseo-llm-score-status" style="color: #dc3232;"><span class="dashicons dashicons-dismiss"></span> Weak — AI systems will struggle to extract useful answers from this content</p>';
+                    scoresHtml += '<p class="almaseo-llm-score-status" style="color: #dc3232;"><span class="dashicons dashicons-dismiss"></span> Low AI Visibility — This page is unlikely to be used in AI-generated answers</p>';
                 }
 
                 $scores.html(scoresHtml);
@@ -4662,15 +4678,25 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 return;
             }
 
+            // Sort: flagged/problem sections first, then by original order
+            var sorted = sections.slice().sort(function(a, b) {
+                var aFlags = (a.flags && a.flags.length) || 0;
+                var bFlags = (b.flags && b.flags.length) || 0;
+                if (aFlags > 0 && bFlags === 0) return -1;
+                if (aFlags === 0 && bFlags > 0) return 1;
+                return 0; // preserve original order within groups
+            });
+
             var sectionsHtml = '';
 
-            sections.forEach(function(section, index) {
+            sorted.forEach(function(section, index) {
                 var typeLabel = getSectionTypeLabel(section.type);
                 var clarityColor = getScoreColor(section.clarity_score);
                 var llmColor = getScoreColor(section.llm_readiness);
                 var answerColor = getScoreColor(section.answerability);
 
-                sectionsHtml += '<div class="almaseo-llm-section-item">';
+                var hasFlags = section.flags && section.flags.length > 0;
+                sectionsHtml += '<div class="almaseo-llm-section-item' + (hasFlags ? ' almaseo-llm-section-flagged' : '') + '">';
                 sectionsHtml += '<div class="almaseo-llm-section-header">';
                 sectionsHtml += '<strong>' + escapeHtml(section.heading) + '</strong>';
                 sectionsHtml += '<span class="almaseo-llm-section-type">' + typeLabel + '</span>';
@@ -4684,7 +4710,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
 
                 // Clarity (Free for all)
                 sectionsHtml += '<div class="almaseo-llm-section-score-pill" style="border-color: ' + clarityColor + ';">';
-                sectionsHtml += '<span class="label">Content Clarity:</span>';
+                sectionsHtml += '<span class="label">Language Clarity:</span>';
                 sectionsHtml += '<span class="value" style="color: ' + clarityColor + ';">' + section.clarity_score + '</span>';
                 sectionsHtml += '</div>';
 
