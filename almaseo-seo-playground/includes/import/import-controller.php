@@ -72,9 +72,9 @@ class AlmaSEO_Import_Controller {
                 'error'        => __( 'An error occurred.', 'almaseo' ),
                 'noData'       => __( 'No data found from any SEO plugin.', 'almaseo' ),
                 'confirmStart' => __( 'Start importing data? Existing AlmaSEO data will not be overwritten unless you check "Overwrite existing".', 'almaseo' ),
-                'processed'    => __( 'Processed', 'almaseo' ),
-                'imported'     => __( 'Imported', 'almaseo' ),
-                'skipped'      => __( 'Skipped', 'almaseo' ),
+                'processed'    => __( 'Posts Processed', 'almaseo' ),
+                'imported'     => __( 'Fields Imported', 'almaseo' ),
+                'skipped'      => __( 'Fields Skipped', 'almaseo' ),
             ),
         ) );
     }

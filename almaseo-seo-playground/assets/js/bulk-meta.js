@@ -871,8 +871,10 @@
 
         async runAutofill(ids, overwrite = false) {
             const $status = $('#autofill-status');
+            const useAi = typeof almaseoAutofillAi !== 'undefined' && almaseoAutofillAi;
+            const modeLabel = useAi ? 'AI-generating' : 'Generating';
 
-            $status.html('<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite;font-size:14px;vertical-align:middle;"></span> Generating metadata...').css('color', '#2271b1');
+            $status.html('<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite;font-size:14px;vertical-align:middle;"></span> ' + modeLabel + ' metadata...').css('color', '#2271b1');
             $('#autofill-selected, #autofill-all-empty, #autofill-preview').prop('disabled', true);
 
             try {
@@ -882,11 +884,13 @@
                     data: {
                         ids: ids,
                         fields: [],
-                        overwrite: overwrite
+                        overwrite: overwrite,
+                        mode: 'auto'
                     }
                 });
 
-                const msg = `Auto-filled ${result.success} post(s)` +
+                const aiTag = result.ai_used ? ' (AI)' : '';
+                const msg = `Auto-filled ${result.success} post(s)${aiTag}` +
                     (result.skipped ? `, ${result.skipped} skipped` : '') +
                     (result.failed ? `, ${result.failed} failed` : '');
 
@@ -960,13 +964,16 @@
 
                 $status.html(`<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite;font-size:14px;vertical-align:middle;"></span> Found ${allIds.length} post(s) with empty metadata. Generating...`);
 
-                // Process in batches of 20
+                // Process in batches (10 for AI, 20 for basic)
+                const useAi = typeof almaseoAutofillAi !== 'undefined' && almaseoAutofillAi;
+                const batchSize = useAi ? 10 : 20;
                 let totalSuccess = 0;
                 let totalFailed = 0;
+                let aiWasUsed = false;
 
-                for (let i = 0; i < allIds.length; i += 20) {
-                    const batch = allIds.slice(i, i + 20);
-                    $status.html(`<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite;font-size:14px;vertical-align:middle;"></span> Processing batch ${Math.floor(i/20) + 1} of ${Math.ceil(allIds.length/20)}...`);
+                for (let i = 0; i < allIds.length; i += batchSize) {
+                    const batch = allIds.slice(i, i + batchSize);
+                    $status.html(`<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite;font-size:14px;vertical-align:middle;"></span> Processing batch ${Math.floor(i/batchSize) + 1} of ${Math.ceil(allIds.length/batchSize)}...`);
 
                     const result = await wp.apiFetch({
                         path: '/almaseo/v1/bulkmeta/autofill',
@@ -974,15 +981,18 @@
                         data: {
                             ids: batch,
                             fields: [],
-                            overwrite: false
+                            overwrite: false,
+                            mode: 'auto'
                         }
                     });
 
                     totalSuccess += result.success || 0;
                     totalFailed += result.failed || 0;
+                    if (result.ai_used) aiWasUsed = true;
                 }
 
-                const msg = `Done! Auto-filled ${totalSuccess} post(s)` +
+                const aiTag = aiWasUsed ? ' (AI)' : '';
+                const msg = `Done! Auto-filled ${totalSuccess} post(s)${aiTag}` +
                     (totalFailed ? `, ${totalFailed} failed` : '');
 
                 this.showResultBanner(msg, 'success');
@@ -1038,14 +1048,17 @@
 
                 $status.html(`<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite;font-size:14px;vertical-align:middle;"></span> Regenerating metadata for ${allIds.length} posts...`);
 
-                // Process in batches of 20 with overwrite=true
+                // Process in batches (10 for AI, 20 for basic) with overwrite=true
+                const useAi = typeof almaseoAutofillAi !== 'undefined' && almaseoAutofillAi;
+                const batchSize = useAi ? 10 : 20;
                 let totalSuccess = 0;
                 let totalFailed = 0;
+                let aiWasUsed = false;
 
-                for (let i = 0; i < allIds.length; i += 20) {
-                    const batch = allIds.slice(i, i + 20);
-                    const batchNum = Math.floor(i / 20) + 1;
-                    const totalBatches = Math.ceil(allIds.length / 20);
+                for (let i = 0; i < allIds.length; i += batchSize) {
+                    const batch = allIds.slice(i, i + batchSize);
+                    const batchNum = Math.floor(i / batchSize) + 1;
+                    const totalBatches = Math.ceil(allIds.length / batchSize);
                     $status.html(`<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite;font-size:14px;vertical-align:middle;"></span> Processing batch ${batchNum} of ${totalBatches} (${i + batch.length}/${allIds.length} posts)...`);
 
                     const result = await wp.apiFetch({
@@ -1054,15 +1067,18 @@
                         data: {
                             ids: batch,
                             fields: [],
-                            overwrite: true
+                            overwrite: true,
+                            mode: 'auto'
                         }
                     });
 
                     totalSuccess += result.success || 0;
                     totalFailed += result.failed || 0;
+                    if (result.ai_used) aiWasUsed = true;
                 }
 
-                const msg = `Done! Regenerated metadata for ${totalSuccess} post(s)` +
+                const aiTag = aiWasUsed ? ' (AI)' : '';
+                const msg = `Done! Regenerated metadata for ${totalSuccess} post(s)${aiTag}` +
                     (totalFailed ? `, ${totalFailed} failed` : '');
 
                 this.showResultBanner(msg, 'success');
@@ -1133,7 +1149,8 @@
                     data: {
                         ids: ids,
                         fields: [],
-                        overwrite: overwrite
+                        overwrite: overwrite,
+                        mode: 'auto'
                     }
                 });
 

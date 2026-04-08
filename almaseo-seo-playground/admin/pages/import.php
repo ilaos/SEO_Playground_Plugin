@@ -60,6 +60,9 @@ if ( ! defined( 'ABSPATH' ) ) {
                             <input type="checkbox" id="almaseo-import-overwrite" />
                             <?php esc_html_e( 'Overwrite existing AlmaSEO data (if unchecked, posts with existing data are skipped)', 'almaseo' ); ?>
                         </label>
+                        <p class="description" style="color:#b32d2e; margin-top:4px;">
+                            <?php esc_html_e( 'Re-importing? Check this box to replace previously imported data with clean, resolved values.', 'almaseo' ); ?>
+                        </label>
                     </td>
                 </tr>
             </table>

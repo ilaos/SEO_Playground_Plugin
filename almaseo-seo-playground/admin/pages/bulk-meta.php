@@ -12,41 +12,137 @@ if (!defined('ABSPATH')) {
 
 // Get post types
 $post_types = get_post_types(array('public' => true), 'objects');
+
+// Check AI availability
+$ai_autofill_available = false;
+$autofill_ai_file = dirname(__DIR__, 2) . '/includes/bulkmeta/ai-autofill-generator.php';
+if ( file_exists( $autofill_ai_file ) ) {
+    require_once $autofill_ai_file;
+    $ai_autofill_available = \AlmaSEO\BulkMeta\AI_Autofill_Generator::is_available();
+}
 ?>
+<script>var almaseoAutofillAi = <?php echo $ai_autofill_available ? 'true' : 'false'; ?>;</script>
 
 <div class="wrap almaseo-bulk-meta">
     <h1>
         <?php echo esc_html__('Bulk Metadata Editor', 'almaseo'); ?>
     </h1>
-    
+
     <p class="description">
         <?php echo esc_html__('Edit SEO titles and meta descriptions for multiple posts at once. Click on any field to edit inline.', 'almaseo'); ?>
     </p>
-    
+
     <!-- Error display area -->
     <div id="almaseo-bulkmeta-error" class="notice notice-error" style="display:none;">
         <p></p>
     </div>
 
-    <!-- Auto-Fill Actions -->
-    <div class="autofill-actions-wrapper" style="margin: 0 0 8px 0; padding: 14px 18px; background: #f0f6fc; border: 1px solid #c3d4e6; border-left: 4px solid #2271b1; border-radius: 4px;">
-        <div class="autofill-actions" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <span class="dashicons dashicons-admin-generic" style="color: #2271b1; font-size: 20px; line-height: 30px;"></span>
-            <strong style="font-size: 13px;"><?php echo esc_html__('Auto-Fill', 'almaseo'); ?></strong>
+    <!-- AI vs Basic Explainer -->
+    <div class="almaseo-ai-explainer" style="margin: 0 0 12px 0; border: 1px solid #c3d4e6; border-radius: 6px; overflow: hidden;">
+        <button type="button" id="ai-explainer-toggle" style="
+            width: 100%;
+            padding: 12px 18px;
+            background: <?php echo $ai_autofill_available ? 'linear-gradient(135deg, #f0f0ff 0%, #f5f0ff 100%)' : '#f9f9f9'; ?>;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            text-align: left;
+        ">
+            <?php if ( $ai_autofill_available ) : ?>
+                <span style="font-size: 18px;">&#10024;</span>
+                <strong style="color: #5b21b6;"><?php esc_html_e('AI-Powered Auto-Fill is Active', 'almaseo'); ?></strong>
+                <span style="background: #7c3aed; color: #fff; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600; letter-spacing: 0.5px;">PRO</span>
+            <?php else : ?>
+                <span class="dashicons dashicons-info-outline" style="color: #646970;"></span>
+                <strong style="color: #1d2327;"><?php esc_html_e('Auto-Fill Mode: Basic (Local)', 'almaseo'); ?></strong>
+            <?php endif; ?>
+            <span id="ai-explainer-arrow" style="margin-left: auto; transition: transform 0.2s; color: #646970;">&#9660;</span>
+        </button>
+        <div id="ai-explainer-content" style="display: none; padding: 0 18px 18px 18px; background: #fff;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 14px;">
+                <!-- AI Mode -->
+                <div style="padding: 16px; background: linear-gradient(135deg, #faf5ff 0%, #f0f0ff 100%); border: 1px solid #ddd6fe; border-radius: 8px;">
+                    <h4 style="margin: 0 0 10px 0; color: #5b21b6; font-size: 14px;">
+                        &#10024; <?php esc_html_e('AI Mode', 'almaseo'); ?>
+                        <?php if ( $ai_autofill_available ) : ?>
+                            <span style="background: #22c55e; color: #fff; font-size: 9px; padding: 2px 6px; border-radius: 8px; margin-left: 6px; vertical-align: middle;">ACTIVE</span>
+                        <?php endif; ?>
+                    </h4>
+                    <ul style="margin: 0; padding: 0 0 0 18px; font-size: 12.5px; line-height: 1.8; color: #374151;">
+                        <li><strong><?php esc_html_e('Reads your actual content', 'almaseo'); ?></strong> — <?php esc_html_e('analyzes the full page to understand context, topic, and angle', 'almaseo'); ?></li>
+                        <li><strong><?php esc_html_e('Unique, human-quality output', 'almaseo'); ?></strong> — <?php esc_html_e('every title and description is different, written like a copywriter would', 'almaseo'); ?></li>
+                        <li><strong><?php esc_html_e('Search intent matching', 'almaseo'); ?></strong> — <?php esc_html_e('informational pages get descriptive language, service pages get action-oriented CTAs', 'almaseo'); ?></li>
+                        <li><strong><?php esc_html_e('Smart focus keywords', 'almaseo'); ?></strong> — <?php esc_html_e('identifies the real ranking opportunity from your content, not just the first two words of the title', 'almaseo'); ?></li>
+                        <li><strong><?php esc_html_e('Character-perfect', 'almaseo'); ?></strong> — <?php esc_html_e('titles hit the 50-60 char sweet spot, descriptions land at 150-160 chars naturally', 'almaseo'); ?></li>
+                    </ul>
+                    <?php if ( ! $ai_autofill_available ) : ?>
+                        <p style="margin: 12px 0 0 0; font-size: 12px; color: #7c3aed;">
+                            <a href="<?php echo esc_url( admin_url('admin.php?page=seo-playground-connection') ); ?>" style="color: #7c3aed; text-decoration: underline;">
+                                <?php esc_html_e('Connect to AlmaSEO to unlock AI mode', 'almaseo'); ?>
+                            </a>
+                        </p>
+                    <?php endif; ?>
+                </div>
+                <!-- Basic Mode -->
+                <div style="padding: 16px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
+                    <h4 style="margin: 0 0 10px 0; color: #374151; font-size: 14px;">
+                        &#9881; <?php esc_html_e('Basic Mode (Local)', 'almaseo'); ?>
+                        <?php if ( ! $ai_autofill_available ) : ?>
+                            <span style="background: #6b7280; color: #fff; font-size: 9px; padding: 2px 6px; border-radius: 8px; margin-left: 6px; vertical-align: middle;">ACTIVE</span>
+                        <?php endif; ?>
+                    </h4>
+                    <ul style="margin: 0; padding: 0 0 0 18px; font-size: 12.5px; line-height: 1.8; color: #6b7280;">
+                        <li><?php esc_html_e('Prepends a random "power word" to your existing title', 'almaseo'); ?></li>
+                        <li><?php esc_html_e('Grabs the first paragraph or excerpt as the description', 'almaseo'); ?></li>
+                        <li><?php esc_html_e('Pads short descriptions with generic template phrases', 'almaseo'); ?></li>
+                        <li><?php esc_html_e('Focus keyword = first two non-stopwords from the title', 'almaseo'); ?></li>
+                        <li><?php esc_html_e('Instant results, no connection required — works offline', 'almaseo'); ?></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+    document.getElementById('ai-explainer-toggle').addEventListener('click', function() {
+        var content = document.getElementById('ai-explainer-content');
+        var arrow = document.getElementById('ai-explainer-arrow');
+        if (content.style.display === 'none') {
+            content.style.display = 'block';
+            arrow.style.transform = 'rotate(180deg)';
+        } else {
+            content.style.display = 'none';
+            arrow.style.transform = 'rotate(0deg)';
+        }
+    });
+    </script>
 
-            <button type="button" class="button button-primary" id="autofill-selected" title="<?php echo esc_attr__('Auto-generate metadata for checked posts only', 'almaseo'); ?>">
+    <!-- Auto-Fill Actions -->
+    <div class="autofill-actions-wrapper" style="margin: 0 0 8px 0; padding: 14px 18px; background: <?php echo $ai_autofill_available ? 'linear-gradient(135deg, #f0f0ff 0%, #f5f0ff 100%)' : '#f0f6fc'; ?>; border: 1px solid <?php echo $ai_autofill_available ? '#ddd6fe' : '#c3d4e6'; ?>; border-left: 4px solid <?php echo $ai_autofill_available ? '#7c3aed' : '#2271b1'; ?>; border-radius: 4px;">
+        <div class="autofill-actions" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <?php if ( $ai_autofill_available ) : ?>
+                <span style="font-size: 18px;">&#10024;</span>
+                <strong style="font-size: 13px; color: #5b21b6;"><?php echo esc_html__('AI Auto-Fill', 'almaseo'); ?></strong>
+            <?php else : ?>
+                <span class="dashicons dashicons-admin-generic" style="color: #2271b1; font-size: 20px; line-height: 30px;"></span>
+                <strong style="font-size: 13px;"><?php echo esc_html__('Auto-Fill', 'almaseo'); ?></strong>
+            <?php endif; ?>
+
+            <button type="button" class="button button-primary" id="autofill-selected" title="<?php echo esc_attr__('Auto-generate metadata for checked posts only', 'almaseo'); ?>" <?php if ($ai_autofill_available) echo 'style="background: #7c3aed; border-color: #6d28d9;"'; ?>>
                 <span class="dashicons dashicons-edit-page" style="font-size: 16px; line-height: 28px; margin-right: 2px;"></span>
-                <?php echo esc_html__('Auto-Fill Selected', 'almaseo'); ?>
+                <?php echo $ai_autofill_available ? esc_html__('AI-Fill Selected', 'almaseo') : esc_html__('Auto-Fill Selected', 'almaseo'); ?>
             </button>
 
             <button type="button" class="button" id="autofill-all-empty" title="<?php echo esc_attr__('Scan site and fill only posts/pages with missing metadata', 'almaseo'); ?>">
                 <span class="dashicons dashicons-welcome-write-blog" style="font-size: 16px; line-height: 28px; margin-right: 2px;"></span>
-                <?php echo esc_html__('Auto-Fill All Empty', 'almaseo'); ?>
+                <?php echo $ai_autofill_available ? esc_html__('AI-Fill All Empty', 'almaseo') : esc_html__('Auto-Fill All Empty', 'almaseo'); ?>
             </button>
 
             <button type="button" class="button" id="autofill-entire-site" title="<?php echo esc_attr__('Regenerate metadata for every post and page on the site — overwrites existing', 'almaseo'); ?>" style="color: #b32d2e; border-color: #b32d2e;">
                 <span class="dashicons dashicons-update" style="font-size: 16px; line-height: 28px; margin-right: 2px;"></span>
-                <?php echo esc_html__('Auto-Fill Entire Site', 'almaseo'); ?>
+                <?php echo $ai_autofill_available ? esc_html__('AI-Fill Entire Site', 'almaseo') : esc_html__('Auto-Fill Entire Site', 'almaseo'); ?>
             </button>
 
             <span style="color: #c3c4c7;">|</span>
@@ -59,7 +155,11 @@ $post_types = get_post_types(array('public' => true), 'objects');
             <span class="autofill-status" id="autofill-status" style="font-size: 12px; color: #646970;"></span>
         </div>
         <p class="description" style="margin: 6px 0 0 32px; font-size: 12px; color: #646970;">
-            <?php echo esc_html__('Generates SEO-optimized titles, descriptions, focus keywords, and Open Graph fields from your existing content.', 'almaseo'); ?>
+            <?php if ( $ai_autofill_available ) : ?>
+                <?php echo esc_html__('AI reads your content and generates unique, context-aware metadata — titles, descriptions, focus keywords, and Open Graph fields.', 'almaseo'); ?>
+            <?php else : ?>
+                <?php echo esc_html__('Generates SEO-optimized titles, descriptions, focus keywords, and Open Graph fields from your existing content.', 'almaseo'); ?>
+            <?php endif; ?>
         </p>
     </div>
 

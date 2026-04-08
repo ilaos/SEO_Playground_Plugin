@@ -149,7 +149,8 @@ class AlmaSEO_Import_Mapper_AIOSEO {
      * @return array AlmaSEO meta key => value.
      */
     public static function map_row( $row ) {
-        $mapped = array();
+        $mapped  = array();
+        $post_id = isset( $row['post_id'] ) ? (int) $row['post_id'] : 0;
 
         // Text fields that may contain AIOSEO template variables.
         $text_map = array(
@@ -174,19 +175,27 @@ class AlmaSEO_Import_Mapper_AIOSEO {
 
             $raw = $row[ $aioseo_col ];
 
-            // Skip values that are just AIOSEO's factory default template —
-            // the user never customised this field, so importing it would
-            // overwrite AlmaSEO's own default with a redundant template.
+            // 1. Skip values that are just AIOSEO's factory default template.
             if ( self::is_default_template( $raw ) ) {
                 continue;
             }
 
-            // Convert any remaining AIOSEO #hash tags to AlmaSEO %%tags%%.
-            // Mixed values like "Pain and Aging #separator_sa #site_title"
-            // become "Pain and Aging %%sep%% %%sitename%%".
+            // 2. Convert AIOSEO #hash tags to AlmaSEO %%tags%%.
             $converted = self::convert_tags( $raw );
 
-            $mapped[ $almaseo_key ] = sanitize_text_field( $converted );
+            // 3. Resolve %%tags%% to actual post values.
+            if ( $post_id > 0 && strpos( $converted, '%%' ) !== false ) {
+                $post = get_post( $post_id );
+                if ( $post && class_exists( 'AlmaSEO_Smart_Tags' ) ) {
+                    $converted = AlmaSEO_Smart_Tags::replace( $converted, array( 'post' => $post ) );
+                }
+            }
+
+            // 4. Only import if we have usable text.
+            $converted = trim( $converted );
+            if ( ! empty( $converted ) ) {
+                $mapped[ $almaseo_key ] = sanitize_text_field( $converted );
+            }
         }
 
         foreach ( $url_map as $aioseo_col => $almaseo_key ) {

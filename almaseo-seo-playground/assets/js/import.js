@@ -41,9 +41,9 @@
         if (sourceName) html += ' &mdash; imported from ' + esc(sourceName);
 
         var parts = [];
-        if (info.imported) parts.push(info.imported + ' imported');
+        if (info.imported) parts.push(info.imported + ' fields imported');
         if (info.skipped) parts.push(info.skipped + ' skipped');
-        if (info.not_found) parts.push(info.not_found + ' not found (deleted)');
+        if (info.not_found) parts.push(info.not_found + ' not found');
         if (info.empty) parts.push(info.empty + ' empty');
         if (parts.length) html += ' (' + parts.join(', ') + ')';
 
@@ -547,18 +547,18 @@
 
             var pct = totalCount > 0 ? Math.min(Math.round((totals.processed / totalCount) * 100), 100) : 50;
             $bar.style.width = pct + '%';
-            $status.textContent = 'Importing... ' + pct + '% (' + totals.imported + ' imported, ' + totals.skipped + ' skipped)';
+            $status.textContent = 'Importing... ' + pct + '% (' + totals.processed + ' posts, ' + totals.imported + ' fields imported)';
 
             if ($stats) renderStats(totals);
 
             if (result.done) {
                 $bar.style.width = '100%';
-                var doneMsg = 'Done! ' + totals.imported + ' imported, ' + totals.skipped + ' skipped.';
+                var doneMsg = 'Done! ' + totals.processed + ' posts processed — ' + totals.imported + ' fields imported, ' + totals.skipped + ' skipped.';
                 if (totals.not_found > 0) {
-                    doneMsg += ' ' + totals.not_found + ' record(s) skipped — the original post or term no longer exists.';
+                    doneMsg += ' ' + totals.not_found + ' post(s) skipped — no longer exists.';
                 }
                 if (totals.empty > 0) {
-                    doneMsg += ' ' + totals.empty + ' record(s) had no usable SEO data (empty or template-only values).';
+                    doneMsg += ' ' + totals.empty + ' record(s) had no usable SEO data.';
                 }
                 $status.innerHTML = '<span class="almaseo-import-done">' + doneMsg + '</span>';
                 return;
@@ -649,15 +649,15 @@
         $stats.innerHTML =
             '<div class="almaseo-import-stat processed">' +
                 '<span class="number">' + totals.processed + '</span>' +
-                '<span class="label">' + esc(strings.processed || 'Processed') + '</span>' +
+                '<span class="label">' + esc(strings.processed || 'Posts Processed') + '</span>' +
             '</div>' +
             '<div class="almaseo-import-stat imported">' +
                 '<span class="number">' + totals.imported + '</span>' +
-                '<span class="label">' + esc(strings.imported || 'Imported') + '</span>' +
+                '<span class="label">' + esc(strings.imported || 'Fields Imported') + '</span>' +
             '</div>' +
             '<div class="almaseo-import-stat skipped">' +
                 '<span class="number">' + totals.skipped + '</span>' +
-                '<span class="label">' + esc(strings.skipped || 'Skipped') + '</span>' +
+                '<span class="label">' + esc(strings.skipped || 'Fields Skipped') + '</span>' +
             '</div>';
     }
 

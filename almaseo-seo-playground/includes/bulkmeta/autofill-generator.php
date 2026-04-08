@@ -418,6 +418,7 @@ function almaseo_ajax_autofill_field() {
 
     $post_id = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : 0;
     $field   = isset( $_POST['field'] ) ? sanitize_text_field( $_POST['field'] ) : '';
+    $mode    = isset( $_POST['mode'] ) ? sanitize_text_field( $_POST['mode'] ) : 'auto';
 
     if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
         wp_send_json_error( array( 'message' => 'Invalid post or insufficient permissions.' ) );
@@ -428,7 +429,25 @@ function almaseo_ajax_autofill_field() {
         wp_send_json_error( array( 'message' => 'Post not found.' ) );
     }
 
-    $generated = Autofill_Generator::generate_all( $post );
+    $ai_used = false;
+    $generated = null;
+
+    // Try AI if mode is 'ai' or 'auto' (and connected)
+    if ( $mode !== 'basic' ) {
+        require_once __DIR__ . '/ai-autofill-generator.php';
+        if ( AI_Autofill_Generator::is_available() ) {
+            $ai_result = AI_Autofill_Generator::generate_single( $post_id, $field );
+            if ( $ai_result ) {
+                $generated = $ai_result;
+                $ai_used = true;
+            }
+        }
+    }
+
+    // Fall back to local generation
+    if ( ! $generated ) {
+        $generated = Autofill_Generator::generate_all( $post );
+    }
 
     $field_map = array(
         'title'       => 'meta_title',
@@ -439,10 +458,11 @@ function almaseo_ajax_autofill_field() {
     if ( ! empty( $field ) && isset( $field_map[ $field ] ) ) {
         $key   = $field_map[ $field ];
         $value = isset( $generated[ $key ] ) ? $generated[ $key ] : '';
-        wp_send_json_success( array( 'value' => $value, 'field' => $field ) );
+        wp_send_json_success( array( 'value' => $value, 'field' => $field, 'ai' => $ai_used ) );
     }
 
     // Return all fields
+    $generated['ai'] = $ai_used;
     wp_send_json_success( $generated );
 }
 add_action( 'wp_ajax_almaseo_autofill_field', __NAMESPACE__ . '\\almaseo_ajax_autofill_field' );

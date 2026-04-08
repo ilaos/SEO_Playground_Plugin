@@ -212,6 +212,11 @@ class BulkMeta_REST {
                 'overwrite' => array(
                     'type' => 'boolean',
                     'default' => false
+                ),
+                'mode' => array(
+                    'type' => 'string',
+                    'default' => 'auto',
+                    'enum' => array( 'auto', 'basic', 'ai' ),
                 )
             )
         ));
@@ -235,6 +240,11 @@ class BulkMeta_REST {
                 'overwrite' => array(
                     'type' => 'boolean',
                     'default' => false
+                ),
+                'mode' => array(
+                    'type' => 'string',
+                    'default' => 'auto',
+                    'enum' => array( 'auto', 'basic', 'ai' ),
                 )
             )
         ));
@@ -534,6 +544,24 @@ class BulkMeta_REST {
     }
     
     /**
+     * Determine whether to use AI mode based on the request mode parameter.
+     *
+     * @param string $mode 'auto', 'basic', or 'ai'
+     * @return bool Whether to attempt AI generation.
+     */
+    private static function should_use_ai( $mode ) {
+        if ( $mode === 'basic' ) {
+            return false;
+        }
+        if ( $mode === 'ai' ) {
+            return true;
+        }
+        // 'auto': use AI if connected
+        require_once __DIR__ . '/ai-autofill-generator.php';
+        return AI_Autofill_Generator::is_available();
+    }
+
+    /**
      * Auto-fill preview — returns what would be generated without saving.
      */
     public static function autofill_preview( $request ) {
@@ -542,7 +570,16 @@ class BulkMeta_REST {
         $ids       = array_map( 'intval', $request->get_param( 'ids' ) );
         $fields    = $request->get_param( 'fields' ) ?: array();
         $overwrite = (bool) $request->get_param( 'overwrite' );
+        $mode      = $request->get_param( 'mode' ) ?: 'auto';
+        $use_ai    = self::should_use_ai( $mode );
         $previews  = array();
+
+        // If AI mode, batch-fetch AI results for all IDs at once
+        $ai_results = null;
+        if ( $use_ai ) {
+            require_once __DIR__ . '/ai-autofill-generator.php';
+            $ai_results = AI_Autofill_Generator::generate_batch( $ids );
+        }
 
         foreach ( $ids as $post_id ) {
             $post = get_post( $post_id );
@@ -550,8 +587,14 @@ class BulkMeta_REST {
                 continue;
             }
 
-            $generated = Autofill_Generator::generate_all( $post );
-            $current   = array(
+            // Use AI result for this post, or fall back to local
+            if ( $ai_results && isset( $ai_results[ $post_id ] ) ) {
+                $generated = $ai_results[ $post_id ];
+            } else {
+                $generated = Autofill_Generator::generate_all( $post );
+            }
+
+            $current = array(
                 'meta_title'       => (string) get_post_meta( $post_id, '_almaseo_meta_title', true ),
                 'meta_description' => (string) get_post_meta( $post_id, '_almaseo_meta_description', true ),
                 'focus_keyword'    => (string) get_post_meta( $post_id, '_almaseo_focus_keyword', true ),
@@ -562,6 +605,7 @@ class BulkMeta_REST {
             $preview = array(
                 'id'    => $post_id,
                 'title' => $post->post_title,
+                'ai'    => ( $ai_results && isset( $ai_results[ $post_id ] ) ),
             );
 
             foreach ( $generated as $key => $value ) {
@@ -591,13 +635,27 @@ class BulkMeta_REST {
         $ids       = array_map( 'intval', $request->get_param( 'ids' ) );
         $fields    = $request->get_param( 'fields' ) ?: array();
         $overwrite = (bool) $request->get_param( 'overwrite' );
+        $mode      = $request->get_param( 'mode' ) ?: 'auto';
+        $use_ai    = self::should_use_ai( $mode );
+
+        // If AI mode, batch-fetch AI results for all IDs at once
+        $ai_results = null;
+        if ( $use_ai ) {
+            require_once __DIR__ . '/ai-autofill-generator.php';
+            $ai_results = AI_Autofill_Generator::generate_batch( $ids );
+        }
 
         $results = array(
-            'success' => 0,
-            'skipped' => 0,
-            'failed'  => 0,
-            'details' => array(),
+            'success'  => 0,
+            'skipped'  => 0,
+            'failed'   => 0,
+            'ai_used'  => false,
+            'details'  => array(),
         );
+
+        if ( $ai_results ) {
+            $results['ai_used'] = true;
+        }
 
         foreach ( $ids as $post_id ) {
             if ( ! current_user_can( 'edit_post', $post_id ) ) {
@@ -605,13 +663,20 @@ class BulkMeta_REST {
                 continue;
             }
 
-            $applied = Autofill_Generator::apply( $post_id, $fields, $overwrite );
+            // If we have AI results for this post, apply them directly
+            if ( $ai_results && isset( $ai_results[ $post_id ] ) ) {
+                $applied = self::apply_ai_result( $post_id, $ai_results[ $post_id ], $fields, $overwrite );
+            } else {
+                // Fall back to local generator
+                $applied = Autofill_Generator::apply( $post_id, $fields, $overwrite );
+            }
 
             if ( ! empty( $applied ) ) {
                 $results['success']++;
                 $results['details'][] = array(
                     'id'     => $post_id,
                     'filled' => $applied,
+                    'ai'     => ( $ai_results && isset( $ai_results[ $post_id ] ) ),
                 );
             } else {
                 $results['skipped']++;
@@ -619,6 +684,57 @@ class BulkMeta_REST {
         }
 
         return rest_ensure_response( $results );
+    }
+
+    /**
+     * Apply a single AI-generated result to a post's meta fields.
+     *
+     * @param int   $post_id    The post ID.
+     * @param array $ai_data    AI-generated metadata.
+     * @param array $fields     Optional specific fields to fill.
+     * @param bool  $overwrite  Whether to overwrite existing values.
+     * @return array Applied values.
+     */
+    private static function apply_ai_result( $post_id, $ai_data, $fields = array(), $overwrite = false ) {
+        $meta_map = array(
+            'meta_title'       => array( '_almaseo_title', '_almaseo_meta_title' ),
+            'meta_description' => array( '_almaseo_description', '_almaseo_meta_description' ),
+            'focus_keyword'    => array( '_almaseo_focus_keyword' ),
+            'og_title'         => array( '_almaseo_og_title' ),
+            'og_description'   => array( '_almaseo_og_description' ),
+        );
+
+        $result = array();
+        foreach ( $meta_map as $key => $meta_keys ) {
+            if ( ! empty( $fields ) && ! in_array( $key, $fields, true ) ) {
+                continue;
+            }
+
+            $current = '';
+            foreach ( $meta_keys as $mk ) {
+                $val = (string) get_post_meta( $post_id, $mk, true );
+                if ( ! empty( $val ) ) {
+                    $current = $val;
+                    break;
+                }
+            }
+
+            if ( $overwrite || empty( $current ) ) {
+                $value = isset( $ai_data[ $key ] ) ? sanitize_text_field( $ai_data[ $key ] ) : '';
+                if ( ! empty( $value ) ) {
+                    foreach ( $meta_keys as $mk ) {
+                        update_post_meta( $post_id, $mk, $value );
+                    }
+                    $result[ $key ] = $value;
+                } else {
+                    $result[ $key ] = $current;
+                }
+            } else {
+                $result[ $key ] = $current;
+            }
+        }
+
+        return $result;
     }
 
     /**

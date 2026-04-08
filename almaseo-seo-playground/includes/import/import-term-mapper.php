@@ -115,13 +115,33 @@ class AlmaSEO_Import_Term_Mapper {
 
                 $value = $row[ $key ];
 
-                // For AIOSEO source: convert #hash tags → %%tags%% and skip defaults.
-                if ( $source === 'aioseo' && in_array( $key, $template_fields, true ) ) {
-                    if ( class_exists( 'AlmaSEO_Import_Mapper_AIOSEO' ) ) {
+                // Convert + resolve template variables for all sources.
+                if ( in_array( $key, $template_fields, true ) ) {
+                    if ( $source === 'aioseo' && class_exists( 'AlmaSEO_Import_Mapper_AIOSEO' ) ) {
                         if ( AlmaSEO_Import_Mapper_AIOSEO::is_default_template( $value ) ) {
                             continue;
                         }
                         $value = AlmaSEO_Import_Mapper_AIOSEO::convert_tags( $value );
+                    } elseif ( $source === 'yoast' && class_exists( 'AlmaSEO_Import_Mapper_Yoast' ) ) {
+                        $value = AlmaSEO_Import_Mapper_Yoast::convert_tags( $value );
+                        if ( AlmaSEO_Import_Mapper_Yoast::is_default_template( $value ) ) {
+                            continue;
+                        }
+                    } elseif ( $source === 'rankmath' && class_exists( 'AlmaSEO_Import_Mapper_RankMath' ) ) {
+                        $value = AlmaSEO_Import_Mapper_RankMath::convert_tags( $value );
+                        if ( AlmaSEO_Import_Mapper_RankMath::is_default_template( $value ) ) {
+                            continue;
+                        }
+                    }
+
+                    // Resolve %%tags%% to actual term values.
+                    if ( strpos( $value, '%%' ) !== false && class_exists( 'AlmaSEO_Smart_Tags' ) ) {
+                        $value = AlmaSEO_Smart_Tags::replace( $value, array( 'term' => $term ) );
+                    }
+
+                    $value = trim( $value );
+                    if ( empty( $value ) ) {
+                        continue;
                     }
                 }
 
