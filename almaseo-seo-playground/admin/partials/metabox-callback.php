@@ -548,7 +548,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 <p class="field-subtext" style="margin: 5px 0 0 0; color: #666; font-size: 12px; display: flex; align-items: center; gap: 8px;">
                     <button type="button" class="button button-small almaseo-autofill-btn" data-field="title" style="font-size: 11px; line-height: 22px; padding: 0 8px; <?php echo $ai_autofill_available ? 'background: linear-gradient(135deg, #f0f0ff, #f5f0ff); border-color: #c4b5fd;' : ''; ?>">
                         <span class="dashicons dashicons-edit-page" style="font-size: 14px; line-height: 22px; width: 14px; height: 14px;"></span>
-                        <span class="almaseo-autofill-label"><?php echo $ai_autofill_available ? esc_html__('AI-Generate Title', 'almaseo') : esc_html__('Auto-Generate Title', 'almaseo'); ?></span>
+                        <span class="almaseo-autofill-label"><?php echo $ai_autofill_available ? esc_html__('Generate Title', 'almaseo') : esc_html__('Auto-Generate Title', 'almaseo'); ?></span>
                         <?php if ($ai_autofill_available): ?>
                         <span style="background: #7c3aed; color: #fff; font-size: 8px; padding: 1px 4px; border-radius: 6px; margin-left: 3px; font-weight: 700; letter-spacing: 0.5px; vertical-align: middle;">PRO</span>
                         <?php endif; ?>
@@ -614,45 +614,46 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         var words = headline.toLowerCase().split(/\s+/);
                         var wc = words.length;
                         var cc = headline.length;
-                        var score = 0;
+                        var score = 25; // Base score — any non-empty title starts at 25
                         var checks = [];
 
-                        // Word count 6-13
-                        var wcP = wc >= 6 && wc <= 13;
+                        // Word count 4-13 (widened range — short branded titles are valid)
+                        var wcP = wc >= 4 && wc <= 13;
                         if (wcP) score += 20;
-                        checks.push({ label: 'Word Count', pass: wcP, tip: wc + ' words' + (wcP ? ' — ideal range' : ' — aim for 6–13') });
+                        checks.push({ label: 'Word Count', pass: wcP, tip: wc + ' words' + (wcP ? ' — good range' : ' — aim for 4–13') });
 
-                        // Char length 50-60
-                        var clP = cc >= 50 && cc <= 60;
-                        if (clP) score += 15;
-                        checks.push({ label: 'Character Length', pass: clP, tip: cc + ' chars' + (clP ? ' — fits Google title' : ' — aim for 50–60') });
+                        // Char length 40-60 (widened — 40+ is acceptable)
+                        var clP = cc >= 40 && cc <= 60;
+                        if (clP) score += 20;
+                        else if (cc >= 30 && cc < 40) score += 10; // Partial credit for shorter titles
+                        checks.push({ label: 'Character Length', pass: clP, tip: cc + ' chars' + (clP ? ' — fits Google title' : cc < 40 ? ' — a bit short, aim for 40–60' : ' — aim for 40–60') });
 
-                        // Power words
+                        // Power words (nice to have, not essential)
                         var pw = countMatches(words, powerWords);
-                        if (pw > 0) score += 15;
-                        checks.push({ label: 'Power Words', pass: pw > 0, tip: pw > 0 ? pw + ' found' : 'Add a power word (e.g., "proven", "essential")' });
+                        if (pw > 0) score += 10;
+                        checks.push({ label: 'Power Words', pass: pw > 0, tip: pw > 0 ? pw + ' found' : 'Optional: a power word like "expert" or "top" can boost clicks' });
 
-                        // Emotional words
+                        // Emotional words (nice to have — especially for blog content)
                         var ew = countMatches(words, emotionalWords);
-                        if (ew > 0) score += 15;
-                        checks.push({ label: 'Emotional Words', pass: ew > 0, tip: ew > 0 ? ew + ' found' : 'Add an emotional trigger word' });
+                        if (ew > 0) score += 8;
+                        checks.push({ label: 'Emotional Words', pass: ew > 0, tip: ew > 0 ? ew + ' found' : 'Optional: emotional words work well for blog headlines' });
 
-                        // Number
+                        // Number (bonus, not required)
                         var hn = /\d/.test(headline);
-                        if (hn) score += 10;
-                        checks.push({ label: 'Contains Number', pass: hn, tip: hn ? 'Numbers attract clicks' : 'Headlines with numbers get 36% more clicks' });
+                        if (hn) score += 7;
+                        checks.push({ label: 'Contains Number', pass: hn, tip: hn ? 'Numbers attract clicks' : 'Optional: numbers work great for list-style content' });
 
-                        // Question
+                        // Question (bonus, not required)
                         var iq = /\?$/.test(headline.trim()) || /^(how|what|why|when|where|who|which|can|do|does|is|are|will|should)\b/i.test(headline);
-                        if (iq) score += 10;
-                        checks.push({ label: 'Question Format', pass: iq, tip: iq ? 'Questions spark curiosity' : 'Try phrasing as a question' });
+                        if (iq) score += 5;
+                        checks.push({ label: 'Question Format', pass: iq, tip: iq ? 'Questions spark curiosity' : 'Optional: question format suits informational content' });
 
-                        // Word balance
+                        // Word balance (wider acceptable range)
                         var cwc = countMatches(words, commonWords);
                         var pct = wc > 0 ? (cwc / wc) * 100 : 0;
-                        var bp = pct >= 15 && pct <= 50;
-                        if (bp) score += 15;
-                        checks.push({ label: 'Word Balance', pass: bp, tip: Math.round(pct) + '% common words' + (bp ? ' — good balance' : (pct > 50 ? ' — too generic' : ' — add connecting words')) });
+                        var bp = pct >= 10 && pct <= 60;
+                        if (bp) score += 10;
+                        checks.push({ label: 'Word Balance', pass: bp, tip: Math.round(pct) + '% common words' + (bp ? ' — good balance' : (pct > 60 ? ' — too generic' : ' — mostly specialized terms')) });
 
                         return { score: Math.min(100, score), checks: checks };
                     }
@@ -663,7 +664,8 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         $badge.textContent = s;
 
                         if (s >= 70) { $badge.style.background = '#00a32a'; $label.textContent = 'Great!'; }
-                        else if (s >= 40) { $badge.style.background = '#dba617'; $label.textContent = 'Could be better'; }
+                        else if (s >= 55) { $badge.style.background = '#dba617'; $label.textContent = 'Good — room to improve'; }
+                        else if (s >= 40) { $badge.style.background = '#e6970d'; $label.textContent = 'Decent — see tips below'; }
                         else { $badge.style.background = '#d63638'; $label.textContent = 'Needs work'; }
 
                         var html = '';
@@ -730,7 +732,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 <p class="field-subtext" style="margin: 5px 0 0 0; color: #666; font-size: 12px; display: flex; align-items: center; gap: 8px;">
                     <button type="button" class="button button-small almaseo-autofill-btn" data-field="description" style="font-size: 11px; line-height: 22px; padding: 0 8px; <?php echo $ai_autofill_available ? 'background: linear-gradient(135deg, #f0f0ff, #f5f0ff); border-color: #c4b5fd;' : ''; ?>">
                         <span class="dashicons dashicons-edit-page" style="font-size: 14px; line-height: 22px; width: 14px; height: 14px;"></span>
-                        <span class="almaseo-autofill-label"><?php echo $ai_autofill_available ? esc_html__('AI-Generate Description', 'almaseo') : esc_html__('Auto-Generate Description', 'almaseo'); ?></span>
+                        <span class="almaseo-autofill-label"><?php echo $ai_autofill_available ? esc_html__('Generate Description', 'almaseo') : esc_html__('Auto-Generate Description', 'almaseo'); ?></span>
                         <?php if ($ai_autofill_available): ?>
                         <span style="background: #7c3aed; color: #fff; font-size: 8px; padding: 1px 4px; border-radius: 6px; margin-left: 3px; font-weight: 700; letter-spacing: 0.5px; vertical-align: middle;">PRO</span>
                         <?php endif; ?>
@@ -4466,7 +4468,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 var label = btn.querySelector('.almaseo-autofill-label');
                 if (label) {
                     var field = btn.getAttribute('data-field');
-                    label.textContent = field === 'title' ? 'AI-Generate Title' : 'AI-Generate Description';
+                    label.textContent = field === 'title' ? 'Generate Title' : 'Generate Description';
                 }
             }
 
@@ -4474,9 +4476,11 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 e.preventDefault();
                 var field = this.getAttribute('data-field');
                 var origText = this.innerHTML;
-                var genLabel = aiAvailable ? 'AI Generating...' : 'Generating...';
+                var fieldLabel = field === 'title' ? 'title' : 'description';
+                var genLabel = aiAvailable ? 'AlmaSEO is generating your ' + fieldLabel + '...' : 'Generating...';
                 this.innerHTML = '<span class="dashicons dashicons-update" style="font-size:14px;line-height:22px;width:14px;height:14px;animation:rotation 1s linear infinite;"></span> ' + genLabel;
                 this.disabled = true;
+                this.style.cssText += 'min-width: 260px; text-align: left;';
 
                 var fd = new FormData();
                 fd.append('action', 'almaseo_autofill_field');
@@ -4489,8 +4493,9 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 xhr.open('POST', ajaxurl, true);
                 xhr.timeout = aiAvailable ? 40000 : 10000;
                 xhr.onload = function() {
-                    btn.innerHTML = origText;
                     btn.disabled = false;
+                    btn.style.minWidth = '';
+                    btn.style.textAlign = '';
 
                     try {
                         var resp = JSON.parse(xhr.responseText);
@@ -4511,11 +4516,20 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                     textarea.dispatchEvent(new Event('change', {bubbles: true}));
                                 }
                             }
-                            // Brief success flash
+
+                            // Show branded success confirmation
                             if (resp.data.ai) {
+                                btn.innerHTML = '<span class="dashicons dashicons-yes-alt" style="font-size:14px;line-height:22px;width:14px;height:14px;color:#00a32a;"></span> <span style="color:#00a32a;">Generated by AlmaSEO</span>';
                                 btn.style.transition = 'background 0.3s';
-                                btn.style.background = '#e8f5e9';
-                                setTimeout(function() { btn.style.background = ''; }, 1500);
+                                btn.style.background = 'linear-gradient(135deg, #f0fff0, #e8f5e9)';
+                                btn.style.borderColor = '#a3d9a5';
+                                setTimeout(function() {
+                                    btn.innerHTML = origText;
+                                    btn.style.background = '';
+                                    btn.style.borderColor = '';
+                                }, 4000);
+                            } else {
+                                btn.innerHTML = origText;
                             }
 
                             // Show profile suggestions if any
@@ -4523,20 +4537,24 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 showProfileHints(resp.data.profile_suggestions);
                             }
                         } else {
+                            btn.innerHTML = origText;
                             alert('Auto-fill failed: ' + (resp.data && resp.data.message ? resp.data.message : 'Unknown error'));
                         }
                     } catch (ex) {
+                        btn.innerHTML = origText;
                         alert('Auto-fill error: ' + ex.message);
                     }
                 };
                 xhr.onerror = function() {
                     btn.innerHTML = origText;
                     btn.disabled = false;
+                    btn.style.minWidth = '';
                     alert('Auto-fill request failed.');
                 };
                 xhr.ontimeout = function() {
                     btn.innerHTML = origText;
                     btn.disabled = false;
+                    btn.style.minWidth = '';
                     alert('Auto-fill timed out. Please try again.');
                 };
                 xhr.send(fd);
