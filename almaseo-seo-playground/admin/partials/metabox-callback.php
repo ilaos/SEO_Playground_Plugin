@@ -4492,9 +4492,9 @@ function almaseo_seo_playground_meta_box_callback($post) {
 
             var banner = document.createElement('div');
             banner.id = 'almaseo-save-reminder';
-            banner.style.cssText = 'margin: 10px 0; padding: 10px 14px; background: #e8f0fe; border: 1px solid #a8c7fa; border-left: 3px solid #1a73e8; border-radius: 4px; font-size: 12px; display: flex; align-items: center; gap: 8px;';
+            banner.style.cssText = 'margin: 0 0 12px 0; padding: 10px 14px; background: #e8f0fe; border: 1px solid #a8c7fa; border-left: 3px solid #1a73e8; border-radius: 4px; font-size: 12px; display: flex; align-items: center; gap: 8px;';
             banner.innerHTML = '<span class="dashicons dashicons-info" style="color: #1a73e8; font-size: 16px; width: 16px; height: 16px; flex-shrink: 0;"></span>'
-                + '<span style="color: #174ea6;">Remember to click <strong>Update</strong> (or <strong>Publish</strong>) to save your new metadata.</span>'
+                + '<span style="color: #174ea6;">Don\'t forget to click <strong>Update</strong> (or <strong>Publish</strong>) at the top of this page to save your new metadata.</span>'
                 + '<button type="button" style="margin-left: auto; background: none; border: none; color: #5f6368; cursor: pointer; font-size: 16px; padding: 0; line-height: 1;" aria-label="Dismiss">&times;</button>';
 
             banner.querySelector('button').addEventListener('click', function() {
@@ -4502,9 +4502,12 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 setTimeout(function() { banner.remove(); }, 300);
             });
 
+            // Insert at the TOP of the SEO fields section so it's immediately visible
             var fieldsSection = document.querySelector('.almaseo-seo-fields');
             if (fieldsSection) {
-                fieldsSection.appendChild(banner);
+                fieldsSection.insertBefore(banner, fieldsSection.firstChild);
+                // Scroll it into view
+                banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
         }
 
