@@ -4517,6 +4517,11 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 btn.style.background = '#e8f5e9';
                                 setTimeout(function() { btn.style.background = ''; }, 1500);
                             }
+
+                            // Show profile suggestions if any
+                            if (resp.data.ai && resp.data.profile_suggestions && resp.data.profile_suggestions.length) {
+                                showProfileHints(resp.data.profile_suggestions);
+                            }
                         } else {
                             alert('Auto-fill failed: ' + (resp.data && resp.data.message ? resp.data.message : 'Unknown error'));
                         }
@@ -4537,6 +4542,41 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 xhr.send(fd);
             });
         });
+        function showProfileHints(suggestions) {
+            // Remove any previous hint
+            var prev = document.getElementById('almaseo-profile-hints');
+            if (prev) prev.remove();
+
+            var high = suggestions.filter(function(s) { return s.impact === 'high'; });
+            var medium = suggestions.filter(function(s) { return s.impact === 'medium'; });
+            if (!high.length && !medium.length) return;
+
+            var container = document.createElement('div');
+            container.id = 'almaseo-profile-hints';
+            container.style.cssText = 'margin: 12px 0; padding: 12px 14px; background: #fef9ee; border: 1px solid #f0dca0; border-left: 3px solid #dba617; border-radius: 4px; font-size: 12px;';
+
+            var html = '<div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">';
+            html += '<strong style="color: #92660a;">For better AI results, complete these in your AlmaSEO profile:</strong>';
+            html += '</div><ul style="margin: 0; padding: 0 0 0 18px; line-height: 1.8;">';
+
+            high.forEach(function(s) {
+                html += '<li><strong>' + s.field + '</strong> <span style="background:#dc3232;color:#fff;font-size:9px;padding:1px 5px;border-radius:8px;margin-left:3px;">HIGH</span>';
+                html += ' <span style="color:#666;"> — ' + s.reason + '</span></li>';
+            });
+            medium.forEach(function(s) {
+                html += '<li><strong>' + s.field + '</strong> <span style="background:#dba617;color:#fff;font-size:9px;padding:1px 5px;border-radius:8px;margin-left:3px;">MEDIUM</span>';
+                html += ' <span style="color:#666;"> — ' + s.reason + '</span></li>';
+            });
+
+            html += '</ul>';
+            container.innerHTML = html;
+
+            // Insert after the SEO fields section
+            var fieldsSection = document.querySelector('.almaseo-seo-fields');
+            if (fieldsSection) {
+                fieldsSection.appendChild(container);
+            }
+        }
     })();
     </script>
     <style>

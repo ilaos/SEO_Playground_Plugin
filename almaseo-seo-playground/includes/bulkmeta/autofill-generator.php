@@ -432,12 +432,19 @@ function almaseo_ajax_autofill_field() {
     $ai_used = false;
     $generated = null;
 
+    $profile_suggestions = array();
+
     // Try AI if mode is 'ai' or 'auto' (and connected)
     if ( $mode !== 'basic' ) {
         require_once __DIR__ . '/ai-autofill-generator.php';
         if ( AI_Autofill_Generator::is_available() ) {
             $ai_result = AI_Autofill_Generator::generate_single( $post_id, $field );
             if ( $ai_result ) {
+                // Extract profile suggestions before using as generated data
+                if ( isset( $ai_result['_profile_suggestions'] ) ) {
+                    $profile_suggestions = $ai_result['_profile_suggestions'];
+                    unset( $ai_result['_profile_suggestions'] );
+                }
                 $generated = $ai_result;
                 $ai_used = true;
             }
@@ -458,11 +465,18 @@ function almaseo_ajax_autofill_field() {
     if ( ! empty( $field ) && isset( $field_map[ $field ] ) ) {
         $key   = $field_map[ $field ];
         $value = isset( $generated[ $key ] ) ? $generated[ $key ] : '';
-        wp_send_json_success( array( 'value' => $value, 'field' => $field, 'ai' => $ai_used ) );
+        $response = array( 'value' => $value, 'field' => $field, 'ai' => $ai_used );
+        if ( ! empty( $profile_suggestions ) ) {
+            $response['profile_suggestions'] = $profile_suggestions;
+        }
+        wp_send_json_success( $response );
     }
 
     // Return all fields
     $generated['ai'] = $ai_used;
+    if ( ! empty( $profile_suggestions ) ) {
+        $generated['profile_suggestions'] = $profile_suggestions;
+    }
     wp_send_json_success( $generated );
 }
 add_action( 'wp_ajax_almaseo_autofill_field', __NAMESPACE__ . '\\almaseo_ajax_autofill_field' );

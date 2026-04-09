@@ -124,7 +124,16 @@ class AI_Autofill_Generator {
             }
         }
 
-        return ! empty( $keyed ) ? $keyed : false;
+        if ( empty( $keyed ) ) {
+            return false;
+        }
+
+        // Attach profile suggestions if the API returned them
+        if ( ! empty( $body['profile_suggestions'] ) ) {
+            $keyed['_profile_suggestions'] = $body['profile_suggestions'];
+        }
+
+        return $keyed;
     }
 
     /**
@@ -139,7 +148,15 @@ class AI_Autofill_Generator {
         if ( ! $batch || ! isset( $batch[ $post_id ] ) ) {
             return false;
         }
-        return $batch[ $post_id ];
+
+        $result = $batch[ $post_id ];
+
+        // Carry over profile suggestions from the batch response
+        if ( isset( $batch['_profile_suggestions'] ) ) {
+            $result['_profile_suggestions'] = $batch['_profile_suggestions'];
+        }
+
+        return $result;
     }
 
     /**
