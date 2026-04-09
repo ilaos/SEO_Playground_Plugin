@@ -4462,6 +4462,52 @@ function almaseo_seo_playground_meta_box_callback($post) {
 
         var aiAvailable = typeof almaseoAiAutofillAvailable !== 'undefined' && almaseoAiAutofillAvailable;
 
+        // Helper: get or create the status element next to a button
+        function getStatusEl(btn) {
+            var parent = btn.closest('.field-subtext') || btn.parentNode;
+            var statusEl = parent.querySelector('.almaseo-gen-status');
+            if (!statusEl) {
+                statusEl = document.createElement('span');
+                statusEl.className = 'almaseo-gen-status';
+                statusEl.style.cssText = 'display: inline-flex; align-items: center; gap: 4px; font-size: 12px; margin-left: 8px; transition: opacity 0.3s;';
+                // Insert after the helper text span, or append to parent
+                var helperSpan = parent.querySelector('span[style*="font-style"]');
+                if (helperSpan) {
+                    helperSpan.parentNode.insertBefore(statusEl, helperSpan.nextSibling);
+                } else {
+                    parent.appendChild(statusEl);
+                }
+            }
+            return statusEl;
+        }
+
+        // Helper: show save reminder banner (once per session)
+        var saveReminderShown = false;
+        function showSaveReminder() {
+            if (saveReminderShown) return;
+            saveReminderShown = true;
+
+            var prev = document.getElementById('almaseo-save-reminder');
+            if (prev) prev.remove();
+
+            var banner = document.createElement('div');
+            banner.id = 'almaseo-save-reminder';
+            banner.style.cssText = 'margin: 10px 0; padding: 10px 14px; background: #e8f0fe; border: 1px solid #a8c7fa; border-left: 3px solid #1a73e8; border-radius: 4px; font-size: 12px; display: flex; align-items: center; gap: 8px;';
+            banner.innerHTML = '<span class="dashicons dashicons-info" style="color: #1a73e8; font-size: 16px; width: 16px; height: 16px; flex-shrink: 0;"></span>'
+                + '<span style="color: #174ea6;">Remember to click <strong>Update</strong> (or <strong>Publish</strong>) to save your new metadata.</span>'
+                + '<button type="button" style="margin-left: auto; background: none; border: none; color: #5f6368; cursor: pointer; font-size: 16px; padding: 0; line-height: 1;" aria-label="Dismiss">&times;</button>';
+
+            banner.querySelector('button').addEventListener('click', function() {
+                banner.style.opacity = '0';
+                setTimeout(function() { banner.remove(); }, 300);
+            });
+
+            var fieldsSection = document.querySelector('.almaseo-seo-fields');
+            if (fieldsSection) {
+                fieldsSection.appendChild(banner);
+            }
+        }
+
         btns.forEach(function(btn) {
             // Update button label if AI is available
             if (aiAvailable) {
@@ -4475,12 +4521,19 @@ function almaseo_seo_playground_meta_box_callback($post) {
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
                 var field = this.getAttribute('data-field');
-                var origText = this.innerHTML;
+                var origHTML = this.innerHTML;
                 var fieldLabel = field === 'title' ? 'title' : 'description';
-                var genLabel = aiAvailable ? 'AlmaSEO is generating your ' + fieldLabel + '...' : 'Generating...';
-                this.innerHTML = '<span class="dashicons dashicons-update" style="font-size:14px;line-height:22px;width:14px;height:14px;animation:rotation 1s linear infinite;"></span> ' + genLabel;
+                var statusEl = getStatusEl(this);
+
+                // Button just shows spinner while disabled
+                this.innerHTML = '<span class="dashicons dashicons-update" style="font-size:14px;line-height:22px;width:14px;height:14px;animation:rotation 1s linear infinite;"></span> Generating...';
                 this.disabled = true;
-                this.style.cssText += 'min-width: 260px; text-align: left;';
+
+                // Status message appears outside the button — clearly visible
+                if (aiAvailable) {
+                    statusEl.innerHTML = '<span style="color: #5b21b6; font-weight: 500;">AlmaSEO is generating your ' + fieldLabel + '...</span>';
+                    statusEl.style.opacity = '1';
+                }
 
                 var fd = new FormData();
                 fd.append('action', 'almaseo_autofill_field');
@@ -4493,9 +4546,8 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 xhr.open('POST', ajaxurl, true);
                 xhr.timeout = aiAvailable ? 40000 : 10000;
                 xhr.onload = function() {
+                    btn.innerHTML = origHTML;
                     btn.disabled = false;
-                    btn.style.minWidth = '';
-                    btn.style.textAlign = '';
 
                     try {
                         var resp = JSON.parse(xhr.responseText);
@@ -4517,45 +4569,44 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 }
                             }
 
-                            // Show branded success confirmation
+                            // Show success status outside the button
                             if (resp.data.ai) {
-                                btn.innerHTML = '<span class="dashicons dashicons-yes-alt" style="font-size:14px;line-height:22px;width:14px;height:14px;color:#00a32a;"></span> <span style="color:#00a32a;">Generated by AlmaSEO</span>';
-                                btn.style.transition = 'background 0.3s';
-                                btn.style.background = 'linear-gradient(135deg, #f0fff0, #e8f5e9)';
-                                btn.style.borderColor = '#a3d9a5';
+                                statusEl.innerHTML = '<span class="dashicons dashicons-yes-alt" style="color: #00a32a; font-size: 14px; width: 14px; height: 14px;"></span><span style="color: #00a32a; font-weight: 500;">Generated by AlmaSEO</span>';
                                 setTimeout(function() {
-                                    btn.innerHTML = origText;
-                                    btn.style.background = '';
-                                    btn.style.borderColor = '';
-                                }, 4000);
+                                    statusEl.style.opacity = '0';
+                                    setTimeout(function() { statusEl.innerHTML = ''; }, 300);
+                                }, 5000);
                             } else {
-                                btn.innerHTML = origText;
+                                statusEl.innerHTML = '';
                             }
+
+                            // Show save reminder
+                            showSaveReminder();
 
                             // Show profile suggestions if any
                             if (resp.data.ai && resp.data.profile_suggestions && resp.data.profile_suggestions.length) {
                                 showProfileHints(resp.data.profile_suggestions);
                             }
                         } else {
-                            btn.innerHTML = origText;
-                            alert('Auto-fill failed: ' + (resp.data && resp.data.message ? resp.data.message : 'Unknown error'));
+                            statusEl.innerHTML = '<span style="color: #d63638;">Generation failed. Try again.</span>';
+                            setTimeout(function() { statusEl.innerHTML = ''; }, 4000);
                         }
                     } catch (ex) {
-                        btn.innerHTML = origText;
-                        alert('Auto-fill error: ' + ex.message);
+                        statusEl.innerHTML = '<span style="color: #d63638;">Error: ' + ex.message + '</span>';
+                        setTimeout(function() { statusEl.innerHTML = ''; }, 4000);
                     }
                 };
                 xhr.onerror = function() {
-                    btn.innerHTML = origText;
+                    btn.innerHTML = origHTML;
                     btn.disabled = false;
-                    btn.style.minWidth = '';
-                    alert('Auto-fill request failed.');
+                    statusEl.innerHTML = '<span style="color: #d63638;">Request failed. Check your connection.</span>';
+                    setTimeout(function() { statusEl.innerHTML = ''; }, 4000);
                 };
                 xhr.ontimeout = function() {
-                    btn.innerHTML = origText;
+                    btn.innerHTML = origHTML;
                     btn.disabled = false;
-                    btn.style.minWidth = '';
-                    alert('Auto-fill timed out. Please try again.');
+                    statusEl.innerHTML = '<span style="color: #d63638;">Request timed out. Try again.</span>';
+                    setTimeout(function() { statusEl.innerHTML = ''; }, 4000);
                 };
                 xhr.send(fd);
             });
