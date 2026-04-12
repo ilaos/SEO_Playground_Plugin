@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
-Version: 1.6.5
+Version: 1.6.6
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -50,7 +50,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
     }
     if ( $almaseo_seo_conflict ) {
         // Define only the bare minimum constants, then stop loading.
-        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.6.5' );
+        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.6.6' );
         if ( ! defined( 'ALMASEO_PATH' ) )           define( 'ALMASEO_PATH', plugin_dir_path( __FILE__ ) );
         if ( ! defined( 'ALMASEO_URL' ) )            define( 'ALMASEO_URL', plugin_dir_url( __FILE__ ) );
         if ( ! defined( 'ALMASEO_MAIN_FILE' ) )      define( 'ALMASEO_MAIN_FILE', __FILE__ );
@@ -1014,6 +1014,17 @@ add_action('rest_api_init', function () {
         'callback' => 'almaseo_reserved_endpoint',
         'permission_callback' => 'almaseo_api_auth_check',
     ));
+
+    // JWT token regeneration endpoint
+    register_rest_route(ALMASEO_API_NAMESPACE, '/regenerate-jwt', array(
+        'methods'  => 'POST',
+        'callback' => function() {
+            delete_option('almaseo_jwt_secret');
+            almaseo_get_jwt_secret();
+            return array('success' => true, 'message' => 'JWT secret regenerated. All previous tokens are now invalid.');
+        },
+        'permission_callback' => 'almaseo_api_auth_check',
+    ));
 });
 
 // Permission check: must be admin and secret must match
@@ -1089,16 +1100,146 @@ if (!function_exists('almaseo_generate_app_password')) {
     }
 }
 
-// API Authentication check for AlmaSEO backend
-if (!function_exists('almaseo_api_auth_check')) {
-    function almaseo_api_auth_check($request) {
-        $auth_header = $request->get_header('Authorization');
-        if (!$auth_header) {
-            return new WP_Error('no_auth', 'No authorization header.', array('status' => 401));
+// JWT helper functions (shared with Connector — bypasses WAF restrictions on Authorization header)
+if (!function_exists('almaseo_get_jwt_secret')) {
+    function almaseo_get_jwt_secret() {
+        $secret = get_option('almaseo_jwt_secret');
+        if (!$secret) {
+            $secret = wp_generate_password(64, true, true);
+            add_option('almaseo_jwt_secret', $secret);
+        }
+        return $secret;
+    }
+}
+
+if (!function_exists('almaseo_base64url_encode')) {
+    function almaseo_base64url_encode($data) {
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+    }
+}
+
+if (!function_exists('almaseo_base64url_decode')) {
+    function almaseo_base64url_decode($data) {
+        return base64_decode(strtr($data, '-_', '+/'));
+    }
+}
+
+if (!function_exists('almaseo_create_jwt')) {
+    function almaseo_create_jwt($username, $expiry_days = 365) {
+        $secret = almaseo_get_jwt_secret();
+
+        $header = almaseo_base64url_encode(json_encode(array(
+            'alg' => 'HS256',
+            'typ' => 'JWT'
+        )));
+
+        $payload = almaseo_base64url_encode(json_encode(array(
+            'iss' => get_site_url(),
+            'sub' => $username,
+            'iat' => time(),
+            'exp' => time() + ($expiry_days * 86400),
+            'scope' => 'almaseo_api'
+        )));
+
+        $signature = almaseo_base64url_encode(
+            hash_hmac('sha256', $header . '.' . $payload, $secret, true)
+        );
+
+        return $header . '.' . $payload . '.' . $signature;
+    }
+}
+
+if (!function_exists('almaseo_validate_jwt')) {
+    function almaseo_validate_jwt($token) {
+        $parts = explode('.', $token);
+        if (count($parts) !== 3) {
+            return new WP_Error('invalid_jwt', 'Malformed JWT token.', array('status' => 401));
         }
 
-        // Check if it's a Basic Auth header
-        if (!empty($auth_header) && strpos($auth_header, 'Basic ') === 0) {
+        list($header_b64, $payload_b64, $signature_b64) = $parts;
+
+        // Verify signature
+        $secret = almaseo_get_jwt_secret();
+        $expected_signature = almaseo_base64url_encode(
+            hash_hmac('sha256', $header_b64 . '.' . $payload_b64, $secret, true)
+        );
+
+        if (!hash_equals($expected_signature, $signature_b64)) {
+            return new WP_Error('invalid_jwt', 'Invalid JWT signature.', array('status' => 401));
+        }
+
+        // Decode payload
+        $payload = json_decode(almaseo_base64url_decode($payload_b64), true);
+        if (!$payload) {
+            return new WP_Error('invalid_jwt', 'Could not decode JWT payload.', array('status' => 401));
+        }
+
+        // Check expiry
+        if (isset($payload['exp']) && $payload['exp'] < time()) {
+            return new WP_Error('jwt_expired', 'JWT token has expired.', array('status' => 401));
+        }
+
+        // Check scope
+        if (!isset($payload['scope']) || $payload['scope'] !== 'almaseo_api') {
+            return new WP_Error('invalid_jwt', 'Invalid JWT scope.', array('status' => 401));
+        }
+
+        // Verify the user exists and has permissions
+        $username = isset($payload['sub']) ? $payload['sub'] : '';
+        if (!$username) {
+            return new WP_Error('invalid_jwt', 'JWT missing subject.', array('status' => 401));
+        }
+
+        $user = get_user_by('login', $username);
+        if (!$user) {
+            return new WP_Error('invalid_jwt', 'JWT user not found.', array('status' => 401));
+        }
+
+        if (!user_can($user, 'edit_posts')) {
+            return new WP_Error('invalid_jwt', 'JWT user lacks required permissions.', array('status' => 403));
+        }
+
+        return $username;
+    }
+}
+
+if (!function_exists('almaseo_is_our_password')) {
+    function almaseo_is_our_password($name) {
+        return strpos($name, 'AlmaSEO AI') === 0 || strpos($name, 'AlmaSEO Connection') === 0;
+    }
+}
+
+// API Authentication check for AlmaSEO backend
+// Supports both Basic Auth (Application Passwords) and JWT (X-AlmaSEO-Token header)
+if (!function_exists('almaseo_api_auth_check')) {
+    function almaseo_api_auth_check($request) {
+        // Method 1: Check for JWT token via custom header (bypasses WAF issues)
+        $jwt_token = $request->get_header('X-AlmaSEO-Token');
+        if ($jwt_token) {
+            $result = almaseo_validate_jwt($jwt_token);
+            if (is_wp_error($result)) {
+                return $result;
+            }
+            return true;
+        }
+
+        // Method 2: Check for JWT token via query parameter (fallback)
+        $jwt_param = $request->get_param('almaseo_token');
+        if ($jwt_param) {
+            $result = almaseo_validate_jwt($jwt_param);
+            if (is_wp_error($result)) {
+                return $result;
+            }
+            return true;
+        }
+
+        // Method 3: Traditional Basic Auth with Application Passwords
+        $auth_header = $request->get_header('Authorization');
+        if (!$auth_header) {
+            return new WP_Error('no_auth', 'No authorization header or JWT token provided.', array('status' => 401));
+        }
+
+        if (strpos($auth_header, 'Basic ') === 0) {
             $auth_data = base64_decode(substr($auth_header, 6), true);
             if ($auth_data === false || strpos($auth_data, ':') === false) {
                 return new WP_Error('invalid_auth', 'Malformed authorization header.', array('status' => 401));
@@ -1107,10 +1248,8 @@ if (!function_exists('almaseo_api_auth_check')) {
 
             // Check if application password authentication is available
             if (!function_exists('wp_authenticate_application_password')) {
-                // Fallback to regular authentication for older WordPress versions
                 $user = wp_authenticate($username, $password);
             } else {
-                // Verify the application password
                 $user = wp_authenticate_application_password(null, $username, $password);
             }
 
@@ -1120,14 +1259,13 @@ if (!function_exists('almaseo_api_auth_check')) {
 
             // Check if the password was generated by our plugin
             if (!class_exists('WP_Application_Passwords')) {
-                // For older WordPress versions, just allow the authentication
                 $app_passwords = array();
             } else {
                 $app_passwords = WP_Application_Passwords::get_user_application_passwords($user->ID);
             }
             $is_almaseo_password = false;
             foreach ($app_passwords as $app_password) {
-                if (strpos($app_password['name'] ?? '', 'AlmaSEO AI') === 0) {
+                if (almaseo_is_our_password($app_password['name'] ?? '')) {
                     $is_almaseo_password = true;
                     break;
                 }
