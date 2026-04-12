@@ -86,6 +86,16 @@
             }
         });
 
+        // Mark wizard complete as soon as the final step is shown, so that
+        // the "Deactivate Connector" and "Go to Import" links (which navigate
+        // away without JS) still trigger post-onboarding admin notices.
+        if (step === TOTAL_STEPS) {
+            wp.apiFetch({
+                path: '/almaseo/v1/wizard/complete',
+                method: 'POST',
+            }).catch(function () { /* best-effort */ });
+        }
+
         // Previous button.
         $prevBtn.style.display = (step > 1 && step < TOTAL_STEPS) ? '' : 'none';
 

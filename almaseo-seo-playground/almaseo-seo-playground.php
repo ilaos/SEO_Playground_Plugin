@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
-Version: 1.6.4
+Version: 1.6.5
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -50,7 +50,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
     }
     if ( $almaseo_seo_conflict ) {
         // Define only the bare minimum constants, then stop loading.
-        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.6.4' );
+        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.6.5' );
         if ( ! defined( 'ALMASEO_PATH' ) )           define( 'ALMASEO_PATH', plugin_dir_path( __FILE__ ) );
         if ( ! defined( 'ALMASEO_URL' ) )            define( 'ALMASEO_URL', plugin_dir_url( __FILE__ ) );
         if ( ! defined( 'ALMASEO_MAIN_FILE' ) )      define( 'ALMASEO_MAIN_FILE', __FILE__ );
@@ -62,7 +62,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
 if (!defined('ALMASEO_MAIN_FILE'))       define('ALMASEO_MAIN_FILE', __FILE__);
 if (!defined('ALMASEO_PATH'))            define('ALMASEO_PATH', plugin_dir_path(__FILE__));
 if (!defined('ALMASEO_URL'))             define('ALMASEO_URL', plugin_dir_url(__FILE__));
-if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.6.4');
+if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.6.5');
 if (!defined('ALMASEO_VERSION'))         define('ALMASEO_VERSION', '6.5.0');
 if (!defined('ALMASEO_API_NAMESPACE'))   define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
 if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
@@ -475,22 +475,14 @@ function almaseo_detect_active_connector() {
 } // end function_exists guard: almaseo_detect_active_connector
 
 // Show upgrade notice when Connector is active alongside Playground
+// --- POST-ONBOARDING: DEACTIVATE CONNECTOR NOTICE (non-dismissible, state-based) ---
 add_action('admin_notices', function() {
     if (!current_user_can('activate_plugins')) {
         return;
     }
-
-    // Don't show until the setup wizard has been completed — let the user
-    // finish onboarding first without distractions.
     if (!get_option('almaseo_setup_wizard_completed')) {
         return;
     }
-
-    // Don't show if user already dismissed
-    if (get_user_meta(get_current_user_id(), 'almaseo_connector_upgrade_dismissed', true)) {
-        return;
-    }
-
     $connector_plugin = almaseo_detect_active_connector();
     if (!$connector_plugin) {
         return;
@@ -501,16 +493,18 @@ add_action('admin_notices', function() {
         'almaseo_deactivate_connector'
     );
     ?>
-    <div class="notice notice-info is-dismissible almaseo-connector-upgrade-notice" style="border-left-color: #667eea; padding: 12px;">
-        <p>
-            <strong>AlmaSEO SEO Playground</strong> includes everything the Connector plugin does &mdash; plus a full SEO toolkit.
-            You can safely deactivate the Connector. Your connection settings will be preserved.
+    <div class="notice notice-warning almaseo-connector-upgrade-notice" style="border-left-color: #667eea; padding: 14px 16px;">
+        <p style="margin: 0 0 8px 0; font-size: 14px;">
+            <strong style="color: #1d2327;">&#9881; Action Required &mdash; Deactivate the Connector Plugin</strong>
         </p>
-        <p>
-            <a href="<?php echo esc_url($deactivate_url); ?>" class="button button-primary" style="background: #667eea; border-color: #667eea;">
-                Deactivate Connector Plugin
-            </a>
+        <p style="margin: 0 0 12px 0; color: #50575e;">
+            SEO Playground includes everything the Connector does plus a full SEO toolkit.
+            The Connector is no longer needed and should be deactivated to avoid conflicts.
+            Your connection settings will be preserved.
         </p>
+        <a href="<?php echo esc_url($deactivate_url); ?>" class="button button-primary" style="background: #667eea; border-color: #5a6fd6;">
+            <?php esc_html_e('Deactivate Connector Now', 'almaseo'); ?>
+        </a>
     </div>
     <?php
 });
@@ -529,31 +523,6 @@ add_action('admin_post_almaseo_deactivate_connector', function() {
 
     wp_safe_redirect(admin_url('plugins.php?deactivate=true'));
     exit;
-});
-
-// AJAX handler for dismissing the connector upgrade notice
-add_action('wp_ajax_almaseo_dismiss_connector_upgrade', function() {
-    check_ajax_referer('almaseo_dismiss_connector_upgrade', 'nonce');
-    update_user_meta(get_current_user_id(), 'almaseo_connector_upgrade_dismissed', 1);
-    wp_die();
-});
-
-// Bind the dismiss button to our AJAX handler
-add_action('admin_footer', function() {
-    if (!almaseo_detect_active_connector()) {
-        return;
-    }
-    $nonce = wp_create_nonce('almaseo_dismiss_connector_upgrade');
-    ?>
-    <script>
-    jQuery(document).on('click', '.almaseo-connector-upgrade-notice .notice-dismiss', function() {
-        jQuery.post(ajaxurl, {
-            action: 'almaseo_dismiss_connector_upgrade',
-            nonce: '<?php echo esc_js($nonce); ?>'
-        });
-    });
-    </script>
-    <?php
 });
 
 // --- SEO PLUGIN CONFLICT DETECTION ---
@@ -615,93 +584,62 @@ function almaseo_detect_conflicting_seo_plugins() {
 }
 } // end function_exists guard: almaseo_detect_conflicting_seo_plugins
 
-/**
- * Show an admin notice when a conflicting SEO plugin is active.
- *
- * Dismissible per-user. Re-appears if the user activates a different SEO plugin.
- *
- * @since 8.7.0
- */
+// --- POST-ONBOARDING: SEO PLUGIN CONFLICT NOTICE (non-dismissible, state-based) ---
+//
+// Shows when another SEO plugin is active alongside AlmaSEO. Guides users to
+// import their data first, then deactivate the old plugin. Disappears
+// automatically once no conflicting SEO plugins remain active.
 add_action( 'admin_notices', function () {
     if ( ! current_user_can( 'activate_plugins' ) ) {
         return;
     }
-
-    // Don't show until the setup wizard has been completed.
     if ( ! get_option( 'almaseo_setup_wizard_completed' ) ) {
         return;
     }
 
     $conflicts = almaseo_detect_conflicting_seo_plugins();
     if ( empty( $conflicts ) ) {
-        // Clear any stale dismiss meta so it re-triggers if a plugin comes back
-        delete_user_meta( get_current_user_id(), '_almaseo_seo_conflict_dismissed' );
         return;
     }
 
-    // Check if user dismissed for this exact set of conflicts
-    $dismissed_hash = get_user_meta( get_current_user_id(), '_almaseo_seo_conflict_dismissed', true );
-    $current_hash   = md5( implode( '|', $conflicts ) );
-    if ( $dismissed_hash === $current_hash ) {
-        return;
-    }
-
-    $plugin_list = '<strong>' . esc_html( implode( '</strong>, <strong>', $conflicts ) ) . '</strong>';
+    $plugin_list = '<strong>' . implode( '</strong>, <strong>', array_map( 'esc_html', $conflicts ) ) . '</strong>';
+    $count       = count( $conflicts );
     $plugins_url = admin_url( 'plugins.php' );
+    $import_url  = admin_url( 'admin.php?page=almaseo-import' );
     ?>
-    <div class="notice notice-warning is-dismissible almaseo-seo-conflict-notice" style="border-left-color: #f0b849; padding: 12px;">
-        <p>
-            <strong>AlmaSEO SEO Playground</strong> &mdash;
+    <div class="notice notice-warning almaseo-seo-conflict-notice" style="border-left-color: #f0b849; padding: 14px 16px;">
+        <p style="margin: 0 0 8px 0; font-size: 14px;">
+            <strong style="color: #1d2327;">&#9888; Action Required &mdash; Import Your SEO Data &amp; Deactivate <?php echo esc_html( $count === 1 ? $conflicts[0] : 'Other SEO Plugins' ); ?></strong>
+        </p>
+        <p style="margin: 0 0 6px 0; color: #50575e;">
             <?php
             printf(
-                /* translators: %s = comma-separated list of plugin names */
-                esc_html__( 'We detected %s running alongside AlmaSEO. Running multiple SEO plugins simultaneously can cause duplicate meta tags, schema conflicts, and sitemap issues.', 'almaseo' ),
+                /* translators: %s = plugin name(s) */
+                esc_html__( 'We detected %s running alongside AlmaSEO. Running two SEO plugins at the same time causes duplicate meta tags, schema conflicts, and sitemap issues.', 'almaseo' ),
                 $plugin_list
             );
             ?>
         </p>
-        <p>
-            <?php esc_html_e( 'For best results, deactivate other SEO plugins. If you have existing data, use our Import tool to migrate everything first.', 'almaseo' ); ?>
+        <p style="margin: 0 0 12px 0; color: #50575e;">
+            <strong><?php esc_html_e( 'Step 1:', 'almaseo' ); ?></strong> <?php esc_html_e( 'Import your existing titles, descriptions, and keywords into AlmaSEO so nothing is lost.', 'almaseo' ); ?><br>
+            <strong><?php esc_html_e( 'Step 2:', 'almaseo' ); ?></strong>
+            <?php
+            printf(
+                /* translators: %s = plugin name(s) */
+                esc_html__( 'Deactivate %s once the import is complete.', 'almaseo' ),
+                esc_html( $count === 1 ? $conflicts[0] : 'the other SEO plugins' )
+            );
+            ?>
         </p>
-        <p>
-            <a href="<?php echo esc_url( $plugins_url ); ?>" class="button button-primary" style="background: #667eea; border-color: #667eea;">
-                <?php esc_html_e( 'Go to Plugins', 'almaseo' ); ?>
+        <p style="margin: 0;">
+            <a href="<?php echo esc_url( $import_url ); ?>" class="button button-primary" style="background: #667eea; border-color: #5a6fd6;">
+                <?php esc_html_e( 'Import SEO Data', 'almaseo' ); ?>
             </a>
-            <a href="<?php echo esc_url( admin_url( 'admin.php?page=almaseo-import' ) ); ?>" class="button" style="margin-left: 8px;">
-                <?php esc_html_e( 'Import SEO Data First', 'almaseo' ); ?>
+            <a href="<?php echo esc_url( $plugins_url ); ?>" class="button" style="margin-left: 8px;">
+                <?php esc_html_e( 'Go to Plugins', 'almaseo' ); ?>
             </a>
         </p>
     </div>
-    <?php
-});
-
-// AJAX handler for dismissing the SEO conflict notice
-add_action( 'wp_ajax_almaseo_dismiss_seo_conflict', function () {
-    check_ajax_referer( 'almaseo_dismiss_seo_conflict', 'nonce' );
-    $conflicts    = almaseo_detect_conflicting_seo_plugins();
-    $current_hash = md5( implode( '|', $conflicts ) );
-    update_user_meta( get_current_user_id(), '_almaseo_seo_conflict_dismissed', $current_hash );
-    wp_die();
-});
-
-// Bind the dismiss button to AJAX
-add_action( 'admin_footer', function () {
-    if ( ! current_user_can( 'activate_plugins' ) ) {
-        return;
-    }
-    if ( empty( almaseo_detect_conflicting_seo_plugins() ) ) {
-        return;
-    }
-    $nonce = wp_create_nonce( 'almaseo_dismiss_seo_conflict' );
-    ?>
-    <script>
-    jQuery(document).on('click', '.almaseo-seo-conflict-notice .notice-dismiss', function() {
-        jQuery.post(ajaxurl, {
-            action: 'almaseo_dismiss_seo_conflict',
-            nonce: '<?php echo esc_js( $nonce ); ?>'
-        });
-    });
-    </script>
     <?php
 });
 
