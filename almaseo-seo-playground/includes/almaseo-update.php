@@ -12,6 +12,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
+
 /**
  * AlmaSEO Update Manager
  */
@@ -91,28 +93,28 @@ class AlmaSEO_Update_Manager {
             return;
         }
         
-        // Load Plugin Update Checker
+        // Load Plugin Update Checker v5
         $puc_file = ALMASEO_PLUGIN_DIR . 'vendor/plugin-update-checker/plugin-update-checker.php';
         if (!file_exists($puc_file)) {
             return;
         }
-        
+
         require_once $puc_file;
-        
+
         // Get channel
         $channel = $this->get_channel();
-        
+
         // Build endpoint URL
         $endpoint = self::API_BASE . 'almaseo-sitemap.json?channel=' . $channel;
-        
+
         // Add cache buster for manual checks
         if (defined('DOING_AJAX') && DOING_AJAX) {
             $endpoint .= '&t=' . time();
         }
-        
-        // Initialize checker
+
+        // Initialize checker (PUC v5 API)
         try {
-            $this->updateChecker = Puc_v4_Factory::buildUpdateChecker(
+            $this->updateChecker = PucFactory::buildUpdateChecker(
                 $endpoint,
                 ALMASEO_PLUGIN_FILE,
                 'almaseo-seo-playground'
