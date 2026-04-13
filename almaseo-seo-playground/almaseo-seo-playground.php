@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
-Version: 1.6.8
+Version: 1.6.9
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -50,7 +50,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
     }
     if ( $almaseo_seo_conflict ) {
         // Define only the bare minimum constants, then stop loading.
-        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.6.8' );
+        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.6.9' );
         if ( ! defined( 'ALMASEO_PATH' ) )           define( 'ALMASEO_PATH', plugin_dir_path( __FILE__ ) );
         if ( ! defined( 'ALMASEO_URL' ) )            define( 'ALMASEO_URL', plugin_dir_url( __FILE__ ) );
         if ( ! defined( 'ALMASEO_MAIN_FILE' ) )      define( 'ALMASEO_MAIN_FILE', __FILE__ );
@@ -517,10 +517,33 @@ add_action('admin_post_almaseo_deactivate_connector', function() {
     $connector_plugin = almaseo_detect_active_connector();
     if ($connector_plugin) {
         deactivate_plugins($connector_plugin);
+        // Set a transient so we can show a success notice on the next page load
+        set_transient('almaseo_connector_deactivated', true, 60);
     }
 
-    wp_safe_redirect(admin_url('plugins.php?deactivate=true'));
+    wp_safe_redirect(admin_url('plugins.php'));
     exit;
+});
+
+// Show success notice after Connector deactivation
+add_action('admin_notices', function() {
+    if (!get_transient('almaseo_connector_deactivated')) {
+        return;
+    }
+    delete_transient('almaseo_connector_deactivated');
+    ?>
+    <div class="notice notice-success" style="border-left: 4px solid #00a32a; background: #f0fff0; padding: 16px 20px; margin: 15px 0;">
+        <p style="margin: 0 0 6px 0; font-size: 15px; font-weight: 600;">
+            <span style="color: #00a32a; font-size: 18px; vertical-align: middle;">&#10003;</span>
+            <strong style="color: #1d2327;"> AlmaSEO Connector has been deactivated</strong>
+        </p>
+        <p style="margin: 0; color: #50575e; font-size: 13px; line-height: 1.6;">
+            Your connection settings (app password, JWT token, and credentials) have been preserved automatically &mdash;
+            <strong>SEO Playground uses the same settings</strong>, so there is nothing to import or reconfigure.
+            You can safely delete the Connector plugin if you wish.
+        </p>
+    </div>
+    <?php
 });
 
 // --- SEO PLUGIN CONFLICT DETECTION ---
