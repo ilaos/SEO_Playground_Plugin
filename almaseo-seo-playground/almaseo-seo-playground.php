@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
-Version: 1.6.6
+Version: 1.6.7
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -50,7 +50,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
     }
     if ( $almaseo_seo_conflict ) {
         // Define only the bare minimum constants, then stop loading.
-        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.6.6' );
+        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.6.7' );
         if ( ! defined( 'ALMASEO_PATH' ) )           define( 'ALMASEO_PATH', plugin_dir_path( __FILE__ ) );
         if ( ! defined( 'ALMASEO_URL' ) )            define( 'ALMASEO_URL', plugin_dir_url( __FILE__ ) );
         if ( ! defined( 'ALMASEO_MAIN_FILE' ) )      define( 'ALMASEO_MAIN_FILE', __FILE__ );
@@ -480,9 +480,6 @@ add_action('admin_notices', function() {
     if (!current_user_can('activate_plugins')) {
         return;
     }
-    if (!get_option('almaseo_setup_wizard_completed')) {
-        return;
-    }
     $connector_plugin = almaseo_detect_active_connector();
     if (!$connector_plugin) {
         return;
@@ -493,16 +490,17 @@ add_action('admin_notices', function() {
         'almaseo_deactivate_connector'
     );
     ?>
-    <div class="notice notice-warning almaseo-connector-upgrade-notice" style="border-left-color: #667eea; padding: 14px 16px;">
-        <p style="margin: 0 0 8px 0; font-size: 14px;">
-            <strong style="color: #1d2327;">&#9881; Action Required &mdash; Deactivate the Connector Plugin</strong>
+    <div class="notice notice-error almaseo-connector-upgrade-notice" style="border-left: 4px solid #d63638; background: #fff2f2; padding: 16px 20px; margin: 15px 0;">
+        <p style="margin: 0 0 8px 0; font-size: 15px; font-weight: 600;">
+            <span style="color: #d63638; font-size: 18px; vertical-align: middle;">&#9888;</span>
+            <strong style="color: #1d2327;"> Action Required &mdash; Deactivate the Connector Plugin</strong>
         </p>
-        <p style="margin: 0 0 12px 0; color: #50575e;">
-            SEO Playground includes everything the Connector does plus a full SEO toolkit.
-            The Connector is no longer needed and should be deactivated to avoid conflicts.
-            Your connection settings will be preserved.
+        <p style="margin: 0 0 14px 0; color: #50575e; font-size: 13px; line-height: 1.6;">
+            The <strong>AlmaSEO Connector</strong> and <strong>SEO Playground</strong> are both active.
+            SEO Playground already includes everything the Connector does, plus a full SEO toolkit.
+            Please deactivate the Connector to avoid potential conflicts. Your connection settings will be preserved.
         </p>
-        <a href="<?php echo esc_url($deactivate_url); ?>" class="button button-primary" style="background: #667eea; border-color: #5a6fd6;">
+        <a href="<?php echo esc_url($deactivate_url); ?>" class="button button-primary" style="background: #d63638; border-color: #b32d2e; font-size: 13px; padding: 4px 16px; height: auto;">
             <?php esc_html_e('Deactivate Connector Now', 'almaseo'); ?>
         </a>
     </div>
