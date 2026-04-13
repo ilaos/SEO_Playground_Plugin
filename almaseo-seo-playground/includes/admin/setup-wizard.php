@@ -273,7 +273,7 @@ class AlmaSEO_Setup_Wizard {
             $existing['site_logo_url'] = esc_url_raw( $data['logo_url'] );
         }
 
-        $social_keys = array( 'facebook', 'twitter', 'instagram', 'linkedin', 'youtube', 'pinterest' );
+        $social_keys = array( 'facebook', 'twitter', 'instagram', 'linkedin', 'youtube', 'pinterest', 'tiktok' );
         $profiles    = array();
         foreach ( $social_keys as $key ) {
             if ( isset( $data[ $key ] ) && '' !== $data[ $key ] ) {

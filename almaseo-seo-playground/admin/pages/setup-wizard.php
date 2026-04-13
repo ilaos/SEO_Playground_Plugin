@@ -107,6 +107,10 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <label for="wiz-pinterest"><?php esc_html_e( 'Pinterest', 'almaseo' ); ?></label>
                     <input type="url" id="wiz-pinterest" name="pinterest" placeholder="https://pinterest.com/yourprofile">
                 </div>
+                <div class="almaseo-wizard-field">
+                    <label for="wiz-tiktok"><?php esc_html_e( 'TikTok', 'almaseo' ); ?></label>
+                    <input type="url" id="wiz-tiktok" name="tiktok" placeholder="https://tiktok.com/@yourprofile">
+                </div>
             </div>
         </section>
 
