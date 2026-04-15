@@ -2,8 +2,8 @@
 /**
  * AlmaSEO Import Redirects Mapper
  *
- * Imports redirect rules from Rank Math, Yoast Premium, and the
- * Redirection plugin into AlmaSEO's redirects table.
+ * Imports redirect rules from Rank Math, Yoast Premium, AIOSEO,
+ * and the Redirection plugin into AlmaSEO's redirects table.
  *
  * @package AlmaSEO
  * @since   8.7.0
@@ -34,6 +34,11 @@ class AlmaSEO_Import_Redirects_Mapper {
         $yoast_redirects = get_option( 'wpseo-premium-redirects-base', array() );
         $yoast_count     = is_array( $yoast_redirects ) ? count( $yoast_redirects ) : 0;
 
+        // AIOSEO redirects table (Pro feature).
+        $aioseo_table  = $wpdb->prefix . 'aioseo_redirects';
+        $aioseo_exists = (bool) $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $aioseo_table ) );
+        $aioseo_count  = $aioseo_exists ? (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$aioseo_table}`" ) : 0;
+
         // Redirection plugin table.
         $redir_table  = $wpdb->prefix . 'redirection_items';
         $redir_exists = (bool) $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $redir_table ) );
@@ -42,6 +47,7 @@ class AlmaSEO_Import_Redirects_Mapper {
         return array(
             'rankmath'    => array( 'name' => 'Rank Math', 'available' => $rm_count > 0, 'plugin_active' => class_exists( 'RankMath' ), 'record_count' => $rm_count ),
             'yoast'       => array( 'name' => 'Yoast SEO Premium', 'available' => $yoast_count > 0, 'plugin_active' => defined( 'WPSEO_VERSION' ), 'record_count' => $yoast_count ),
+            'aioseo'      => array( 'name' => 'All in One SEO', 'available' => $aioseo_count > 0, 'plugin_active' => defined( 'AIOSEO_VERSION' ), 'record_count' => $aioseo_count ),
             'redirection' => array( 'name' => 'Redirection Plugin', 'available' => $redir_count > 0, 'plugin_active' => defined( 'REDIRECTION_VERSION' ), 'record_count' => $redir_count ),
         );
     }
@@ -49,7 +55,7 @@ class AlmaSEO_Import_Redirects_Mapper {
     /**
      * Process one batch of redirect imports.
      *
-     * @param string $source    'rankmath', 'yoast', or 'redirection'.
+     * @param string $source    'rankmath', 'yoast', 'aioseo', or 'redirection'.
      * @param int    $offset    Current offset.
      * @param bool   $overwrite Whether to overwrite existing AlmaSEO redirects with same source URL.
      * @return array|WP_Error Result.
@@ -238,6 +244,47 @@ class AlmaSEO_Import_Redirects_Mapper {
         ), ARRAY_A );
 
         return is_array( $results ) ? $results : array();
+    }
+
+    /* ------------------------------------------------------------------
+     *  AIOSEO: aioseo_redirects table (Pro feature)
+     * ----------------------------------------------------------------*/
+
+    private static function get_batch_aioseo( $offset, $limit ) {
+        global $wpdb;
+
+        $table = $wpdb->prefix . 'aioseo_redirects';
+        if ( ! (bool) $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $table ) ) ) {
+            return array();
+        }
+
+        // AIOSEO stores source_url (relative path) and target_url (full or relative).
+        // The `type` column holds the HTTP status code (301, 302, etc.).
+        // The `enabled` column indicates whether the redirect is active.
+        $results = $wpdb->get_results( $wpdb->prepare(
+            "SELECT source_url, target_url, type
+             FROM `{$table}`
+             WHERE enabled = 1
+             ORDER BY id ASC
+             LIMIT %d OFFSET %d",
+            $limit,
+            $offset
+        ), ARRAY_A );
+
+        if ( ! is_array( $results ) ) {
+            return array();
+        }
+
+        $rows = array();
+        foreach ( $results as $r ) {
+            $rows[] = array(
+                'source' => $r['source_url'],
+                'target' => $r['target_url'],
+                'status' => (int) $r['type'],
+            );
+        }
+
+        return $rows;
     }
 
     /* ------------------------------------------------------------------

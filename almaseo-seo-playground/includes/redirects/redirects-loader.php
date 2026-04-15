@@ -46,6 +46,11 @@ class AlmaSEO_Redirects_Loader {
         // Load intelligence engine (v7.6.0+)
         require_once $base_path . 'redirects-intelligence.php';
 
+        // Load trash handler (redirect-on-delete prompt, admin only)
+        if (is_admin()) {
+            require_once $base_path . 'redirects-trash-handler.php';
+        }
+
         // Load runtime handler (front-end redirects)
         if (!is_admin()) {
             require_once $base_path . 'redirects-runtime.php';
@@ -58,7 +63,12 @@ class AlmaSEO_Redirects_Loader {
     private static function initialize_components() {
         // Initialize controller (handles admin menu, assets, REST API)
         AlmaSEO_Redirects_Controller::init();
-        
+
+        // Initialize trash handler (redirect-on-delete prompt)
+        if (is_admin()) {
+            AlmaSEO_Redirects_Trash_Handler::init();
+        }
+
         // Check and update database on admin
         if (is_admin()) {
             almaseo_check_redirects_db();
