@@ -417,7 +417,8 @@ class AlmaSEO_Internal_Links_REST {
         }
 
         return new WP_REST_Response( array(
-            'message' => sprintf( __( '%d rules processed, %d failed.', 'almaseo-seo-playground' ), $success, $failed ),
+            /* translators: %1$d: number of rules processed successfully, %2$d: number of rules that failed */
+            'message' => sprintf( __( '%1$d rules processed, %2$d failed.', 'almaseo-seo-playground' ), $success, $failed ),
             'success' => $success,
             'failed'  => $failed,
         ), 200 );

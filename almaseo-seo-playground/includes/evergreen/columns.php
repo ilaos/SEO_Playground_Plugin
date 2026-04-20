@@ -49,6 +49,7 @@ function almaseo_eg_column_content($column_name, $post_id) {
     $tooltip_parts[] = sprintf(__('Last updated: %d days ago', 'almaseo-seo-playground'), $ages['updated_days']);
     
     if ($trend != 0) {
+        /* translators: %+.1f%%: trend percentage with sign (e.g. +2.5%) */
         $tooltip_parts[] = sprintf(__('Trend: %+.1f%%', 'almaseo-seo-playground'), $trend);
     }
     

@@ -117,6 +117,7 @@ function almaseo_ajax_robots_test() {
     
     // Add URL info
     $robots_url = home_url('/robots.txt');
+    /* translators: %s: robots.txt URL */
     $status[] = sprintf(__('URL: %s', 'almaseo-seo-playground'), $robots_url);
     
     wp_send_json_success(array(

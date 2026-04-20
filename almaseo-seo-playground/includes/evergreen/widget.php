@@ -123,7 +123,9 @@ function almaseo_eg_dashboard_widget_content() {
                     </a>
                 </td>
                 <td style="padding: 5px 0; text-align: right; color: #666;">
-                    <small><?php echo sprintf(__('%dd ago', 'almaseo-seo-playground'), $ages['updated_days']); ?></small>
+                    <small><?php
+                    /* translators: %d: number of days ago */
+                    echo sprintf(__('%dd ago', 'almaseo-seo-playground'), $ages['updated_days']); ?></small>
                 </td>
                 <td style="padding: 5px 0; text-align: right;">
                     <button class="button button-small almaseo-eg-widget-refresh" 

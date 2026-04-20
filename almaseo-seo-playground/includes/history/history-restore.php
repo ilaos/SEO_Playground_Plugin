@@ -76,6 +76,7 @@ function almaseo_history_restore_version($post_id, $version_id) {
         'success' => true,
         'restored_version' => $snapshot->version,
         'current_fields' => almaseo_history_get_tracked_fields($post_id),
+        /* translators: %d: version number that was restored */
         'message' => sprintf(__('Restored to version %d', 'almaseo-seo-playground'), $snapshot->version)
     );
 }

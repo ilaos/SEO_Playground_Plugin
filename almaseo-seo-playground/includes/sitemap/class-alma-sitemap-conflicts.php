@@ -218,12 +218,15 @@ class Alma_Sitemap_Conflicts {
         // Flag problematic status codes
         if ($status >= 300 && $status < 400) {
             $result['issue'] = 'http_redirect';
+            /* translators: %d: HTTP redirect status code */
             $result['detail'] = sprintf(__('Redirects (%d)', 'almaseo-seo-playground'), $status);
         } elseif ($status >= 400 && $status < 500) {
             $result['issue'] = 'http_' . $status;
+            /* translators: %d: HTTP client error status code */
             $result['detail'] = sprintf(__('Client error (%d)', 'almaseo-seo-playground'), $status);
         } elseif ($status >= 500) {
             $result['issue'] = 'http_5xx';
+            /* translators: %d: HTTP server error status code */
             $result['detail'] = sprintf(__('Server error (%d)', 'almaseo-seo-playground'), $status);
         }
         
@@ -348,6 +351,7 @@ class Alma_Sitemap_Conflicts {
                 $canonical_normalized = untrailingslashit(strtolower($canonical));
                 
                 if ($url_normalized !== $canonical_normalized) {
+                    /* translators: %s: canonical URL that differs from the sitemap URL */
                     return sprintf(__('Canonical: %s', 'almaseo-seo-playground'), $canonical);
                 }
             }

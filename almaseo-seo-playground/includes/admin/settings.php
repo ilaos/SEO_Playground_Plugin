@@ -949,6 +949,7 @@ class AlmaSEO_Settings {
         
         if (is_wp_error($response)) {
             wp_send_json_error(array(
+                /* translators: %s: error message from URL fetch */
                 'message' => sprintf(__('Failed to fetch URL: %s', 'almaseo-seo-playground'), $response->get_error_message())
             ));
         }

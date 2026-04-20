@@ -152,7 +152,9 @@ try {
                     <div class="almaseo-progress-bar">
                         <div class="almaseo-progress-fill" style="width: <?php echo $scan_status['progress']; ?>%"></div>
                     </div>
-                    <p><?php printf(__('Scanning: %d/%d URLs checked', 'almaseo-seo-playground'), $scan_status['checked'], $scan_status['total']); ?></p>
+                    <p><?php
+                    /* translators: %1$d: number of URLs checked so far, %2$d: total URLs to check */
+                    printf(__('Scanning: %1$d/%2$d URLs checked', 'almaseo-seo-playground'), $scan_status['checked'], $scan_status['total']); ?></p>
                 </div>
             <?php else : ?>
                 <div class="almaseo-scan-results">

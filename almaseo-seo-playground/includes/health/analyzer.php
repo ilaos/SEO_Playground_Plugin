@@ -237,11 +237,13 @@ function almaseo_health_check_h1($content) {
     } elseif ($h1_count == 1) {
         return array(
             'pass' => true,
+            /* translators: %s: text content of the H1 tag */
             'note' => sprintf(__('H1 found: "%s"', 'almaseo-seo-playground'), wp_trim_words($parsed['h1_tags'][0], 10))
         );
     } else {
         return array(
             'pass' => false,
+            /* translators: %d: number of H1 tags found */
             'note' => sprintf(__('Multiple H1 tags found (%d)', 'almaseo-seo-playground'), $h1_count)
         );
     }
@@ -305,6 +307,7 @@ function almaseo_health_check_internal_link($content) {
     if ($internal_count > 0) {
         return array(
             'pass' => true,
+            /* translators: %d: number of internal links */
             'note' => sprintf(__('%d internal link(s) found', 'almaseo-seo-playground'), $internal_count)
         );
     }
@@ -333,8 +336,10 @@ function almaseo_health_check_outbound_link($content) {
     }
     
     if ($outbound_count > 0) {
+        /* translators: %d: number of outbound links */
         $note = sprintf(__('%d outbound link(s) found', 'almaseo-seo-playground'), $outbound_count);
         if ($nofollow_count > 0) {
+            /* translators: %d: number of nofollow links */
             $note .= sprintf(' ' . __('(%d with nofollow)', 'almaseo-seo-playground'), $nofollow_count);
         }
         return array(
@@ -432,8 +437,10 @@ function almaseo_health_check_readability($plain_content) {
         return array(
             'pass' => $result['overall_pass'],
             'note' => $result['overall_pass']
-                ? sprintf(__('Good readability (%d/%d checks pass)', 'almaseo-seo-playground'), $result['pass_count'], $result['total_checks'])
-                : sprintf(__('Readability needs work (%d/%d checks pass)', 'almaseo-seo-playground'), $result['pass_count'], $result['total_checks']),
+                /* translators: %1$d: number of checks passed, %2$d: total number of checks */
+                ? sprintf(__('Good readability (%1$d/%2$d checks pass)', 'almaseo-seo-playground'), $result['pass_count'], $result['total_checks'])
+                /* translators: %1$d: number of checks passed, %2$d: total number of checks */
+                : sprintf(__('Readability needs work (%1$d/%2$d checks pass)', 'almaseo-seo-playground'), $result['pass_count'], $result['total_checks']),
         );
     }
 

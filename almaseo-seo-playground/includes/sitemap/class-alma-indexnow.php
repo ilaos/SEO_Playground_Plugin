@@ -186,6 +186,7 @@ class Alma_IndexNow {
         if ($result === false) {
             return array(
                 'success' => false,
+                /* translators: %s: file path where the key file could not be created */
                 'message' => sprintf(__('Failed to create key file at %s', 'almaseo-seo-playground'), $filepath)
             );
         }
@@ -277,6 +278,7 @@ class Alma_IndexNow {
             
             return array(
                 'success' => false,
+                /* translators: %s: error message from the IndexNow API */
                 'message' => sprintf(__('IndexNow submission failed: %s', 'almaseo-seo-playground'), $response->get_error_message())
             );
         }
@@ -334,6 +336,7 @@ class Alma_IndexNow {
             case 429:
                 return __('Too many requests - please try again later', 'almaseo-seo-playground');
             default:
+                /* translators: %d: HTTP status code returned by IndexNow */
                 return sprintf(__('IndexNow returned status %d', 'almaseo-seo-playground'), $status_code);
         }
     }

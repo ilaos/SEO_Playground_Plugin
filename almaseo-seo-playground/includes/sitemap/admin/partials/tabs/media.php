@@ -86,7 +86,9 @@ try {
                 </span>
                 <?php if ($media_stats['images']['total'] > 0): ?>
                 <span class="almaseo-chip">
-                    <?php echo sprintf(__('%d Images', 'almaseo-seo-playground'), $media_stats['images']['total']); ?>
+                    <?php
+                    /* translators: %d: number of images in the sitemap */
+                    echo sprintf(__('%d Images', 'almaseo-seo-playground'), $media_stats['images']['total']); ?>
                 </span>
                 <?php endif; ?>
             </div>
@@ -168,7 +170,9 @@ try {
                 </span>
                 <?php if ($media_stats['videos']['total'] > 0): ?>
                 <span class="almaseo-chip">
-                    <?php echo sprintf(__('%d Videos', 'almaseo-seo-playground'), $media_stats['videos']['total']); ?>
+                    <?php
+                    /* translators: %d: number of videos in the sitemap */
+                    echo sprintf(__('%d Videos', 'almaseo-seo-playground'), $media_stats['videos']['total']); ?>
                 </span>
                 <?php endif; ?>
             </div>

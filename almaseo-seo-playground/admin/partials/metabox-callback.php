@@ -2181,7 +2181,9 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     ?>
                     <div style="margin-top: 8px; padding: 8px 12px; background: linear-gradient(135deg, #f0f4ff 0%, #f8f9ff 100%); border: 1px solid #d0d5ff; border-radius: 4px; font-size: 12px;">
                         <span style="font-weight: 600; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI</span>
-                        <?php printf( __( 'AlmaSEO suggests marking this as cornerstone content (score: %s/100).', 'almaseo-seo-playground' ), '<strong>' . intval( $cs_score ) . '</strong>' ); ?>
+                        <?php
+                        /* translators: %s: cornerstone confidence score */
+                        printf( __( 'AlmaSEO suggests marking this as cornerstone content (score: %s/100).', 'almaseo-seo-playground' ), '<strong>' . intval( $cs_score ) . '</strong>' ); ?>
                         <?php if ( $cs_reason ) : ?>
                         <br><span style="color: #666;"><?php echo esc_html( $cs_reason ); ?></span>
                         <?php endif; ?>

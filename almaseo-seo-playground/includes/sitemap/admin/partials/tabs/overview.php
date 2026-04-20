@@ -225,6 +225,7 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
         if ($build_stats['urls'] > 50000) {
             $health_issues[] = [
                 'type' => 'info',
+                /* translators: %s: formatted number of URLs in the sitemap */
                 'message' => sprintf(__('Large sitemap detected (%s URLs)', 'almaseo-seo-playground'), number_format($build_stats['urls']))
             ];
         }

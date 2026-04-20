@@ -142,8 +142,8 @@ $backups   = get_option( AlmaSEO_Htaccess_Editor::BACKUP_OPTION, array() );
                         <?php foreach ( $backups as $i => $backup ) : ?>
                             <option value="<?php echo esc_attr( $i ); ?>">
                                 <?php
-                                    /* translators: 1: backup number, 2: timestamp */
                                     printf(
+                                        /* translators: %1$d: backup number, %2$s: timestamp */
                                         esc_html__( 'Backup #%1$d — %2$s', 'almaseo-seo-playground' ),
                                         $i + 1,
                                         esc_html( $backup['timestamp'] )

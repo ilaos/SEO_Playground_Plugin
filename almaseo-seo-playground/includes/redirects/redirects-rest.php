@@ -401,7 +401,8 @@ class AlmaSEO_Redirects_REST {
         }
         
         return new WP_REST_Response(array(
-            'message' => sprintf(__('%d redirects processed successfully, %d failed.', 'almaseo-seo-playground'), $success, $failed),
+            /* translators: %1$d: number of redirects processed successfully, %2$d: number of redirects that failed */
+            'message' => sprintf(__('%1$d redirects processed successfully, %2$d failed.', 'almaseo-seo-playground'), $success, $failed),
             'success' => $success,
             'failed' => $failed
         ), 200);
@@ -439,7 +440,8 @@ class AlmaSEO_Redirects_REST {
             'found' => true,
             'redirect' => $redirect,
             'target_url' => $target,
-            'message' => sprintf(__('Would redirect to: %s with status %d', 'almaseo-seo-playground'), $target, $redirect['status'])
+            /* translators: %1$s: target URL, %2$d: HTTP status code */
+            'message' => sprintf(__('Would redirect to: %1$s with status %2$d', 'almaseo-seo-playground'), $target, $redirect['status'])
         ), 200);
     }
 }

@@ -200,7 +200,9 @@ if (class_exists('Alma_Additional_URLs_Storage')) {
         <h2><?php _e('Additional URLs', 'almaseo-seo-playground'); ?></h2>
         <div class="almaseo-chips">
             <span class="almaseo-chip">
-                <?php echo sprintf(__('%d URLs', 'almaseo-seo-playground'), $additional_count); ?>
+                <?php
+                /* translators: %d: number of additional URLs */
+                echo sprintf(__('%d URLs', 'almaseo-seo-playground'), $additional_count); ?>
             </span>
         </div>
     </div>

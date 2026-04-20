@@ -48,7 +48,9 @@ try {
                 <?php echo $settings['delta']['enabled'] ? __('Active', 'almaseo-seo-playground') : __('Inactive', 'almaseo-seo-playground'); ?>
             </span>
             <span class="almaseo-chip">
-                <?php echo sprintf(__('%d URLs', 'almaseo-seo-playground'), $delta_stats['count']); ?>
+                <?php
+                /* translators: %d: number of URLs in the delta sitemap */
+                echo sprintf(__('%d URLs', 'almaseo-seo-playground'), $delta_stats['count']); ?>
             </span>
             <?php if (!empty($delta_health['time'])): ?>
             <span class="almaseo-chip">
@@ -122,12 +124,18 @@ try {
         <?php if ($delta_stats['count'] > 0): ?>
         <div class="almaseo-info-box">
             <p><strong><?php _e('Current Status:', 'almaseo-seo-playground'); ?></strong></p>
-            <p><?php echo sprintf(__('Ring buffer: %d of %d URLs', 'almaseo-seo-playground'), $delta_stats['count'], $delta_stats['max']); ?></p>
+            <p><?php
+            /* translators: %1$d: current number of URLs in the buffer, %2$d: maximum buffer capacity */
+            echo sprintf(__('Ring buffer: %1$d of %2$d URLs', 'almaseo-seo-playground'), $delta_stats['count'], $delta_stats['max']); ?></p>
             <?php if ($delta_stats['oldest']): ?>
-            <p><?php echo sprintf(__('Oldest entry: %s', 'almaseo-seo-playground'), human_time_diff($delta_stats['oldest'])); ?> <?php _e('ago', 'almaseo-seo-playground'); ?></p>
+            <p><?php
+            /* translators: %s: human-readable time difference */
+            echo sprintf(__('Oldest entry: %s', 'almaseo-seo-playground'), human_time_diff($delta_stats['oldest'])); ?> <?php _e('ago', 'almaseo-seo-playground'); ?></p>
             <?php endif; ?>
             <?php if (!empty($delta_health['success'])): ?>
-            <p class="almaseo-text-success"><?php echo sprintf(__('Last ping: %d URLs submitted successfully', 'almaseo-seo-playground'), $delta_health['count']); ?></p>
+            <p class="almaseo-text-success"><?php
+            /* translators: %d: number of URLs submitted in the last ping */
+            echo sprintf(__('Last ping: %d URLs submitted successfully', 'almaseo-seo-playground'), $delta_health['count']); ?></p>
             <?php elseif (isset($delta_health['success']) && !$delta_health['success']): ?>
             <p class="almaseo-text-danger"><?php _e('Last ping failed', 'almaseo-seo-playground'); ?></p>
             <?php endif; ?>

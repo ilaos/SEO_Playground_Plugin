@@ -177,6 +177,7 @@ class Alma_Robots_Integration {
         
         return new WP_Error(
             'sitemap_access_failed',
+            /* translators: %d: HTTP status code returned by the sitemap */
             sprintf(__('Sitemap returned HTTP %d', 'almaseo-seo-playground'), $code)
         );
     }

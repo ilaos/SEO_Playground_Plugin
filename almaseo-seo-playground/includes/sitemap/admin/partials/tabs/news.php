@@ -53,11 +53,15 @@ try {
             </span>
             <?php if ($news_enabled && !empty($news_stats['items'])): ?>
             <span class="almaseo-chip">
-                <?php echo sprintf(__('%d Items', 'almaseo-seo-playground'), $news_stats['items']); ?>
+                <?php
+                /* translators: %d: number of news items */
+                echo sprintf(__('%d Items', 'almaseo-seo-playground'), $news_stats['items']); ?>
             </span>
             <?php endif; ?>
             <span class="almaseo-chip">
-                <?php echo sprintf(__('%dh Window', 'almaseo-seo-playground'), $settings['news']['window_hours'] ?? 48); ?>
+                <?php
+                /* translators: %d: number of hours in the news window */
+                echo sprintf(__('%dh Window', 'almaseo-seo-playground'), $settings['news']['window_hours'] ?? 48); ?>
             </span>
             <?php if (!empty($news_stats['last_build'])): ?>
             <span class="almaseo-chip">
@@ -66,7 +70,9 @@ try {
             <?php endif; ?>
             <?php if (!empty($news_health['validated_at'])): ?>
             <span class="almaseo-chip <?php echo $news_health['ok'] ? 'almaseo-chip-success' : 'almaseo-chip-warning'; ?>">
-                <?php echo $news_health['ok'] ? __('Valid', 'almaseo-seo-playground') : sprintf(__('%d Issues', 'almaseo-seo-playground'), count($news_health['issues'])); ?>
+                <?php
+                /* translators: %d: number of validation issues */
+                echo $news_health['ok'] ? __('Valid', 'almaseo-seo-playground') : sprintf(__('%d Issues', 'almaseo-seo-playground'), count($news_health['issues'])); ?>
             </span>
             <?php endif; ?>
         </div>
@@ -316,7 +322,9 @@ try {
                 <li><?php echo esc_html($issue); ?></li>
                 <?php endforeach; ?>
                 <?php if (count($news_health['issues']) > 5): ?>
-                <li><?php echo sprintf(__('... and %d more', 'almaseo-seo-playground'), count($news_health['issues']) - 5); ?></li>
+                <li><?php
+                /* translators: %d: number of additional issues not shown */
+                echo sprintf(__('... and %d more', 'almaseo-seo-playground'), count($news_health['issues']) - 5); ?></li>
                 <?php endif; ?>
             </ul>
             <?php endif; ?>

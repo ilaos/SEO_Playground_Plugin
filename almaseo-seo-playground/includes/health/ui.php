@@ -155,6 +155,7 @@ function almaseo_health_meta_box_callback($post) {
                     <span class="signal-icon"><?php echo $icon; ?></span>
                     <span class="signal-label">
                         <?php echo esc_html($label); ?>
+                        <?php /* translators: %d: weight value in points */ ?>
                         <span class="signal-weight" title="<?php printf(esc_attr__('Worth %d points out of 100', 'almaseo-seo-playground'), $weight); ?>">(<?php echo esc_html($weight); ?> pts)</span>
                     </span>
                     <?php if (!$result['pass']): ?>
@@ -359,7 +360,9 @@ function almaseo_health_meta_box_callback($post) {
             <?php if ( ! empty( $rd_dash_data['paragraphs'] ) ) : ?>
             <div style="margin-top: 8px;">
                 <div style="cursor: pointer; font-size: 12px; color: #2271b1;" onclick="var el=this.nextElementSibling;el.style.display=el.style.display==='none'?'':'none';">
-                    <?php printf( __( '%d paragraph suggestions — click to expand', 'almaseo-seo-playground' ), count( $rd_dash_data['paragraphs'] ) ); ?>
+                    <?php
+                    /* translators: %d: number of paragraph suggestions */
+                    printf( __( '%d paragraph suggestions — click to expand', 'almaseo-seo-playground' ), count( $rd_dash_data['paragraphs'] ) ); ?>
                 </div>
                 <div style="display: none; margin-top: 6px;">
                     <?php foreach ( array_slice( $rd_dash_data['paragraphs'], 0, 10 ) as $p ) :

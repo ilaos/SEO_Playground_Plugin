@@ -68,6 +68,7 @@ class Alma_Sitemap_Validator {
             $status_code = wp_remote_retrieve_response_code($response);
             if ($status_code !== 200) {
                 $status['ok'] = false;
+                /* translators: %d: HTTP status code returned by the sitemap index */
                 $status['msg'] = sprintf(__('Sitemap index returned status %d', 'almaseo-seo-playground'), $status_code);
             }
         }

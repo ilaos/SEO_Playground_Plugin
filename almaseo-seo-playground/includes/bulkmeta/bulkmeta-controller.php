@@ -382,6 +382,7 @@ class BulkMeta_Controller {
         foreach ($ids as $post_id) {
             if (!current_user_can('edit_post', $post_id)) {
                 $results['failed']++;
+                /* translators: %d: post ID */
                 $results['errors'][] = sprintf(__('Cannot edit post %d', 'almaseo-seo-playground'), $post_id);
                 continue;
             }

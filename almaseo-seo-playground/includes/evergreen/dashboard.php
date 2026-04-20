@@ -214,10 +214,9 @@ function almaseo_eg_render_dashboard() {
                 <?php if ($stats['unanalyzed'] > 100): ?>
                 <div style="display: block; margin-top: 5px;">
                     <small style="color: #d63638;">
-                        <?php
+                        ⚠️ <?php
                         /* translators: %1$d: number of unanalyzed posts, %2$d: number of times to click */
-                        ?>
-                        ⚠️ <?php echo sprintf(__('Will process 100 posts at a time. You have %1$d unanalyzed posts - you may need to click this %2$d times.', 'almaseo-seo-playground'),
+                        echo sprintf(__('Will process 100 posts at a time. You have %1$d unanalyzed posts - you may need to click this %2$d times.', 'almaseo-seo-playground'),
                             $stats['unanalyzed'], 
                             ceil($stats['unanalyzed'] / 100)); ?>
                     </small>

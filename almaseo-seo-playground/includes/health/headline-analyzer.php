@@ -88,7 +88,9 @@ class AlmaSEO_Headline_Analyzer {
             'value' => $word_count,
             'pass'  => $wc_pass,
             'tip'   => $wc_pass
+                /* translators: %d: number of words in the headline */
                 ? sprintf( __( '%d words — ideal range.', 'almaseo-seo-playground' ), $word_count )
+                /* translators: %d: number of words in the headline */
                 : sprintf( __( '%d words — aim for 6–13 words.', 'almaseo-seo-playground' ), $word_count ),
         );
         if ( $wc_pass ) {
@@ -103,7 +105,9 @@ class AlmaSEO_Headline_Analyzer {
             'value' => $char_count,
             'pass'  => $cl_pass,
             'tip'   => $cl_pass
+                /* translators: %d: number of characters in the headline */
                 ? sprintf( __( '%d chars — fits Google\'s title display.', 'almaseo-seo-playground' ), $char_count )
+                /* translators: %d: number of characters in the headline */
                 : sprintf( __( '%d chars — aim for 50–60 characters.', 'almaseo-seo-playground' ), $char_count ),
         );
         if ( $cl_pass ) {
@@ -118,6 +122,7 @@ class AlmaSEO_Headline_Analyzer {
             'value' => $power_found,
             'pass'  => $pw_pass,
             'tip'   => $pw_pass
+                /* translators: %d: number of power words found */
                 ? sprintf( __( '%d power word(s) found — great for driving clicks.', 'almaseo-seo-playground' ), $power_found )
                 : __( 'Add a power word (e.g., "proven", "essential", "ultimate").', 'almaseo-seo-playground' ),
         );
@@ -133,6 +138,7 @@ class AlmaSEO_Headline_Analyzer {
             'value' => $emotional_found,
             'pass'  => $ew_pass,
             'tip'   => $ew_pass
+                /* translators: %d: number of emotional words found */
                 ? sprintf( __( '%d emotional word(s) — helps engage readers.', 'almaseo-seo-playground' ), $emotional_found )
                 : __( 'Consider adding an emotional trigger (e.g., "surprising", "inspiring").', 'almaseo-seo-playground' ),
         );
@@ -179,6 +185,7 @@ class AlmaSEO_Headline_Analyzer {
             'value' => round( $common_pct ),
             'pass'  => $balance_pass,
             'tip'   => $balance_pass
+                /* translators: %d: percentage of common words */
                 ? sprintf( __( '%d%% common words — good balance of familiar and specific.', 'almaseo-seo-playground' ), round( $common_pct ) )
                 : ( $common_pct > 50
                     ? __( 'Too many generic words — add more specific, descriptive terms.', 'almaseo-seo-playground' )

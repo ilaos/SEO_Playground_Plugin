@@ -293,21 +293,25 @@ function almaseo_score_evergreen($post) {
     // Rule: Stale if updated_days > 365 OR traffic down > 40%
     if ($ages['updated_days'] > $stale_days) {
         $status = ALMASEO_EG_STATUS_STALE;
+        /* translators: %d: number of days since last update */
         $reasons[] = sprintf(__('Not updated in %d days', 'almaseo-seo-playground'), $ages['updated_days']);
     }
-    
+
     if ($trend < 0 && abs($trend) >= $stale_traffic_drop) {
         $status = ALMASEO_EG_STATUS_STALE;
+        /* translators: %.1f%%: traffic decline percentage */
         $reasons[] = sprintf(__('Traffic declined by %.1f%%', 'almaseo-seo-playground'), abs($trend));
     }
-    
+
     // Rule: Watch if updated_days > 180 OR traffic down > 20% (but not stale)
     if ($status !== ALMASEO_EG_STATUS_STALE) {
         if ($ages['updated_days'] > $watch_days) {
             $status = ALMASEO_EG_STATUS_WATCH;
+            /* translators: %d: number of days since last update */
             $reasons[] = sprintf(__('Updated %d days ago', 'almaseo-seo-playground'), $ages['updated_days']);
         } else if ($trend < 0 && abs($trend) >= $watch_traffic_drop) {
             $status = ALMASEO_EG_STATUS_WATCH;
+            /* translators: %.1f%%: traffic decline percentage */
             $reasons[] = sprintf(__('Traffic down %.1f%%', 'almaseo-seo-playground'), abs($trend));
         }
     }
@@ -320,6 +324,7 @@ function almaseo_score_evergreen($post) {
                 $reasons[] = __('Recently updated', 'almaseo-seo-playground');
             }
             if ($trend > 0) {
+                /* translators: %.1f%%: traffic increase percentage */
                 $reasons[] = sprintf(__('Traffic up %.1f%%', 'almaseo-seo-playground'), $trend);
             }
         }
@@ -343,6 +348,7 @@ function almaseo_score_evergreen($post) {
     
     // Add broken links note
     if ($metrics['broken_links'] > 0) {
+        /* translators: %d: number of broken links */
         $reasons[] = sprintf(__('%d broken links', 'almaseo-seo-playground'), $metrics['broken_links']);
     }
     

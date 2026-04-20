@@ -376,12 +376,14 @@ class Alma_Sitemap_Ajax_Handlers {
                     // Add URL logic here
                     $imported++;
                 } else {
+                    /* translators: %d: line number in the imported file */
                     $errors[] = sprintf(__('Line %d: Invalid URL', 'almaseo-seo-playground'), $line_num + 1);
                 }
             }
         }
         
         wp_send_json_success(array(
+            /* translators: %d: number of URLs imported */
             'message' => sprintf(__('Imported %d URLs', 'almaseo-seo-playground'), $imported),
             'imported' => $imported,
             'errors' => $errors
@@ -555,6 +557,7 @@ class Alma_Sitemap_Ajax_Handlers {
             delete_option('almaseo_sitemaps_build_lock');
             
             wp_send_json_error([
+                /* translators: %s: error message from the build process */
                 'message' => sprintf(__('Build failed: %s', 'almaseo-seo-playground'), $e->getMessage())
             ]);
         }
@@ -606,6 +609,7 @@ class Alma_Sitemap_Ajax_Handlers {
         ));
         
         wp_send_json_success(array(
+            /* translators: %d: number of delta entries purged */
             'message' => sprintf(__('Purged %d old delta entries', 'almaseo-seo-playground'), $deleted),
             'deleted' => $deleted
         ));
@@ -690,6 +694,7 @@ class Alma_Sitemap_Ajax_Handlers {
         ");
         
         if ($missing_alt > 0) {
+            /* translators: %d: number of images missing alt text */
             $issues[] = sprintf(__('%d images missing alt text', 'almaseo-seo-playground'), $missing_alt);
         }
         

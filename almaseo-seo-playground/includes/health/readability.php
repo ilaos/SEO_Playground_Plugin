@@ -176,7 +176,9 @@ class AlmaSEO_Readability_Analyzer {
             'label' => __( 'Sentence Length', 'almaseo-seo-playground' ),
             'value' => round( $pct ),
             'tip'   => $pass
+                /* translators: %d: percentage of sentences over 20 words */
                 ? sprintf( __( '%d%% of sentences are over 20 words — good.', 'almaseo-seo-playground' ), round( $pct ) )
+                /* translators: %d: percentage of sentences over 20 words */
                 : sprintf( __( '%d%% of sentences exceed 20 words — try to keep under 25%%.', 'almaseo-seo-playground' ), round( $pct ) ),
         );
     }
@@ -209,7 +211,9 @@ class AlmaSEO_Readability_Analyzer {
             'label' => __( 'Passive Voice', 'almaseo-seo-playground' ),
             'value' => round( $pct ),
             'tip'   => $pass
+                /* translators: %d: percentage of passive voice sentences */
                 ? sprintf( __( '%d%% passive sentences — good use of active voice.', 'almaseo-seo-playground' ), round( $pct ) )
+                /* translators: %d: percentage of passive voice sentences */
                 : sprintf( __( '%d%% passive sentences — aim for ≤10%%. Rewrite with active verbs.', 'almaseo-seo-playground' ), round( $pct ) ),
         );
     }
@@ -244,7 +248,9 @@ class AlmaSEO_Readability_Analyzer {
             'label' => __( 'Transition Words', 'almaseo-seo-playground' ),
             'value' => round( $pct ),
             'tip'   => $pass
+                /* translators: %d: percentage of sentences with transition words */
                 ? sprintf( __( '%d%% of sentences use transitions — smooth flow.', 'almaseo-seo-playground' ), round( $pct ) )
+                /* translators: %d: percentage of sentences with transition words */
                 : sprintf( __( '%d%% — aim for ≥30%%. Use words like "however", "therefore", "for example".', 'almaseo-seo-playground' ), round( $pct ) ),
         );
     }
@@ -289,6 +295,7 @@ class AlmaSEO_Readability_Analyzer {
             'value' => $max_consecutive,
             'tip'   => $pass
                 ? __( 'Good sentence variety — no repetitive starts.', 'almaseo-seo-playground' )
+                /* translators: %d: number of consecutive sentences starting the same way */
                 : sprintf( __( '%d consecutive sentences start the same way — vary your openings.', 'almaseo-seo-playground' ), $max_consecutive ),
         );
     }
@@ -315,6 +322,7 @@ class AlmaSEO_Readability_Analyzer {
                 'pass'  => false,
                 'label' => __( 'Subheading Distribution', 'almaseo-seo-playground' ),
                 'value' => 0,
+                /* translators: %d: total word count of the content */
                 'tip'   => sprintf( __( '%d words with no subheadings — add h2/h3 headings to break up content.', 'almaseo-seo-playground' ), $word_count ),
             );
         }
@@ -328,7 +336,9 @@ class AlmaSEO_Readability_Analyzer {
             'label' => __( 'Subheading Distribution', 'almaseo-seo-playground' ),
             'value' => round( $avg_between ),
             'tip'   => $pass
+                /* translators: %d: average number of words between subheadings */
                 ? sprintf( __( 'Average %d words between subheadings — well-structured.', 'almaseo-seo-playground' ), round( $avg_between ) )
+                /* translators: %d: average number of words between subheadings */
                 : sprintf( __( 'Average %d words between subheadings — aim for ≤300.', 'almaseo-seo-playground' ), round( $avg_between ) ),
         );
     }

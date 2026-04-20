@@ -169,6 +169,7 @@ class AlmaSEO_Woo_Breadcrumbs {
             // Current tag
             $current_term = get_queried_object();
             $breadcrumbs[] = array(
+                /* translators: %s: product tag name */
                 'text' => sprintf(__('Products tagged "%s"', 'almaseo-seo-playground'), $current_term->name),
                 'url' => ''
             );

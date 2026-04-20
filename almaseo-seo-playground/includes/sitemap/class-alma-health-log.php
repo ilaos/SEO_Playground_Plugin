@@ -135,8 +135,10 @@ class Alma_Health_Log {
      */
     public static function log_validation($type, $ok, $issues = 0) {
         $message = $ok ? 
+            /* translators: %s: type of validation (e.g. "Sitemap") */
             sprintf(__('%s validation passed', 'almaseo-seo-playground'), ucfirst($type)) :
-            sprintf(__('%s validation failed: %d issues', 'almaseo-seo-playground'), ucfirst($type), $issues);
+            /* translators: %1$s: type of validation, %2$d: number of issues found */
+            sprintf(__('%1$s validation failed: %2$d issues', 'almaseo-seo-playground'), ucfirst($type), $issues);
         
         self::log('validate', $message, array(
             'type' => $type,
@@ -150,7 +152,9 @@ class Alma_Health_Log {
      */
     public static function log_indexnow($urls_count, $success) {
         $message = $success ?
+            /* translators: %d: number of URLs submitted */
             sprintf(__('IndexNow: Submitted %d URLs', 'almaseo-seo-playground'), $urls_count) :
+            /* translators: %d: number of URLs that failed to submit */
             sprintf(__('IndexNow: Failed to submit %d URLs', 'almaseo-seo-playground'), $urls_count);
         
         self::log('indexnow', $message, array(

@@ -214,6 +214,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                                 <p style="margin: 0 0 10px 0; color: #1d2327;">
                                     <strong><?php esc_html_e( 'Import Your SEO Data', 'almaseo-seo-playground' ); ?></strong><br>
                                     <?php printf(
+                                        /* translators: %s: name of detected SEO plugin */
                                         esc_html__( 'We detected %s. You can import your existing titles, descriptions, and keywords into AlmaSEO before deactivating it.', 'almaseo-seo-playground' ),
                                         '<strong>' . esc_html( $plugin_names ) . '</strong>'
                                     ); ?>

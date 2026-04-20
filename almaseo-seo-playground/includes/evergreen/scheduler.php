@@ -200,13 +200,17 @@ function almaseo_eg_generate_digest() {
     // Build HTML digest
     $html = '<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">';
     $html .= '<h2>' . __('AlmaSEO Evergreen Weekly Digest', 'almaseo-seo-playground') . '</h2>';
+    /* translators: %s: date and time the digest was generated */
     $html .= '<p>' . sprintf(__('Generated: %s', 'almaseo-seo-playground'), current_time('F j, Y g:i a')) . '</p>';
-    
+
     // Stats section
     $html .= '<h3>' . __('Content Health Overview', 'almaseo-seo-playground') . '</h3>';
     $html .= '<ul>';
+    /* translators: %d: number of evergreen posts */
     $html .= '<li>' . sprintf(__('🟢 Evergreen: %d posts', 'almaseo-seo-playground'), $stats['evergreen']) . '</li>';
+    /* translators: %d: number of posts in watch state */
     $html .= '<li>' . sprintf(__('🟡 Watch: %d posts', 'almaseo-seo-playground'), $stats['watch']) . '</li>';
+    /* translators: %d: number of stale posts */
     $html .= '<li>' . sprintf(__('🔴 Stale: %d posts', 'almaseo-seo-playground'), $stats['stale']) . '</li>';
     $html .= '</ul>';
     
@@ -218,6 +222,7 @@ function almaseo_eg_generate_digest() {
             $ages = almaseo_get_post_ages($post);
             $html .= '<li>';
             $html .= '<strong>' . esc_html($post->post_title) . '</strong><br>';
+            /* translators: %d: number of days since last update */
             $html .= sprintf(__('Last updated: %d days ago', 'almaseo-seo-playground'), $ages['updated_days']);
             $html .= ' | <a href="' . get_edit_post_link($post->ID) . '">' . __('Edit', 'almaseo-seo-playground') . '</a>';
             $html .= '</li>';
