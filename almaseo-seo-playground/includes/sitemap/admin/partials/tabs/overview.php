@@ -84,7 +84,7 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
                     <div class="stat-value" data-stat="last-built">
                         <?php 
                         if ($build_stats['last_built']) {
-                            echo esc_html(human_time_diff($build_stats['last_built']) . ' ' . __('ago', 'almaseo-seo-playground'));
+                            echo esc_html(human_time_diff($build_stats['last_built']) . ' ' . esc_html__('ago', 'almaseo-seo-playground'));
                         } else {
                             esc_html_e('Never', 'almaseo-seo-playground');
                         }
@@ -166,7 +166,7 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
                     <div class="chip-value">
                         <?php
                         if ($last_validate) {
-                            echo esc_html(human_time_diff($last_validate) . ' ' . __('ago', 'almaseo-seo-playground'));
+                            echo esc_html(human_time_diff($last_validate) . ' ' . esc_html__('ago', 'almaseo-seo-playground'));
                         } else {
                             esc_html_e('Never', 'almaseo-seo-playground');
                         }
@@ -194,7 +194,7 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
                     <div class="chip-value">
                         <?php 
                         if ($last_indexnow) {
-                            echo esc_html(human_time_diff($last_indexnow) . ' ' . __('ago', 'almaseo-seo-playground'));
+                            echo esc_html(human_time_diff($last_indexnow) . ' ' . esc_html__('ago', 'almaseo-seo-playground'));
                         } else {
                             esc_html_e('Never', 'almaseo-seo-playground');
                         }

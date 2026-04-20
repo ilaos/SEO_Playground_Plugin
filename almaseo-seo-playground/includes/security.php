@@ -33,7 +33,7 @@ function almaseo_user_can_manage_seo() {
 if (!function_exists('almaseo_verify_nonce')) {
 function almaseo_verify_nonce($nonce, $action = 'almaseo_nonce') {
     if (!wp_verify_nonce($nonce, $action)) {
-        wp_die(__('Security check failed', 'almaseo-seo-playground'));
+        wp_die(esc_html__('Security check failed', 'almaseo-seo-playground'));
         return false;
     }
     return true;

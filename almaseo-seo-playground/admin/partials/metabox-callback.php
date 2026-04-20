@@ -199,7 +199,7 @@ function almaseo_render_llm_optimization_panel($post) {
                 <span class="dashicons dashicons-warning"></span>
                 <div>
                     <strong>Connect to AlmaSEO for Enhanced Analysis</strong>
-                    <p>Get deeper insights powered by our AI engine. <a href="<?php echo admin_url('admin.php?page=seo-playground-connection'); ?>">Connect now &rarr;</a></p>
+                    <p>Get deeper insights powered by our AI engine. <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>">Connect now &rarr;</a></p>
                 </div>
             </div>
         <?php endif; ?>
@@ -465,7 +465,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     <strong style="font-size: 15px; display: block; margin-bottom: 3px;">🚨 CRITICAL: Your Site is Hidden from Search Engines!</strong>
                     <span style="font-size: 13px; opacity: 0.95;">WordPress "Discourage search engines" is enabled. Your content will NOT appear in Google! This affects ALL posts and pages.</span>
                 </div>
-                <a href="<?php echo admin_url('options-reading.php'); ?>" class="button" style="background: white; color: #dc3232; border: none; font-weight: bold;">Fix Immediately →</a>
+                <a href="<?php echo esc_url(admin_url('options-reading.php')); ?>" class="button" style="background: white; color: #dc3232; border: none; font-weight: bold;">Fix Immediately →</a>
             </div>
             <?php
         }
@@ -3082,7 +3082,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         if (!$exclusive_mode): 
                         ?>
                         <p style="font-size: 13px; color: #667eea; font-weight: 500;">
-                            → Enable Exclusive Schema Mode in the <a href="<?php echo admin_url('admin.php?page=almaseo-settings'); ?>">Settings</a>
+                            → Enable Exclusive Schema Mode in the <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-settings')); ?>">Settings</a>
                         </p>
                         <?php else: ?>
                         <p style="font-size: 13px; color: #00a32a; font-weight: 500;">
@@ -3165,7 +3165,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
 
                 <div class="upsell-cta-section">
                     <div class="cta-buttons">
-                        <a href="<?php echo admin_url('admin.php?page=seo-playground-connection'); ?>" class="cta-btn-primary">
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>" class="cta-btn-primary">
                             Connect to AlmaSEO
                         </a>
                         <a href="https://almaseo.com" target="_blank" class="cta-btn-secondary">
@@ -3339,7 +3339,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 AlmaSEO isn't just an AI toolkit — it's your SEO command center. Write high-authority blog posts, landing pages, and articles with a click, and publish them instantly to WordPress. Then manage, optimize, and track everything from your AlmaSEO dashboard.
                             </p>
                             <div class="hero-cta-group">
-                                <a href="<?php echo admin_url('admin.php?page=seo-playground-connection'); ?>" class="hero-cta-primary">
+                                <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>" class="hero-cta-primary">
                                     <span class="cta-icon">⚡</span>
                                     Connect My Site
                                     <span class="cta-arrow">→</span>
@@ -3620,7 +3620,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             <h3>Already have an AlmaSEO account?</h3>
                             <p>If you've already signed up for AlmaSEO, simply connect your site to start using all premium features immediately.</p>
                             <div class="footer-cta-group">
-                                <a href="<?php echo admin_url('admin.php?page=seo-playground-connection'); ?>" class="footer-cta-primary">
+                                <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>" class="footer-cta-primary">
                                     Connect Existing Account
                                 </a>
                                 <a href="https://almaseo.com/login?utm_source=plugin&utm_medium=unlock_footer" target="_blank" class="footer-cta-secondary">

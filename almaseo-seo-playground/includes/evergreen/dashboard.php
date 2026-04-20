@@ -152,7 +152,7 @@ function almaseo_eg_rebuild_weekly_snapshots() {
 function almaseo_eg_render_dashboard() {
     // Check permissions
     if (!current_user_can('read')) {
-        wp_die(__('You do not have sufficient permissions to access this page.', 'almaseo-seo-playground'));
+        wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'almaseo-seo-playground'));
     }
     
     // Show success notice if returning from analysis
@@ -880,13 +880,13 @@ function almaseo_eg_get_at_risk_posts($post_type = 'all', $status_filter = 'all'
 function almaseo_eg_render_status_pill($status) {
     switch ($status) {
         case 'evergreen':
-            return '<span class="almaseo-eg-pill almaseo-eg-evergreen">🟢 ' . __('Evergreen', 'almaseo-seo-playground') . '</span>';
+            return '<span class="almaseo-eg-pill almaseo-eg-evergreen">🟢 ' . esc_html__('Evergreen', 'almaseo-seo-playground') . '</span>';
         case 'watch':
-            return '<span class="almaseo-eg-pill almaseo-eg-watch">🟡 ' . __('Watch', 'almaseo-seo-playground') . '</span>';
+            return '<span class="almaseo-eg-pill almaseo-eg-watch">🟡 ' . esc_html__('Watch', 'almaseo-seo-playground') . '</span>';
         case 'stale':
-            return '<span class="almaseo-eg-pill almaseo-eg-stale">🔴 ' . __('Stale', 'almaseo-seo-playground') . '</span>';
+            return '<span class="almaseo-eg-pill almaseo-eg-stale">🔴 ' . esc_html__('Stale', 'almaseo-seo-playground') . '</span>';
         default:
-            return '<span class="almaseo-eg-pill almaseo-eg-unknown">⚪ ' . __('Unanalyzed', 'almaseo-seo-playground') . '</span>';
+            return '<span class="almaseo-eg-pill almaseo-eg-unknown">⚪ ' . esc_html__('Unanalyzed', 'almaseo-seo-playground') . '</span>';
     }
 }
 

@@ -353,7 +353,7 @@ class Alma_HTML_Sitemap {
                 ));
                 
                 if (!empty($categories)) {
-                    echo '<h4>' . __('Categories', 'almaseo-seo-playground') . '</h4>';
+                    echo '<h4>' . esc_html__('Categories', 'almaseo-seo-playground') . '</h4>';
                     echo '<ul>';
                     foreach ($categories as $cat) {
                         echo '<li><a href="' . get_category_link($cat) . '">';
@@ -372,7 +372,7 @@ class Alma_HTML_Sitemap {
                 ));
                 
                 if (!empty($tags)) {
-                    echo '<h4>' . __('Tags', 'almaseo-seo-playground') . '</h4>';
+                    echo '<h4>' . esc_html__('Tags', 'almaseo-seo-playground') . '</h4>';
                     echo '<ul class="almaseo-tag-list">';
                     foreach ($tags as $tag) {
                         echo '<li><a href="' . get_tag_link($tag) . '">';

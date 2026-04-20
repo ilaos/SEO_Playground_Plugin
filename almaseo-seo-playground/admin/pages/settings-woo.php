@@ -67,7 +67,7 @@ if (isset($_POST['almaseo_woo_settings_nonce']) &&
     
     // Save settings
     if (AlmaSEO_Woo_Loader::save_settings($new_settings)) {
-        echo '<div class="notice notice-success is-dismissible"><p>' . __('Settings saved successfully!', 'almaseo-seo-playground') . '</p></div>';
+        echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Settings saved successfully!', 'almaseo-seo-playground') . '</p></div>';
         // Reload settings
         $settings = AlmaSEO_Woo_Loader::get_settings();
     }
@@ -217,7 +217,7 @@ if (isset($_POST['almaseo_woo_settings_nonce']) &&
                             <?php
                             $priorities = array('0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0');
                             foreach ($priorities as $priority) {
-                                echo '<option value="' . $priority . '"' . selected($settings['product_sitemap_priority'], $priority, false) . '>' . $priority . '</option>';
+                                echo '<option value="' . esc_attr($priority) . '"' . selected($settings['product_sitemap_priority'], $priority, false) . '>' . esc_html($priority) . '</option>';
                             }
                             ?>
                         </select>
@@ -237,7 +237,7 @@ if (isset($_POST['almaseo_woo_settings_nonce']) &&
                                 'never' => __('Never', 'almaseo-seo-playground')
                             );
                             foreach ($frequencies as $value => $label) {
-                                echo '<option value="' . $value . '"' . selected($settings['product_sitemap_changefreq'], $value, false) . '>' . $label . '</option>';
+                                echo '<option value="' . esc_attr($value) . '"' . selected($settings['product_sitemap_changefreq'], $value, false) . '>' . esc_html($label) . '</option>';
                             }
                             ?>
                         </select>
@@ -253,7 +253,7 @@ if (isset($_POST['almaseo_woo_settings_nonce']) &&
                         <select id="category_sitemap_priority" name="category_sitemap_priority">
                             <?php
                             foreach ($priorities as $priority) {
-                                echo '<option value="' . $priority . '"' . selected($settings['category_sitemap_priority'], $priority, false) . '>' . $priority . '</option>';
+                                echo '<option value="' . esc_attr($priority) . '"' . selected($settings['category_sitemap_priority'], $priority, false) . '>' . esc_html($priority) . '</option>';
                             }
                             ?>
                         </select>
@@ -264,7 +264,7 @@ if (isset($_POST['almaseo_woo_settings_nonce']) &&
                         <select id="category_sitemap_changefreq" name="category_sitemap_changefreq">
                             <?php
                             foreach ($frequencies as $value => $label) {
-                                echo '<option value="' . $value . '"' . selected($settings['category_sitemap_changefreq'], $value, false) . '>' . $label . '</option>';
+                                echo '<option value="' . esc_attr($value) . '"' . selected($settings['category_sitemap_changefreq'], $value, false) . '>' . esc_html($label) . '</option>';
                             }
                             ?>
                         </select>
@@ -324,7 +324,7 @@ if (isset($_POST['almaseo_woo_settings_nonce']) &&
                             $product_priority = (float) get_option('almaseo_wc_product_priority', 0.6);
                             $priorities = array('0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0');
                             foreach ($priorities as $priority) {
-                                echo '<option value="' . $priority . '"' . selected($product_priority, (float) $priority, false) . '>' . $priority . '</option>';
+                                echo '<option value="' . esc_attr($priority) . '"' . selected($product_priority, (float) $priority, false) . '>' . esc_html($priority) . '</option>';
                             }
                             ?>
                         </select>
@@ -337,7 +337,7 @@ if (isset($_POST['almaseo_woo_settings_nonce']) &&
                             <?php
                             $category_priority = (float) get_option('almaseo_wc_category_priority', 0.5);
                             foreach ($priorities as $priority) {
-                                echo '<option value="' . $priority . '"' . selected($category_priority, (float) $priority, false) . '>' . $priority . '</option>';
+                                echo '<option value="' . esc_attr($priority) . '"' . selected($category_priority, (float) $priority, false) . '>' . esc_html($priority) . '</option>';
                             }
                             ?>
                         </select>

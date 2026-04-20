@@ -48,25 +48,25 @@ function almaseo_eg_meta_box_content($post) {
     switch ($status) {
         case ALMASEO_EG_STATUS_EVERGREEN:
             echo '<span style="display: inline-block; padding: 8px 16px; background: #d4edda; color: #155724; border-radius: 20px; font-weight: bold;">';
-            echo '🟢 ' . __('Evergreen', 'almaseo-seo-playground');
+            echo '🟢 ' . esc_html__('Evergreen', 'almaseo-seo-playground');
             echo '</span>';
             break;
             
         case ALMASEO_EG_STATUS_WATCH:
             echo '<span style="display: inline-block; padding: 8px 16px; background: #fff3cd; color: #856404; border-radius: 20px; font-weight: bold;">';
-            echo '🟡 ' . __('Watch', 'almaseo-seo-playground');
+            echo '🟡 ' . esc_html__('Watch', 'almaseo-seo-playground');
             echo '</span>';
             break;
             
         case ALMASEO_EG_STATUS_STALE:
             echo '<span style="display: inline-block; padding: 8px 16px; background: #f8d7da; color: #721c24; border-radius: 20px; font-weight: bold;">';
-            echo '🔴 ' . __('Stale', 'almaseo-seo-playground');
+            echo '🔴 ' . esc_html__('Stale', 'almaseo-seo-playground');
             echo '</span>';
             break;
             
         default:
             echo '<span style="display: inline-block; padding: 8px 16px; background: #e2e3e5; color: #383d41; border-radius: 20px; font-weight: bold;">';
-            echo '⚪ ' . __('Not Analyzed', 'almaseo-seo-playground');
+            echo '⚪ ' . esc_html__('Not Analyzed', 'almaseo-seo-playground');
             echo '</span>';
             break;
     }

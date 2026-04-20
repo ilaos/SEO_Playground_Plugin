@@ -340,7 +340,7 @@ function almaseo_health_check_outbound_link($content) {
         $note = sprintf(__('%d outbound link(s) found', 'almaseo-seo-playground'), $outbound_count);
         if ($nofollow_count > 0) {
             /* translators: %d: number of nofollow links */
-            $note .= sprintf(' ' . __('(%d with nofollow)', 'almaseo-seo-playground'), $nofollow_count);
+            $note .= sprintf(' ' . esc_html__('(%d with nofollow)', 'almaseo-seo-playground'), $nofollow_count);
         }
         return array(
             'pass' => true,

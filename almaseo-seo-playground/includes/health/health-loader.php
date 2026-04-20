@@ -147,7 +147,7 @@ class AlmaSEO_Health_Loader {
         wp_send_json_success(array(
             'score' => $result['score'],
             'breakdown' => $result['breakdown'],
-            'updated_at' => human_time_diff(current_time('U')) . ' ' . __('ago', 'almaseo-seo-playground')
+            'updated_at' => human_time_diff(current_time('U')) . ' ' . esc_html__('ago', 'almaseo-seo-playground')
         ));
     }
     
@@ -225,7 +225,7 @@ class AlmaSEO_Health_Loader {
         wp_send_json_success(array(
             'score' => $result['score'],
             'breakdown' => $result['breakdown'],
-            'updated_at' => human_time_diff(current_time('U')) . ' ' . __('ago', 'almaseo-seo-playground'),
+            'updated_at' => human_time_diff(current_time('U')) . ' ' . esc_html__('ago', 'almaseo-seo-playground'),
             'serp_preview' => array(
                 'title' => almaseo_truncate_for_serp($title, 60),
                 'description' => almaseo_truncate_for_serp($description, 160),
@@ -294,7 +294,7 @@ class AlmaSEO_Health_Loader {
         wp_send_json_success(array(
             'score' => $result['score'],
             'breakdown' => $result['breakdown'],
-            'updated_at' => human_time_diff(current_time('U')) . ' ' . __('ago', 'almaseo-seo-playground'),
+            'updated_at' => human_time_diff(current_time('U')) . ' ' . esc_html__('ago', 'almaseo-seo-playground'),
             'serp_preview' => array(
                 'title' => almaseo_truncate_for_serp($title, 60),
                 'description' => almaseo_truncate_for_serp($description, 160),
@@ -405,7 +405,7 @@ class AlmaSEO_Health_Loader {
             $label = isset($labels[$signal]) ? $labels[$signal] : ucfirst($signal);
             $tooltip .= "• {$label}: {$weight} points\n";
         }
-        $tooltip .= "\n" . __('Total: 100 points (weighted by importance)', 'almaseo-seo-playground');
+        $tooltip .= "\n" . esc_html__('Total: 100 points (weighted by importance)', 'almaseo-seo-playground');
         
         return $tooltip;
     }

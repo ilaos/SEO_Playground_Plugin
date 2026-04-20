@@ -124,7 +124,7 @@ class Alma_Sitemap_Admin_Page {
     public function render_page() {
         // Check permissions
         if (!current_user_can('manage_options')) {
-            wp_die(__('You do not have sufficient permissions to access this page.', 'almaseo-seo-playground'));
+            wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'almaseo-seo-playground'));
         }
         
         // Load the screen controller
@@ -134,7 +134,7 @@ class Alma_Sitemap_Admin_Page {
         if (function_exists('almaseo_render_sitemaps_screen_v2')) {
             almaseo_render_sitemaps_screen_v2();
         } else {
-            echo '<div class="error"><p>' . __('Unable to load sitemap interface.', 'almaseo-seo-playground') . '</p></div>';
+            echo '<div class="error"><p>' . esc_html__('Unable to load sitemap interface.', 'almaseo-seo-playground') . '</p></div>';
         }
     }
 }

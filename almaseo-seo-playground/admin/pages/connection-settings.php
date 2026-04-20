@@ -191,7 +191,7 @@ function almaseo_connector_settings_page() {
         );
         $conn_type = $comprehensive_status['connection_type'];
         echo '<div class="detail-item">';
-        echo '<strong>Connection Type:</strong> ' . ($connection_type_display[$conn_type] ?? $connection_type_display['unknown']);
+        echo '<strong>Connection Type:</strong> ' . esc_html($connection_type_display[$conn_type] ?? $connection_type_display['unknown']);
         echo '</div>';
 
         // Show connection status icons
@@ -1117,7 +1117,7 @@ function almaseo_connector_settings_page() {
 
             $.post(ajaxurl, {
                 action: "almaseo_check_dashboard",
-                nonce: "' . wp_create_nonce('almaseo_nonce') . '"
+                nonce: "' . esc_js(wp_create_nonce('almaseo_nonce')) . '"
             }, function(response) {
                 if (response.success) {
                     let message = response.data.registered ?

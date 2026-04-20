@@ -272,7 +272,7 @@ function almaseo_history_render_compare_field($field_name, $from_value, $to_valu
                     </div>
                     <?php else: ?>
                     <div class="field-value">
-                        <?php echo !empty($from_value) ? esc_html($from_value) : '<em>' . __('(empty)', 'almaseo-seo-playground') . '</em>'; ?>
+                        <?php echo !empty($from_value) ? esc_html($from_value) : '<em>' . esc_html__('(empty)', 'almaseo-seo-playground') . '</em>'; ?>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -287,7 +287,7 @@ function almaseo_history_render_compare_field($field_name, $from_value, $to_valu
                     </div>
                     <?php else: ?>
                     <div class="field-value">
-                        <?php echo !empty($to_value) ? esc_html($to_value) : '<em>' . __('(empty)', 'almaseo-seo-playground') . '</em>'; ?>
+                        <?php echo !empty($to_value) ? esc_html($to_value) : '<em>' . esc_html__('(empty)', 'almaseo-seo-playground') . '</em>'; ?>
                     </div>
                     <?php endif; ?>
                 </div>

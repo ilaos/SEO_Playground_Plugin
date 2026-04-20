@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 if (!function_exists('almaseo_welcome_screen_page')) {
 function almaseo_welcome_screen_page() {
     if (!current_user_can('manage_options')) {
-        wp_die(__('You do not have sufficient permissions to access this page.', 'almaseo-seo-playground'));
+        wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'almaseo-seo-playground'));
     }
     ?>
     <div class="wrap" style="max-width: 900px; margin: 40px auto;">

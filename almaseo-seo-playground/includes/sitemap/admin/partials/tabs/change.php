@@ -297,7 +297,7 @@ try {
                                 <?php echo esc_html(ucfirst($change['type'])); ?>
                             </span>
                         </td>
-                        <td><?php echo esc_html(human_time_diff($change['modified']) . ' ' . __('ago', 'almaseo-seo-playground')); ?></td>
+                        <td><?php echo esc_html(human_time_diff($change['modified']) . ' ' . esc_html__('ago', 'almaseo-seo-playground')); ?></td>
                         <td>
                             <?php if ($change['pinged']): ?>
                             <span class="almaseo-text-success">

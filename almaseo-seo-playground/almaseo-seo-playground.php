@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
-Version: 1.6.13
+Version: 1.6.14
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -50,7 +50,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
     }
     if ( $almaseo_seo_conflict ) {
         // Define only the bare minimum constants, then stop loading.
-        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.6.13' );
+        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.6.14' );
         if ( ! defined( 'ALMASEO_PATH' ) )           define( 'ALMASEO_PATH', plugin_dir_path( __FILE__ ) );
         if ( ! defined( 'ALMASEO_URL' ) )            define( 'ALMASEO_URL', plugin_dir_url( __FILE__ ) );
         if ( ! defined( 'ALMASEO_MAIN_FILE' ) )      define( 'ALMASEO_MAIN_FILE', __FILE__ );
@@ -62,7 +62,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
 if (!defined('ALMASEO_MAIN_FILE'))       define('ALMASEO_MAIN_FILE', __FILE__);
 if (!defined('ALMASEO_PATH'))            define('ALMASEO_PATH', plugin_dir_path(__FILE__));
 if (!defined('ALMASEO_URL'))             define('ALMASEO_URL', plugin_dir_url(__FILE__));
-if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.6.13');
+if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.6.14');
 if (!defined('ALMASEO_VERSION'))         define('ALMASEO_VERSION', '6.5.0');
 if (!defined('ALMASEO_API_NAMESPACE'))   define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
 if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
@@ -510,7 +510,7 @@ add_action('admin_notices', function() {
 // Handle the one-click connector deactivation
 add_action('admin_post_almaseo_deactivate_connector', function() {
     if (!current_user_can('activate_plugins')) {
-        wp_die(__('You do not have permission to do this.', 'almaseo-seo-playground'));
+        wp_die(esc_html__('You do not have permission to do this.', 'almaseo-seo-playground'));
     }
     check_admin_referer('almaseo_deactivate_connector');
 
@@ -2618,7 +2618,7 @@ require_once plugin_dir_path(__FILE__) . 'includes/frontend/meta-tags-renderer.p
 if (!function_exists('almaseo_woocommerce_settings_page')) {
 function almaseo_woocommerce_settings_page() {
     if (!current_user_can('manage_options')) {
-        wp_die(__('You do not have sufficient permissions to access this page.', 'almaseo-seo-playground'));
+        wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'almaseo-seo-playground'));
     }
 
     // Include the WooCommerce settings page
@@ -2626,7 +2626,7 @@ function almaseo_woocommerce_settings_page() {
     if (file_exists($settings_file)) {
         include $settings_file;
     } else {
-        echo '<div class="notice notice-error"><p>' . __('WooCommerce SEO settings file not found.', 'almaseo-seo-playground') . '</p></div>';
+        echo '<div class="notice notice-error"><p>' . esc_html__('WooCommerce SEO settings file not found.', 'almaseo-seo-playground') . '</p></div>';
     }
 }
 } // end function_exists guard: almaseo_woocommerce_settings_page

@@ -60,7 +60,7 @@ class AlmaSEO_404_Controller {
     public static function render_admin_page() {
         // Check permissions
         if (!current_user_can('manage_options')) {
-            wp_die(__('You do not have sufficient permissions to access this page.', 'almaseo-seo-playground'));
+            wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'almaseo-seo-playground'));
         }
         
         // Include the admin page template
@@ -68,7 +68,7 @@ class AlmaSEO_404_Controller {
         if (file_exists($admin_page)) {
             require_once $admin_page;
         } else {
-            echo '<div class="error"><p>' . __('404 Logs admin page not found.', 'almaseo-seo-playground') . '</p></div>';
+            echo '<div class="error"><p>' . esc_html__('404 Logs admin page not found.', 'almaseo-seo-playground') . '</p></div>';
         }
     }
     

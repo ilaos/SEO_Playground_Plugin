@@ -456,7 +456,7 @@ function almaseo_health_get_score_explanation($weights) {
         $explanation .= sprintf("• %s: %d points\n", $label, $weight);
     }
     
-    $explanation .= "\n" . __('Total: 100 points. Score is weighted by importance of each signal.', 'almaseo-seo-playground');
+    $explanation .= "\n" . esc_html__('Total: 100 points. Score is weighted by importance of each signal.', 'almaseo-seo-playground');
     
     return $explanation;
 }

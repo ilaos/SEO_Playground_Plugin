@@ -197,7 +197,7 @@ class AlmaSEO_Woo_Loader {
     public function render_settings_page() {
         // Check capability
         if (!current_user_can('manage_woocommerce') && !current_user_can('manage_options')) {
-            wp_die(__('You do not have sufficient permissions to access this page.', 'almaseo-seo-playground'));
+            wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'almaseo-seo-playground'));
         }
         
         // Include settings page
@@ -205,7 +205,7 @@ class AlmaSEO_Woo_Loader {
         if (file_exists($settings_file)) {
             include $settings_file;
         } else {
-            echo '<div class="notice notice-info"><p>' . __('WooCommerce SEO settings coming soon!', 'almaseo-seo-playground') . '</p></div>';
+            echo '<div class="notice notice-info"><p>' . esc_html__('WooCommerce SEO settings coming soon!', 'almaseo-seo-playground') . '</p></div>';
         }
     }
     

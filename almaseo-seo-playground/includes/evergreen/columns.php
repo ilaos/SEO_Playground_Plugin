@@ -67,7 +67,7 @@ function almaseo_eg_column_content($column_name, $post_id) {
     switch ($status) {
         case ALMASEO_EG_STATUS_EVERGREEN:
             echo '<span class="almaseo-eg-pill almaseo-eg-evergreen" data-eg-tooltip="' . esc_attr($tooltip) . '" tabindex="0">';
-            echo '🟢 ' . __('Evergreen', 'almaseo-seo-playground');
+            echo '🟢 ' . esc_html__('Evergreen', 'almaseo-seo-playground');
             if ($notes['pinned']) {
                 echo ' 📌';
             }
@@ -76,20 +76,20 @@ function almaseo_eg_column_content($column_name, $post_id) {
             
         case ALMASEO_EG_STATUS_WATCH:
             echo '<span class="almaseo-eg-pill almaseo-eg-watch" data-eg-tooltip="' . esc_attr($tooltip) . '" tabindex="0">';
-            echo '🟡 ' . __('Watch', 'almaseo-seo-playground');
+            echo '🟡 ' . esc_html__('Watch', 'almaseo-seo-playground');
             echo '</span>';
             break;
             
         case ALMASEO_EG_STATUS_STALE:
             echo '<span class="almaseo-eg-pill almaseo-eg-stale" data-eg-tooltip="' . esc_attr($tooltip) . '" tabindex="0">';
-            echo '🔴 ' . __('Stale', 'almaseo-seo-playground');
+            echo '🔴 ' . esc_html__('Stale', 'almaseo-seo-playground');
             echo '</span>';
             break;
             
         default:
             $default_tooltip = __('Not analyzed yet', 'almaseo-seo-playground');
             echo '<span class="almaseo-eg-pill almaseo-eg-unknown" data-eg-tooltip="' . esc_attr($default_tooltip) . '" tabindex="0">';
-            echo '⚪ ' . __('Unknown', 'almaseo-seo-playground');
+            echo '⚪ ' . esc_html__('Unknown', 'almaseo-seo-playground');
             echo '</span>';
             break;
     }

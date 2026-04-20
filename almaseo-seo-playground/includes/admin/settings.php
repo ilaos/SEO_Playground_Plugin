@@ -891,7 +891,7 @@ class AlmaSEO_Settings {
         $log = get_option('almaseo_schema_log', array());
         
         if (empty($log)) {
-            echo '<p>' . __('No schema actions logged yet.', 'almaseo-seo-playground') . '</p>';
+            echo '<p>' . esc_html__('No schema actions logged yet.', 'almaseo-seo-playground') . '</p>';
             return;
         }
         

@@ -69,7 +69,7 @@ class AlmaSEO_Internal_Links_Controller {
      */
     public static function render_admin_page() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( __( 'You do not have sufficient permissions to access this page.', 'almaseo-seo-playground' ) );
+            wp_die(esc_html__( 'You do not have sufficient permissions to access this page.', 'almaseo-seo-playground' ) );
         }
 
         // Pro gate
@@ -89,7 +89,7 @@ class AlmaSEO_Internal_Links_Controller {
      */
     public static function render_orphan_page() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( __( 'You do not have sufficient permissions to access this page.', 'almaseo-seo-playground' ) );
+            wp_die(esc_html__( 'You do not have sufficient permissions to access this page.', 'almaseo-seo-playground' ) );
         }
 
         // Pro gate.

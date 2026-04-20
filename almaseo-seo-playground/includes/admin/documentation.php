@@ -44,7 +44,7 @@ class AlmaSEO_Documentation {
      */
     public static function render() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( __( 'Insufficient permissions.', 'almaseo-seo-playground' ) );
+            wp_die(esc_html__( 'Insufficient permissions.', 'almaseo-seo-playground' ) );
         }
 
         require_once plugin_dir_path( dirname( __DIR__ ) ) . 'admin/pages/documentation.php';

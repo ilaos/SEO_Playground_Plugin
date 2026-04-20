@@ -199,12 +199,12 @@ function almaseo_eg_generate_digest() {
     
     // Build HTML digest
     $html = '<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">';
-    $html .= '<h2>' . __('AlmaSEO Evergreen Weekly Digest', 'almaseo-seo-playground') . '</h2>';
+    $html .= '<h2>' . esc_html__('AlmaSEO Evergreen Weekly Digest', 'almaseo-seo-playground') . '</h2>';
     /* translators: %s: date and time the digest was generated */
     $html .= '<p>' . sprintf(__('Generated: %s', 'almaseo-seo-playground'), current_time('F j, Y g:i a')) . '</p>';
 
     // Stats section
-    $html .= '<h3>' . __('Content Health Overview', 'almaseo-seo-playground') . '</h3>';
+    $html .= '<h3>' . esc_html__('Content Health Overview', 'almaseo-seo-playground') . '</h3>';
     $html .= '<ul>';
     /* translators: %d: number of evergreen posts */
     $html .= '<li>' . sprintf(__('🟢 Evergreen: %d posts', 'almaseo-seo-playground'), $stats['evergreen']) . '</li>';
@@ -216,7 +216,7 @@ function almaseo_eg_generate_digest() {
     
     // Stale posts section
     if (!empty($stale_posts)) {
-        $html .= '<h3>' . __('Posts Needing Attention', 'almaseo-seo-playground') . '</h3>';
+        $html .= '<h3>' . esc_html__('Posts Needing Attention', 'almaseo-seo-playground') . '</h3>';
         $html .= '<ol>';
         foreach ($stale_posts as $post) {
             $ages = almaseo_get_post_ages($post);
@@ -224,7 +224,7 @@ function almaseo_eg_generate_digest() {
             $html .= '<strong>' . esc_html($post->post_title) . '</strong><br>';
             /* translators: %d: number of days since last update */
             $html .= sprintf(__('Last updated: %d days ago', 'almaseo-seo-playground'), $ages['updated_days']);
-            $html .= ' | <a href="' . get_edit_post_link($post->ID) . '">' . __('Edit', 'almaseo-seo-playground') . '</a>';
+            $html .= ' | <a href="' . get_edit_post_link($post->ID) . '">' . esc_html__('Edit', 'almaseo-seo-playground') . '</a>';
             $html .= '</li>';
         }
         $html .= '</ol>';

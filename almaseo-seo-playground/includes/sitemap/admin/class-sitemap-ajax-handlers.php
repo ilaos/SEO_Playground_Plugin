@@ -1064,7 +1064,7 @@ class Alma_Sitemap_Ajax_Handlers {
                 break;
                 
             default:
-                echo '<div class="section-not-found">' . __('Section not found', 'almaseo-seo-playground') . '</div>';
+                echo '<div class="section-not-found">' . esc_html__('Section not found', 'almaseo-seo-playground') . '</div>';
         }
         
         $content = ob_get_clean();
