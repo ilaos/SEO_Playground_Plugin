@@ -113,11 +113,11 @@ class Alma_Sitemap_Ajax_Handlers {
      */
     private static function verify_ajax_nonce() {
         if (!check_ajax_referer('almaseo_sitemaps_nonce', 'nonce', false)) {
-            wp_send_json_error(['message' => __('Invalid security token', 'almaseo')]);
+            wp_send_json_error(['message' => __('Invalid security token', 'almaseo-seo-playground')]);
         }
         
         if (!current_user_can('manage_options')) {
-            wp_send_json_error(['message' => __('Permission denied', 'almaseo')]);
+            wp_send_json_error(['message' => __('Permission denied', 'almaseo-seo-playground')]);
         }
     }
     
@@ -290,7 +290,7 @@ class Alma_Sitemap_Ajax_Handlers {
         update_option('almaseo_sitemap_settings', $settings, false);
         
         wp_send_json_success(array(
-            'message' => __('Settings saved successfully', 'almaseo'),
+            'message' => __('Settings saved successfully', 'almaseo-seo-playground'),
             'settings' => $settings
         ));
     }
@@ -305,7 +305,7 @@ class Alma_Sitemap_Ajax_Handlers {
         delete_transient('almaseo_sitemap_cache');
         
         wp_send_json_success([
-            'message' => __('Statistics recalculated', 'almaseo'),
+            'message' => __('Statistics recalculated', 'almaseo-seo-playground'),
             'redirect' => admin_url('admin.php?page=almaseo-sitemaps')
         ]);
     }
@@ -323,7 +323,7 @@ class Alma_Sitemap_Ajax_Handlers {
         
         // Validate URL
         if (empty($url) || !filter_var($url, FILTER_VALIDATE_URL)) {
-            wp_send_json_error(__('Invalid URL', 'almaseo'));
+            wp_send_json_error(__('Invalid URL', 'almaseo-seo-playground'));
         }
         
         // Check if provider class exists
@@ -339,13 +339,13 @@ class Alma_Sitemap_Ajax_Handlers {
                 }
                 
                 wp_send_json_success(array(
-                    'message' => __('URL added successfully', 'almaseo'),
+                    'message' => __('URL added successfully', 'almaseo-seo-playground'),
                     'id' => $result
                 ));
             }
         }
         
-        wp_send_json_error(__('Additional URLs feature not available', 'almaseo'));
+        wp_send_json_error(__('Additional URLs feature not available', 'almaseo-seo-playground'));
     }
     
     /**
@@ -357,7 +357,7 @@ class Alma_Sitemap_Ajax_Handlers {
         $csv_content = wp_unslash($_POST['csv'] ?? '');
         
         if (empty($csv_content)) {
-            wp_send_json_error(__('No CSV content provided', 'almaseo'));
+            wp_send_json_error(__('No CSV content provided', 'almaseo-seo-playground'));
         }
         
         // Parse CSV
@@ -376,13 +376,13 @@ class Alma_Sitemap_Ajax_Handlers {
                     // Add URL logic here
                     $imported++;
                 } else {
-                    $errors[] = sprintf(__('Line %d: Invalid URL', 'almaseo'), $line_num + 1);
+                    $errors[] = sprintf(__('Line %d: Invalid URL', 'almaseo-seo-playground'), $line_num + 1);
                 }
             }
         }
         
         wp_send_json_success(array(
-            'message' => sprintf(__('Imported %d URLs', 'almaseo'), $imported),
+            'message' => sprintf(__('Imported %d URLs', 'almaseo-seo-playground'), $imported),
             'imported' => $imported,
             'errors' => $errors
         ));
@@ -427,7 +427,7 @@ class Alma_Sitemap_Ajax_Handlers {
             }
         }
         
-        wp_send_json_error(__('Conflict scanner not available', 'almaseo'));
+        wp_send_json_error(__('Conflict scanner not available', 'almaseo-seo-playground'));
     }
     
     /**
@@ -497,7 +497,7 @@ class Alma_Sitemap_Ajax_Handlers {
         $lock = get_option('almaseo_sitemaps_build_lock');
         if ($lock && isset($lock['expires']) && $lock['expires'] > time()) {
             wp_send_json_error([
-                'message' => __('Build already in progress', 'almaseo'),
+                'message' => __('Build already in progress', 'almaseo-seo-playground'),
                 'lock' => $lock
             ]);
         }
@@ -546,7 +546,7 @@ class Alma_Sitemap_Ajax_Handlers {
             delete_option('almaseo_sitemaps_build_lock');
             
             wp_send_json_success([
-                'message' => __('Sitemaps rebuilt successfully', 'almaseo'),
+                'message' => __('Sitemaps rebuilt successfully', 'almaseo-seo-playground'),
                 'stats' => $stats
             ]);
             
@@ -555,7 +555,7 @@ class Alma_Sitemap_Ajax_Handlers {
             delete_option('almaseo_sitemaps_build_lock');
             
             wp_send_json_error([
-                'message' => sprintf(__('Build failed: %s', 'almaseo'), $e->getMessage())
+                'message' => sprintf(__('Build failed: %s', 'almaseo-seo-playground'), $e->getMessage())
             ]);
         }
     }
@@ -576,14 +576,14 @@ class Alma_Sitemap_Ajax_Handlers {
                 
                 if ($result) {
                     wp_send_json_success(array(
-                        'message' => __('Delta ping sent successfully', 'almaseo'),
+                        'message' => __('Delta ping sent successfully', 'almaseo-seo-playground'),
                         'urls_pinged' => $result['count']
                     ));
                 }
             }
         }
         
-        wp_send_json_error(__('Delta provider not available', 'almaseo'));
+        wp_send_json_error(__('Delta provider not available', 'almaseo-seo-playground'));
     }
     
     /**
@@ -606,7 +606,7 @@ class Alma_Sitemap_Ajax_Handlers {
         ));
         
         wp_send_json_success(array(
-            'message' => sprintf(__('Purged %d old delta entries', 'almaseo'), $deleted),
+            'message' => sprintf(__('Purged %d old delta entries', 'almaseo-seo-playground'), $deleted),
             'deleted' => $deleted
         ));
     }
@@ -626,14 +626,14 @@ class Alma_Sitemap_Ajax_Handlers {
                 $result = $validator->validate_all();
                 
                 wp_send_json_success(array(
-                    'message' => __('Hreflang validation complete', 'almaseo'),
+                    'message' => __('Hreflang validation complete', 'almaseo-seo-playground'),
                     'issues' => $result['issues'],
                     'stats' => $result['stats']
                 ));
             }
         }
         
-        wp_send_json_error(__('Hreflang validator not available', 'almaseo'));
+        wp_send_json_error(__('Hreflang validator not available', 'almaseo-seo-playground'));
     }
     
     /**
@@ -663,7 +663,7 @@ class Alma_Sitemap_Ajax_Handlers {
         ");
         
         wp_send_json_success(array(
-            'message' => __('Media scan complete', 'almaseo'),
+            'message' => __('Media scan complete', 'almaseo-seo-playground'),
             'images' => intval($image_count),
             'videos' => intval($video_count),
             'total' => intval($image_count) + intval($video_count)
@@ -690,11 +690,11 @@ class Alma_Sitemap_Ajax_Handlers {
         ");
         
         if ($missing_alt > 0) {
-            $issues[] = sprintf(__('%d images missing alt text', 'almaseo'), $missing_alt);
+            $issues[] = sprintf(__('%d images missing alt text', 'almaseo-seo-playground'), $missing_alt);
         }
         
         wp_send_json_success(array(
-            'message' => __('Media validation complete', 'almaseo'),
+            'message' => __('Media validation complete', 'almaseo-seo-playground'),
             'issues' => $issues,
             'valid' => empty($issues)
         ));
@@ -729,7 +729,7 @@ class Alma_Sitemap_Ajax_Handlers {
         }
         
         wp_send_json_success(array(
-            'message' => __('Media sitemaps queued for rebuild', 'almaseo'),
+            'message' => __('Media sitemaps queued for rebuild', 'almaseo-seo-playground'),
             'rebuilt' => $rebuilt
         ));
     }
@@ -746,15 +746,15 @@ class Alma_Sitemap_Ajax_Handlers {
         $issues = [];
         
         if (empty($news_settings['publisher_name'])) {
-            $issues[] = __('Publisher name not configured', 'almaseo');
+            $issues[] = __('Publisher name not configured', 'almaseo-seo-playground');
         }
         
         if (empty($news_settings['post_types'])) {
-            $issues[] = __('No post types selected for news', 'almaseo');
+            $issues[] = __('No post types selected for news', 'almaseo-seo-playground');
         }
         
         wp_send_json_success(array(
-            'message' => __('News validation complete', 'almaseo'),
+            'message' => __('News validation complete', 'almaseo-seo-playground'),
             'issues' => $issues,
             'valid' => empty($issues)
         ));
@@ -774,12 +774,12 @@ class Alma_Sitemap_Ajax_Handlers {
             if (class_exists('Alma_Provider_News')) {
                 // Trigger news sitemap rebuild
                 wp_send_json_success(array(
-                    'message' => __('News sitemap queued for rebuild', 'almaseo')
+                    'message' => __('News sitemap queued for rebuild', 'almaseo-seo-playground')
                 ));
             }
         }
         
-        wp_send_json_error(__('News provider not available', 'almaseo'));
+        wp_send_json_error(__('News provider not available', 'almaseo-seo-playground'));
     }
     
     /**
@@ -805,24 +805,24 @@ class Alma_Sitemap_Ajax_Handlers {
         $json = wp_unslash($_POST['settings'] ?? '');
         
         if (empty($json)) {
-            wp_send_json_error(__('No settings data provided', 'almaseo'));
+            wp_send_json_error(__('No settings data provided', 'almaseo-seo-playground'));
         }
         
         $settings = json_decode($json, true);
         
         if (json_last_error() !== JSON_ERROR_NONE) {
-            wp_send_json_error(__('Invalid JSON format', 'almaseo'));
+            wp_send_json_error(__('Invalid JSON format', 'almaseo-seo-playground'));
         }
         
         // Validate critical settings
         if (!is_array($settings)) {
-            wp_send_json_error(__('Invalid settings format', 'almaseo'));
+            wp_send_json_error(__('Invalid settings format', 'almaseo-seo-playground'));
         }
         
         update_option('almaseo_sitemap_settings', $settings);
         
         wp_send_json_success(array(
-            'message' => __('Settings imported successfully', 'almaseo')
+            'message' => __('Settings imported successfully', 'almaseo-seo-playground')
         ));
     }
     
@@ -869,7 +869,7 @@ class Alma_Sitemap_Ajax_Handlers {
         $wpdb->query("TRUNCATE TABLE `$table`");
         
         wp_send_json_success(array(
-            'message' => __('Logs cleared successfully', 'almaseo')
+            'message' => __('Logs cleared successfully', 'almaseo-seo-playground')
         ));
     }
     
@@ -891,7 +891,7 @@ class Alma_Sitemap_Ajax_Handlers {
         }
         
         wp_send_json_success([
-            'message' => $enabled ? __('Sitemaps enabled', 'almaseo') : __('Sitemaps disabled', 'almaseo'),
+            'message' => $enabled ? __('Sitemaps enabled', 'almaseo-seo-playground') : __('Sitemaps disabled', 'almaseo-seo-playground'),
             'enabled' => $enabled
         ]);
     }
@@ -987,7 +987,7 @@ class Alma_Sitemap_Ajax_Handlers {
         $tab = isset($_POST['tab']) ? sanitize_key($_POST['tab']) : '';
         
         if (empty($tab)) {
-            wp_send_json_error(['message' => __('Invalid tab', 'almaseo')]);
+            wp_send_json_error(['message' => __('Invalid tab', 'almaseo-seo-playground')]);
         }
         
         // Map tab names to file names
@@ -1007,7 +1007,7 @@ class Alma_Sitemap_Ajax_Handlers {
         $partial_file = dirname(__FILE__) . '/partials/tabs/' . $tab_file . '.php';
         
         if (!file_exists($partial_file)) {
-            wp_send_json_error(['message' => __('Tab not found', 'almaseo')]);
+            wp_send_json_error(['message' => __('Tab not found', 'almaseo-seo-playground')]);
         }
         
         // Get settings for the tab
@@ -1042,7 +1042,7 @@ class Alma_Sitemap_Ajax_Handlers {
         $section = isset($_POST['section']) ? sanitize_key($_POST['section']) : '';
         
         if (empty($section)) {
-            wp_send_json_error(['message' => __('Invalid section', 'almaseo')]);
+            wp_send_json_error(['message' => __('Invalid section', 'almaseo-seo-playground')]);
         }
         
         // Load section content based on request
@@ -1059,7 +1059,7 @@ class Alma_Sitemap_Ajax_Handlers {
                 break;
                 
             default:
-                echo '<div class="section-not-found">' . __('Section not found', 'almaseo') . '</div>';
+                echo '<div class="section-not-found">' . __('Section not found', 'almaseo-seo-playground') . '</div>';
         }
         
         $content = ob_get_clean();
@@ -1122,7 +1122,7 @@ class Alma_Sitemap_Ajax_Handlers {
         update_option('almaseo_sitemap_snapshots', $snapshots);
         
         wp_send_json_success(array(
-            'message' => __('Snapshot created successfully', 'almaseo'),
+            'message' => __('Snapshot created successfully', 'almaseo-seo-playground'),
             'snapshot' => $snapshot
         ));
     }
@@ -1139,7 +1139,7 @@ class Alma_Sitemap_Ajax_Handlers {
         $snapshots = get_option('almaseo_sitemap_snapshots', []);
         
         if (!isset($snapshots[$snapshot1]) || !isset($snapshots[$snapshot2])) {
-            wp_send_json_error(__('Invalid snapshots selected', 'almaseo'));
+            wp_send_json_error(__('Invalid snapshots selected', 'almaseo-seo-playground'));
         }
         
         $diff = [

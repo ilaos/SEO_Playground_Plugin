@@ -114,12 +114,12 @@ class AlmaSEO_Robots_Controller {
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('almaseo_robots_nonce'),
             'strings' => array(
-                'saving' => __('Saving...', 'almaseo'),
-                'saved' => __('Settings saved successfully!', 'almaseo'),
-                'error' => __('An error occurred. Please try again.', 'almaseo'),
-                'testing' => __('Testing output...', 'almaseo'),
-                'confirmReset' => __('Are you sure you want to reset to WordPress default?', 'almaseo'),
-                'fileWarning' => __('Warning: A physical robots.txt file exists. WordPress will serve it regardless of virtual mode settings.', 'almaseo')
+                'saving' => __('Saving...', 'almaseo-seo-playground'),
+                'saved' => __('Settings saved successfully!', 'almaseo-seo-playground'),
+                'error' => __('An error occurred. Please try again.', 'almaseo-seo-playground'),
+                'testing' => __('Testing output...', 'almaseo-seo-playground'),
+                'confirmReset' => __('Are you sure you want to reset to WordPress default?', 'almaseo-seo-playground'),
+                'fileWarning' => __('Warning: A physical robots.txt file exists. WordPress will serve it regardless of virtual mode settings.', 'almaseo-seo-playground')
             )
         ));
     }
@@ -129,7 +129,7 @@ class AlmaSEO_Robots_Controller {
      */
     public function render_admin_page() {
         if (!current_user_can('manage_options')) {
-            wp_die(__('You do not have sufficient permissions to access this page.', 'almaseo'));
+            wp_die(__('You do not have sufficient permissions to access this page.', 'almaseo-seo-playground'));
         }
         
         require_once ALMASEO_PATH . 'admin/pages/robots-editor.php';
@@ -202,7 +202,7 @@ class AlmaSEO_Robots_Controller {
      */
     public function write_physical_file($content) {
         if (!$this->is_file_writable()) {
-            return new WP_Error('not_writable', __('The robots.txt file is not writable.', 'almaseo'));
+            return new WP_Error('not_writable', __('The robots.txt file is not writable.', 'almaseo-seo-playground'));
         }
         
         global $wp_filesystem;
@@ -214,14 +214,14 @@ class AlmaSEO_Robots_Controller {
         $creds = request_filesystem_credentials('', '', false, ABSPATH, null);
         
         if (!WP_Filesystem($creds)) {
-            return new WP_Error('filesystem_error', __('Could not access filesystem.', 'almaseo'));
+            return new WP_Error('filesystem_error', __('Could not access filesystem.', 'almaseo-seo-playground'));
         }
         
         $file_path = $this->get_robots_file_path();
         $result = $wp_filesystem->put_contents($file_path, $content, FS_CHMOD_FILE);
         
         if (!$result) {
-            return new WP_Error('write_failed', __('Failed to write robots.txt file.', 'almaseo'));
+            return new WP_Error('write_failed', __('Failed to write robots.txt file.', 'almaseo-seo-playground'));
         }
         
         return true;

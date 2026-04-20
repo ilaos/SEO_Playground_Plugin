@@ -84,12 +84,12 @@ class AlmaSEO_Headline_Analyzer {
         // 1. Word count: 6–13 ideal (20 pts)
         $wc_pass = $word_count >= 6 && $word_count <= 13;
         $checks['word_count'] = array(
-            'label' => __( 'Word Count', 'almaseo' ),
+            'label' => __( 'Word Count', 'almaseo-seo-playground' ),
             'value' => $word_count,
             'pass'  => $wc_pass,
             'tip'   => $wc_pass
-                ? sprintf( __( '%d words — ideal range.', 'almaseo' ), $word_count )
-                : sprintf( __( '%d words — aim for 6–13 words.', 'almaseo' ), $word_count ),
+                ? sprintf( __( '%d words — ideal range.', 'almaseo-seo-playground' ), $word_count )
+                : sprintf( __( '%d words — aim for 6–13 words.', 'almaseo-seo-playground' ), $word_count ),
         );
         if ( $wc_pass ) {
             $score += 20;
@@ -99,12 +99,12 @@ class AlmaSEO_Headline_Analyzer {
         $char_count = mb_strlen( $headline );
         $cl_pass = $char_count >= 50 && $char_count <= 60;
         $checks['char_length'] = array(
-            'label' => __( 'Character Length', 'almaseo' ),
+            'label' => __( 'Character Length', 'almaseo-seo-playground' ),
             'value' => $char_count,
             'pass'  => $cl_pass,
             'tip'   => $cl_pass
-                ? sprintf( __( '%d chars — fits Google\'s title display.', 'almaseo' ), $char_count )
-                : sprintf( __( '%d chars — aim for 50–60 characters.', 'almaseo' ), $char_count ),
+                ? sprintf( __( '%d chars — fits Google\'s title display.', 'almaseo-seo-playground' ), $char_count )
+                : sprintf( __( '%d chars — aim for 50–60 characters.', 'almaseo-seo-playground' ), $char_count ),
         );
         if ( $cl_pass ) {
             $score += 15;
@@ -114,12 +114,12 @@ class AlmaSEO_Headline_Analyzer {
         $power_found = self::count_word_matches( $words, self::$power_words );
         $pw_pass = $power_found > 0;
         $checks['power_words'] = array(
-            'label' => __( 'Power Words', 'almaseo' ),
+            'label' => __( 'Power Words', 'almaseo-seo-playground' ),
             'value' => $power_found,
             'pass'  => $pw_pass,
             'tip'   => $pw_pass
-                ? sprintf( __( '%d power word(s) found — great for driving clicks.', 'almaseo' ), $power_found )
-                : __( 'Add a power word (e.g., "proven", "essential", "ultimate").', 'almaseo' ),
+                ? sprintf( __( '%d power word(s) found — great for driving clicks.', 'almaseo-seo-playground' ), $power_found )
+                : __( 'Add a power word (e.g., "proven", "essential", "ultimate").', 'almaseo-seo-playground' ),
         );
         if ( $pw_pass ) {
             $score += 15;
@@ -129,12 +129,12 @@ class AlmaSEO_Headline_Analyzer {
         $emotional_found = self::count_word_matches( $words, self::$emotional_words );
         $ew_pass = $emotional_found > 0;
         $checks['emotional_words'] = array(
-            'label' => __( 'Emotional Words', 'almaseo' ),
+            'label' => __( 'Emotional Words', 'almaseo-seo-playground' ),
             'value' => $emotional_found,
             'pass'  => $ew_pass,
             'tip'   => $ew_pass
-                ? sprintf( __( '%d emotional word(s) — helps engage readers.', 'almaseo' ), $emotional_found )
-                : __( 'Consider adding an emotional trigger (e.g., "surprising", "inspiring").', 'almaseo' ),
+                ? sprintf( __( '%d emotional word(s) — helps engage readers.', 'almaseo-seo-playground' ), $emotional_found )
+                : __( 'Consider adding an emotional trigger (e.g., "surprising", "inspiring").', 'almaseo-seo-playground' ),
         );
         if ( $ew_pass ) {
             $score += 15;
@@ -143,12 +143,12 @@ class AlmaSEO_Headline_Analyzer {
         // 5. Contains a number (10 pts)
         $has_number = (bool) preg_match( '/\d/', $headline );
         $checks['has_number'] = array(
-            'label' => __( 'Contains Number', 'almaseo' ),
+            'label' => __( 'Contains Number', 'almaseo-seo-playground' ),
             'value' => $has_number ? 1 : 0,
             'pass'  => $has_number,
             'tip'   => $has_number
-                ? __( 'Numbers attract attention in search results.', 'almaseo' )
-                : __( 'Headlines with numbers get 36% more clicks.', 'almaseo' ),
+                ? __( 'Numbers attract attention in search results.', 'almaseo-seo-playground' )
+                : __( 'Headlines with numbers get 36% more clicks.', 'almaseo-seo-playground' ),
         );
         if ( $has_number ) {
             $score += 10;
@@ -158,12 +158,12 @@ class AlmaSEO_Headline_Analyzer {
         $is_question = (bool) preg_match( '/\?$/', trim( $headline ) )
             || (bool) preg_match( '/^(how|what|why|when|where|who|which|can|do|does|is|are|will|should)\b/i', $headline );
         $checks['is_question'] = array(
-            'label' => __( 'Question Format', 'almaseo' ),
+            'label' => __( 'Question Format', 'almaseo-seo-playground' ),
             'value' => $is_question ? 1 : 0,
             'pass'  => $is_question,
             'tip'   => $is_question
-                ? __( 'Question headlines spark curiosity.', 'almaseo' )
-                : __( 'Try phrasing as a question for higher engagement.', 'almaseo' ),
+                ? __( 'Question headlines spark curiosity.', 'almaseo-seo-playground' )
+                : __( 'Try phrasing as a question for higher engagement.', 'almaseo-seo-playground' ),
         );
         if ( $is_question ) {
             $score += 10;
@@ -175,14 +175,14 @@ class AlmaSEO_Headline_Analyzer {
         $common_pct = $word_count > 0 ? ( $common_count / $word_count ) * 100 : 0;
         $balance_pass = $common_pct >= 15 && $common_pct <= 50;
         $checks['word_balance'] = array(
-            'label' => __( 'Word Balance', 'almaseo' ),
+            'label' => __( 'Word Balance', 'almaseo-seo-playground' ),
             'value' => round( $common_pct ),
             'pass'  => $balance_pass,
             'tip'   => $balance_pass
-                ? sprintf( __( '%d%% common words — good balance of familiar and specific.', 'almaseo' ), round( $common_pct ) )
+                ? sprintf( __( '%d%% common words — good balance of familiar and specific.', 'almaseo-seo-playground' ), round( $common_pct ) )
                 : ( $common_pct > 50
-                    ? __( 'Too many generic words — add more specific, descriptive terms.', 'almaseo' )
-                    : __( 'Add some common connecting words for natural readability.', 'almaseo' ) ),
+                    ? __( 'Too many generic words — add more specific, descriptive terms.', 'almaseo-seo-playground' )
+                    : __( 'Add some common connecting words for natural readability.', 'almaseo-seo-playground' ) ),
         );
         if ( $balance_pass ) {
             $score += 15;

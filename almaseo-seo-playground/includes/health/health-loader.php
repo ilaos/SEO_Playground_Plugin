@@ -147,7 +147,7 @@ class AlmaSEO_Health_Loader {
         wp_send_json_success(array(
             'score' => $result['score'],
             'breakdown' => $result['breakdown'],
-            'updated_at' => human_time_diff(current_time('U')) . ' ' . __('ago', 'almaseo')
+            'updated_at' => human_time_diff(current_time('U')) . ' ' . __('ago', 'almaseo-seo-playground')
         ));
     }
     
@@ -225,7 +225,7 @@ class AlmaSEO_Health_Loader {
         wp_send_json_success(array(
             'score' => $result['score'],
             'breakdown' => $result['breakdown'],
-            'updated_at' => human_time_diff(current_time('U')) . ' ' . __('ago', 'almaseo'),
+            'updated_at' => human_time_diff(current_time('U')) . ' ' . __('ago', 'almaseo-seo-playground'),
             'serp_preview' => array(
                 'title' => almaseo_truncate_for_serp($title, 60),
                 'description' => almaseo_truncate_for_serp($description, 160),
@@ -294,7 +294,7 @@ class AlmaSEO_Health_Loader {
         wp_send_json_success(array(
             'score' => $result['score'],
             'breakdown' => $result['breakdown'],
-            'updated_at' => human_time_diff(current_time('U')) . ' ' . __('ago', 'almaseo'),
+            'updated_at' => human_time_diff(current_time('U')) . ' ' . __('ago', 'almaseo-seo-playground'),
             'serp_preview' => array(
                 'title' => almaseo_truncate_for_serp($title, 60),
                 'description' => almaseo_truncate_for_serp($description, 160),
@@ -318,7 +318,7 @@ class AlmaSEO_Health_Loader {
         
         if (empty($api_key)) {
             wp_send_json_error(array(
-                'message' => __('Not connected to AlmaSEO Dashboard', 'almaseo'),
+                'message' => __('Not connected to AlmaSEO Dashboard', 'almaseo-seo-playground'),
                 'is_connected' => false
             ));
             return;
@@ -336,7 +336,7 @@ class AlmaSEO_Health_Loader {
         
         if (is_wp_error($response)) {
             wp_send_json_error(array(
-                'message' => __('Failed to fetch keywords from API', 'almaseo'),
+                'message' => __('Failed to fetch keywords from API', 'almaseo-seo-playground'),
                 'is_connected' => true
             ));
             return;
@@ -352,7 +352,7 @@ class AlmaSEO_Health_Loader {
             ));
         } else {
             wp_send_json_error(array(
-                'message' => __('No keywords available', 'almaseo'),
+                'message' => __('No keywords available', 'almaseo-seo-playground'),
                 'is_connected' => true
             ));
         }
@@ -400,12 +400,12 @@ class AlmaSEO_Health_Loader {
         $weights = almaseo_health_get_weights();
         $labels = almaseo_health_get_signal_labels();
         
-        $tooltip = __('SEO Health Score Breakdown:', 'almaseo') . "\n";
+        $tooltip = __('SEO Health Score Breakdown:', 'almaseo-seo-playground') . "\n";
         foreach ($weights as $signal => $weight) {
             $label = isset($labels[$signal]) ? $labels[$signal] : ucfirst($signal);
             $tooltip .= "• {$label}: {$weight} points\n";
         }
-        $tooltip .= "\n" . __('Total: 100 points (weighted by importance)', 'almaseo');
+        $tooltip .= "\n" . __('Total: 100 points (weighted by importance)', 'almaseo-seo-playground');
         
         return $tooltip;
     }
@@ -453,16 +453,16 @@ class AlmaSEO_Health_Loader {
             'nonce' => wp_create_nonce('almaseo_health_nonce'),
             'readingSettingsUrl' => admin_url('options-reading.php'),
             'i18n' => array(
-                'recalculating' => __('Recalculating...', 'almaseo'),
-                'recalculated' => __('Score updated!', 'almaseo'),
-                'error' => __('Error calculating score', 'almaseo'),
-                'draft_copied' => __('Draft description copied to field', 'almaseo'),
-                'unsaved_changes' => __('Changes not saved—click Update to keep them', 'almaseo'),
-                'unsaved_changes_improved' => __('You have unsaved changes. Click "Update" to save your SEO improvements.', 'almaseo'),
+                'recalculating' => __('Recalculating...', 'almaseo-seo-playground'),
+                'recalculated' => __('Score updated!', 'almaseo-seo-playground'),
+                'error' => __('Error calculating score', 'almaseo-seo-playground'),
+                'draft_copied' => __('Draft description copied to field', 'almaseo-seo-playground'),
+                'unsaved_changes' => __('Changes not saved—click Update to keep them', 'almaseo-seo-playground'),
+                'unsaved_changes_improved' => __('You have unsaved changes. Click "Update" to save your SEO improvements.', 'almaseo-seo-playground'),
                 'score_tooltip' => $this->get_score_tooltip_text(),
-                'connect_for_keywords' => __('Connect to AlmaSEO to unlock live keyword suggestions', 'almaseo'),
-                'no_keywords' => __('No keyword suggestions available', 'almaseo'),
-                'keyword_error' => __('Failed to load keyword suggestions', 'almaseo')
+                'connect_for_keywords' => __('Connect to AlmaSEO to unlock live keyword suggestions', 'almaseo-seo-playground'),
+                'no_keywords' => __('No keyword suggestions available', 'almaseo-seo-playground'),
+                'keyword_error' => __('Failed to load keyword suggestions', 'almaseo-seo-playground')
             )
         ));
     }

@@ -46,8 +46,8 @@ class AlmaSEO_404_Controller {
     public static function add_admin_menu() {
         add_submenu_page(
             'seo-playground',
-            __('404 Intelligence', 'almaseo'),
-            __('404 Intelligence', 'almaseo'),
+            __('404 Intelligence', 'almaseo-seo-playground'),
+            __('404 Intelligence', 'almaseo-seo-playground'),
             'manage_options',
             'almaseo-404-logs',
             array(__CLASS__, 'render_admin_page')
@@ -60,7 +60,7 @@ class AlmaSEO_404_Controller {
     public static function render_admin_page() {
         // Check permissions
         if (!current_user_can('manage_options')) {
-            wp_die(__('You do not have sufficient permissions to access this page.', 'almaseo'));
+            wp_die(__('You do not have sufficient permissions to access this page.', 'almaseo-seo-playground'));
         }
         
         // Include the admin page template
@@ -68,7 +68,7 @@ class AlmaSEO_404_Controller {
         if (file_exists($admin_page)) {
             require_once $admin_page;
         } else {
-            echo '<div class="error"><p>' . __('404 Logs admin page not found.', 'almaseo') . '</p></div>';
+            echo '<div class="error"><p>' . __('404 Logs admin page not found.', 'almaseo-seo-playground') . '</p></div>';
         }
     }
     
@@ -104,16 +104,16 @@ class AlmaSEO_404_Controller {
             'redirectUrl' => admin_url('admin.php?page=almaseo-redirects'),
             'nonce' => wp_create_nonce('wp_rest'),
             'strings' => array(
-                'confirmDelete' => __('Are you sure you want to delete this 404 log?', 'almaseo'),
-                'confirmBulkDelete' => __('Are you sure you want to delete the selected logs?', 'almaseo'),
-                'error' => __('An error occurred. Please try again.', 'almaseo'),
-                'success' => __('Operation completed successfully.', 'almaseo'),
-                'loading' => __('Loading...', 'almaseo'),
-                'noSelection' => __('Please select at least one item.', 'almaseo'),
-                'createRedirect' => __('Create Redirect', 'almaseo'),
-                'ignore' => __('Ignore', 'almaseo'),
-                'unignore' => __('Unignore', 'almaseo'),
-                'delete' => __('Delete', 'almaseo')
+                'confirmDelete' => __('Are you sure you want to delete this 404 log?', 'almaseo-seo-playground'),
+                'confirmBulkDelete' => __('Are you sure you want to delete the selected logs?', 'almaseo-seo-playground'),
+                'error' => __('An error occurred. Please try again.', 'almaseo-seo-playground'),
+                'success' => __('Operation completed successfully.', 'almaseo-seo-playground'),
+                'loading' => __('Loading...', 'almaseo-seo-playground'),
+                'noSelection' => __('Please select at least one item.', 'almaseo-seo-playground'),
+                'createRedirect' => __('Create Redirect', 'almaseo-seo-playground'),
+                'ignore' => __('Ignore', 'almaseo-seo-playground'),
+                'unignore' => __('Unignore', 'almaseo-seo-playground'),
+                'delete' => __('Delete', 'almaseo-seo-playground')
             )
         ));
 
@@ -312,7 +312,7 @@ class AlmaSEO_404_Controller {
         if ($result) {
             return rest_ensure_response(array('success' => true));
         } else {
-            return new WP_Error('update_failed', __('Failed to update log.', 'almaseo'), array('status' => 500));
+            return new WP_Error('update_failed', __('Failed to update log.', 'almaseo-seo-playground'), array('status' => 500));
         }
     }
     
@@ -328,7 +328,7 @@ class AlmaSEO_404_Controller {
         if ($result) {
             return rest_ensure_response(array('success' => true));
         } else {
-            return new WP_Error('update_failed', __('Failed to update log.', 'almaseo'), array('status' => 500));
+            return new WP_Error('update_failed', __('Failed to update log.', 'almaseo-seo-playground'), array('status' => 500));
         }
     }
     
@@ -344,7 +344,7 @@ class AlmaSEO_404_Controller {
         if ($result) {
             return rest_ensure_response(array('success' => true));
         } else {
-            return new WP_Error('delete_failed', __('Failed to delete log.', 'almaseo'), array('status' => 500));
+            return new WP_Error('delete_failed', __('Failed to delete log.', 'almaseo-seo-playground'), array('status' => 500));
         }
     }
     
@@ -358,7 +358,7 @@ class AlmaSEO_404_Controller {
         $ids = $request->get_param('ids');
         
         if (!is_array($ids) || empty($ids)) {
-            return new WP_Error('invalid_ids', __('Invalid IDs provided.', 'almaseo'), array('status' => 400));
+            return new WP_Error('invalid_ids', __('Invalid IDs provided.', 'almaseo-seo-playground'), array('status' => 400));
         }
         
         // Sanitize IDs
@@ -377,13 +377,13 @@ class AlmaSEO_404_Controller {
                 $result = AlmaSEO_404_Model::bulk_delete($ids);
                 break;
             default:
-                return new WP_Error('invalid_action', __('Invalid action.', 'almaseo'), array('status' => 400));
+                return new WP_Error('invalid_action', __('Invalid action.', 'almaseo-seo-playground'), array('status' => 400));
         }
         
         if ($result) {
             return rest_ensure_response(array('success' => true));
         } else {
-            return new WP_Error('bulk_failed', __('Bulk operation failed.', 'almaseo'), array('status' => 500));
+            return new WP_Error('bulk_failed', __('Bulk operation failed.', 'almaseo-seo-playground'), array('status' => 500));
         }
     }
     
@@ -399,7 +399,7 @@ class AlmaSEO_404_Controller {
         if ($data) {
             return rest_ensure_response($data);
         } else {
-            return new WP_Error('not_found', __('404 log not found.', 'almaseo'), array('status' => 404));
+            return new WP_Error('not_found', __('404 log not found.', 'almaseo-seo-playground'), array('status' => 404));
         }
     }
     

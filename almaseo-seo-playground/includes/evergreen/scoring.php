@@ -284,7 +284,7 @@ function almaseo_score_evergreen($post) {
     if ($metrics['pinned']) {
         return array(
             'status' => ALMASEO_EG_STATUS_EVERGREEN,
-            'reasons' => array(__('Manually pinned as evergreen', 'almaseo')),
+            'reasons' => array(__('Manually pinned as evergreen', 'almaseo-seo-playground')),
             'metrics' => $metrics
         );
     }
@@ -293,22 +293,22 @@ function almaseo_score_evergreen($post) {
     // Rule: Stale if updated_days > 365 OR traffic down > 40%
     if ($ages['updated_days'] > $stale_days) {
         $status = ALMASEO_EG_STATUS_STALE;
-        $reasons[] = sprintf(__('Not updated in %d days', 'almaseo'), $ages['updated_days']);
+        $reasons[] = sprintf(__('Not updated in %d days', 'almaseo-seo-playground'), $ages['updated_days']);
     }
     
     if ($trend < 0 && abs($trend) >= $stale_traffic_drop) {
         $status = ALMASEO_EG_STATUS_STALE;
-        $reasons[] = sprintf(__('Traffic declined by %.1f%%', 'almaseo'), abs($trend));
+        $reasons[] = sprintf(__('Traffic declined by %.1f%%', 'almaseo-seo-playground'), abs($trend));
     }
     
     // Rule: Watch if updated_days > 180 OR traffic down > 20% (but not stale)
     if ($status !== ALMASEO_EG_STATUS_STALE) {
         if ($ages['updated_days'] > $watch_days) {
             $status = ALMASEO_EG_STATUS_WATCH;
-            $reasons[] = sprintf(__('Updated %d days ago', 'almaseo'), $ages['updated_days']);
+            $reasons[] = sprintf(__('Updated %d days ago', 'almaseo-seo-playground'), $ages['updated_days']);
         } else if ($trend < 0 && abs($trend) >= $watch_traffic_drop) {
             $status = ALMASEO_EG_STATUS_WATCH;
-            $reasons[] = sprintf(__('Traffic down %.1f%%', 'almaseo'), abs($trend));
+            $reasons[] = sprintf(__('Traffic down %.1f%%', 'almaseo-seo-playground'), abs($trend));
         }
     }
     
@@ -317,10 +317,10 @@ function almaseo_score_evergreen($post) {
         if ($status !== ALMASEO_EG_STATUS_STALE) {
             $status = ALMASEO_EG_STATUS_EVERGREEN;
             if ($ages['updated_days'] <= 30) {
-                $reasons[] = __('Recently updated', 'almaseo');
+                $reasons[] = __('Recently updated', 'almaseo-seo-playground');
             }
             if ($trend > 0) {
-                $reasons[] = sprintf(__('Traffic up %.1f%%', 'almaseo'), $trend);
+                $reasons[] = sprintf(__('Traffic up %.1f%%', 'almaseo-seo-playground'), $trend);
             }
         }
     }
@@ -328,35 +328,35 @@ function almaseo_score_evergreen($post) {
     // Special rule for seasonal content
     if ($seasonal && $status === ALMASEO_EG_STATUS_STALE) {
         $status = ALMASEO_EG_STATUS_WATCH;
-        $reasons[] = __('Seasonal content', 'almaseo');
+        $reasons[] = __('Seasonal content', 'almaseo-seo-playground');
     }
     
     // Add seasonal note
     if ($seasonal) {
-        $reasons[] = __('Contains seasonal keywords', 'almaseo');
+        $reasons[] = __('Contains seasonal keywords', 'almaseo-seo-playground');
     }
     
     // Add date note
     if ($has_dates) {
-        $reasons[] = __('Contains explicit dates', 'almaseo');
+        $reasons[] = __('Contains explicit dates', 'almaseo-seo-playground');
     }
     
     // Add broken links note
     if ($metrics['broken_links'] > 0) {
-        $reasons[] = sprintf(__('%d broken links', 'almaseo'), $metrics['broken_links']);
+        $reasons[] = sprintf(__('%d broken links', 'almaseo-seo-playground'), $metrics['broken_links']);
     }
     
     // Default reason if none
     if (empty($reasons)) {
         switch ($status) {
             case ALMASEO_EG_STATUS_EVERGREEN:
-                $reasons[] = __('Content is fresh', 'almaseo');
+                $reasons[] = __('Content is fresh', 'almaseo-seo-playground');
                 break;
             case ALMASEO_EG_STATUS_WATCH:
-                $reasons[] = __('Monitor for updates', 'almaseo');
+                $reasons[] = __('Monitor for updates', 'almaseo-seo-playground');
                 break;
             case ALMASEO_EG_STATUS_STALE:
-                $reasons[] = __('Needs refresh', 'almaseo');
+                $reasons[] = __('Needs refresh', 'almaseo-seo-playground');
                 break;
         }
     }

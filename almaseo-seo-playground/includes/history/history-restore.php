@@ -76,7 +76,7 @@ function almaseo_history_restore_version($post_id, $version_id) {
         'success' => true,
         'restored_version' => $snapshot->version,
         'current_fields' => almaseo_history_get_tracked_fields($post_id),
-        'message' => sprintf(__('Restored to version %d', 'almaseo'), $snapshot->version)
+        'message' => sprintf(__('Restored to version %d', 'almaseo-seo-playground'), $snapshot->version)
     );
 }
 
@@ -188,7 +188,7 @@ function almaseo_history_import_snapshot($post_id, $json_data) {
     return array(
         'success' => true,
         'version' => $version,
-        'message' => __('Metadata imported successfully', 'almaseo')
+        'message' => __('Metadata imported successfully', 'almaseo-seo-playground')
     );
 }
 

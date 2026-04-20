@@ -210,7 +210,7 @@ class AlmaSEO_History_Loader {
             if ($version) {
                 wp_send_json_success(array(
                     'version' => $version,
-                    'message' => __('Snapshot created successfully', 'almaseo')
+                    'message' => __('Snapshot created successfully', 'almaseo-seo-playground')
                 ));
             } else {
                 wp_send_json_error('No changes detected');
@@ -289,14 +289,14 @@ class AlmaSEO_History_Loader {
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('almaseo_history_nonce'),
             'i18n' => array(
-                'restore_confirm' => __('Are you sure you want to restore this version?', 'almaseo'),
-                'delete_confirm' => __('Are you sure you want to delete this version?', 'almaseo'),
-                'restoring' => __('Restoring...', 'almaseo'),
-                'restored' => __('Version restored!', 'almaseo'),
-                'error' => __('An error occurred', 'almaseo'),
-                'no_changes' => __('No changes detected', 'almaseo'),
-                'creating_snapshot' => __('Creating snapshot...', 'almaseo'),
-                'snapshot_created' => __('Snapshot created!', 'almaseo')
+                'restore_confirm' => __('Are you sure you want to restore this version?', 'almaseo-seo-playground'),
+                'delete_confirm' => __('Are you sure you want to delete this version?', 'almaseo-seo-playground'),
+                'restoring' => __('Restoring...', 'almaseo-seo-playground'),
+                'restored' => __('Version restored!', 'almaseo-seo-playground'),
+                'error' => __('An error occurred', 'almaseo-seo-playground'),
+                'no_changes' => __('No changes detected', 'almaseo-seo-playground'),
+                'creating_snapshot' => __('Creating snapshot...', 'almaseo-seo-playground'),
+                'snapshot_created' => __('Snapshot created!', 'almaseo-seo-playground')
             )
         ));
     }

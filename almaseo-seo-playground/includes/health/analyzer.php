@@ -168,13 +168,13 @@ function almaseo_health_check_title($post) {
     if (!empty($title) && strlen($title) > 0) {
         return array(
             'pass' => true,
-            'note' => __('Title is present', 'almaseo')
+            'note' => __('Title is present', 'almaseo-seo-playground')
         );
     }
     
     return array(
         'pass' => false,
-        'note' => __('Missing title', 'almaseo')
+        'note' => __('Missing title', 'almaseo-seo-playground')
     );
 }
 
@@ -201,23 +201,23 @@ function almaseo_health_check_meta_desc($post_id) {
         if ($length < 120) {
             return array(
                 'pass' => false,
-                'note' => __('Meta description too short (< 120 chars)', 'almaseo')
+                'note' => __('Meta description too short (< 120 chars)', 'almaseo-seo-playground')
             );
         } elseif ($length > 160) {
             return array(
                 'pass' => true,
-                'note' => __('Meta description may be truncated (> 160 chars)', 'almaseo')
+                'note' => __('Meta description may be truncated (> 160 chars)', 'almaseo-seo-playground')
             );
         }
         return array(
             'pass' => true,
-            'note' => __('Meta description is present', 'almaseo')
+            'note' => __('Meta description is present', 'almaseo-seo-playground')
         );
     }
     
     return array(
         'pass' => false,
-        'note' => __('Missing meta description', 'almaseo')
+        'note' => __('Missing meta description', 'almaseo-seo-playground')
     );
 }
 
@@ -232,17 +232,17 @@ function almaseo_health_check_h1($content) {
     if ($h1_count == 0) {
         return array(
             'pass' => false,
-            'note' => __('No H1 heading found', 'almaseo')
+            'note' => __('No H1 heading found', 'almaseo-seo-playground')
         );
     } elseif ($h1_count == 1) {
         return array(
             'pass' => true,
-            'note' => sprintf(__('H1 found: "%s"', 'almaseo'), wp_trim_words($parsed['h1_tags'][0], 10))
+            'note' => sprintf(__('H1 found: "%s"', 'almaseo-seo-playground'), wp_trim_words($parsed['h1_tags'][0], 10))
         );
     } else {
         return array(
             'pass' => false,
-            'note' => sprintf(__('Multiple H1 tags found (%d)', 'almaseo'), $h1_count)
+            'note' => sprintf(__('Multiple H1 tags found (%d)', 'almaseo-seo-playground'), $h1_count)
         );
     }
 }
@@ -254,7 +254,7 @@ function almaseo_health_check_keyword_intro($plain_content, $keyword) {
     if (empty($keyword)) {
         return array(
             'pass' => false,
-            'note' => __('No focus keyword set', 'almaseo')
+            'note' => __('No focus keyword set', 'almaseo-seo-playground')
         );
     }
     
@@ -265,7 +265,7 @@ function almaseo_health_check_keyword_intro($plain_content, $keyword) {
     if ($word_count < 100) {
         return array(
             'pass' => false,
-            'note' => __('Content too short to assess; aim for 100+ words', 'almaseo')
+            'note' => __('Content too short to assess; aim for 100+ words', 'almaseo-seo-playground')
         );
     }
     
@@ -278,14 +278,14 @@ function almaseo_health_check_keyword_intro($plain_content, $keyword) {
         if (strlen($part) > 2 && strpos($first_100_lower, $part) !== false) {
             return array(
                 'pass' => true,
-                'note' => __('Keyword found in introduction', 'almaseo')
+                'note' => __('Keyword found in introduction', 'almaseo-seo-playground')
             );
         }
     }
     
     return array(
         'pass' => false,
-        'note' => __('Keyword not found in first 100 words', 'almaseo')
+        'note' => __('Keyword not found in first 100 words', 'almaseo-seo-playground')
     );
 }
 
@@ -305,13 +305,13 @@ function almaseo_health_check_internal_link($content) {
     if ($internal_count > 0) {
         return array(
             'pass' => true,
-            'note' => sprintf(__('%d internal link(s) found', 'almaseo'), $internal_count)
+            'note' => sprintf(__('%d internal link(s) found', 'almaseo-seo-playground'), $internal_count)
         );
     }
     
     return array(
         'pass' => false,
-        'note' => __('No internal links found', 'almaseo')
+        'note' => __('No internal links found', 'almaseo-seo-playground')
     );
 }
 
@@ -333,9 +333,9 @@ function almaseo_health_check_outbound_link($content) {
     }
     
     if ($outbound_count > 0) {
-        $note = sprintf(__('%d outbound link(s) found', 'almaseo'), $outbound_count);
+        $note = sprintf(__('%d outbound link(s) found', 'almaseo-seo-playground'), $outbound_count);
         if ($nofollow_count > 0) {
-            $note .= sprintf(' ' . __('(%d with nofollow)', 'almaseo'), $nofollow_count);
+            $note .= sprintf(' ' . __('(%d with nofollow)', 'almaseo-seo-playground'), $nofollow_count);
         }
         return array(
             'pass' => true,
@@ -345,7 +345,7 @@ function almaseo_health_check_outbound_link($content) {
     
     return array(
         'pass' => false,
-        'note' => __('No outbound links found - consider adding external references', 'almaseo')
+        'note' => __('No outbound links found - consider adding external references', 'almaseo-seo-playground')
     );
 }
 
@@ -384,20 +384,20 @@ function almaseo_health_check_image_alt($content, $post_id) {
     if (!$has_images) {
         return array(
             'pass' => true,
-            'note' => __('No images to check', 'almaseo')
+            'note' => __('No images to check', 'almaseo-seo-playground')
         );
     }
     
     if ($has_alt) {
         return array(
             'pass' => true,
-            'note' => __('Images have alt text', 'almaseo')
+            'note' => __('Images have alt text', 'almaseo-seo-playground')
         );
     }
     
     return array(
         'pass' => false,
-        'note' => __('Images missing alt text', 'almaseo')
+        'note' => __('Images missing alt text', 'almaseo-seo-playground')
     );
 }
 
@@ -408,7 +408,7 @@ function almaseo_health_check_readability($plain_content) {
     if (empty($plain_content)) {
         return array(
             'pass' => false,
-            'note' => __('No content to analyze', 'almaseo')
+            'note' => __('No content to analyze', 'almaseo-seo-playground')
         );
     }
 
@@ -432,8 +432,8 @@ function almaseo_health_check_readability($plain_content) {
         return array(
             'pass' => $result['overall_pass'],
             'note' => $result['overall_pass']
-                ? sprintf(__('Good readability (%d/%d checks pass)', 'almaseo'), $result['pass_count'], $result['total_checks'])
-                : sprintf(__('Readability needs work (%d/%d checks pass)', 'almaseo'), $result['pass_count'], $result['total_checks']),
+                ? sprintf(__('Good readability (%d/%d checks pass)', 'almaseo-seo-playground'), $result['pass_count'], $result['total_checks'])
+                : sprintf(__('Readability needs work (%d/%d checks pass)', 'almaseo-seo-playground'), $result['pass_count'], $result['total_checks']),
         );
     }
 
@@ -451,19 +451,19 @@ function almaseo_health_check_readability($plain_content) {
         if ($avg_sentence_length <= 24 || $avg_paragraph_length <= 150) {
             return array(
                 'pass' => true,
-                'note' => __('Good readability', 'almaseo')
+                'note' => __('Good readability', 'almaseo-seo-playground')
             );
         } else {
             return array(
                 'pass' => false,
-                'note' => __('Long sentences or paragraphs detected', 'almaseo')
+                'note' => __('Long sentences or paragraphs detected', 'almaseo-seo-playground')
             );
         }
     }
 
     return array(
         'pass' => false,
-        'note' => __('Unable to assess readability', 'almaseo')
+        'note' => __('Unable to assess readability', 'almaseo-seo-playground')
     );
 }
 
@@ -477,7 +477,7 @@ function almaseo_health_check_canonical($post_id) {
     if (empty($canonical)) {
         return array(
             'pass' => true,
-            'note' => __('Using default canonical URL', 'almaseo')
+            'note' => __('Using default canonical URL', 'almaseo-seo-playground')
         );
     }
     
@@ -485,13 +485,13 @@ function almaseo_health_check_canonical($post_id) {
     if (filter_var($canonical, FILTER_VALIDATE_URL)) {
         return array(
             'pass' => true,
-            'note' => __('Custom canonical URL set', 'almaseo')
+            'note' => __('Custom canonical URL set', 'almaseo-seo-playground')
         );
     }
     
     return array(
         'pass' => false,
-        'note' => __('Invalid canonical URL', 'almaseo')
+        'note' => __('Invalid canonical URL', 'almaseo-seo-playground')
     );
 }
 
@@ -504,7 +504,7 @@ function almaseo_health_check_robots($post_id) {
     
     // 1. Check WordPress "Discourage search engines" setting (highest priority)
     if (get_option('blog_public') == '0') {
-        $reasons[] = __('WordPress "Discourage search engines" is ON', 'almaseo');
+        $reasons[] = __('WordPress "Discourage search engines" is ON', 'almaseo-seo-playground');
         $is_blocked = true;
     }
     
@@ -519,17 +519,17 @@ function almaseo_health_check_robots($post_id) {
     $robots = get_post_meta($post_id, '_almaseo_robots_meta', true);
     if (!empty($robots)) {
         if (strpos($robots, 'noindex') !== false) {
-            $reasons[] = __('Post meta set to noindex', 'almaseo');
+            $reasons[] = __('Post meta set to noindex', 'almaseo-seo-playground');
             $is_blocked = true;
         } elseif (strpos($robots, 'nofollow') !== false) {
-            $reasons[] = __('Post meta set to nofollow', 'almaseo');
+            $reasons[] = __('Post meta set to nofollow', 'almaseo-seo-playground');
             // nofollow doesn't block indexing but affects link equity
         }
     }
     
     // 4. Check if specific URL is blocked by robots.txt
     if (!$is_blocked && almaseo_check_robots_txt_block($post_id)) {
-        $reasons[] = __('URL blocked by robots.txt pattern', 'almaseo');
+        $reasons[] = __('URL blocked by robots.txt pattern', 'almaseo-seo-playground');
         $is_blocked = true;
     }
     
@@ -543,7 +543,7 @@ function almaseo_health_check_robots($post_id) {
     
     return array(
         'pass' => true,
-        'note' => __('✅ Indexable by search engines', 'almaseo')
+        'note' => __('✅ Indexable by search engines', 'almaseo-seo-playground')
     );
 }
 
@@ -598,7 +598,7 @@ function almaseo_check_robots_txt_comprehensive() {
                 $path = trim(substr($line, 9));
                 if ($path === '/') {
                     $result['blocked'] = true;
-                    $result['reason'] = __('robots.txt blocks all pages (Disallow: /)', 'almaseo');
+                    $result['reason'] = __('robots.txt blocks all pages (Disallow: /)', 'almaseo-seo-playground');
                     break;
                 }
             }

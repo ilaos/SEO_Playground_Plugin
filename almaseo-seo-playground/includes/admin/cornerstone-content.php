@@ -38,7 +38,7 @@ class AlmaSEO_Cornerstone_Content {
         foreach ( $columns as $key => $value ) {
             $new_columns[ $key ] = $value;
             if ( 'title' === $key ) {
-                $new_columns['almaseo_cornerstone'] = '<span class="dashicons dashicons-star-filled" title="' . esc_attr__( 'Cornerstone', 'almaseo' ) . '" style="color: #dba617;"></span>';
+                $new_columns['almaseo_cornerstone'] = '<span class="dashicons dashicons-star-filled" title="' . esc_attr__( 'Cornerstone', 'almaseo-seo-playground' ) . '" style="color: #dba617;"></span>';
             }
         }
         return $new_columns;
@@ -53,12 +53,13 @@ class AlmaSEO_Cornerstone_Content {
         $is_cornerstone = get_post_meta( $post_id, self::META_KEY, true );
         $is_suggested   = get_post_meta( $post_id, '_almaseo_cornerstone_suggested', true );
         if ( $is_cornerstone ) {
-            echo '<span class="dashicons dashicons-star-filled" style="color: #dba617;" title="' . esc_attr__( 'Cornerstone Content', 'almaseo' ) . '"></span>';
+            echo '<span class="dashicons dashicons-star-filled" style="color: #dba617;" title="' . esc_attr__( 'Cornerstone Content', 'almaseo-seo-playground' ) . '"></span>';
         } elseif ( $is_suggested ) {
             $score = get_post_meta( $post_id, '_almaseo_cornerstone_score', true );
-            echo '<span class="dashicons dashicons-star-half" style="color: #667eea;" title="' . esc_attr( sprintf( __( 'AI Suggested (Score: %s/100)', 'almaseo' ), intval( $score ) ) ) . '"></span>';
+            /* translators: %s: cornerstone confidence score */
+            echo '<span class="dashicons dashicons-star-half" style="color: #667eea;" title="' . esc_attr( sprintf( __( 'AI Suggested (Score: %s/100)', 'almaseo-seo-playground' ), intval( $score ) ) ) . '"></span>';
         } else {
-            echo '<span class="dashicons dashicons-star-empty" style="color: #ccc;" title="' . esc_attr__( 'Not Cornerstone', 'almaseo' ) . '"></span>';
+            echo '<span class="dashicons dashicons-star-empty" style="color: #ccc;" title="' . esc_attr__( 'Not Cornerstone', 'almaseo-seo-playground' ) . '"></span>';
         }
         // Hidden value for Quick Edit JS
         echo '<span class="hidden almaseo-cornerstone-value" data-cornerstone="' . ( $is_cornerstone ? '1' : '0' ) . '"></span>';
@@ -92,9 +93,9 @@ class AlmaSEO_Cornerstone_Content {
         $selected = isset( $_GET['almaseo_cornerstone_filter'] ) ? sanitize_text_field( $_GET['almaseo_cornerstone_filter'] ) : '';
         ?>
         <select name="almaseo_cornerstone_filter">
-            <option value=""><?php _e( 'All Posts', 'almaseo' ); ?></option>
-            <option value="cornerstone" <?php selected( $selected, 'cornerstone' ); ?>><?php _e( 'Cornerstone Only', 'almaseo' ); ?></option>
-            <option value="non-cornerstone" <?php selected( $selected, 'non-cornerstone' ); ?>><?php _e( 'Non-Cornerstone', 'almaseo' ); ?></option>
+            <option value=""><?php _e( 'All Posts', 'almaseo-seo-playground' ); ?></option>
+            <option value="cornerstone" <?php selected( $selected, 'cornerstone' ); ?>><?php _e( 'Cornerstone Only', 'almaseo-seo-playground' ); ?></option>
+            <option value="non-cornerstone" <?php selected( $selected, 'non-cornerstone' ); ?>><?php _e( 'Non-Cornerstone', 'almaseo-seo-playground' ); ?></option>
         </select>
         <?php
     }
@@ -143,7 +144,7 @@ class AlmaSEO_Cornerstone_Content {
             <div class="inline-edit-col">
                 <label class="inline-edit-cornerstone">
                     <input type="checkbox" name="almaseo_is_cornerstone" value="1" />
-                    <span class="checkbox-title"><?php _e( 'Cornerstone Content', 'almaseo' ); ?></span>
+                    <span class="checkbox-title"><?php _e( 'Cornerstone Content', 'almaseo-seo-playground' ); ?></span>
                 </label>
             </div>
         </fieldset>

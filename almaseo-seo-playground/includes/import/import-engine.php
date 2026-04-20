@@ -29,7 +29,7 @@ class AlmaSEO_Import_Engine {
     public static function process_batch( $source, $offset = 0, $overwrite = false ) {
         $mapper = self::get_mapper( $source );
         if ( ! $mapper ) {
-            return new WP_Error( 'invalid_source', __( 'Unknown import source.', 'almaseo' ) );
+            return new WP_Error( 'invalid_source', __( 'Unknown import source.', 'almaseo-seo-playground' ) );
         }
 
         $rows = $mapper::get_batch( $offset, self::BATCH_SIZE );

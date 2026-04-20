@@ -25,35 +25,35 @@ class Alma_Sitemaps_Screen_V2 {
     private function setup_tabs() {
         $this->tabs = [
             'overview' => [
-                'title' => __('Overview', 'almaseo'),
+                'title' => __('Overview', 'almaseo-seo-playground'),
                 'icon' => 'dashicons-admin-site-alt3'
             ],
             'types' => [
-                'title' => __('Types & Rules', 'almaseo'),
+                'title' => __('Types & Rules', 'almaseo-seo-playground'),
                 'icon' => 'dashicons-admin-generic'
             ],
             'international' => [
-                'title' => __('International', 'almaseo'),
+                'title' => __('International', 'almaseo-seo-playground'),
                 'icon' => 'dashicons-translation'
             ],
             'change' => [
-                'title' => __('Change Detection', 'almaseo'),
+                'title' => __('Change Detection', 'almaseo-seo-playground'),
                 'icon' => 'dashicons-update'
             ],
             'media' => [
-                'title' => __('Media', 'almaseo'),
+                'title' => __('Media', 'almaseo-seo-playground'),
                 'icon' => 'dashicons-format-image'
             ],
             'news' => [
-                'title' => __('News', 'almaseo'),
+                'title' => __('News', 'almaseo-seo-playground'),
                 'icon' => 'dashicons-megaphone'
             ],
             'health' => [
-                'title' => __('Health & Scan', 'almaseo'),
+                'title' => __('Health & Scan', 'almaseo-seo-playground'),
                 'icon' => 'dashicons-shield-alt'
             ],
             'updates' => [
-                'title' => __('Updates & I/O', 'almaseo'),
+                'title' => __('Updates & I/O', 'almaseo-seo-playground'),
                 'icon' => 'dashicons-update-alt'
             ]
         ];
@@ -96,25 +96,25 @@ class Alma_Sitemaps_Screen_V2 {
                     <span class="logo-dot"></span>
                     <span class="brand-name">AlmaSEO</span>
                     <span class="divider">•</span>
-                    <span class="screen-title"><?php _e('XML Sitemaps', 'almaseo'); ?></span>
+                    <span class="screen-title"><?php _e('XML Sitemaps', 'almaseo-seo-playground'); ?></span>
                 </div>
                 <div class="quick-actions">
                     <a href="<?php echo esc_url($primary_url); ?>" target="_blank" 
                        class="button button-secondary" 
-                       <?php echo !$enabled ? 'aria-disabled="true" onclick="return false;" style="opacity:0.5;cursor:not-allowed;" title="' . esc_attr__('Enable sitemaps first', 'almaseo') . '"' : ''; ?>>
+                       <?php echo !$enabled ? 'aria-disabled="true" onclick="return false;" style="opacity:0.5;cursor:not-allowed;" title="' . esc_attr__('Enable sitemaps first', 'almaseo-seo-playground') . '"' : ''; ?>>
                         <span class="dashicons dashicons-external"></span>
-                        <?php _e('Open', 'almaseo'); ?>
+                        <?php _e('Open', 'almaseo-seo-playground'); ?>
                     </a>
                     <button type="button" class="button button-secondary" id="copy-sitemap-url" 
                             data-url="<?php echo esc_attr($primary_url); ?>" 
-                            <?php echo !$enabled ? 'disabled aria-disabled="true" title="' . esc_attr__('Enable sitemaps first', 'almaseo') . '"' : ''; ?>>
+                            <?php echo !$enabled ? 'disabled aria-disabled="true" title="' . esc_attr__('Enable sitemaps first', 'almaseo-seo-playground') . '"' : ''; ?>>
                         <span class="dashicons dashicons-clipboard"></span>
-                        <?php _e('Copy', 'almaseo'); ?>
+                        <?php _e('Copy', 'almaseo-seo-playground'); ?>
                     </button>
                     <button type="button" class="button button-primary" id="rebuild-sitemaps" 
-                            <?php echo !$enabled ? 'disabled aria-disabled="true" title="' . esc_attr__('Enable sitemaps first', 'almaseo') . '"' : ''; ?>>
+                            <?php echo !$enabled ? 'disabled aria-disabled="true" title="' . esc_attr__('Enable sitemaps first', 'almaseo-seo-playground') . '"' : ''; ?>>
                         <span class="dashicons dashicons-update"></span>
-                        <?php _e('Rebuild', 'almaseo'); ?>
+                        <?php _e('Rebuild', 'almaseo-seo-playground'); ?>
                     </button>
                 </div>
             </header>
@@ -122,37 +122,37 @@ class Alma_Sitemaps_Screen_V2 {
             <!-- Status Chips -->
             <div class="alma-status-bar">
                 <span class="chip chip-<?php echo $enabled ? 'success' : 'muted'; ?>">
-                    <?php echo $enabled ? __('Enabled', 'almaseo') : __('Disabled', 'almaseo'); ?>
+                    <?php echo $enabled ? __('Enabled', 'almaseo-seo-playground') : __('Disabled', 'almaseo-seo-playground'); ?>
                 </span>
                 <?php if ($takeover): ?>
                 <span class="chip chip-warning">
                     <span class="dashicons dashicons-admin-site"></span>
-                    <?php _e('Serving /sitemap.xml', 'almaseo'); ?>
+                    <?php _e('Serving /sitemap.xml', 'almaseo-seo-playground'); ?>
                 </span>
                 <?php else: ?>
                 <span class="chip chip-default">
                     <span class="dashicons dashicons-admin-site-alt3"></span>
-                    <?php _e('Not taking over', 'almaseo'); ?>
+                    <?php _e('Not taking over', 'almaseo-seo-playground'); ?>
                 </span>
                 <?php endif; ?>
                 <span class="chip chip-info">
-                    <?php echo $generation_mode === 'static' ? __('Static', 'almaseo') : __('Dynamic', 'almaseo'); ?>
+                    <?php echo $generation_mode === 'static' ? __('Static', 'almaseo-seo-playground') : __('Dynamic', 'almaseo-seo-playground'); ?>
                 </span>
                 <span class="chip chip-default" data-live-stat="files">
-                    <span class="num"><?php echo number_format($stats['total_files']); ?></span> <?php _e('Files', 'almaseo'); ?>
+                    <span class="num"><?php echo number_format($stats['total_files']); ?></span> <?php _e('Files', 'almaseo-seo-playground'); ?>
                 </span>
                 <span class="chip chip-default" data-live-stat="urls">
-                    <span class="num"><?php echo number_format($stats['total_urls']); ?></span> <?php _e('URLs', 'almaseo'); ?>
+                    <span class="num"><?php echo number_format($stats['total_urls']); ?></span> <?php _e('URLs', 'almaseo-seo-playground'); ?>
                 </span>
                 <?php if (!empty($stats['last_built'])): ?>
                 <span class="chip chip-muted">
-                    <?php _e('Built', 'almaseo'); ?> <?php echo human_time_diff(strtotime($stats['last_built'])); ?> <?php _e('ago', 'almaseo'); ?>
+                    <?php _e('Built', 'almaseo-seo-playground'); ?> <?php echo human_time_diff(strtotime($stats['last_built'])); ?> <?php _e('ago', 'almaseo-seo-playground'); ?>
                 </span>
                 <?php endif; ?>
             </div>
             
             <!-- Tabs Navigation -->
-            <nav class="alma-tabs" role="tablist" aria-label="<?php esc_attr_e('Sitemaps tabs', 'almaseo'); ?>" data-tabs-container>
+            <nav class="alma-tabs" role="tablist" aria-label="<?php esc_attr_e('Sitemaps tabs', 'almaseo-seo-playground'); ?>" data-tabs-container>
                 <?php foreach ($this->tabs as $tab_key => $tab): ?>
                     <button type="button"
                             class="alma-tab <?php echo ($this->active_tab === $tab_key) ? 'active' : ''; ?>"
@@ -221,7 +221,7 @@ class Alma_Sitemaps_Screen_V2 {
         if (file_exists($partial_file)) {
             include $partial_file;
         } else {
-            echo '<div class="alma-empty">' . sprintf(__('Tab content not found: %s', 'almaseo'), esc_html($tab_key)) . '</div>';
+            echo '<div class="alma-empty">' . sprintf(__('Tab content not found: %s', 'almaseo-seo-playground'), esc_html($tab_key)) . '</div>';
         }
     }
     

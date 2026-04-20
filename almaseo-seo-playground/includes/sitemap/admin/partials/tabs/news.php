@@ -46,27 +46,27 @@ try {
 <!-- News Sitemap -->
 <div class="almaseo-card">
     <div class="almaseo-card-header">
-        <h2><?php _e('News Sitemap', 'almaseo'); ?></h2>
+        <h2><?php _e('News Sitemap', 'almaseo-seo-playground'); ?></h2>
         <div class="almaseo-chips">
             <span class="almaseo-chip <?php echo $news_enabled ? 'almaseo-chip-success' : ''; ?>">
-                <?php echo $news_enabled ? __('Active', 'almaseo') : __('Inactive', 'almaseo'); ?>
+                <?php echo $news_enabled ? __('Active', 'almaseo-seo-playground') : __('Inactive', 'almaseo-seo-playground'); ?>
             </span>
             <?php if ($news_enabled && !empty($news_stats['items'])): ?>
             <span class="almaseo-chip">
-                <?php echo sprintf(__('%d Items', 'almaseo'), $news_stats['items']); ?>
+                <?php echo sprintf(__('%d Items', 'almaseo-seo-playground'), $news_stats['items']); ?>
             </span>
             <?php endif; ?>
             <span class="almaseo-chip">
-                <?php echo sprintf(__('%dh Window', 'almaseo'), $settings['news']['window_hours'] ?? 48); ?>
+                <?php echo sprintf(__('%dh Window', 'almaseo-seo-playground'), $settings['news']['window_hours'] ?? 48); ?>
             </span>
             <?php if (!empty($news_stats['last_build'])): ?>
             <span class="almaseo-chip">
-                <?php _e('Built:', 'almaseo'); ?> <?php echo human_time_diff($news_stats['last_build']); ?> <?php _e('ago', 'almaseo'); ?>
+                <?php _e('Built:', 'almaseo-seo-playground'); ?> <?php echo human_time_diff($news_stats['last_build']); ?> <?php _e('ago', 'almaseo-seo-playground'); ?>
             </span>
             <?php endif; ?>
             <?php if (!empty($news_health['validated_at'])): ?>
             <span class="almaseo-chip <?php echo $news_health['ok'] ? 'almaseo-chip-success' : 'almaseo-chip-warning'; ?>">
-                <?php echo $news_health['ok'] ? __('Valid', 'almaseo') : sprintf(__('%d Issues', 'almaseo'), count($news_health['issues'])); ?>
+                <?php echo $news_health['ok'] ? __('Valid', 'almaseo-seo-playground') : sprintf(__('%d Issues', 'almaseo-seo-playground'), count($news_health['issues'])); ?>
             </span>
             <?php endif; ?>
         </div>
@@ -75,32 +75,32 @@ try {
         <div class="almaseo-form-group">
             <label class="almaseo-toggle-item">
                 <input type="checkbox" id="news-enabled" name="news[enabled]" <?php checked($news_enabled); ?>>
-                <span><?php _e('Enable News Sitemap', 'almaseo'); ?></span>
-                <small><?php _e('Google News sitemap with rolling window', 'almaseo'); ?></small>
+                <span><?php _e('Enable News Sitemap', 'almaseo-seo-playground'); ?></span>
+                <small><?php _e('Google News sitemap with rolling window', 'almaseo-seo-playground'); ?></small>
             </label>
         </div>
         
         <div class="almaseo-info-box almaseo-info-default">
             <p>
                 <span class="dashicons dashicons-rss"></span>
-                <?php _e('News sitemaps help Google discover and index your latest news content quickly. Only articles published within the specified time window are included.', 'almaseo'); ?>
+                <?php _e('News sitemaps help Google discover and index your latest news content quickly. Only articles published within the specified time window are included.', 'almaseo-seo-playground'); ?>
             </p>
         </div>
         
         <div class="news-settings <?php echo !$news_enabled ? 'disabled' : ''; ?>">
             <!-- Publisher Settings -->
             <div class="almaseo-form-section">
-                <h3><?php _e('Publisher Information', 'almaseo'); ?></h3>
+                <h3><?php _e('Publisher Information', 'almaseo-seo-playground'); ?></h3>
                 <div class="almaseo-form-row">
                     <div class="almaseo-form-group">
-                        <label for="news-publisher"><?php _e('Publisher Name:', 'almaseo'); ?></label>
+                        <label for="news-publisher"><?php _e('Publisher Name:', 'almaseo-seo-playground'); ?></label>
                         <input type="text" id="news-publisher" name="news[publisher_name]" 
                                value="<?php echo esc_attr($settings['news']['publisher_name'] ?? get_bloginfo('name')); ?>"
                                class="almaseo-input">
-                        <p class="description"><?php _e('Your organization\'s name as it appears in Google News', 'almaseo'); ?></p>
+                        <p class="description"><?php _e('Your organization\'s name as it appears in Google News', 'almaseo-seo-playground'); ?></p>
                     </div>
                     <div class="almaseo-form-group">
-                        <label for="news-language"><?php _e('Language:', 'almaseo'); ?></label>
+                        <label for="news-language"><?php _e('Language:', 'almaseo-seo-playground'); ?></label>
                         <select id="news-language" name="news[language]" class="almaseo-input">
                             <?php
                             $languages = array(
@@ -122,17 +122,17 @@ try {
                             </option>
                             <?php endforeach; ?>
                         </select>
-                        <p class="description"><?php _e('Primary language of your news content', 'almaseo'); ?></p>
+                        <p class="description"><?php _e('Primary language of your news content', 'almaseo-seo-playground'); ?></p>
                     </div>
                 </div>
             </div>
             
             <!-- Content Filters -->
             <div class="almaseo-form-section">
-                <h3><?php _e('Content Filters', 'almaseo'); ?></h3>
+                <h3><?php _e('Content Filters', 'almaseo-seo-playground'); ?></h3>
                 <div class="almaseo-form-row">
                     <div class="almaseo-form-group">
-                        <label><?php _e('Post Types:', 'almaseo'); ?></label>
+                        <label><?php _e('Post Types:', 'almaseo-seo-playground'); ?></label>
                         <div class="almaseo-checkbox-group">
                             <?php
                             $post_types = get_post_types(array('public' => true), 'objects');
@@ -148,17 +148,17 @@ try {
                             </label>
                             <?php endforeach; ?>
                         </div>
-                        <p class="description"><?php _e('Select which post types should be included in the news sitemap', 'almaseo'); ?></p>
+                        <p class="description"><?php _e('Select which post types should be included in the news sitemap', 'almaseo-seo-playground'); ?></p>
                     </div>
                     <div class="almaseo-form-group">
-                        <label><?php _e('Categories (optional):', 'almaseo'); ?></label>
+                        <label><?php _e('Categories (optional):', 'almaseo-seo-playground'); ?></label>
                         <div class="almaseo-checkbox-group" style="max-height: 150px; overflow-y: auto;">
                             <?php
                             $categories = get_categories(array('hide_empty' => false));
                             $selected_cats = $settings['news']['categories'] ?? array();
                             
                             if (empty($categories)): ?>
-                                <p class="description"><?php _e('No categories available', 'almaseo'); ?></p>
+                                <p class="description"><?php _e('No categories available', 'almaseo-seo-playground'); ?></p>
                             <?php else:
                                 foreach ($categories as $cat):
                             ?>
@@ -172,46 +172,46 @@ try {
                                 endforeach;
                             endif; ?>
                         </div>
-                        <p class="description"><?php _e('Leave unchecked to include all categories', 'almaseo'); ?></p>
+                        <p class="description"><?php _e('Leave unchecked to include all categories', 'almaseo-seo-playground'); ?></p>
                     </div>
                 </div>
             </div>
             
             <!-- Window and Limits -->
             <div class="almaseo-form-section">
-                <h3><?php _e('Time Window & Limits', 'almaseo'); ?></h3>
+                <h3><?php _e('Time Window & Limits', 'almaseo-seo-playground'); ?></h3>
                 <div class="almaseo-form-row">
                     <div class="almaseo-form-group">
-                        <label for="news-window"><?php _e('Window Hours:', 'almaseo'); ?></label>
+                        <label for="news-window"><?php _e('Window Hours:', 'almaseo-seo-playground'); ?></label>
                         <input type="number" id="news-window" name="news[window_hours]" 
                                value="<?php echo esc_attr($settings['news']['window_hours'] ?? 48); ?>"
                                min="1" max="168" class="almaseo-input almaseo-input-small">
-                        <p class="description"><?php _e('Rolling window in hours (48 = 2 days, Google recommends 2-3 days)', 'almaseo'); ?></p>
+                        <p class="description"><?php _e('Rolling window in hours (48 = 2 days, Google recommends 2-3 days)', 'almaseo-seo-playground'); ?></p>
                     </div>
                     <div class="almaseo-form-group">
-                        <label for="news-max-items"><?php _e('Max Items:', 'almaseo'); ?></label>
+                        <label for="news-max-items"><?php _e('Max Items:', 'almaseo-seo-playground'); ?></label>
                         <input type="number" id="news-max-items" name="news[max_items]" 
                                value="<?php echo esc_attr($settings['news']['max_items'] ?? 1000); ?>"
                                min="1" max="5000" class="almaseo-input almaseo-input-small">
-                        <p class="description"><?php _e('Maximum news items (Google recommends 1000)', 'almaseo'); ?></p>
+                        <p class="description"><?php _e('Maximum news items (Google recommends 1000)', 'almaseo-seo-playground'); ?></p>
                     </div>
                 </div>
             </div>
             
             <!-- Genres -->
             <div class="almaseo-form-section">
-                <h3><?php _e('Content Classification', 'almaseo'); ?></h3>
+                <h3><?php _e('Content Classification', 'almaseo-seo-playground'); ?></h3>
                 <div class="almaseo-form-group">
-                    <label><?php _e('Genres (optional):', 'almaseo'); ?></label>
+                    <label><?php _e('Genres (optional):', 'almaseo-seo-playground'); ?></label>
                     <div class="almaseo-checkbox-group">
                         <?php
                         $genres = array(
-                            'Blog' => __('Blog', 'almaseo'),
-                            'PressRelease' => __('Press Release', 'almaseo'),
-                            'Opinion' => __('Opinion', 'almaseo'),
-                            'OpEd' => __('Op-Ed', 'almaseo'),
-                            'Satire' => __('Satire', 'almaseo'),
-                            'UserGenerated' => __('User Generated', 'almaseo')
+                            'Blog' => __('Blog', 'almaseo-seo-playground'),
+                            'PressRelease' => __('Press Release', 'almaseo-seo-playground'),
+                            'Opinion' => __('Opinion', 'almaseo-seo-playground'),
+                            'OpEd' => __('Op-Ed', 'almaseo-seo-playground'),
+                            'Satire' => __('Satire', 'almaseo-seo-playground'),
+                            'UserGenerated' => __('User Generated', 'almaseo-seo-playground')
                         );
                         $selected_genres = $settings['news']['genres'] ?? array();
                         foreach ($genres as $value => $label):
@@ -224,48 +224,48 @@ try {
                         </label>
                         <?php endforeach; ?>
                     </div>
-                    <p class="description"><?php _e('Help Google understand your content type', 'almaseo'); ?></p>
+                    <p class="description"><?php _e('Help Google understand your content type', 'almaseo-seo-playground'); ?></p>
                 </div>
                 
                 <!-- Keywords -->
                 <div class="almaseo-form-group">
-                    <label><?php _e('Keywords Source:', 'almaseo'); ?></label>
+                    <label><?php _e('Keywords Source:', 'almaseo-seo-playground'); ?></label>
                     <div class="almaseo-radio-group">
                         <label>
                             <input type="radio" name="news[keywords_source]" value="tags" 
                                    <?php checked($settings['news']['keywords_source'] ?? 'tags', 'tags'); ?>>
-                            <?php _e('Use Post Tags', 'almaseo'); ?>
+                            <?php _e('Use Post Tags', 'almaseo-seo-playground'); ?>
                         </label>
                         <label>
                             <input type="radio" name="news[keywords_source]" value="manual" 
                                    <?php checked($settings['news']['keywords_source'] ?? 'tags', 'manual'); ?>>
-                            <?php _e('Manual Keywords', 'almaseo'); ?>
+                            <?php _e('Manual Keywords', 'almaseo-seo-playground'); ?>
                         </label>
                     </div>
                     <div id="news-manual-keywords-group" style="<?php echo ($settings['news']['keywords_source'] ?? 'tags') === 'manual' ? '' : 'display:none;'; ?>">
-                        <label for="news-manual-keywords"><?php _e('Manual Keywords:', 'almaseo'); ?></label>
+                        <label for="news-manual-keywords"><?php _e('Manual Keywords:', 'almaseo-seo-playground'); ?></label>
                         <input type="text" id="news-manual-keywords" name="news[manual_keywords]" 
                                value="<?php echo esc_attr($settings['news']['manual_keywords'] ?? ''); ?>"
-                               placeholder="<?php _e('keyword1, keyword2, keyword3', 'almaseo'); ?>"
+                               placeholder="<?php _e('keyword1, keyword2, keyword3', 'almaseo-seo-playground'); ?>"
                                class="almaseo-input">
-                        <p class="description"><?php _e('Comma-separated keywords (max 10)', 'almaseo'); ?></p>
+                        <p class="description"><?php _e('Comma-separated keywords (max 10)', 'almaseo-seo-playground'); ?></p>
                     </div>
                 </div>
             </div>
             
             <?php if ($news_enabled): ?>
             <div class="almaseo-form-group">
-                <label><?php _e('News Sitemap URL:', 'almaseo'); ?></label>
+                <label><?php _e('News Sitemap URL:', 'almaseo-seo-playground'); ?></label>
                 <div class="almaseo-input-group">
                     <input type="text" readonly value="<?php echo esc_url(home_url('/almaseo-sitemap-news-1.xml')); ?>" class="almaseo-input">
                     <div class="almaseo-button-group">
                         <button type="button" class="button almaseo-button-secondary" id="open-news-sitemap">
                             <span class="dashicons dashicons-external"></span>
-                            <?php _e('View', 'almaseo'); ?>
+                            <?php _e('View', 'almaseo-seo-playground'); ?>
                         </button>
                         <button type="button" class="button almaseo-button-secondary" id="copy-news-url">
                             <span class="dashicons dashicons-clipboard"></span>
-                            <?php _e('Copy', 'almaseo'); ?>
+                            <?php _e('Copy', 'almaseo-seo-playground'); ?>
                         </button>
                     </div>
                 </div>
@@ -277,17 +277,17 @@ try {
         <div class="almaseo-button-group">
             <button type="button" class="button button-primary" id="validate-news">
                 <span class="dashicons dashicons-yes-alt"></span>
-                <?php _e('Validate News', 'almaseo'); ?>
+                <?php _e('Validate News', 'almaseo-seo-playground'); ?>
             </button>
             <?php if (isset($settings['perf']['storage_mode']) && $settings['perf']['storage_mode'] === 'static'): ?>
             <button type="button" class="button almaseo-button-secondary" id="rebuild-news">
                 <span class="dashicons dashicons-update"></span>
-                <?php _e('Rebuild News', 'almaseo'); ?>
+                <?php _e('Rebuild News', 'almaseo-seo-playground'); ?>
             </button>
             <?php endif; ?>
             <button type="button" class="button" id="preview-news-feed">
                 <span class="dashicons dashicons-visibility"></span>
-                <?php _e('Preview Feed', 'almaseo'); ?>
+                <?php _e('Preview Feed', 'almaseo-seo-playground'); ?>
             </button>
         </div>
         
@@ -295,11 +295,11 @@ try {
         <?php if (!empty($news_health)): ?>
         <div class="almaseo-info-box <?php echo $news_health['ok'] ? 'almaseo-info-success' : 'almaseo-info-warning'; ?>">
             <p>
-                <strong><?php _e('Last validation:', 'almaseo'); ?></strong> 
-                <?php echo human_time_diff($news_health['validated_at']); ?> <?php _e('ago', 'almaseo'); ?>
+                <strong><?php _e('Last validation:', 'almaseo-seo-playground'); ?></strong> 
+                <?php echo human_time_diff($news_health['validated_at']); ?> <?php _e('ago', 'almaseo-seo-playground'); ?>
             </p>
             <?php if (!empty($news_health['samples'])): ?>
-            <p><strong><?php _e('Sample articles:', 'almaseo'); ?></strong></p>
+            <p><strong><?php _e('Sample articles:', 'almaseo-seo-playground'); ?></strong></p>
             <ul>
                 <?php foreach (array_slice($news_health['samples'], 0, 3) as $sample): ?>
                 <li>
@@ -310,13 +310,13 @@ try {
             </ul>
             <?php endif; ?>
             <?php if (!$news_health['ok'] && !empty($news_health['issues'])): ?>
-            <p><strong><?php _e('Issues found:', 'almaseo'); ?></strong></p>
+            <p><strong><?php _e('Issues found:', 'almaseo-seo-playground'); ?></strong></p>
             <ul>
                 <?php foreach (array_slice($news_health['issues'], 0, 5) as $issue): ?>
                 <li><?php echo esc_html($issue); ?></li>
                 <?php endforeach; ?>
                 <?php if (count($news_health['issues']) > 5): ?>
-                <li><?php echo sprintf(__('... and %d more', 'almaseo'), count($news_health['issues']) - 5); ?></li>
+                <li><?php echo sprintf(__('... and %d more', 'almaseo-seo-playground'), count($news_health['issues']) - 5); ?></li>
                 <?php endif; ?>
             </ul>
             <?php endif; ?>
@@ -324,8 +324,8 @@ try {
         <?php else: ?>
         <div class="almaseo-empty-state">
             <span class="dashicons dashicons-rss"></span>
-            <p><?php _e('No validation performed yet', 'almaseo'); ?></p>
-            <p class="description"><?php _e('Run validation to check your news sitemap configuration', 'almaseo'); ?></p>
+            <p><?php _e('No validation performed yet', 'almaseo-seo-playground'); ?></p>
+            <p class="description"><?php _e('Run validation to check your news sitemap configuration', 'almaseo-seo-playground'); ?></p>
         </div>
         <?php endif; ?>
     </div>
@@ -334,40 +334,40 @@ try {
 <!-- News Sitemap Guidelines -->
 <div class="almaseo-card">
     <div class="almaseo-card-header">
-        <h2><?php _e('Google News Guidelines', 'almaseo'); ?></h2>
+        <h2><?php _e('Google News Guidelines', 'almaseo-seo-playground'); ?></h2>
     </div>
     <div class="almaseo-card-body">
         <div class="almaseo-tips-grid">
             <div class="almaseo-tip">
-                <h4><?php _e('Content Requirements', 'almaseo'); ?></h4>
+                <h4><?php _e('Content Requirements', 'almaseo-seo-playground'); ?></h4>
                 <ul>
-                    <li><?php _e('Original, high-quality journalism', 'almaseo'); ?></li>
-                    <li><?php _e('Clear publication dates', 'almaseo'); ?></li>
-                    <li><?php _e('Author bylines', 'almaseo'); ?></li>
+                    <li><?php _e('Original, high-quality journalism', 'almaseo-seo-playground'); ?></li>
+                    <li><?php _e('Clear publication dates', 'almaseo-seo-playground'); ?></li>
+                    <li><?php _e('Author bylines', 'almaseo-seo-playground'); ?></li>
                 </ul>
             </div>
             <div class="almaseo-tip">
-                <h4><?php _e('Technical Requirements', 'almaseo'); ?></h4>
+                <h4><?php _e('Technical Requirements', 'almaseo-seo-playground'); ?></h4>
                 <ul>
-                    <li><?php _e('Unique URLs for each article', 'almaseo'); ?></li>
-                    <li><?php _e('Proper HTML structure', 'almaseo'); ?></li>
-                    <li><?php _e('Mobile-friendly pages', 'almaseo'); ?></li>
+                    <li><?php _e('Unique URLs for each article', 'almaseo-seo-playground'); ?></li>
+                    <li><?php _e('Proper HTML structure', 'almaseo-seo-playground'); ?></li>
+                    <li><?php _e('Mobile-friendly pages', 'almaseo-seo-playground'); ?></li>
                 </ul>
             </div>
             <div class="almaseo-tip">
-                <h4><?php _e('Best Practices', 'almaseo'); ?></h4>
+                <h4><?php _e('Best Practices', 'almaseo-seo-playground'); ?></h4>
                 <ul>
-                    <li><?php _e('Publish regularly (daily preferred)', 'almaseo'); ?></li>
-                    <li><?php _e('Use consistent publisher information', 'almaseo'); ?></li>
-                    <li><?php _e('Follow Google News content policies', 'almaseo'); ?></li>
+                    <li><?php _e('Publish regularly (daily preferred)', 'almaseo-seo-playground'); ?></li>
+                    <li><?php _e('Use consistent publisher information', 'almaseo-seo-playground'); ?></li>
+                    <li><?php _e('Follow Google News content policies', 'almaseo-seo-playground'); ?></li>
                 </ul>
             </div>
             <div class="almaseo-tip">
-                <h4><?php _e('Submission', 'almaseo'); ?></h4>
+                <h4><?php _e('Submission', 'almaseo-seo-playground'); ?></h4>
                 <ul>
-                    <li><?php _e('Submit to Google News Publisher Center', 'almaseo'); ?></li>
-                    <li><?php _e('Add sitemap to Google Search Console', 'almaseo'); ?></li>
-                    <li><?php _e('Monitor performance and errors', 'almaseo'); ?></li>
+                    <li><?php _e('Submit to Google News Publisher Center', 'almaseo-seo-playground'); ?></li>
+                    <li><?php _e('Add sitemap to Google Search Console', 'almaseo-seo-playground'); ?></li>
+                    <li><?php _e('Monitor performance and errors', 'almaseo-seo-playground'); ?></li>
                 </ul>
             </div>
         </div>
@@ -375,10 +375,10 @@ try {
         <div class="almaseo-info-box almaseo-info-warning">
             <p>
                 <span class="dashicons dashicons-warning"></span>
-                <strong><?php _e('Important:', 'almaseo'); ?></strong>
-                <?php _e('Google News has strict requirements. Your site must be approved by Google News before appearing in Google News search results.', 'almaseo'); ?>
+                <strong><?php _e('Important:', 'almaseo-seo-playground'); ?></strong>
+                <?php _e('Google News has strict requirements. Your site must be approved by Google News before appearing in Google News search results.', 'almaseo-seo-playground'); ?>
                 <a href="https://support.google.com/news/publisher-center/" target="_blank" class="almaseo-external-link">
-                    <?php _e('Learn more about Google News requirements', 'almaseo'); ?>
+                    <?php _e('Learn more about Google News requirements', 'almaseo-seo-playground'); ?>
                     <span class="dashicons dashicons-external"></span>
                 </a>
             </p>

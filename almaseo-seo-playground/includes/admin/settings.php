@@ -48,8 +48,8 @@ class AlmaSEO_Settings {
     public function add_settings_page() {
         add_submenu_page(
             'seo-playground',
-            __('AlmaSEO Settings', 'almaseo'),
-            __('Settings', 'almaseo'),
+            __('AlmaSEO Settings', 'almaseo-seo-playground'),
+            __('Settings', 'almaseo-seo-playground'),
             'manage_options',
             'almaseo-settings',
             array($this, 'render_settings_page')
@@ -289,10 +289,10 @@ class AlmaSEO_Settings {
             'nonce' => wp_create_nonce('almaseo_settings'),
             'homeUrl' => home_url(),
             'i18n' => array(
-                'preview_loading' => __('Running preview...', 'almaseo'),
-                'preview_error' => __('Error running preview', 'almaseo'),
-                'clear_log_confirm' => __('Are you sure you want to clear the schema log?', 'almaseo'),
-                'log_cleared' => __('Schema log cleared', 'almaseo')
+                'preview_loading' => __('Running preview...', 'almaseo-seo-playground'),
+                'preview_error' => __('Error running preview', 'almaseo-seo-playground'),
+                'clear_log_confirm' => __('Are you sure you want to clear the schema log?', 'almaseo-seo-playground'),
+                'log_cleared' => __('Schema log cleared', 'almaseo-seo-playground')
             )
         ));
     }
@@ -306,7 +306,7 @@ class AlmaSEO_Settings {
             delete_transient('almaseo_settings_migration_notice');
             ?>
             <div class="notice notice-info is-dismissible">
-                <p><?php _e('Schema settings have been moved from the Connection page to this Settings page.', 'almaseo'); ?></p>
+                <p><?php _e('Schema settings have been moved from the Connection page to this Settings page.', 'almaseo-seo-playground'); ?></p>
             </div>
             <?php
         }
@@ -322,9 +322,9 @@ class AlmaSEO_Settings {
         
         ?>
         <div class="wrap almaseo-settings-wrap">
-            <h1><?php _e('AlmaSEO Settings', 'almaseo'); ?></h1>
+            <h1><?php _e('AlmaSEO Settings', 'almaseo-seo-playground'); ?></h1>
             <p class="description" style="margin-bottom: 20px; font-size: 14px;">
-                <?php _e('AlmaSEO is built for both search engines and AI models (LLMs), with a dedicated LLM Optimization panel in the editor.', 'almaseo'); ?>
+                <?php _e('AlmaSEO is built for both search engines and AI models (LLMs), with a dedicated LLM Optimization panel in the editor.', 'almaseo-seo-playground'); ?>
             </p>
 
             <form method="post" action="options.php">
@@ -332,27 +332,27 @@ class AlmaSEO_Settings {
                 
                 <!-- Schema Control Section -->
                 <div class="almaseo-settings-section">
-                    <h2><?php _e('Schema Control', 'almaseo'); ?></h2>
+                    <h2><?php _e('Schema Control', 'almaseo-seo-playground'); ?></h2>
                     
                     <table class="form-table">
                         <tr>
-                            <th scope="row"><?php _e('Exclusive Schema Mode', 'almaseo'); ?></th>
+                            <th scope="row"><?php _e('Exclusive Schema Mode', 'almaseo-seo-playground'); ?></th>
                             <td>
                                 <label>
                                     <input type="checkbox" 
                                            name="almaseo_exclusive_schema_enabled" 
                                            value="1" 
                                            <?php checked($exclusive_schema, true); ?>>
-                                    <?php _e('Enable Exclusive Schema Mode', 'almaseo'); ?>
+                                    <?php _e('Enable Exclusive Schema Mode', 'almaseo-seo-playground'); ?>
                                 </label>
                                 <p class="description">
-                                    <?php _e('When enabled, AlmaSEO removes other JSON-LD blocks so only one structured data block remains.', 'almaseo'); ?>
+                                    <?php _e('When enabled, AlmaSEO removes other JSON-LD blocks so only one structured data block remains.', 'almaseo-seo-playground'); ?>
                                 </p>
                             </td>
                         </tr>
                         
                         <tr class="schema-sub-options" <?php echo !$exclusive_schema ? 'style="display:none;"' : ''; ?>>
-                            <th scope="row"><?php _e('Whitelist Options', 'almaseo'); ?></th>
+                            <th scope="row"><?php _e('Whitelist Options', 'almaseo-seo-playground'); ?></th>
                             <td>
                                 <fieldset>
                                     <label>
@@ -360,7 +360,7 @@ class AlmaSEO_Settings {
                                                name="almaseo_schema_control[keep_breadcrumbs]" 
                                                value="1" 
                                                <?php checked($schema_control['keep_breadcrumbs'], true); ?>>
-                                        <?php _e('Keep BreadcrumbList schema', 'almaseo'); ?>
+                                        <?php _e('Keep BreadcrumbList schema', 'almaseo-seo-playground'); ?>
                                     </label>
                                     <br>
                                     <label>
@@ -368,48 +368,48 @@ class AlmaSEO_Settings {
                                                name="almaseo_schema_control[keep_product]" 
                                                value="1" 
                                                <?php checked($schema_control['keep_product'], true); ?>>
-                                        <?php _e('Keep Product schema', 'almaseo'); ?>
+                                        <?php _e('Keep Product schema', 'almaseo-seo-playground'); ?>
                                     </label>
                                 </fieldset>
                             </td>
                         </tr>
                         
                         <tr class="schema-sub-options" <?php echo !$exclusive_schema ? 'style="display:none;"' : ''; ?>>
-                            <th scope="row"><?php _e('AMP Compatibility', 'almaseo'); ?></th>
+                            <th scope="row"><?php _e('AMP Compatibility', 'almaseo-seo-playground'); ?></th>
                             <td>
                                 <label>
                                     <input type="checkbox" 
                                            name="almaseo_schema_control[amp_compatibility]" 
                                            value="1" 
                                            <?php checked($schema_control['amp_compatibility'], true); ?>>
-                                    <?php _e('Skip scrubbing on AMP pages', 'almaseo'); ?>
+                                    <?php _e('Skip scrubbing on AMP pages', 'almaseo-seo-playground'); ?>
                                 </label>
                                 <p class="description">
-                                    <?php _e('When enabled, AMP pages will not have their schema modified.', 'almaseo'); ?>
+                                    <?php _e('When enabled, AMP pages will not have their schema modified.', 'almaseo-seo-playground'); ?>
                                 </p>
                             </td>
                         </tr>
                         
                         <tr class="schema-sub-options" <?php echo !$exclusive_schema ? 'style="display:none;"' : ''; ?>>
-                            <th scope="row"><?php _e('Logging', 'almaseo'); ?></th>
+                            <th scope="row"><?php _e('Logging', 'almaseo-seo-playground'); ?></th>
                             <td>
                                 <label>
                                     <input type="checkbox" 
                                            name="almaseo_schema_control[enable_logging]" 
                                            value="1" 
                                            <?php checked($schema_control['enable_logging'], true); ?>>
-                                    <?php _e('Enable schema action logging', 'almaseo'); ?>
+                                    <?php _e('Enable schema action logging', 'almaseo-seo-playground'); ?>
                                 </label>
                                 <br>
                                 <label>
-                                    <?php _e('Keep last', 'almaseo'); ?>
+                                    <?php _e('Keep last', 'almaseo-seo-playground'); ?>
                                     <input type="number" 
                                            name="almaseo_schema_control[log_limit]" 
                                            value="<?php echo esc_attr($schema_control['log_limit']); ?>" 
                                            min="10" 
                                            max="500" 
                                            style="width: 80px;">
-                                    <?php _e('log entries', 'almaseo'); ?>
+                                    <?php _e('log entries', 'almaseo-seo-playground'); ?>
                                 </label>
                             </td>
                         </tr>
@@ -418,7 +418,7 @@ class AlmaSEO_Settings {
 
                 <!-- Advanced Schema Section (Pro) -->
                 <div class="almaseo-settings-section" style="margin-top: 30px;">
-                    <h2><?php _e('Advanced Schema (Pro)', 'almaseo'); ?></h2>
+                    <h2><?php _e('Advanced Schema (Pro)', 'almaseo-seo-playground'); ?></h2>
 
                     <?php if (!almaseo_feature_available('schema_advanced')): ?>
                         <!-- Free Tier: Lock Card -->
@@ -426,12 +426,12 @@ class AlmaSEO_Settings {
                             <div style="margin-bottom: 16px;">
                                 <span class="dashicons dashicons-lock" style="font-size: 48px; width: 48px; height: 48px; color: #94a3b8;"></span>
                             </div>
-                            <h3 style="margin: 0 0 8px 0;"><?php _e('Advanced Schema Features', 'almaseo'); ?></h3>
+                            <h3 style="margin: 0 0 8px 0;"><?php _e('Advanced Schema Features', 'almaseo-seo-playground'); ?></h3>
                             <p style="color: #64748b; margin-bottom: 20px;">
-                                <?php _e('Unlock Knowledge Graph, BreadcrumbList, FAQPage, HowTo, and advanced schema types to make your content stand out in search results.', 'almaseo'); ?>
+                                <?php _e('Unlock Knowledge Graph, BreadcrumbList, FAQPage, HowTo, and advanced schema types to make your content stand out in search results.', 'almaseo-seo-playground'); ?>
                             </p>
                             <a href="https://almaseo.com/pricing" target="_blank" class="button button-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
-                                <?php _e('Upgrade to Pro', 'almaseo'); ?>
+                                <?php _e('Upgrade to Pro', 'almaseo-seo-playground'); ?>
                             </a>
                         </div>
                     <?php else: ?>
@@ -449,32 +449,32 @@ class AlmaSEO_Settings {
 
                         <table class="form-table">
                             <tr>
-                                <th scope="row"><?php _e('Enable Advanced Schema', 'almaseo'); ?></th>
+                                <th scope="row"><?php _e('Enable Advanced Schema', 'almaseo-seo-playground'); ?></th>
                                 <td>
                                     <label>
                                         <input type="checkbox"
                                                name="almaseo_schema_advanced_settings[enabled]"
                                                value="1"
                                                <?php checked($adv_settings['enabled'], true); ?>>
-                                        <?php _e('Enable Advanced Schema Features', 'almaseo'); ?>
+                                        <?php _e('Enable Advanced Schema Features', 'almaseo-seo-playground'); ?>
                                     </label>
                                     <p class="description">
-                                        <?php _e('When enabled, AlmaSEO will output richer structured data like Knowledge Graph and advanced type mappings.', 'almaseo'); ?>
+                                        <?php _e('When enabled, AlmaSEO will output richer structured data like Knowledge Graph and advanced type mappings.', 'almaseo-seo-playground'); ?>
                                     </p>
                                 </td>
                             </tr>
 
                             <tr>
-                                <th scope="row"><?php _e('Knowledge Graph', 'almaseo'); ?></th>
+                                <th scope="row"><?php _e('Knowledge Graph', 'almaseo-seo-playground'); ?></th>
                                 <td>
                                     <fieldset>
-                                        <p><strong><?php _e('This site represents:', 'almaseo'); ?></strong></p>
+                                        <p><strong><?php _e('This site represents:', 'almaseo-seo-playground'); ?></strong></p>
                                         <label>
                                             <input type="radio"
                                                    name="almaseo_schema_advanced_settings[site_represents]"
                                                    value="organization"
                                                    <?php checked($adv_settings['site_represents'], 'organization'); ?>>
-                                            <?php _e('Organization', 'almaseo'); ?>
+                                            <?php _e('Organization', 'almaseo-seo-playground'); ?>
                                         </label>
                                         <br>
                                         <label>
@@ -482,11 +482,11 @@ class AlmaSEO_Settings {
                                                    name="almaseo_schema_advanced_settings[site_represents]"
                                                    value="person"
                                                    <?php checked($adv_settings['site_represents'], 'person'); ?>>
-                                            <?php _e('Person', 'almaseo'); ?>
+                                            <?php _e('Person', 'almaseo-seo-playground'); ?>
                                         </label>
 
                                         <p style="margin-top: 15px;">
-                                            <label for="almaseo_site_name"><?php _e('Name:', 'almaseo'); ?></label><br>
+                                            <label for="almaseo_site_name"><?php _e('Name:', 'almaseo-seo-playground'); ?></label><br>
                                             <input type="text"
                                                    id="almaseo_site_name"
                                                    name="almaseo_schema_advanced_settings[site_name]"
@@ -496,7 +496,7 @@ class AlmaSEO_Settings {
                                         </p>
 
                                         <p>
-                                            <label for="almaseo_site_logo_url"><?php _e('Logo URL:', 'almaseo'); ?></label><br>
+                                            <label for="almaseo_site_logo_url"><?php _e('Logo URL:', 'almaseo-seo-playground'); ?></label><br>
                                             <input type="url"
                                                    id="almaseo_site_logo_url"
                                                    name="almaseo_schema_advanced_settings[site_logo_url]"
@@ -506,7 +506,7 @@ class AlmaSEO_Settings {
                                         </p>
 
                                         <p>
-                                            <label for="almaseo_social_profiles"><?php _e('Social Profiles (one per line):', 'almaseo'); ?></label><br>
+                                            <label for="almaseo_social_profiles"><?php _e('Social Profiles (one per line):', 'almaseo-seo-playground'); ?></label><br>
                                             <textarea id="almaseo_social_profiles"
                                                       name="almaseo_schema_advanced_settings[site_social_profiles_raw]"
                                                       rows="4"
@@ -520,7 +520,7 @@ class AlmaSEO_Settings {
                             </tr>
 
                             <tr>
-                                <th scope="row"><?php _e('Default Schema Types', 'almaseo'); ?></th>
+                                <th scope="row"><?php _e('Default Schema Types', 'almaseo-seo-playground'); ?></th>
                                 <td>
                                     <?php
                                     $post_types = get_post_types(array('public' => true), 'objects');
@@ -533,7 +533,7 @@ class AlmaSEO_Settings {
                                             </label><br>
                                             <select id="schema_type_<?php echo esc_attr($pt->name); ?>"
                                                     name="almaseo_schema_advanced_settings[default_schema_by_post_type][<?php echo esc_attr($pt->name); ?>]">
-                                                <option value=""><?php _e('Use default (Article/WebPage)', 'almaseo'); ?></option>
+                                                <option value=""><?php _e('Use default (Article/WebPage)', 'almaseo-seo-playground'); ?></option>
                                                 <option value="Article" <?php selected($current, 'Article'); ?>>Article</option>
                                                 <option value="BlogPosting" <?php selected($current, 'BlogPosting'); ?>>BlogPosting</option>
                                                 <option value="NewsArticle" <?php selected($current, 'NewsArticle'); ?>>NewsArticle</option>
@@ -553,9 +553,9 @@ class AlmaSEO_Settings {
 
                 <!-- Evergreen Advanced (Pro) Section -->
                 <div class="almaseo-settings-section" style="margin-top: 40px; padding-top: 40px; border-top: 2px solid #e5e7eb;">
-                    <h2><?php esc_html_e('Evergreen (Advanced)', 'almaseo'); ?></h2>
+                    <h2><?php esc_html_e('Evergreen (Advanced)', 'almaseo-seo-playground'); ?></h2>
                     <p class="description" style="margin-bottom: 20px;">
-                        <?php _e('Advanced content freshness analysis with AI-powered scoring, traffic trend integration, and intelligent refresh prioritization.', 'almaseo'); ?>
+                        <?php _e('Advanced content freshness analysis with AI-powered scoring, traffic trend integration, and intelligent refresh prioritization.', 'almaseo-seo-playground'); ?>
                     </p>
 
                     <?php if (!almaseo_feature_available('evergreen_advanced')): ?>
@@ -563,13 +563,13 @@ class AlmaSEO_Settings {
                         <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 2px dashed #cbd5e1; border-radius: 8px; padding: 24px; text-align: center; margin-bottom: 20px;">
                             <span class="dashicons dashicons-lock" style="font-size: 48px; width: 48px; height: 48px; color: #94a3b8; margin-bottom: 12px;"></span>
                             <h3 style="margin: 0 0 8px 0; font-weight: 600; color: #1e293b; font-size: 18px;">
-                                <?php _e('Evergreen Advanced Features', 'almaseo'); ?>
+                                <?php _e('Evergreen Advanced Features', 'almaseo-seo-playground'); ?>
                             </h3>
                             <p style="margin: 0 0 16px 0; color: #475569; max-width: 600px; margin-left: auto; margin-right: auto;">
-                                <?php _e('Unlock advanced freshness scoring, AI-powered prioritization, traffic trend analysis, and intelligent refresh matrices. Available in Pro and Agency tiers.', 'almaseo'); ?>
+                                <?php _e('Unlock advanced freshness scoring, AI-powered prioritization, traffic trend analysis, and intelligent refresh matrices. Available in Pro and Agency tiers.', 'almaseo-seo-playground'); ?>
                             </p>
                             <a href="https://almaseo.com/pricing" target="_blank" class="button button-primary" style="background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%); border: none; box-shadow: 0 4px 6px rgba(99, 102, 241, 0.25); text-shadow: none;">
-                                <?php _e('Upgrade to Pro', 'almaseo'); ?>
+                                <?php _e('Upgrade to Pro', 'almaseo-seo-playground'); ?>
                             </a>
                         </div>
                     <?php else: ?>
@@ -591,7 +591,7 @@ class AlmaSEO_Settings {
                         <table class="form-table" role="presentation">
                             <tr>
                                 <th scope="row">
-                                    <?php _e('Enable Evergreen Advanced', 'almaseo'); ?>
+                                    <?php _e('Enable Evergreen Advanced', 'almaseo-seo-playground'); ?>
                                 </th>
                                 <td>
                                     <label>
@@ -599,22 +599,22 @@ class AlmaSEO_Settings {
                                                name="almaseo_evergreen_advanced_settings[enabled]"
                                                value="1"
                                                <?php checked($evergreen_adv_enabled, true); ?>>
-                                        <?php _e('Enable advanced freshness scoring and prioritization', 'almaseo'); ?>
+                                        <?php _e('Enable advanced freshness scoring and prioritization', 'almaseo-seo-playground'); ?>
                                     </label>
                                     <p class="description">
-                                        <?php _e('When enabled, posts will be scored based on AI freshness, traffic trends, and content age for intelligent refresh prioritization.', 'almaseo'); ?>
+                                        <?php _e('When enabled, posts will be scored based on AI freshness, traffic trends, and content age for intelligent refresh prioritization.', 'almaseo-seo-playground'); ?>
                                     </p>
                                 </td>
                             </tr>
 
                             <tr>
                                 <th scope="row">
-                                    <?php _e('Scoring Weights', 'almaseo'); ?>
+                                    <?php _e('Scoring Weights', 'almaseo-seo-playground'); ?>
                                 </th>
                                 <td>
                                     <div style="margin-bottom: 16px;">
                                         <label style="display: block; margin-bottom: 6px; font-weight: 500;">
-                                            <?php _e('AI Freshness Weight (%)', 'almaseo'); ?>
+                                            <?php _e('AI Freshness Weight (%)', 'almaseo-seo-playground'); ?>
                                         </label>
                                         <input type="number"
                                                name="almaseo_evergreen_advanced_settings[ai_freshness_weight]"
@@ -623,13 +623,13 @@ class AlmaSEO_Settings {
                                                max="100"
                                                class="small-text">
                                         <p class="description">
-                                            <?php _e('Weight for AI-detected freshness signals (0-100). Higher = more emphasis on content clarity and AI understanding.', 'almaseo'); ?>
+                                            <?php _e('Weight for AI-detected freshness signals (0-100). Higher = more emphasis on content clarity and AI understanding.', 'almaseo-seo-playground'); ?>
                                         </p>
                                     </div>
 
                                     <div style="margin-bottom: 16px;">
                                         <label style="display: block; margin-bottom: 6px; font-weight: 500;">
-                                            <?php _e('Traffic Trend Weight (%)', 'almaseo'); ?>
+                                            <?php _e('Traffic Trend Weight (%)', 'almaseo-seo-playground'); ?>
                                         </label>
                                         <input type="number"
                                                name="almaseo_evergreen_advanced_settings[traffic_trend_weight]"
@@ -638,13 +638,13 @@ class AlmaSEO_Settings {
                                                max="100"
                                                class="small-text">
                                         <p class="description">
-                                            <?php _e('Weight for traffic trend changes from Google Search Console (0-100). Higher = more emphasis on performance trends.', 'almaseo'); ?>
+                                            <?php _e('Weight for traffic trend changes from Google Search Console (0-100). Higher = more emphasis on performance trends.', 'almaseo-seo-playground'); ?>
                                         </p>
                                     </div>
 
                                     <div>
                                         <label style="display: block; margin-bottom: 6px; font-weight: 500;">
-                                            <?php _e('Age Weight (%)', 'almaseo'); ?>
+                                            <?php _e('Age Weight (%)', 'almaseo-seo-playground'); ?>
                                         </label>
                                         <input type="number"
                                                name="almaseo_evergreen_advanced_settings[age_weight]"
@@ -653,24 +653,24 @@ class AlmaSEO_Settings {
                                                max="100"
                                                class="small-text">
                                         <p class="description">
-                                            <?php _e('Weight for content age since last update (0-100). Higher = older content gets higher priority for refresh.', 'almaseo'); ?>
+                                            <?php _e('Weight for content age since last update (0-100). Higher = older content gets higher priority for refresh.', 'almaseo-seo-playground'); ?>
                                         </p>
                                     </div>
 
                                     <p class="description" style="margin-top: 12px; padding: 10px; background: #f0f9ff; border-left: 3px solid #3b82f6; color: #1e40af;">
-                                        <?php _e('Tip: Weights are normalized automatically. You can use any distribution that suits your content strategy.', 'almaseo'); ?>
+                                        <?php _e('Tip: Weights are normalized automatically. You can use any distribution that suits your content strategy.', 'almaseo-seo-playground'); ?>
                                     </p>
                                 </td>
                             </tr>
 
                             <tr>
                                 <th scope="row">
-                                    <?php _e('Risk Thresholds', 'almaseo'); ?>
+                                    <?php _e('Risk Thresholds', 'almaseo-seo-playground'); ?>
                                 </th>
                                 <td>
                                     <div style="margin-bottom: 16px;">
                                         <label style="display: block; margin-bottom: 6px; font-weight: 500;">
-                                            <?php _e('High Risk Threshold (%)', 'almaseo'); ?>
+                                            <?php _e('High Risk Threshold (%)', 'almaseo-seo-playground'); ?>
                                         </label>
                                         <input type="number"
                                                name="almaseo_evergreen_advanced_settings[high_risk_threshold]"
@@ -679,13 +679,13 @@ class AlmaSEO_Settings {
                                                max="100"
                                                class="small-text">
                                         <p class="description">
-                                            <?php _e('Posts scoring above this threshold are marked as "High Risk" and urgently need refresh (0-100).', 'almaseo'); ?>
+                                            <?php _e('Posts scoring above this threshold are marked as "High Risk" and urgently need refresh (0-100).', 'almaseo-seo-playground'); ?>
                                         </p>
                                     </div>
 
                                     <div>
                                         <label style="display: block; margin-bottom: 6px; font-weight: 500;">
-                                            <?php _e('Medium Risk Threshold (%)', 'almaseo'); ?>
+                                            <?php _e('Medium Risk Threshold (%)', 'almaseo-seo-playground'); ?>
                                         </label>
                                         <input type="number"
                                                name="almaseo_evergreen_advanced_settings[medium_risk_threshold]"
@@ -694,7 +694,7 @@ class AlmaSEO_Settings {
                                                max="100"
                                                class="small-text">
                                         <p class="description">
-                                            <?php _e('Posts scoring above this (but below high risk) are marked as "Medium Risk" and should be monitored (0-100).', 'almaseo'); ?>
+                                            <?php _e('Posts scoring above this (but below high risk) are marked as "Medium Risk" and should be monitored (0-100).', 'almaseo-seo-playground'); ?>
                                         </p>
                                     </div>
                                 </td>
@@ -702,12 +702,12 @@ class AlmaSEO_Settings {
 
                             <tr>
                                 <th scope="row">
-                                    <?php _e('Time Windows', 'almaseo'); ?>
+                                    <?php _e('Time Windows', 'almaseo-seo-playground'); ?>
                                 </th>
                                 <td>
                                     <div style="margin-bottom: 16px;">
                                         <label style="display: block; margin-bottom: 6px; font-weight: 500;">
-                                            <?php _e('Stale Content Threshold (days)', 'almaseo'); ?>
+                                            <?php _e('Stale Content Threshold (days)', 'almaseo-seo-playground'); ?>
                                         </label>
                                         <input type="number"
                                                name="almaseo_evergreen_advanced_settings[stale_days_threshold]"
@@ -715,13 +715,13 @@ class AlmaSEO_Settings {
                                                min="1"
                                                class="small-text">
                                         <p class="description">
-                                            <?php _e('Content not updated in this many days is considered stale. Default: 365 days.', 'almaseo'); ?>
+                                            <?php _e('Content not updated in this many days is considered stale. Default: 365 days.', 'almaseo-seo-playground'); ?>
                                         </p>
                                     </div>
 
                                     <div>
                                         <label style="display: block; margin-bottom: 6px; font-weight: 500;">
-                                            <?php _e('GSC Analysis Window (days)', 'almaseo'); ?>
+                                            <?php _e('GSC Analysis Window (days)', 'almaseo-seo-playground'); ?>
                                         </label>
                                         <input type="number"
                                                name="almaseo_evergreen_advanced_settings[gsc_window_days]"
@@ -730,7 +730,7 @@ class AlmaSEO_Settings {
                                                max="365"
                                                class="small-text">
                                         <p class="description">
-                                            <?php _e('Number of days to analyze for traffic trend calculations. Default: 90 days. Maximum: 365 days.', 'almaseo'); ?>
+                                            <?php _e('Number of days to analyze for traffic trend calculations. Default: 90 days. Maximum: 365 days.', 'almaseo-seo-playground'); ?>
                                         </p>
                                     </div>
                                 </td>
@@ -753,8 +753,8 @@ class AlmaSEO_Settings {
                     $verification_labels = AlmaSEO_Verification_Codes::get_labels();
                 ?>
                 <div class="almaseo-settings-section">
-                    <h2><?php _e('Webmaster Verification', 'almaseo'); ?></h2>
-                    <p class="description"><?php _e('Paste verification codes from search engine webmaster tools. You can paste the full meta tag or just the content value.', 'almaseo'); ?></p>
+                    <h2><?php _e('Webmaster Verification', 'almaseo-seo-playground'); ?></h2>
+                    <p class="description"><?php _e('Paste verification codes from search engine webmaster tools. You can paste the full meta tag or just the content value.', 'almaseo-seo-playground'); ?></p>
                     <table class="form-table">
                         <?php foreach ($verification_labels as $key => $label) : ?>
                         <tr>
@@ -777,21 +777,21 @@ class AlmaSEO_Settings {
                     $rss_tags = AlmaSEO_RSS_Controls::get_available_tags();
                 ?>
                 <div class="almaseo-settings-section">
-                    <h2><?php _e('RSS Feed', 'almaseo'); ?></h2>
-                    <p class="description"><?php _e('Add content before or after each RSS feed item to prevent content scraping.', 'almaseo'); ?></p>
+                    <h2><?php _e('RSS Feed', 'almaseo-seo-playground'); ?></h2>
+                    <p class="description"><?php _e('Add content before or after each RSS feed item to prevent content scraping.', 'almaseo-seo-playground'); ?></p>
                     <table class="form-table">
                         <tr>
-                            <th scope="row"><label for="rss_before"><?php _e('Before Feed Content', 'almaseo'); ?></label></th>
+                            <th scope="row"><label for="rss_before"><?php _e('Before Feed Content', 'almaseo-seo-playground'); ?></label></th>
                             <td>
                                 <textarea id="rss_before" name="almaseo_rss_settings[before_content]" rows="3" class="large-text"><?php echo esc_textarea($rss_settings['before_content']); ?></textarea>
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row"><label for="rss_after"><?php _e('After Feed Content', 'almaseo'); ?></label></th>
+                            <th scope="row"><label for="rss_after"><?php _e('After Feed Content', 'almaseo-seo-playground'); ?></label></th>
                             <td>
                                 <textarea id="rss_after" name="almaseo_rss_settings[after_content]" rows="3" class="large-text"><?php echo esc_textarea($rss_settings['after_content']); ?></textarea>
                                 <p class="description">
-                                    <?php _e('Available tags:', 'almaseo'); ?>
+                                    <?php _e('Available tags:', 'almaseo-seo-playground'); ?>
                                     <?php foreach ($rss_tags as $tag => $desc) : ?>
                                         <code><?php echo esc_html($tag); ?></code>
                                     <?php endforeach; ?>
@@ -808,8 +808,8 @@ class AlmaSEO_Settings {
                     $assignable_roles = AlmaSEO_Role_Manager::get_assignable_roles();
                 ?>
                 <div class="almaseo-settings-section">
-                    <h2><?php _e('Roles & Permissions', 'almaseo'); ?></h2>
-                    <p class="description"><?php _e('Control which user roles can access SEO editing features (metabox, bulk meta). Plugin settings pages remain admin-only.', 'almaseo'); ?></p>
+                    <h2><?php _e('Roles & Permissions', 'almaseo-seo-playground'); ?></h2>
+                    <p class="description"><?php _e('Control which user roles can access SEO editing features (metabox, bulk meta). Plugin settings pages remain admin-only.', 'almaseo-seo-playground'); ?></p>
                     <table class="form-table">
                         <?php foreach ($assignable_roles as $role_slug => $role_name) : ?>
                         <tr>
@@ -821,7 +821,7 @@ class AlmaSEO_Settings {
                                            value="1"
                                            <?php checked(!empty($role_settings[$role_slug])); ?>
                                            <?php disabled($role_slug, 'administrator'); ?> />
-                                    <?php _e('Can edit SEO fields', 'almaseo'); ?>
+                                    <?php _e('Can edit SEO fields', 'almaseo-seo-playground'); ?>
                                 </label>
                             </td>
                         </tr>
@@ -836,9 +836,9 @@ class AlmaSEO_Settings {
             
             <!-- Preview Tool -->
             <div class="almaseo-preview-section" <?php echo !$exclusive_schema ? 'style="display:none;"' : ''; ?>>
-                <h2><?php _e('Schema Preview (Dry-run)', 'almaseo'); ?></h2>
+                <h2><?php _e('Schema Preview (Dry-run)', 'almaseo-seo-playground'); ?></h2>
                 <p class="description">
-                    <?php _e('Test what schema blocks would be removed from a URL without actually modifying it.', 'almaseo'); ?>
+                    <?php _e('Test what schema blocks would be removed from a URL without actually modifying it.', 'almaseo-seo-playground'); ?>
                 </p>
                 
                 <div class="preview-controls">
@@ -850,14 +850,14 @@ class AlmaSEO_Settings {
                     <button type="button" 
                             id="run-preview" 
                             class="button button-secondary">
-                        <?php _e('Run Preview', 'almaseo'); ?>
+                        <?php _e('Run Preview', 'almaseo-seo-playground'); ?>
                     </button>
                 </div>
                 
                 <div id="preview-results" style="display:none;">
                     <div class="preview-loading">
                         <span class="spinner is-active"></span>
-                        <?php _e('Analyzing schema blocks...', 'almaseo'); ?>
+                        <?php _e('Analyzing schema blocks...', 'almaseo-seo-playground'); ?>
                     </div>
                     <div class="preview-content"></div>
                 </div>
@@ -867,11 +867,11 @@ class AlmaSEO_Settings {
             <?php if ($exclusive_schema && $schema_control['enable_logging']): ?>
             <div class="almaseo-log-section">
                 <h2>
-                    <?php _e('Schema Action Log', 'almaseo'); ?>
+                    <?php _e('Schema Action Log', 'almaseo-seo-playground'); ?>
                     <button type="button" 
                             id="clear-schema-log" 
                             class="button button-small">
-                        <?php _e('Clear Log', 'almaseo'); ?>
+                        <?php _e('Clear Log', 'almaseo-seo-playground'); ?>
                     </button>
                 </h2>
                 
@@ -891,7 +891,7 @@ class AlmaSEO_Settings {
         $log = get_option('almaseo_schema_log', array());
         
         if (empty($log)) {
-            echo '<p>' . __('No schema actions logged yet.', 'almaseo') . '</p>';
+            echo '<p>' . __('No schema actions logged yet.', 'almaseo-seo-playground') . '</p>';
             return;
         }
         
@@ -899,11 +899,11 @@ class AlmaSEO_Settings {
         <table class="wp-list-table widefat fixed striped">
             <thead>
                 <tr>
-                    <th><?php _e('Time', 'almaseo'); ?></th>
-                    <th><?php _e('URL', 'almaseo'); ?></th>
-                    <th><?php _e('Removed', 'almaseo'); ?></th>
-                    <th><?php _e('Kept', 'almaseo'); ?></th>
-                    <th><?php _e('Kept Types', 'almaseo'); ?></th>
+                    <th><?php _e('Time', 'almaseo-seo-playground'); ?></th>
+                    <th><?php _e('URL', 'almaseo-seo-playground'); ?></th>
+                    <th><?php _e('Removed', 'almaseo-seo-playground'); ?></th>
+                    <th><?php _e('Kept', 'almaseo-seo-playground'); ?></th>
+                    <th><?php _e('Kept Types', 'almaseo-seo-playground'); ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -938,7 +938,7 @@ class AlmaSEO_Settings {
         $url = isset($_POST['url']) ? esc_url_raw($_POST['url']) : '';
         
         if (empty($url)) {
-            wp_send_json_error(array('message' => __('Invalid URL', 'almaseo')));
+            wp_send_json_error(array('message' => __('Invalid URL', 'almaseo-seo-playground')));
         }
         
         // Fetch the page HTML
@@ -949,14 +949,14 @@ class AlmaSEO_Settings {
         
         if (is_wp_error($response)) {
             wp_send_json_error(array(
-                'message' => sprintf(__('Failed to fetch URL: %s', 'almaseo'), $response->get_error_message())
+                'message' => sprintf(__('Failed to fetch URL: %s', 'almaseo-seo-playground'), $response->get_error_message())
             ));
         }
         
         $html = wp_remote_retrieve_body($response);
         
         if (empty($html)) {
-            wp_send_json_error(array('message' => __('Empty response from URL', 'almaseo')));
+            wp_send_json_error(array('message' => __('Empty response from URL', 'almaseo-seo-playground')));
         }
         
         // Run the scrubber in dry-run mode
@@ -978,7 +978,7 @@ class AlmaSEO_Settings {
         
         delete_option('almaseo_schema_log');
         
-        wp_send_json_success(array('message' => __('Schema log cleared', 'almaseo')));
+        wp_send_json_success(array('message' => __('Schema log cleared', 'almaseo-seo-playground')));
     }
 }
 

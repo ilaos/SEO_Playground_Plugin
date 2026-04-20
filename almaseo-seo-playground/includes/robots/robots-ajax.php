@@ -17,12 +17,12 @@ add_action('wp_ajax_almaseo_robots_save', 'almaseo_ajax_robots_save');
 function almaseo_ajax_robots_save() {
     // Check nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'almaseo_robots_nonce')) {
-        wp_send_json_error(array('message' => __('Security check failed.', 'almaseo')));
+        wp_send_json_error(array('message' => __('Security check failed.', 'almaseo-seo-playground')));
     }
     
     // Check permissions
     if (!current_user_can('manage_options')) {
-        wp_send_json_error(array('message' => __('Insufficient permissions.', 'almaseo')));
+        wp_send_json_error(array('message' => __('Insufficient permissions.', 'almaseo-seo-playground')));
     }
     
     $controller = AlmaSEO_Robots_Controller::get_instance();
@@ -42,11 +42,11 @@ function almaseo_ajax_robots_save() {
         // Check if physical file exists
         $warning = '';
         if ($controller->physical_file_exists()) {
-            $warning = __('Warning: A physical robots.txt file exists. WordPress will serve the physical file instead of your virtual content. Consider switching to Physical mode or removing the file.', 'almaseo');
+            $warning = __('Warning: A physical robots.txt file exists. WordPress will serve the physical file instead of your virtual content. Consider switching to Physical mode or removing the file.', 'almaseo-seo-playground');
         }
         
         wp_send_json_success(array(
-            'message' => __('Virtual robots.txt saved successfully.', 'almaseo'),
+            'message' => __('Virtual robots.txt saved successfully.', 'almaseo-seo-playground'),
             'warning' => $warning
         ));
         
@@ -61,7 +61,7 @@ function almaseo_ajax_robots_save() {
             
             wp_send_json_error(array(
                 'message' => sprintf(
-                    __('Could not write physical file: %s. Saved in virtual mode instead.', 'almaseo'),
+                    __('Could not write physical file: %s. Saved in virtual mode instead.', 'almaseo-seo-playground'),
                     $result->get_error_message()
                 ),
                 'fallback' => true,
@@ -72,7 +72,7 @@ function almaseo_ajax_robots_save() {
             update_option('almaseo_robots_content', $content);
             
             wp_send_json_success(array(
-                'message' => __('Physical robots.txt file saved successfully.', 'almaseo')
+                'message' => __('Physical robots.txt file saved successfully.', 'almaseo-seo-playground')
             ));
         }
     }
@@ -85,12 +85,12 @@ add_action('wp_ajax_almaseo_robots_test', 'almaseo_ajax_robots_test');
 function almaseo_ajax_robots_test() {
     // Check nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'almaseo_robots_nonce')) {
-        wp_send_json_error(array('message' => __('Security check failed.', 'almaseo')));
+        wp_send_json_error(array('message' => __('Security check failed.', 'almaseo-seo-playground')));
     }
     
     // Check permissions
     if (!current_user_can('manage_options')) {
-        wp_send_json_error(array('message' => __('Insufficient permissions.', 'almaseo')));
+        wp_send_json_error(array('message' => __('Insufficient permissions.', 'almaseo-seo-playground')));
     }
     
     $controller = AlmaSEO_Robots_Controller::get_instance();
@@ -106,18 +106,18 @@ function almaseo_ajax_robots_test() {
     $status = array();
     
     if ($physical_exists && $mode === 'virtual') {
-        $status[] = __('⚠️ Physical file exists and will be served (virtual mode ignored)', 'almaseo');
+        $status[] = __('⚠️ Physical file exists and will be served (virtual mode ignored)', 'almaseo-seo-playground');
     } elseif ($physical_exists && $mode === 'file') {
-        $status[] = __('✅ Serving physical robots.txt file', 'almaseo');
+        $status[] = __('✅ Serving physical robots.txt file', 'almaseo-seo-playground');
     } elseif (!$physical_exists && $mode === 'virtual') {
-        $status[] = __('✅ Serving virtual robots.txt content', 'almaseo');
+        $status[] = __('✅ Serving virtual robots.txt content', 'almaseo-seo-playground');
     } elseif (!$physical_exists && $mode === 'file') {
-        $status[] = __('⚠️ Physical mode selected but no file exists (using WordPress default)', 'almaseo');
+        $status[] = __('⚠️ Physical mode selected but no file exists (using WordPress default)', 'almaseo-seo-playground');
     }
     
     // Add URL info
     $robots_url = home_url('/robots.txt');
-    $status[] = sprintf(__('URL: %s', 'almaseo'), $robots_url);
+    $status[] = sprintf(__('URL: %s', 'almaseo-seo-playground'), $robots_url);
     
     wp_send_json_success(array(
         'output' => $output,
@@ -135,12 +135,12 @@ add_action('wp_ajax_almaseo_robots_get_default', 'almaseo_ajax_robots_get_defaul
 function almaseo_ajax_robots_get_default() {
     // Check nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'almaseo_robots_nonce')) {
-        wp_send_json_error(array('message' => __('Security check failed.', 'almaseo')));
+        wp_send_json_error(array('message' => __('Security check failed.', 'almaseo-seo-playground')));
     }
     
     // Check permissions
     if (!current_user_can('manage_options')) {
-        wp_send_json_error(array('message' => __('Insufficient permissions.', 'almaseo')));
+        wp_send_json_error(array('message' => __('Insufficient permissions.', 'almaseo-seo-playground')));
     }
     
     $controller = AlmaSEO_Robots_Controller::get_instance();
@@ -165,12 +165,12 @@ add_action('wp_ajax_almaseo_robots_check_status', 'almaseo_ajax_robots_check_sta
 function almaseo_ajax_robots_check_status() {
     // Check nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'almaseo_robots_nonce')) {
-        wp_send_json_error(array('message' => __('Security check failed.', 'almaseo')));
+        wp_send_json_error(array('message' => __('Security check failed.', 'almaseo-seo-playground')));
     }
     
     // Check permissions
     if (!current_user_can('manage_options')) {
-        wp_send_json_error(array('message' => __('Insufficient permissions.', 'almaseo')));
+        wp_send_json_error(array('message' => __('Insufficient permissions.', 'almaseo-seo-playground')));
     }
     
     $controller = AlmaSEO_Robots_Controller::get_instance();

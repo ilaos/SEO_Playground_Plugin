@@ -183,7 +183,7 @@ class AlmaSEO_Woo_Loader {
      */
     public function add_settings_tab($tabs) {
         $tabs['woocommerce'] = array(
-            'title' => __('WooCommerce SEO', 'almaseo'),
+            'title' => __('WooCommerce SEO', 'almaseo-seo-playground'),
             'icon' => 'dashicons-cart',
             'capability' => 'manage_woocommerce',
             'pro' => true
@@ -197,7 +197,7 @@ class AlmaSEO_Woo_Loader {
     public function render_settings_page() {
         // Check capability
         if (!current_user_can('manage_woocommerce') && !current_user_can('manage_options')) {
-            wp_die(__('You do not have sufficient permissions to access this page.', 'almaseo'));
+            wp_die(__('You do not have sufficient permissions to access this page.', 'almaseo-seo-playground'));
         }
         
         // Include settings page
@@ -205,7 +205,7 @@ class AlmaSEO_Woo_Loader {
         if (file_exists($settings_file)) {
             include $settings_file;
         } else {
-            echo '<div class="notice notice-info"><p>' . __('WooCommerce SEO settings coming soon!', 'almaseo') . '</p></div>';
+            echo '<div class="notice notice-info"><p>' . __('WooCommerce SEO settings coming soon!', 'almaseo-seo-playground') . '</p></div>';
         }
     }
     
@@ -243,10 +243,10 @@ class AlmaSEO_Woo_Loader {
                 'ajax_url' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('almaseo_woo_nonce'),
                 'strings' => array(
-                    'title_placeholder' => __('Product Title', 'almaseo'),
-                    'description_placeholder' => __('Product description will appear here...', 'almaseo'),
-                    'char_remaining' => __('characters remaining', 'almaseo'),
-                    'char_over' => __('characters over limit', 'almaseo')
+                    'title_placeholder' => __('Product Title', 'almaseo-seo-playground'),
+                    'description_placeholder' => __('Product description will appear here...', 'almaseo-seo-playground'),
+                    'char_remaining' => __('characters remaining', 'almaseo-seo-playground'),
+                    'char_over' => __('characters over limit', 'almaseo-seo-playground')
                 )
             ));
         }
@@ -268,8 +268,8 @@ class AlmaSEO_Woo_Loader {
             'show_stock_in_schema' => true,
             'show_reviews_in_schema' => true,
             'breadcrumb_separator' => ' / ',
-            'breadcrumb_home_text' => __('Home', 'almaseo'),
-            'breadcrumb_shop_text' => __('Shop', 'almaseo')
+            'breadcrumb_home_text' => __('Home', 'almaseo-seo-playground'),
+            'breadcrumb_shop_text' => __('Shop', 'almaseo-seo-playground')
         );
         
         $settings = get_option('almaseo_woo_settings', array());

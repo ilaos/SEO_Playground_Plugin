@@ -38,7 +38,7 @@ class Alma_Sitemap_Conflicts {
         if (!empty($current['started']) && empty($current['finished'])) {
             return array(
                 'success' => false,
-                'message' => __('Scan already in progress', 'almaseo')
+                'message' => __('Scan already in progress', 'almaseo-seo-playground')
             );
         }
         
@@ -48,7 +48,7 @@ class Alma_Sitemap_Conflicts {
         if (empty($urls)) {
             return array(
                 'success' => false,
-                'message' => __('No URLs found in sitemaps', 'almaseo')
+                'message' => __('No URLs found in sitemaps', 'almaseo-seo-playground')
             );
         }
         
@@ -71,7 +71,7 @@ class Alma_Sitemap_Conflicts {
         
         return array(
             'success' => true,
-            'message' => __('Scan started', 'almaseo'),
+            'message' => __('Scan started', 'almaseo-seo-playground'),
             'run_id' => $scan_data['run_id'],
             'total_urls' => count($urls)
         );
@@ -218,13 +218,13 @@ class Alma_Sitemap_Conflicts {
         // Flag problematic status codes
         if ($status >= 300 && $status < 400) {
             $result['issue'] = 'http_redirect';
-            $result['detail'] = sprintf(__('Redirects (%d)', 'almaseo'), $status);
+            $result['detail'] = sprintf(__('Redirects (%d)', 'almaseo-seo-playground'), $status);
         } elseif ($status >= 400 && $status < 500) {
             $result['issue'] = 'http_' . $status;
-            $result['detail'] = sprintf(__('Client error (%d)', 'almaseo'), $status);
+            $result['detail'] = sprintf(__('Client error (%d)', 'almaseo-seo-playground'), $status);
         } elseif ($status >= 500) {
             $result['issue'] = 'http_5xx';
-            $result['detail'] = sprintf(__('Server error (%d)', 'almaseo'), $status);
+            $result['detail'] = sprintf(__('Server error (%d)', 'almaseo-seo-playground'), $status);
         }
         
         return $result;
@@ -348,7 +348,7 @@ class Alma_Sitemap_Conflicts {
                 $canonical_normalized = untrailingslashit(strtolower($canonical));
                 
                 if ($url_normalized !== $canonical_normalized) {
-                    return sprintf(__('Canonical: %s', 'almaseo'), $canonical);
+                    return sprintf(__('Canonical: %s', 'almaseo-seo-playground'), $canonical);
                 }
             }
         }
@@ -386,7 +386,7 @@ class Alma_Sitemap_Conflicts {
         if (empty($scan_data['started'])) {
             return array(
                 'status' => 'idle',
-                'message' => __('No scan running', 'almaseo')
+                'message' => __('No scan running', 'almaseo-seo-playground')
             );
         }
         

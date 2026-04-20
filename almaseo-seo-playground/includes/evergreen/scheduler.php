@@ -18,7 +18,7 @@ function almaseo_eg_cron_schedules($schedules) {
     if (!isset($schedules['weekly'])) {
         $schedules['weekly'] = array(
             'interval' => WEEK_IN_SECONDS,
-            'display' => __('Once Weekly', 'almaseo')
+            'display' => __('Once Weekly', 'almaseo-seo-playground')
         );
     }
     
@@ -199,27 +199,27 @@ function almaseo_eg_generate_digest() {
     
     // Build HTML digest
     $html = '<div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">';
-    $html .= '<h2>' . __('AlmaSEO Evergreen Weekly Digest', 'almaseo') . '</h2>';
-    $html .= '<p>' . sprintf(__('Generated: %s', 'almaseo'), current_time('F j, Y g:i a')) . '</p>';
+    $html .= '<h2>' . __('AlmaSEO Evergreen Weekly Digest', 'almaseo-seo-playground') . '</h2>';
+    $html .= '<p>' . sprintf(__('Generated: %s', 'almaseo-seo-playground'), current_time('F j, Y g:i a')) . '</p>';
     
     // Stats section
-    $html .= '<h3>' . __('Content Health Overview', 'almaseo') . '</h3>';
+    $html .= '<h3>' . __('Content Health Overview', 'almaseo-seo-playground') . '</h3>';
     $html .= '<ul>';
-    $html .= '<li>' . sprintf(__('🟢 Evergreen: %d posts', 'almaseo'), $stats['evergreen']) . '</li>';
-    $html .= '<li>' . sprintf(__('🟡 Watch: %d posts', 'almaseo'), $stats['watch']) . '</li>';
-    $html .= '<li>' . sprintf(__('🔴 Stale: %d posts', 'almaseo'), $stats['stale']) . '</li>';
+    $html .= '<li>' . sprintf(__('🟢 Evergreen: %d posts', 'almaseo-seo-playground'), $stats['evergreen']) . '</li>';
+    $html .= '<li>' . sprintf(__('🟡 Watch: %d posts', 'almaseo-seo-playground'), $stats['watch']) . '</li>';
+    $html .= '<li>' . sprintf(__('🔴 Stale: %d posts', 'almaseo-seo-playground'), $stats['stale']) . '</li>';
     $html .= '</ul>';
     
     // Stale posts section
     if (!empty($stale_posts)) {
-        $html .= '<h3>' . __('Posts Needing Attention', 'almaseo') . '</h3>';
+        $html .= '<h3>' . __('Posts Needing Attention', 'almaseo-seo-playground') . '</h3>';
         $html .= '<ol>';
         foreach ($stale_posts as $post) {
             $ages = almaseo_get_post_ages($post);
             $html .= '<li>';
             $html .= '<strong>' . esc_html($post->post_title) . '</strong><br>';
-            $html .= sprintf(__('Last updated: %d days ago', 'almaseo'), $ages['updated_days']);
-            $html .= ' | <a href="' . get_edit_post_link($post->ID) . '">' . __('Edit', 'almaseo') . '</a>';
+            $html .= sprintf(__('Last updated: %d days ago', 'almaseo-seo-playground'), $ages['updated_days']);
+            $html .= ' | <a href="' . get_edit_post_link($post->ID) . '">' . __('Edit', 'almaseo-seo-playground') . '</a>';
             $html .= '</li>';
         }
         $html .= '</ol>';

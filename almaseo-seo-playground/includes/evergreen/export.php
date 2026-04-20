@@ -53,16 +53,16 @@ function almaseo_eg_handle_csv_export() {
     
     // Write headers
     fputcsv($output, array(
-        __('Post Title', 'almaseo'),
-        __('Post Type', 'almaseo'),
-        __('Status', 'almaseo'),
-        __('Last Updated', 'almaseo'),
-        __('Days Since Update', 'almaseo'),
-        __('90-Day Traffic Trend (%)', 'almaseo'),
-        __('Current Clicks (90d)', 'almaseo'),
-        __('Previous Clicks (90d)', 'almaseo'),
-        __('URL', 'almaseo'),
-        __('Edit URL', 'almaseo')
+        __('Post Title', 'almaseo-seo-playground'),
+        __('Post Type', 'almaseo-seo-playground'),
+        __('Status', 'almaseo-seo-playground'),
+        __('Last Updated', 'almaseo-seo-playground'),
+        __('Days Since Update', 'almaseo-seo-playground'),
+        __('90-Day Traffic Trend (%)', 'almaseo-seo-playground'),
+        __('Current Clicks (90d)', 'almaseo-seo-playground'),
+        __('Previous Clicks (90d)', 'almaseo-seo-playground'),
+        __('URL', 'almaseo-seo-playground'),
+        __('Edit URL', 'almaseo-seo-playground')
     ));
     
     // Write data rows
@@ -118,7 +118,7 @@ function almaseo_eg_handle_pdf_export() {
     <html <?php language_attributes(); ?>>
     <head>
         <meta charset="<?php bloginfo('charset'); ?>">
-        <title><?php _e('Evergreen Content Report', 'almaseo'); ?> - <?php echo date('Y-m-d'); ?></title>
+        <title><?php _e('Evergreen Content Report', 'almaseo-seo-playground'); ?> - <?php echo date('Y-m-d'); ?></title>
         <style>
             * {
                 margin: 0;
@@ -296,52 +296,54 @@ function almaseo_eg_handle_pdf_export() {
         </script>
     </head>
     <body>
-        <h1><?php _e('Evergreen Content Report', 'almaseo'); ?></h1>
+        <h1><?php _e('Evergreen Content Report', 'almaseo-seo-playground'); ?></h1>
         <div class="report-date">
-            <?php echo sprintf(__('Generated: %s', 'almaseo'), date_i18n(get_option('date_format') . ' ' . get_option('time_format'))); ?>
+            <?php
+            /* translators: %s: date and time the report was generated */
+            echo sprintf(__('Generated: %s', 'almaseo-seo-playground'), date_i18n(get_option('date_format') . ' ' . get_option('time_format'))); ?>
         </div>
         
         <div class="stats-grid">
             <div class="stat-card evergreen">
-                <div class="stat-label">🟢 <?php _e('Evergreen', 'almaseo'); ?></div>
+                <div class="stat-label">🟢 <?php _e('Evergreen', 'almaseo-seo-playground'); ?></div>
                 <div class="stat-number"><?php echo esc_html($stats['evergreen']); ?></div>
                 <div class="stat-percentage"><?php echo esc_html($evergreen_pct); ?>%</div>
             </div>
             
             <div class="stat-card watch">
-                <div class="stat-label">🟡 <?php _e('Watch', 'almaseo'); ?></div>
+                <div class="stat-label">🟡 <?php _e('Watch', 'almaseo-seo-playground'); ?></div>
                 <div class="stat-number"><?php echo esc_html($stats['watch']); ?></div>
                 <div class="stat-percentage"><?php echo esc_html($watch_pct); ?>%</div>
             </div>
             
             <div class="stat-card stale">
-                <div class="stat-label">🔴 <?php _e('Stale', 'almaseo'); ?></div>
+                <div class="stat-label">🔴 <?php _e('Stale', 'almaseo-seo-playground'); ?></div>
                 <div class="stat-number"><?php echo esc_html($stats['stale']); ?></div>
                 <div class="stat-percentage"><?php echo esc_html($stale_pct); ?>%</div>
             </div>
             
             <div class="stat-card">
-                <div class="stat-label">⚪ <?php _e('Unanalyzed', 'almaseo'); ?></div>
+                <div class="stat-label">⚪ <?php _e('Unanalyzed', 'almaseo-seo-playground'); ?></div>
                 <div class="stat-number"><?php echo esc_html($stats['unanalyzed']); ?></div>
                 <div class="stat-percentage">—</div>
             </div>
         </div>
         
         <div class="chart-section">
-            <h2><?php _e('Trend Over Time', 'almaseo'); ?></h2>
+            <h2><?php _e('Trend Over Time', 'almaseo-seo-playground'); ?></h2>
             <div class="chart-container">
                 <canvas id="trend-chart" width="800" height="300"></canvas>
             </div>
         </div>
         
-        <h2><?php _e('Content Details', 'almaseo'); ?></h2>
+        <h2><?php _e('Content Details', 'almaseo-seo-playground'); ?></h2>
         <table>
             <thead>
                 <tr>
-                    <th><?php _e('Post Title', 'almaseo'); ?></th>
-                    <th><?php _e('Status', 'almaseo'); ?></th>
-                    <th><?php _e('Last Updated', 'almaseo'); ?></th>
-                    <th><?php _e('90d Trend', 'almaseo'); ?></th>
+                    <th><?php _e('Post Title', 'almaseo-seo-playground'); ?></th>
+                    <th><?php _e('Status', 'almaseo-seo-playground'); ?></th>
+                    <th><?php _e('Last Updated', 'almaseo-seo-playground'); ?></th>
+                    <th><?php _e('90d Trend', 'almaseo-seo-playground'); ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -353,7 +355,7 @@ function almaseo_eg_handle_pdf_export() {
                             <?php echo ucfirst($post['status']); ?>
                         </span>
                     </td>
-                    <td><?php echo esc_html($post['days_ago']); ?> <?php _e('days ago', 'almaseo'); ?></td>
+                    <td><?php echo esc_html($post['days_ago']); ?> <?php _e('days ago', 'almaseo-seo-playground'); ?></td>
                     <td>
                         <?php if ($post['trend'] !== null): ?>
                             <span class="<?php echo $post['trend'] < 0 ? 'trend-down' : 'trend-up'; ?>">

@@ -143,7 +143,7 @@ class AlmaSEO_Breadcrumbs_Loader {
         $defaults = array(
             'enabled'                => true,
             'separator'              => '>',
-            'home_text'              => __('Home', 'almaseo'),
+            'home_text'              => __('Home', 'almaseo-seo-playground'),
             'show_on_home'           => false,
             'show_current'           => true,
             'include_css'            => true,
@@ -180,7 +180,7 @@ class AlmaSEO_Breadcrumbs_Loader {
 
         $clean['enabled']                = isset($settings['enabled']) ? (bool) $settings['enabled'] : false;
         $clean['separator']              = isset($settings['separator']) ? wp_kses_post($settings['separator']) : '>';
-        $clean['home_text']              = isset($settings['home_text']) ? sanitize_text_field($settings['home_text']) : __('Home', 'almaseo');
+        $clean['home_text']              = isset($settings['home_text']) ? sanitize_text_field($settings['home_text']) : __('Home', 'almaseo-seo-playground');
         $clean['show_on_home']           = isset($settings['show_on_home']) ? (bool) $settings['show_on_home'] : false;
         $clean['show_current']           = isset($settings['show_current']) ? (bool) $settings['show_current'] : true;
         $clean['include_css']            = isset($settings['include_css']) ? (bool) $settings['include_css'] : true;

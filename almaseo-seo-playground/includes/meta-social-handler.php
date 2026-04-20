@@ -501,11 +501,11 @@ class AlmaSEO_Meta_Social_Handler {
         
         // Localize strings for JavaScript
         wp_localize_script('almaseo-admin', 'almaseoMeta', array(
-            'canonicalWarning' => __('This URL has a different domain than your site. This is unusual but allowed.', 'almaseo'),
-            'canonicalError' => __('Please enter a valid absolute URL starting with http:// or https://', 'almaseo'),
-            'imageDowngrade' => __('No image available. Card type changed to summary.', 'almaseo'),
-            'charCount' => __('characters', 'almaseo'),
-            'charWarning' => __('Recommended maximum: %d characters', 'almaseo')
+            'canonicalWarning' => __('This URL has a different domain than your site. This is unusual but allowed.', 'almaseo-seo-playground'),
+            'canonicalError' => __('Please enter a valid absolute URL starting with http:// or https://', 'almaseo-seo-playground'),
+            'imageDowngrade' => __('No image available. Card type changed to summary.', 'almaseo-seo-playground'),
+            'charCount' => __('characters', 'almaseo-seo-playground'),
+            'charWarning' => __('Recommended maximum: %d characters', 'almaseo-seo-playground')
         ));
     }
 }

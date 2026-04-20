@@ -119,14 +119,14 @@ class AlmaSEO_Htaccess_Editor {
             'ajaxUrl' => admin_url( 'admin-ajax.php' ),
             'nonce'   => wp_create_nonce( 'almaseo_htaccess_nonce' ),
             'strings' => array(
-                'saving'         => __( 'Saving...', 'almaseo' ),
-                'saved'          => __( '.htaccess saved successfully!', 'almaseo' ),
-                'error'          => __( 'An error occurred. Please try again.', 'almaseo' ),
-                'confirmSave'    => __( 'Are you sure you want to save changes to .htaccess? An incorrect configuration can take your site offline.', 'almaseo' ),
-                'confirmRestore' => __( 'Are you sure you want to restore this backup? The current .htaccess will be overwritten.', 'almaseo' ),
-                'restoring'      => __( 'Restoring...', 'almaseo' ),
-                'restored'       => __( 'Backup restored successfully!', 'almaseo' ),
-                'selectBackup'   => __( 'Please select a backup to restore.', 'almaseo' ),
+                'saving'         => __( 'Saving...', 'almaseo-seo-playground' ),
+                'saved'          => __( '.htaccess saved successfully!', 'almaseo-seo-playground' ),
+                'error'          => __( 'An error occurred. Please try again.', 'almaseo-seo-playground' ),
+                'confirmSave'    => __( 'Are you sure you want to save changes to .htaccess? An incorrect configuration can take your site offline.', 'almaseo-seo-playground' ),
+                'confirmRestore' => __( 'Are you sure you want to restore this backup? The current .htaccess will be overwritten.', 'almaseo-seo-playground' ),
+                'restoring'      => __( 'Restoring...', 'almaseo-seo-playground' ),
+                'restored'       => __( 'Backup restored successfully!', 'almaseo-seo-playground' ),
+                'selectBackup'   => __( 'Please select a backup to restore.', 'almaseo-seo-playground' ),
             ),
         ) );
     }
@@ -140,7 +140,7 @@ class AlmaSEO_Htaccess_Editor {
      */
     public function render_admin_page() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( __( 'You do not have sufficient permissions to access this page.', 'almaseo' ) );
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'almaseo-seo-playground' ) );
         }
 
         require_once ALMASEO_PATH . 'admin/pages/htaccess-editor.php';
@@ -157,11 +157,11 @@ class AlmaSEO_Htaccess_Editor {
         check_ajax_referer( 'almaseo_htaccess_nonce', 'nonce' );
 
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_send_json_error( array( 'message' => __( 'Permission denied.', 'almaseo' ) ) );
+            wp_send_json_error( array( 'message' => __( 'Permission denied.', 'almaseo-seo-playground' ) ) );
         }
 
         if ( ! $this->is_apache() ) {
-            wp_send_json_error( array( 'message' => __( 'This server does not appear to be running Apache.', 'almaseo' ) ) );
+            wp_send_json_error( array( 'message' => __( 'This server does not appear to be running Apache.', 'almaseo-seo-playground' ) ) );
         }
 
         $content = isset( $_POST['content'] ) ? wp_unslash( $_POST['content'] ) : '';
@@ -184,7 +184,7 @@ class AlmaSEO_Htaccess_Editor {
         }
 
         wp_send_json_success( array(
-            'message' => __( '.htaccess saved successfully!', 'almaseo' ),
+            'message' => __( '.htaccess saved successfully!', 'almaseo-seo-playground' ),
             'backups' => $this->get_backups_for_js(),
         ) );
     }
@@ -200,14 +200,14 @@ class AlmaSEO_Htaccess_Editor {
         check_ajax_referer( 'almaseo_htaccess_nonce', 'nonce' );
 
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_send_json_error( array( 'message' => __( 'Permission denied.', 'almaseo' ) ) );
+            wp_send_json_error( array( 'message' => __( 'Permission denied.', 'almaseo-seo-playground' ) ) );
         }
 
         $index   = isset( $_POST['backup_index'] ) ? absint( $_POST['backup_index'] ) : -1;
         $backups = get_option( self::BACKUP_OPTION, array() );
 
         if ( ! isset( $backups[ $index ] ) ) {
-            wp_send_json_error( array( 'message' => __( 'Invalid backup selection.', 'almaseo' ) ) );
+            wp_send_json_error( array( 'message' => __( 'Invalid backup selection.', 'almaseo-seo-playground' ) ) );
         }
 
         $restore_content = $backups[ $index ]['content'];
@@ -227,7 +227,7 @@ class AlmaSEO_Htaccess_Editor {
         }
 
         wp_send_json_success( array(
-            'message' => __( 'Backup restored successfully!', 'almaseo' ),
+            'message' => __( 'Backup restored successfully!', 'almaseo-seo-playground' ),
             'content' => $restore_content,
             'backups' => $this->get_backups_for_js(),
         ) );
@@ -292,7 +292,7 @@ class AlmaSEO_Htaccess_Editor {
         if ( ! $this->is_writable() ) {
             return new WP_Error(
                 'not_writable',
-                __( 'The .htaccess file is not writable. Please check file permissions.', 'almaseo' )
+                __( 'The .htaccess file is not writable. Please check file permissions.', 'almaseo-seo-playground' )
             );
         }
 
@@ -307,7 +307,7 @@ class AlmaSEO_Htaccess_Editor {
         if ( ! WP_Filesystem( $creds ) ) {
             return new WP_Error(
                 'filesystem_error',
-                __( 'Could not access the filesystem.', 'almaseo' )
+                __( 'Could not access the filesystem.', 'almaseo-seo-playground' )
             );
         }
 
@@ -317,7 +317,7 @@ class AlmaSEO_Htaccess_Editor {
         if ( ! $result ) {
             return new WP_Error(
                 'write_failed',
-                __( 'Failed to write the .htaccess file.', 'almaseo' )
+                __( 'Failed to write the .htaccess file.', 'almaseo-seo-playground' )
             );
         }
 

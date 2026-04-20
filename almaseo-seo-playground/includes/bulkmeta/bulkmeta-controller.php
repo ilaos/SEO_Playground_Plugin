@@ -32,8 +32,8 @@ class BulkMeta_Controller {
         
         add_submenu_page(
             'seo-playground',
-            __('Bulk Metadata Editor', 'almaseo'),
-            __('Bulk Metadata', 'almaseo'),
+            __('Bulk Metadata Editor', 'almaseo-seo-playground'),
+            __('Bulk Metadata', 'almaseo-seo-playground'),
             'manage_options',
             'almaseo-bulk-meta',
             array(__CLASS__, 'render_page')
@@ -94,17 +94,17 @@ class BulkMeta_Controller {
             'api_url' => rest_url('almaseo/v1/bulkmeta'),
             'screenHook' => $hook,
             'strings' => array(
-                'loading' => __('Loading posts...', 'almaseo'),
-                'saving' => __('Saving...', 'almaseo'),
-                'saved' => __('Saved!', 'almaseo'),
-                'error' => __('Error saving', 'almaseo'),
-                'loadError' => __('Failed to load posts', 'almaseo'),
-                'confirm_reset' => __('Are you sure you want to reset these fields?', 'almaseo'),
-                'confirm_bulk' => __('Apply bulk operation to selected items?', 'almaseo'),
-                'processing' => __('Processing...', 'almaseo'),
-                'completed' => __('Operation completed', 'almaseo'),
-                'title_warning' => __('Title exceeds recommended length', 'almaseo'),
-                'desc_warning' => __('Description exceeds recommended length', 'almaseo'),
+                'loading' => __('Loading posts...', 'almaseo-seo-playground'),
+                'saving' => __('Saving...', 'almaseo-seo-playground'),
+                'saved' => __('Saved!', 'almaseo-seo-playground'),
+                'error' => __('Error saving', 'almaseo-seo-playground'),
+                'loadError' => __('Failed to load posts', 'almaseo-seo-playground'),
+                'confirm_reset' => __('Are you sure you want to reset these fields?', 'almaseo-seo-playground'),
+                'confirm_bulk' => __('Apply bulk operation to selected items?', 'almaseo-seo-playground'),
+                'processing' => __('Processing...', 'almaseo-seo-playground'),
+                'completed' => __('Operation completed', 'almaseo-seo-playground'),
+                'title_warning' => __('Title exceeds recommended length', 'almaseo-seo-playground'),
+                'desc_warning' => __('Description exceeds recommended length', 'almaseo-seo-playground'),
             ),
             'limits' => array(
                 'title_chars' => 65,
@@ -127,7 +127,7 @@ class BulkMeta_Controller {
      */
     public static function render_page() {
         if (!current_user_can('manage_options')) {
-            wp_die(__('You do not have sufficient permissions to access this page.', 'almaseo'));
+            wp_die(__('You do not have sufficient permissions to access this page.', 'almaseo-seo-playground'));
         }
 
         // Check if bulk metadata feature is available (Pro feature)
@@ -297,7 +297,7 @@ class BulkMeta_Controller {
      */
     public static function update_post_meta($post_id, $data) {
         if (!current_user_can('edit_post', $post_id)) {
-            return new \WP_Error('unauthorized', __('You cannot edit this post.', 'almaseo'), array('status' => 403));
+            return new \WP_Error('unauthorized', __('You cannot edit this post.', 'almaseo-seo-playground'), array('status' => 403));
         }
         
         $updated = false;
@@ -339,7 +339,7 @@ class BulkMeta_Controller {
             return self::format_post_data(get_post($post_id));
         }
         
-        return new \WP_Error('no_changes', __('No changes made.', 'almaseo'), array('status' => 400));
+        return new \WP_Error('no_changes', __('No changes made.', 'almaseo-seo-playground'), array('status' => 400));
     }
     
     /**
@@ -347,7 +347,7 @@ class BulkMeta_Controller {
      */
     public static function reset_post_meta($post_id) {
         if (!current_user_can('edit_post', $post_id)) {
-            return new \WP_Error('unauthorized', __('You cannot edit this post.', 'almaseo'), array('status' => 403));
+            return new \WP_Error('unauthorized', __('You cannot edit this post.', 'almaseo-seo-playground'), array('status' => 403));
         }
         
         delete_post_meta($post_id, '_almaseo_meta_title');
@@ -361,7 +361,7 @@ class BulkMeta_Controller {
      */
     public static function bulk_operation($data) {
         if (!current_user_can('manage_options')) {
-            return new \WP_Error('unauthorized', __('Insufficient permissions.', 'almaseo'), array('status' => 403));
+            return new \WP_Error('unauthorized', __('Insufficient permissions.', 'almaseo-seo-playground'), array('status' => 403));
         }
         
         $ids = isset($data['ids']) ? array_map('intval', $data['ids']) : array();
@@ -370,7 +370,7 @@ class BulkMeta_Controller {
         $args = isset($data['args']) ? $data['args'] : array();
         
         if (empty($ids)) {
-            return new \WP_Error('no_ids', __('No posts selected.', 'almaseo'), array('status' => 400));
+            return new \WP_Error('no_ids', __('No posts selected.', 'almaseo-seo-playground'), array('status' => 400));
         }
         
         $results = array(
@@ -382,7 +382,7 @@ class BulkMeta_Controller {
         foreach ($ids as $post_id) {
             if (!current_user_can('edit_post', $post_id)) {
                 $results['failed']++;
-                $results['errors'][] = sprintf(__('Cannot edit post %d', 'almaseo'), $post_id);
+                $results['errors'][] = sprintf(__('Cannot edit post %d', 'almaseo-seo-playground'), $post_id);
                 continue;
             }
             

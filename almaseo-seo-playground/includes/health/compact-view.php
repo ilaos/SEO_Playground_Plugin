@@ -65,20 +65,20 @@ function almaseo_health_render_compact_view($post) {
             
             <!-- Health Summary -->
             <div class="health-compact-summary">
-                <h3><?php _e('Overall SEO Health', 'almaseo'); ?></h3>
+                <h3><?php _e('Overall SEO Health', 'almaseo-seo-playground'); ?></h3>
                 <p class="health-status-text health-<?php echo esc_attr($score_class); ?>">
                     <?php
                     if ($health_score >= 80) {
-                        _e('Excellent! Your content is well-optimized.', 'almaseo');
+                        _e('Excellent! Your content is well-optimized.', 'almaseo-seo-playground');
                     } elseif ($health_score >= 50) {
-                        _e('Good, but there\'s room for improvement.', 'almaseo');
+                        _e('Good, but there\'s room for improvement.', 'almaseo-seo-playground');
                     } else {
-                        _e('Needs attention. Check the analyzer below.', 'almaseo');
+                        _e('Needs attention. Check the analyzer below.', 'almaseo-seo-playground');
                     }
                     ?>
                 </p>
                 <button type="button" class="button button-secondary" id="almaseo-open-full-analyzer">
-                    <?php _e('Open Full Health Analyzer', 'almaseo'); ?> ↓
+                    <?php _e('Open Full Health Analyzer', 'almaseo-seo-playground'); ?> ↓
                 </button>
             </div>
             
@@ -98,12 +98,12 @@ function almaseo_health_render_compact_view($post) {
                 <div class="health-stat">
                     <span class="stat-icon">✅</span>
                     <span class="stat-value"><?php echo $pass_count; ?></span>
-                    <span class="stat-label"><?php _e('Passed', 'almaseo'); ?></span>
+                    <span class="stat-label"><?php _e('Passed', 'almaseo-seo-playground'); ?></span>
                 </div>
                 <div class="health-stat">
                     <span class="stat-icon">❌</span>
                     <span class="stat-value"><?php echo $fail_count; ?></span>
-                    <span class="stat-label"><?php _e('Issues', 'almaseo'); ?></span>
+                    <span class="stat-label"><?php _e('Issues', 'almaseo-seo-playground'); ?></span>
                 </div>
             </div>
         </div>

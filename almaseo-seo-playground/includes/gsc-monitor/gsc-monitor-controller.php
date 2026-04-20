@@ -31,8 +31,8 @@ class AlmaSEO_GSC_Monitor_Controller {
     public static function register_menu() {
         add_submenu_page(
             'seo-playground',
-            __( 'GSC Monitor', 'almaseo' ),
-            __( 'GSC Monitor', 'almaseo' ),
+            __( 'GSC Monitor', 'almaseo-seo-playground' ),
+            __( 'GSC Monitor', 'almaseo-seo-playground' ),
             'manage_options',
             self::SLUG,
             array( __CLASS__, 'render' )
@@ -44,7 +44,7 @@ class AlmaSEO_GSC_Monitor_Controller {
      */
     public static function render() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( __( 'You do not have sufficient permissions to access this page.', 'almaseo' ) );
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'almaseo-seo-playground' ) );
         }
 
         // Pro gate.
@@ -88,11 +88,11 @@ class AlmaSEO_GSC_Monitor_Controller {
             'restBase'   => rest_url( 'almaseo/v1/gsc-monitor' ),
             'nonce'      => wp_create_nonce( 'wp_rest' ),
             'adminUrl'   => admin_url( 'admin.php?page=' . self::SLUG ),
-            'noFindings' => __( 'No findings yet. Findings will appear here when the AlmaSEO dashboard detects changes in your Google Search Console data.', 'almaseo' ),
+            'noFindings' => __( 'No findings yet. Findings will appear here when the AlmaSEO dashboard detects changes in your Google Search Console data.', 'almaseo-seo-playground' ),
             'tabs'       => array(
-                'indexation_drift' => __( 'Indexation', 'almaseo' ),
-                'rich_result_loss' => __( 'Rich Results', 'almaseo' ),
-                'snippet_rewrite'  => __( 'Snippets', 'almaseo' ),
+                'indexation_drift' => __( 'Indexation', 'almaseo-seo-playground' ),
+                'rich_result_loss' => __( 'Rich Results', 'almaseo-seo-playground' ),
+                'snippet_rewrite'  => __( 'Snippets', 'almaseo-seo-playground' ),
             ),
         ) );
     }

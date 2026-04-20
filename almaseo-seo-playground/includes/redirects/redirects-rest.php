@@ -217,7 +217,7 @@ class AlmaSEO_Redirects_REST {
         $redirect = AlmaSEO_Redirects_Model::get_redirect($id);
         
         if (!$redirect) {
-            return new WP_Error('not_found', __('Redirect not found.', 'almaseo'), array('status' => 404));
+            return new WP_Error('not_found', __('Redirect not found.', 'almaseo-seo-playground'), array('status' => 404));
         }
         
         return new WP_REST_Response($redirect, 200);
@@ -248,7 +248,7 @@ class AlmaSEO_Redirects_REST {
         $id = AlmaSEO_Redirects_Model::create_redirect($data);
         
         if (!$id) {
-            return new WP_Error('create_failed', __('Failed to create redirect.', 'almaseo'), array('status' => 500));
+            return new WP_Error('create_failed', __('Failed to create redirect.', 'almaseo-seo-playground'), array('status' => 500));
         }
         
         $redirect = AlmaSEO_Redirects_Model::get_redirect($id);
@@ -269,7 +269,7 @@ class AlmaSEO_Redirects_REST {
         $existing = AlmaSEO_Redirects_Model::get_redirect($id);
         
         if (!$existing) {
-            return new WP_Error('not_found', __('Redirect not found.', 'almaseo'), array('status' => 404));
+            return new WP_Error('not_found', __('Redirect not found.', 'almaseo-seo-playground'), array('status' => 404));
         }
         
         $data = array();
@@ -292,7 +292,7 @@ class AlmaSEO_Redirects_REST {
             $result = AlmaSEO_Redirects_Model::update_redirect($id, $data);
             
             if (!$result) {
-                return new WP_Error('update_failed', __('Failed to update redirect.', 'almaseo'), array('status' => 500));
+                return new WP_Error('update_failed', __('Failed to update redirect.', 'almaseo-seo-playground'), array('status' => 500));
             }
         }
         
@@ -313,16 +313,16 @@ class AlmaSEO_Redirects_REST {
         $existing = AlmaSEO_Redirects_Model::get_redirect($id);
         
         if (!$existing) {
-            return new WP_Error('not_found', __('Redirect not found.', 'almaseo'), array('status' => 404));
+            return new WP_Error('not_found', __('Redirect not found.', 'almaseo-seo-playground'), array('status' => 404));
         }
         
         $result = AlmaSEO_Redirects_Model::delete_redirect($id);
         
         if (!$result) {
-            return new WP_Error('delete_failed', __('Failed to delete redirect.', 'almaseo'), array('status' => 500));
+            return new WP_Error('delete_failed', __('Failed to delete redirect.', 'almaseo-seo-playground'), array('status' => 500));
         }
         
-        return new WP_REST_Response(array('message' => __('Redirect deleted successfully.', 'almaseo')), 200);
+        return new WP_REST_Response(array('message' => __('Redirect deleted successfully.', 'almaseo-seo-playground')), 200);
     }
     
     /**
@@ -337,13 +337,13 @@ class AlmaSEO_Redirects_REST {
         $existing = AlmaSEO_Redirects_Model::get_redirect($id);
         
         if (!$existing) {
-            return new WP_Error('not_found', __('Redirect not found.', 'almaseo'), array('status' => 404));
+            return new WP_Error('not_found', __('Redirect not found.', 'almaseo-seo-playground'), array('status' => 404));
         }
         
         $result = AlmaSEO_Redirects_Model::toggle_redirect($id);
         
         if (!$result) {
-            return new WP_Error('toggle_failed', __('Failed to toggle redirect status.', 'almaseo'), array('status' => 500));
+            return new WP_Error('toggle_failed', __('Failed to toggle redirect status.', 'almaseo-seo-playground'), array('status' => 500));
         }
         
         $redirect = AlmaSEO_Redirects_Model::get_redirect($id);
@@ -361,7 +361,7 @@ class AlmaSEO_Redirects_REST {
         $ids = $request->get_param('ids');
         
         if (empty($ids)) {
-            return new WP_Error('no_ids', __('No redirects selected.', 'almaseo'), array('status' => 400));
+            return new WP_Error('no_ids', __('No redirects selected.', 'almaseo-seo-playground'), array('status' => 400));
         }
         
         $success = 0;
@@ -396,12 +396,12 @@ class AlmaSEO_Redirects_REST {
                     break;
                     
                 default:
-                    return new WP_Error('invalid_action', __('Invalid bulk action.', 'almaseo'), array('status' => 400));
+                    return new WP_Error('invalid_action', __('Invalid bulk action.', 'almaseo-seo-playground'), array('status' => 400));
             }
         }
         
         return new WP_REST_Response(array(
-            'message' => sprintf(__('%d redirects processed successfully, %d failed.', 'almaseo'), $success, $failed),
+            'message' => sprintf(__('%d redirects processed successfully, %d failed.', 'almaseo-seo-playground'), $success, $failed),
             'success' => $success,
             'failed' => $failed
         ), 200);
@@ -417,7 +417,7 @@ class AlmaSEO_Redirects_REST {
         $normalized = AlmaSEO_Redirects_Model::normalize_path($source);
         
         if (!$normalized) {
-            return new WP_Error('invalid_source', __('Invalid source path.', 'almaseo'), array('status' => 400));
+            return new WP_Error('invalid_source', __('Invalid source path.', 'almaseo-seo-playground'), array('status' => 400));
         }
         
         $redirect = AlmaSEO_Redirects_Model::get_redirect_by_source($normalized);
@@ -425,7 +425,7 @@ class AlmaSEO_Redirects_REST {
         if (!$redirect) {
             return new WP_REST_Response(array(
                 'found' => false,
-                'message' => __('No redirect found for this path.', 'almaseo')
+                'message' => __('No redirect found for this path.', 'almaseo-seo-playground')
             ), 200);
         }
         
@@ -439,7 +439,7 @@ class AlmaSEO_Redirects_REST {
             'found' => true,
             'redirect' => $redirect,
             'target_url' => $target,
-            'message' => sprintf(__('Would redirect to: %s with status %d', 'almaseo'), $target, $redirect['status'])
+            'message' => sprintf(__('Would redirect to: %s with status %d', 'almaseo-seo-playground'), $target, $redirect['status'])
         ), 200);
     }
 }

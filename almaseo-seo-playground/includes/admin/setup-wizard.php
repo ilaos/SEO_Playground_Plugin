@@ -40,7 +40,7 @@ class AlmaSEO_Setup_Wizard {
             return;
         }
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'You do not have sufficient permissions.', 'almaseo' ) );
+            wp_die( esc_html__( 'You do not have sufficient permissions.', 'almaseo-seo-playground' ) );
         }
         // Enqueue assets so wp_print_styles / wp_print_scripts work in the template.
         $ver = defined( 'ALMASEO_PLUGIN_VERSION' ) ? ALMASEO_PLUGIN_VERSION : '8.9.15';
@@ -62,8 +62,8 @@ class AlmaSEO_Setup_Wizard {
     public static function add_admin_page() {
         add_submenu_page(
             null, // hidden — no parent
-            __( 'AlmaSEO Setup Wizard', 'almaseo' ),
-            __( 'Setup Wizard', 'almaseo' ),
+            __( 'AlmaSEO Setup Wizard', 'almaseo-seo-playground' ),
+            __( 'Setup Wizard', 'almaseo-seo-playground' ),
             'manage_options',
             self::SLUG,
             array( __CLASS__, 'render_page' )
@@ -75,7 +75,7 @@ class AlmaSEO_Setup_Wizard {
      */
     public static function render_page() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'You do not have sufficient permissions.', 'almaseo' ) );
+            wp_die( esc_html__( 'You do not have sufficient permissions.', 'almaseo-seo-playground' ) );
         }
         include ALMASEO_PATH . 'admin/pages/setup-wizard.php';
     }
@@ -160,9 +160,9 @@ class AlmaSEO_Setup_Wizard {
                 'sitemap'          => $sitemap_settings,
             ),
             'strings'       => array(
-                'saving' => __( 'Saving...', 'almaseo' ),
-                'saved'  => __( 'Saved!', 'almaseo' ),
-                'error'  => __( 'An error occurred. Please try again.', 'almaseo' ),
+                'saving' => __( 'Saving...', 'almaseo-seo-playground' ),
+                'saved'  => __( 'Saved!', 'almaseo-seo-playground' ),
+                'error'  => __( 'An error occurred. Please try again.', 'almaseo-seo-playground' ),
             ),
         );
     }

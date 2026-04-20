@@ -31,8 +31,8 @@ class AlmaSEO_Documentation {
     public static function register_menu() {
         add_submenu_page(
             'seo-playground',
-            __( 'Documentation & Help', 'almaseo' ),
-            __( 'Documentation', 'almaseo' ),
+            __( 'Documentation & Help', 'almaseo-seo-playground' ),
+            __( 'Documentation', 'almaseo-seo-playground' ),
             'manage_options',
             self::SLUG,
             array( __CLASS__, 'render' )
@@ -44,7 +44,7 @@ class AlmaSEO_Documentation {
      */
     public static function render() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( __( 'Insufficient permissions.', 'almaseo' ) );
+            wp_die( __( 'Insufficient permissions.', 'almaseo-seo-playground' ) );
         }
 
         require_once plugin_dir_path( dirname( __DIR__ ) ) . 'admin/pages/documentation.php';

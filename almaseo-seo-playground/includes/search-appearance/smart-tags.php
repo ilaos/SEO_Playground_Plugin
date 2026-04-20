@@ -124,7 +124,7 @@ class AlmaSEO_Smart_Tags {
 
         // Page number suffix (e.g., " - Page 2") — only on page 2+.
         $map['%%page%%'] = $paged > 1
-            ? sprintf( ' - %s %d', __( 'Page', 'almaseo' ), $paged )
+            ? sprintf( ' - %s %d', __( 'Page', 'almaseo-seo-playground' ), $paged )
             : '';
 
         // Context overrides (highest priority).
@@ -243,31 +243,31 @@ class AlmaSEO_Smart_Tags {
      */
     public static function get_available_tags() {
         return array(
-            '%%title%%'              => __( 'Post/page title, or term name on archives', 'almaseo' ),
-            '%%sitename%%'           => __( 'Site name', 'almaseo' ),
-            '%%sitetagline%%'        => __( 'Site tagline/description', 'almaseo' ),
-            '%%sep%%'                => __( 'Separator character (configured in settings)', 'almaseo' ),
-            '%%excerpt%%'            => __( 'Post excerpt (auto-generated if empty, max 160 chars)', 'almaseo' ),
-            '%%primary_category%%'   => __( 'Primary category name', 'almaseo' ),
-            '%%category%%'           => __( 'First category name', 'almaseo' ),
-            '%%tag%%'                => __( 'First tag name', 'almaseo' ),
-            '%%date%%'               => __( 'Post published date', 'almaseo' ),
-            '%%modified%%'           => __( 'Post last modified date', 'almaseo' ),
-            '%%author%%'             => __( 'Author display name', 'almaseo' ),
-            '%%author_first_name%%'  => __( 'Author first name', 'almaseo' ),
-            '%%author_last_name%%'   => __( 'Author last name', 'almaseo' ),
-            '%%searchphrase%%'       => __( 'Search query (search results page only)', 'almaseo' ),
-            '%%pagenumber%%'         => __( 'Current page number', 'almaseo' ),
-            '%%pagetotal%%'          => __( 'Total number of pages', 'almaseo' ),
-            '%%page%%'               => __( 'Page suffix (e.g., " - Page 2", empty on page 1)', 'almaseo' ),
-            '%%pt_single%%'          => __( 'Post type singular name', 'almaseo' ),
-            '%%pt_plural%%'          => __( 'Post type plural name', 'almaseo' ),
-            '%%term_title%%'         => __( 'Term/taxonomy name (on archive pages)', 'almaseo' ),
-            '%%term_description%%'   => __( 'Term description', 'almaseo' ),
-            '%%currentyear%%'        => __( 'Current year (4 digits)', 'almaseo' ),
-            '%%currentmonth%%'       => __( 'Current month name', 'almaseo' ),
-            '%%focuskeyword%%'       => __( 'Focus keyword from SEO settings', 'almaseo' ),
-            '%%id%%'                 => __( 'Post/page ID', 'almaseo' ),
+            '%%title%%'              => __( 'Post/page title, or term name on archives', 'almaseo-seo-playground' ),
+            '%%sitename%%'           => __( 'Site name', 'almaseo-seo-playground' ),
+            '%%sitetagline%%'        => __( 'Site tagline/description', 'almaseo-seo-playground' ),
+            '%%sep%%'                => __( 'Separator character (configured in settings)', 'almaseo-seo-playground' ),
+            '%%excerpt%%'            => __( 'Post excerpt (auto-generated if empty, max 160 chars)', 'almaseo-seo-playground' ),
+            '%%primary_category%%'   => __( 'Primary category name', 'almaseo-seo-playground' ),
+            '%%category%%'           => __( 'First category name', 'almaseo-seo-playground' ),
+            '%%tag%%'                => __( 'First tag name', 'almaseo-seo-playground' ),
+            '%%date%%'               => __( 'Post published date', 'almaseo-seo-playground' ),
+            '%%modified%%'           => __( 'Post last modified date', 'almaseo-seo-playground' ),
+            '%%author%%'             => __( 'Author display name', 'almaseo-seo-playground' ),
+            '%%author_first_name%%'  => __( 'Author first name', 'almaseo-seo-playground' ),
+            '%%author_last_name%%'   => __( 'Author last name', 'almaseo-seo-playground' ),
+            '%%searchphrase%%'       => __( 'Search query (search results page only)', 'almaseo-seo-playground' ),
+            '%%pagenumber%%'         => __( 'Current page number', 'almaseo-seo-playground' ),
+            '%%pagetotal%%'          => __( 'Total number of pages', 'almaseo-seo-playground' ),
+            '%%page%%'               => __( 'Page suffix (e.g., " - Page 2", empty on page 1)', 'almaseo-seo-playground' ),
+            '%%pt_single%%'          => __( 'Post type singular name', 'almaseo-seo-playground' ),
+            '%%pt_plural%%'          => __( 'Post type plural name', 'almaseo-seo-playground' ),
+            '%%term_title%%'         => __( 'Term/taxonomy name (on archive pages)', 'almaseo-seo-playground' ),
+            '%%term_description%%'   => __( 'Term description', 'almaseo-seo-playground' ),
+            '%%currentyear%%'        => __( 'Current year (4 digits)', 'almaseo-seo-playground' ),
+            '%%currentmonth%%'       => __( 'Current month name', 'almaseo-seo-playground' ),
+            '%%focuskeyword%%'       => __( 'Focus keyword from SEO settings', 'almaseo-seo-playground' ),
+            '%%id%%'                 => __( 'Post/page ID', 'almaseo-seo-playground' ),
         );
     }
 }

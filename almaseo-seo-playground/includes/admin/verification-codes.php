@@ -55,11 +55,11 @@ class AlmaSEO_Verification_Codes {
      */
     public static function get_labels() {
         return array(
-            'google'    => __( 'Google Search Console', 'almaseo' ),
-            'bing'      => __( 'Bing Webmaster Tools', 'almaseo' ),
-            'pinterest' => __( 'Pinterest', 'almaseo' ),
-            'yandex'    => __( 'Yandex Webmaster', 'almaseo' ),
-            'baidu'     => __( 'Baidu Webmaster', 'almaseo' ),
+            'google'    => __( 'Google Search Console', 'almaseo-seo-playground' ),
+            'bing'      => __( 'Bing Webmaster Tools', 'almaseo-seo-playground' ),
+            'pinterest' => __( 'Pinterest', 'almaseo-seo-playground' ),
+            'yandex'    => __( 'Yandex Webmaster', 'almaseo-seo-playground' ),
+            'baidu'     => __( 'Baidu Webmaster', 'almaseo-seo-playground' ),
         );
     }
 

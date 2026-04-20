@@ -46,8 +46,8 @@ class AlmaSEO_Internal_Links_Controller {
     public static function add_admin_menu() {
         add_submenu_page(
             'seo-playground',
-            __( 'Internal Links', 'almaseo' ),
-            __( 'Internal Links', 'almaseo' ),
+            __( 'Internal Links', 'almaseo-seo-playground' ),
+            __( 'Internal Links', 'almaseo-seo-playground' ),
             'manage_options',
             'almaseo-internal-links',
             array( __CLASS__, 'render_admin_page' )
@@ -56,8 +56,8 @@ class AlmaSEO_Internal_Links_Controller {
         // Orphan Pages submenu (v7.7.0+).
         add_submenu_page(
             'seo-playground',
-            __( 'Orphan Pages', 'almaseo' ),
-            __( 'Orphan Pages', 'almaseo' ),
+            __( 'Orphan Pages', 'almaseo-seo-playground' ),
+            __( 'Orphan Pages', 'almaseo-seo-playground' ),
             'manage_options',
             'almaseo-orphan-pages',
             array( __CLASS__, 'render_orphan_page' )
@@ -69,7 +69,7 @@ class AlmaSEO_Internal_Links_Controller {
      */
     public static function render_admin_page() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( __( 'You do not have sufficient permissions to access this page.', 'almaseo' ) );
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'almaseo-seo-playground' ) );
         }
 
         // Pro gate
@@ -89,7 +89,7 @@ class AlmaSEO_Internal_Links_Controller {
      */
     public static function render_orphan_page() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( __( 'You do not have sufficient permissions to access this page.', 'almaseo' ) );
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'almaseo-seo-playground' ) );
         }
 
         // Pro gate.
@@ -147,14 +147,14 @@ class AlmaSEO_Internal_Links_Controller {
             'nonce'   => wp_create_nonce( 'wp_rest' ),
             'homeUrl' => home_url(),
             'strings' => array(
-                'confirmDelete'     => __( 'Are you sure you want to delete this link rule?', 'almaseo' ),
-                'confirmBulkDelete' => __( 'Are you sure you want to delete the selected rules?', 'almaseo' ),
-                'error'             => __( 'An error occurred. Please try again.', 'almaseo' ),
-                'success'           => __( 'Operation completed successfully.', 'almaseo' ),
-                'duplicateKeyword'  => __( 'A rule with this keyword already exists.', 'almaseo' ),
-                'missingKeyword'    => __( 'Keyword is required.', 'almaseo' ),
-                'missingTarget'     => __( 'Target URL is required.', 'almaseo' ),
-                'saved'             => __( 'Settings saved.', 'almaseo' ),
+                'confirmDelete'     => __( 'Are you sure you want to delete this link rule?', 'almaseo-seo-playground' ),
+                'confirmBulkDelete' => __( 'Are you sure you want to delete the selected rules?', 'almaseo-seo-playground' ),
+                'error'             => __( 'An error occurred. Please try again.', 'almaseo-seo-playground' ),
+                'success'           => __( 'Operation completed successfully.', 'almaseo-seo-playground' ),
+                'duplicateKeyword'  => __( 'A rule with this keyword already exists.', 'almaseo-seo-playground' ),
+                'missingKeyword'    => __( 'Keyword is required.', 'almaseo-seo-playground' ),
+                'missingTarget'     => __( 'Target URL is required.', 'almaseo-seo-playground' ),
+                'saved'             => __( 'Settings saved.', 'almaseo-seo-playground' ),
             ),
         ) );
     }
@@ -188,7 +188,7 @@ class AlmaSEO_Internal_Links_Controller {
         wp_localize_script( 'almaseo-orphan-pages', 'almaseoOrphans', array(
             'restBase' => rest_url( 'almaseo/v1/internal-links/orphans' ),
             'nonce'    => wp_create_nonce( 'wp_rest' ),
-            'noFindings' => __( 'No orphan pages found. Run a scan to check for pages with missing internal links.', 'almaseo' ),
+            'noFindings' => __( 'No orphan pages found. Run a scan to check for pages with missing internal links.', 'almaseo-seo-playground' ),
         ) );
     }
 

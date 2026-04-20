@@ -31,8 +31,8 @@ class AlmaSEO_Schema_Drift_Controller {
     public static function register_menu() {
         add_submenu_page(
             'seo-playground',
-            __( 'Schema Drift', 'almaseo' ),
-            __( 'Schema Drift', 'almaseo' ),
+            __( 'Schema Drift', 'almaseo-seo-playground' ),
+            __( 'Schema Drift', 'almaseo-seo-playground' ),
             'manage_options',
             self::SLUG,
             array( __CLASS__, 'render' )
@@ -44,7 +44,7 @@ class AlmaSEO_Schema_Drift_Controller {
      */
     public static function render() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( __( 'You do not have sufficient permissions to access this page.', 'almaseo' ) );
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'almaseo-seo-playground' ) );
         }
 
         // Pro gate.
@@ -87,7 +87,7 @@ class AlmaSEO_Schema_Drift_Controller {
         wp_localize_script( 'almaseo-schema-drift', 'almaseoSD', array(
             'restBase'    => rest_url( 'almaseo/v1/schema-drift' ),
             'nonce'       => wp_create_nonce( 'wp_rest' ),
-            'noFindings'  => __( 'No drift findings yet. Capture a baseline and run a scan to detect schema changes.', 'almaseo' ),
+            'noFindings'  => __( 'No drift findings yet. Capture a baseline and run a scan to detect schema changes.', 'almaseo-seo-playground' ),
         ) );
     }
 }

@@ -121,9 +121,9 @@ class AlmaSEO_Readability_Analyzer {
         if ( $sentence_count === 0 || $word_count === 0 ) {
             return array(
                 'pass'  => false,
-                'label' => __( 'Flesch Reading Ease', 'almaseo' ),
+                'label' => __( 'Flesch Reading Ease', 'almaseo-seo-playground' ),
                 'value' => 0,
-                'tip'   => __( 'Not enough content to calculate.', 'almaseo' ),
+                'tip'   => __( 'Not enough content to calculate.', 'almaseo-seo-playground' ),
             );
         }
 
@@ -133,21 +133,21 @@ class AlmaSEO_Readability_Analyzer {
 
         $pass = $score >= 60;
         if ( $score >= 80 ) {
-            $label_text = __( 'Easy to read', 'almaseo' );
+            $label_text = __( 'Easy to read', 'almaseo-seo-playground' );
         } elseif ( $score >= 60 ) {
-            $label_text = __( 'Fairly easy', 'almaseo' );
+            $label_text = __( 'Fairly easy', 'almaseo-seo-playground' );
         } elseif ( $score >= 40 ) {
-            $label_text = __( 'Somewhat difficult', 'almaseo' );
+            $label_text = __( 'Somewhat difficult', 'almaseo-seo-playground' );
         } else {
-            $label_text = __( 'Difficult to read', 'almaseo' );
+            $label_text = __( 'Difficult to read', 'almaseo-seo-playground' );
         }
 
         return array(
             'pass'  => $pass,
-            'label' => __( 'Flesch Reading Ease', 'almaseo' ),
+            'label' => __( 'Flesch Reading Ease', 'almaseo-seo-playground' ),
             'value' => $score,
             'tip'   => sprintf( '%s (%s). %s', $score, $label_text,
-                $pass ? __( 'Great readability!', 'almaseo' ) : __( 'Aim for 60+ by using shorter words and sentences.', 'almaseo' ) ),
+                $pass ? __( 'Great readability!', 'almaseo-seo-playground' ) : __( 'Aim for 60+ by using shorter words and sentences.', 'almaseo-seo-playground' ) ),
         );
     }
 
@@ -157,7 +157,7 @@ class AlmaSEO_Readability_Analyzer {
      */
     private static function sentence_length_check( $sentences ) {
         if ( empty( $sentences ) ) {
-            return array( 'pass' => true, 'label' => __( 'Sentence Length', 'almaseo' ), 'value' => 0, 'tip' => __( 'No sentences found.', 'almaseo' ) );
+            return array( 'pass' => true, 'label' => __( 'Sentence Length', 'almaseo-seo-playground' ), 'value' => 0, 'tip' => __( 'No sentences found.', 'almaseo-seo-playground' ) );
         }
 
         $long_count = 0;
@@ -173,11 +173,11 @@ class AlmaSEO_Readability_Analyzer {
 
         return array(
             'pass'  => $pass,
-            'label' => __( 'Sentence Length', 'almaseo' ),
+            'label' => __( 'Sentence Length', 'almaseo-seo-playground' ),
             'value' => round( $pct ),
             'tip'   => $pass
-                ? sprintf( __( '%d%% of sentences are over 20 words — good.', 'almaseo' ), round( $pct ) )
-                : sprintf( __( '%d%% of sentences exceed 20 words — try to keep under 25%%.', 'almaseo' ), round( $pct ) ),
+                ? sprintf( __( '%d%% of sentences are over 20 words — good.', 'almaseo-seo-playground' ), round( $pct ) )
+                : sprintf( __( '%d%% of sentences exceed 20 words — try to keep under 25%%.', 'almaseo-seo-playground' ), round( $pct ) ),
         );
     }
 
@@ -187,7 +187,7 @@ class AlmaSEO_Readability_Analyzer {
      */
     private static function passive_voice_check( $sentences ) {
         if ( empty( $sentences ) ) {
-            return array( 'pass' => true, 'label' => __( 'Passive Voice', 'almaseo' ), 'value' => 0, 'tip' => __( 'No sentences found.', 'almaseo' ) );
+            return array( 'pass' => true, 'label' => __( 'Passive Voice', 'almaseo-seo-playground' ), 'value' => 0, 'tip' => __( 'No sentences found.', 'almaseo-seo-playground' ) );
         }
 
         $passive_count = 0;
@@ -206,11 +206,11 @@ class AlmaSEO_Readability_Analyzer {
 
         return array(
             'pass'  => $pass,
-            'label' => __( 'Passive Voice', 'almaseo' ),
+            'label' => __( 'Passive Voice', 'almaseo-seo-playground' ),
             'value' => round( $pct ),
             'tip'   => $pass
-                ? sprintf( __( '%d%% passive sentences — good use of active voice.', 'almaseo' ), round( $pct ) )
-                : sprintf( __( '%d%% passive sentences — aim for ≤10%%. Rewrite with active verbs.', 'almaseo' ), round( $pct ) ),
+                ? sprintf( __( '%d%% passive sentences — good use of active voice.', 'almaseo-seo-playground' ), round( $pct ) )
+                : sprintf( __( '%d%% passive sentences — aim for ≤10%%. Rewrite with active verbs.', 'almaseo-seo-playground' ), round( $pct ) ),
         );
     }
 
@@ -220,7 +220,7 @@ class AlmaSEO_Readability_Analyzer {
      */
     private static function transition_word_check( $sentences, $text ) {
         if ( empty( $sentences ) ) {
-            return array( 'pass' => true, 'label' => __( 'Transition Words', 'almaseo' ), 'value' => 0, 'tip' => __( 'No sentences found.', 'almaseo' ) );
+            return array( 'pass' => true, 'label' => __( 'Transition Words', 'almaseo-seo-playground' ), 'value' => 0, 'tip' => __( 'No sentences found.', 'almaseo-seo-playground' ) );
         }
 
         $with_transition = 0;
@@ -241,11 +241,11 @@ class AlmaSEO_Readability_Analyzer {
 
         return array(
             'pass'  => $pass,
-            'label' => __( 'Transition Words', 'almaseo' ),
+            'label' => __( 'Transition Words', 'almaseo-seo-playground' ),
             'value' => round( $pct ),
             'tip'   => $pass
-                ? sprintf( __( '%d%% of sentences use transitions — smooth flow.', 'almaseo' ), round( $pct ) )
-                : sprintf( __( '%d%% — aim for ≥30%%. Use words like "however", "therefore", "for example".', 'almaseo' ), round( $pct ) ),
+                ? sprintf( __( '%d%% of sentences use transitions — smooth flow.', 'almaseo-seo-playground' ), round( $pct ) )
+                : sprintf( __( '%d%% — aim for ≥30%%. Use words like "however", "therefore", "for example".', 'almaseo-seo-playground' ), round( $pct ) ),
         );
     }
 
@@ -255,7 +255,7 @@ class AlmaSEO_Readability_Analyzer {
      */
     private static function consecutive_starts_check( $sentences ) {
         if ( count( $sentences ) < 3 ) {
-            return array( 'pass' => true, 'label' => __( 'Sentence Variety', 'almaseo' ), 'value' => 0, 'tip' => __( 'Not enough sentences to check.', 'almaseo' ) );
+            return array( 'pass' => true, 'label' => __( 'Sentence Variety', 'almaseo-seo-playground' ), 'value' => 0, 'tip' => __( 'Not enough sentences to check.', 'almaseo-seo-playground' ) );
         }
 
         $starts = array();
@@ -285,11 +285,11 @@ class AlmaSEO_Readability_Analyzer {
 
         return array(
             'pass'  => $pass,
-            'label' => __( 'Sentence Variety', 'almaseo' ),
+            'label' => __( 'Sentence Variety', 'almaseo-seo-playground' ),
             'value' => $max_consecutive,
             'tip'   => $pass
-                ? __( 'Good sentence variety — no repetitive starts.', 'almaseo' )
-                : sprintf( __( '%d consecutive sentences start the same way — vary your openings.', 'almaseo' ), $max_consecutive ),
+                ? __( 'Good sentence variety — no repetitive starts.', 'almaseo-seo-playground' )
+                : sprintf( __( '%d consecutive sentences start the same way — vary your openings.', 'almaseo-seo-playground' ), $max_consecutive ),
         );
     }
 
@@ -301,9 +301,9 @@ class AlmaSEO_Readability_Analyzer {
         if ( $word_count < 300 ) {
             return array(
                 'pass'  => true,
-                'label' => __( 'Subheading Distribution', 'almaseo' ),
+                'label' => __( 'Subheading Distribution', 'almaseo-seo-playground' ),
                 'value' => 0,
-                'tip'   => __( 'Content is short enough — subheadings not required.', 'almaseo' ),
+                'tip'   => __( 'Content is short enough — subheadings not required.', 'almaseo-seo-playground' ),
             );
         }
 
@@ -313,9 +313,9 @@ class AlmaSEO_Readability_Analyzer {
         if ( $subheading_count === 0 ) {
             return array(
                 'pass'  => false,
-                'label' => __( 'Subheading Distribution', 'almaseo' ),
+                'label' => __( 'Subheading Distribution', 'almaseo-seo-playground' ),
                 'value' => 0,
-                'tip'   => sprintf( __( '%d words with no subheadings — add h2/h3 headings to break up content.', 'almaseo' ), $word_count ),
+                'tip'   => sprintf( __( '%d words with no subheadings — add h2/h3 headings to break up content.', 'almaseo-seo-playground' ), $word_count ),
             );
         }
 
@@ -325,11 +325,11 @@ class AlmaSEO_Readability_Analyzer {
 
         return array(
             'pass'  => $pass,
-            'label' => __( 'Subheading Distribution', 'almaseo' ),
+            'label' => __( 'Subheading Distribution', 'almaseo-seo-playground' ),
             'value' => round( $avg_between ),
             'tip'   => $pass
-                ? sprintf( __( 'Average %d words between subheadings — well-structured.', 'almaseo' ), round( $avg_between ) )
-                : sprintf( __( 'Average %d words between subheadings — aim for ≤300.', 'almaseo' ), round( $avg_between ) ),
+                ? sprintf( __( 'Average %d words between subheadings — well-structured.', 'almaseo-seo-playground' ), round( $avg_between ) )
+                : sprintf( __( 'Average %d words between subheadings — aim for ≤300.', 'almaseo-seo-playground' ), round( $avg_between ) ),
         );
     }
 

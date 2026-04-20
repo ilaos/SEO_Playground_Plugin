@@ -30,8 +30,8 @@ class AlmaSEO_Import_Controller {
     public static function add_admin_menu() {
         add_submenu_page(
             'seo-playground',
-            __( 'Import SEO Data', 'almaseo' ),
-            __( 'Import / Export', 'almaseo' ),
+            __( 'Import SEO Data', 'almaseo-seo-playground' ),
+            __( 'Import / Export', 'almaseo-seo-playground' ),
             'manage_options',
             self::SLUG,
             array( __CLASS__, 'render_page' )
@@ -66,15 +66,15 @@ class AlmaSEO_Import_Controller {
             'nonce'        => wp_create_nonce( 'wp_rest' ),
             'importStatus' => get_option( 'almaseo_import_status', array() ),
             'strings'      => array(
-                'detecting'    => __( 'Detecting...', 'almaseo' ),
-                'importing'    => __( 'Importing...', 'almaseo' ),
-                'done'         => __( 'Import complete!', 'almaseo' ),
-                'error'        => __( 'An error occurred.', 'almaseo' ),
-                'noData'       => __( 'No data found from any SEO plugin.', 'almaseo' ),
-                'confirmStart' => __( 'Start importing data? Existing AlmaSEO data will not be overwritten unless you check "Overwrite existing".', 'almaseo' ),
-                'processed'    => __( 'Posts Processed', 'almaseo' ),
-                'imported'     => __( 'Fields Imported', 'almaseo' ),
-                'skipped'      => __( 'Fields Skipped', 'almaseo' ),
+                'detecting'    => __( 'Detecting...', 'almaseo-seo-playground' ),
+                'importing'    => __( 'Importing...', 'almaseo-seo-playground' ),
+                'done'         => __( 'Import complete!', 'almaseo-seo-playground' ),
+                'error'        => __( 'An error occurred.', 'almaseo-seo-playground' ),
+                'noData'       => __( 'No data found from any SEO plugin.', 'almaseo-seo-playground' ),
+                'confirmStart' => __( 'Start importing data? Existing AlmaSEO data will not be overwritten unless you check "Overwrite existing".', 'almaseo-seo-playground' ),
+                'processed'    => __( 'Posts Processed', 'almaseo-seo-playground' ),
+                'imported'     => __( 'Fields Imported', 'almaseo-seo-playground' ),
+                'skipped'      => __( 'Fields Skipped', 'almaseo-seo-playground' ),
             ),
         ) );
     }
@@ -84,7 +84,7 @@ class AlmaSEO_Import_Controller {
      */
     public static function render_page() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'Insufficient permissions.', 'almaseo' ) );
+            wp_die( esc_html__( 'Insufficient permissions.', 'almaseo-seo-playground' ) );
         }
 
         require_once ALMASEO_PATH . 'admin/pages/import.php';

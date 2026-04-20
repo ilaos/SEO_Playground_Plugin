@@ -107,7 +107,7 @@ add_action('admin_print_footer_scripts', function() {
 
     $almaseo_scripts = array();
     foreach ($wp_scripts->done as $handle) {
-        if (stripos($handle, 'almaseo') !== false || stripos($handle, 'alma') !== false) {
+        if (stripos($handle, 'almaseo-seo-playground') !== false || stripos($handle, 'alma') !== false) {
             $almaseo_scripts[] = $handle;
         }
     }

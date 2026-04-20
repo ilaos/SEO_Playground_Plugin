@@ -53,13 +53,13 @@ class AlmaSEO_RSS_Controls {
      */
     public static function get_available_tags() {
         return array(
-            '%%post_link%%'  => __( 'Linked post title (anchor tag)', 'almaseo' ),
-            '%%post_title%%' => __( 'Post title (plain text)', 'almaseo' ),
-            '%%post_url%%'   => __( 'Post URL', 'almaseo' ),
-            '%%blog_link%%'  => __( 'Linked blog name (anchor tag)', 'almaseo' ),
-            '%%blog_name%%'  => __( 'Blog name (plain text)', 'almaseo' ),
-            '%%blog_url%%'   => __( 'Blog URL', 'almaseo' ),
-            '%%author%%'     => __( 'Post author name', 'almaseo' ),
+            '%%post_link%%'  => __( 'Linked post title (anchor tag)', 'almaseo-seo-playground' ),
+            '%%post_title%%' => __( 'Post title (plain text)', 'almaseo-seo-playground' ),
+            '%%post_url%%'   => __( 'Post URL', 'almaseo-seo-playground' ),
+            '%%blog_link%%'  => __( 'Linked blog name (anchor tag)', 'almaseo-seo-playground' ),
+            '%%blog_name%%'  => __( 'Blog name (plain text)', 'almaseo-seo-playground' ),
+            '%%blog_url%%'   => __( 'Blog URL', 'almaseo-seo-playground' ),
+            '%%author%%'     => __( 'Post author name', 'almaseo-seo-playground' ),
         );
     }
 

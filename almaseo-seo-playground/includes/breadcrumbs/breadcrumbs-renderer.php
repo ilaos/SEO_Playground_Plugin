@@ -116,7 +116,7 @@ class AlmaSEO_Breadcrumbs_Renderer {
         // Build inline styles using color settings
         $html = self::render_inline_styles($instance_id, $settings);
 
-        $html .= '<nav class="' . esc_attr($classes) . '" aria-label="' . esc_attr__('Breadcrumb', 'almaseo') . '">';
+        $html .= '<nav class="' . esc_attr($classes) . '" aria-label="' . esc_attr__('Breadcrumb', 'almaseo-seo-playground') . '">';
         $html .= '<ol class="breadcrumb-list">';
 
         $total    = count($breadcrumbs);

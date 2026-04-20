@@ -92,7 +92,7 @@ class Alma_Sitemap_Diff {
         if ($result === false) {
             return array(
                 'success' => false,
-                'message' => __('Failed to save snapshot', 'almaseo')
+                'message' => __('Failed to save snapshot', 'almaseo-seo-playground')
             );
         }
         
@@ -105,7 +105,7 @@ class Alma_Sitemap_Diff {
         
         return array(
             'success' => true,
-            'message' => __('Snapshot created', 'almaseo'),
+            'message' => __('Snapshot created', 'almaseo-seo-playground'),
             'urls' => count($urls),
             'size' => strlen($compressed)
         );
@@ -156,7 +156,7 @@ class Alma_Sitemap_Diff {
         if ($current === false) {
             return array(
                 'success' => false,
-                'message' => __('Failed to load current snapshot', 'almaseo')
+                'message' => __('Failed to load current snapshot', 'almaseo-seo-playground')
             );
         }
         

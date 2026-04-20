@@ -39,12 +39,12 @@ class AlmaSEO_Import_Settings_Mapper {
     public static function import( $source, $overwrite = false ) {
         $method = 'map_' . $source . '_settings';
         if ( ! method_exists( __CLASS__, $method ) ) {
-            return new WP_Error( 'invalid_source', __( 'Unknown settings source.', 'almaseo' ) );
+            return new WP_Error( 'invalid_source', __( 'Unknown settings source.', 'almaseo-seo-playground' ) );
         }
 
         $mapped = self::$method();
         if ( empty( $mapped ) ) {
-            return array( 'imported' => 0, 'skipped' => 0, 'message' => __( 'No settings found to import.', 'almaseo' ) );
+            return array( 'imported' => 0, 'skipped' => 0, 'message' => __( 'No settings found to import.', 'almaseo-seo-playground' ) );
         }
 
         $current  = get_option( 'almaseo_search_appearance', array() );

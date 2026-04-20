@@ -213,17 +213,17 @@ class AlmaSEO_Internal_Links_REST {
 
         $keyword = $request->get_param( 'keyword' );
         if ( empty( $keyword ) ) {
-            return new WP_Error( 'missing_keyword', __( 'Keyword is required.', 'almaseo' ), array( 'status' => 400 ) );
+            return new WP_Error( 'missing_keyword', __( 'Keyword is required.', 'almaseo-seo-playground' ), array( 'status' => 400 ) );
         }
 
         $target_url = $request->get_param( 'target_url' );
         if ( empty( $target_url ) ) {
-            return new WP_Error( 'missing_target', __( 'Target URL is required.', 'almaseo' ), array( 'status' => 400 ) );
+            return new WP_Error( 'missing_target', __( 'Target URL is required.', 'almaseo-seo-playground' ), array( 'status' => 400 ) );
         }
 
         // Check for duplicate keyword
         if ( AlmaSEO_Internal_Links_Model::keyword_exists( $keyword ) ) {
-            return new WP_Error( 'duplicate_keyword', __( 'A rule with this keyword already exists.', 'almaseo' ), array( 'status' => 409 ) );
+            return new WP_Error( 'duplicate_keyword', __( 'A rule with this keyword already exists.', 'almaseo-seo-playground' ), array( 'status' => 409 ) );
         }
 
         $data = array(
@@ -245,7 +245,7 @@ class AlmaSEO_Internal_Links_REST {
         $id = AlmaSEO_Internal_Links_Model::create_link( $data );
 
         if ( ! $id ) {
-            return new WP_Error( 'create_failed', __( 'Failed to create link rule.', 'almaseo' ), array( 'status' => 500 ) );
+            return new WP_Error( 'create_failed', __( 'Failed to create link rule.', 'almaseo-seo-playground' ), array( 'status' => 500 ) );
         }
 
         $link = AlmaSEO_Internal_Links_Model::get_link( $id );
@@ -264,7 +264,7 @@ class AlmaSEO_Internal_Links_REST {
         $link = AlmaSEO_Internal_Links_Model::get_link( $id );
 
         if ( ! $link ) {
-            return new WP_Error( 'not_found', __( 'Link rule not found.', 'almaseo' ), array( 'status' => 404 ) );
+            return new WP_Error( 'not_found', __( 'Link rule not found.', 'almaseo-seo-playground' ), array( 'status' => 404 ) );
         }
 
         return new WP_REST_Response( $link, 200 );
@@ -281,7 +281,7 @@ class AlmaSEO_Internal_Links_REST {
         $existing = AlmaSEO_Internal_Links_Model::get_link( $id );
 
         if ( ! $existing ) {
-            return new WP_Error( 'not_found', __( 'Link rule not found.', 'almaseo' ), array( 'status' => 404 ) );
+            return new WP_Error( 'not_found', __( 'Link rule not found.', 'almaseo-seo-playground' ), array( 'status' => 404 ) );
         }
 
         $data = array();
@@ -300,14 +300,14 @@ class AlmaSEO_Internal_Links_REST {
         // Check duplicate keyword (if keyword is being changed)
         if ( isset( $data['keyword'] ) && $data['keyword'] !== $existing['keyword'] ) {
             if ( AlmaSEO_Internal_Links_Model::keyword_exists( $data['keyword'], $id ) ) {
-                return new WP_Error( 'duplicate_keyword', __( 'A rule with this keyword already exists.', 'almaseo' ), array( 'status' => 409 ) );
+                return new WP_Error( 'duplicate_keyword', __( 'A rule with this keyword already exists.', 'almaseo-seo-playground' ), array( 'status' => 409 ) );
             }
         }
 
         if ( ! empty( $data ) ) {
             $result = AlmaSEO_Internal_Links_Model::update_link( $id, $data );
             if ( ! $result ) {
-                return new WP_Error( 'update_failed', __( 'Failed to update link rule.', 'almaseo' ), array( 'status' => 500 ) );
+                return new WP_Error( 'update_failed', __( 'Failed to update link rule.', 'almaseo-seo-playground' ), array( 'status' => 500 ) );
             }
         }
 
@@ -327,16 +327,16 @@ class AlmaSEO_Internal_Links_REST {
         $existing = AlmaSEO_Internal_Links_Model::get_link( $id );
 
         if ( ! $existing ) {
-            return new WP_Error( 'not_found', __( 'Link rule not found.', 'almaseo' ), array( 'status' => 404 ) );
+            return new WP_Error( 'not_found', __( 'Link rule not found.', 'almaseo-seo-playground' ), array( 'status' => 404 ) );
         }
 
         $result = AlmaSEO_Internal_Links_Model::delete_link( $id );
 
         if ( ! $result ) {
-            return new WP_Error( 'delete_failed', __( 'Failed to delete link rule.', 'almaseo' ), array( 'status' => 500 ) );
+            return new WP_Error( 'delete_failed', __( 'Failed to delete link rule.', 'almaseo-seo-playground' ), array( 'status' => 500 ) );
         }
 
-        return new WP_REST_Response( array( 'message' => __( 'Link rule deleted successfully.', 'almaseo' ) ), 200 );
+        return new WP_REST_Response( array( 'message' => __( 'Link rule deleted successfully.', 'almaseo-seo-playground' ) ), 200 );
     }
 
     /* ------------------------------------------------------------------
@@ -350,13 +350,13 @@ class AlmaSEO_Internal_Links_REST {
         $existing = AlmaSEO_Internal_Links_Model::get_link( $id );
 
         if ( ! $existing ) {
-            return new WP_Error( 'not_found', __( 'Link rule not found.', 'almaseo' ), array( 'status' => 404 ) );
+            return new WP_Error( 'not_found', __( 'Link rule not found.', 'almaseo-seo-playground' ), array( 'status' => 404 ) );
         }
 
         $result = AlmaSEO_Internal_Links_Model::toggle_link( $id );
 
         if ( ! $result ) {
-            return new WP_Error( 'toggle_failed', __( 'Failed to toggle link rule.', 'almaseo' ), array( 'status' => 500 ) );
+            return new WP_Error( 'toggle_failed', __( 'Failed to toggle link rule.', 'almaseo-seo-playground' ), array( 'status' => 500 ) );
         }
 
         $link = AlmaSEO_Internal_Links_Model::get_link( $id );
@@ -375,12 +375,12 @@ class AlmaSEO_Internal_Links_REST {
         $ids    = $request->get_param( 'ids' );
 
         if ( empty( $ids ) ) {
-            return new WP_Error( 'no_ids', __( 'No rules selected.', 'almaseo' ), array( 'status' => 400 ) );
+            return new WP_Error( 'no_ids', __( 'No rules selected.', 'almaseo-seo-playground' ), array( 'status' => 400 ) );
         }
 
         $valid_actions = array( 'delete', 'enable', 'disable' );
         if ( ! in_array( $action, $valid_actions, true ) ) {
-            return new WP_Error( 'invalid_action', __( 'Invalid bulk action.', 'almaseo' ), array( 'status' => 400 ) );
+            return new WP_Error( 'invalid_action', __( 'Invalid bulk action.', 'almaseo-seo-playground' ), array( 'status' => 400 ) );
         }
 
         $success = 0;
@@ -417,7 +417,7 @@ class AlmaSEO_Internal_Links_REST {
         }
 
         return new WP_REST_Response( array(
-            'message' => sprintf( __( '%d rules processed, %d failed.', 'almaseo' ), $success, $failed ),
+            'message' => sprintf( __( '%d rules processed, %d failed.', 'almaseo-seo-playground' ), $success, $failed ),
             'success' => $success,
             'failed'  => $failed,
         ), 200 );
@@ -447,7 +447,7 @@ class AlmaSEO_Internal_Links_REST {
         $post    = get_post( $post_id );
 
         if ( ! $post ) {
-            return new WP_Error( 'not_found', __( 'Post not found.', 'almaseo' ), array( 'status' => 404 ) );
+            return new WP_Error( 'not_found', __( 'Post not found.', 'almaseo-seo-playground' ), array( 'status' => 404 ) );
         }
 
         // Get original content

@@ -33,47 +33,47 @@ try {
 <!-- Auto-Updates -->
 <div class="almaseo-card">
     <div class="almaseo-card-header">
-        <h2><?php _e('Auto-Updates', 'almaseo'); ?></h2>
+        <h2><?php _e('Auto-Updates', 'almaseo-seo-playground'); ?></h2>
         <div class="almaseo-chips">
             <span class="almaseo-chip">
-                <?php _e('Channel:', 'almaseo'); ?> 
+                <?php _e('Channel:', 'almaseo-seo-playground'); ?> 
                 <strong><?php echo ucfirst($current_channel); ?></strong>
             </span>
             <?php if ($last_found && version_compare($last_found, ALMASEO_PLUGIN_VERSION, '>')): ?>
             <span class="almaseo-chip almaseo-chip-warning">
-                <?php _e('Update Available', 'almaseo'); ?>
+                <?php _e('Update Available', 'almaseo-seo-playground'); ?>
             </span>
             <?php endif; ?>
         </div>
     </div>
     <div class="almaseo-card-body">
         <div class="almaseo-form-group">
-            <label for="update-channel"><?php _e('Update Channel:', 'almaseo'); ?></label>
+            <label for="update-channel"><?php _e('Update Channel:', 'almaseo-seo-playground'); ?></label>
             <select id="update-channel" class="almaseo-select">
-                <option value="stable" <?php selected($current_channel, 'stable'); ?>><?php _e('Stable', 'almaseo'); ?></option>
-                <option value="beta" <?php selected($current_channel, 'beta'); ?>><?php _e('Beta', 'almaseo'); ?></option>
+                <option value="stable" <?php selected($current_channel, 'stable'); ?>><?php _e('Stable', 'almaseo-seo-playground'); ?></option>
+                <option value="beta" <?php selected($current_channel, 'beta'); ?>><?php _e('Beta', 'almaseo-seo-playground'); ?></option>
             </select>
-            <p class="description"><?php _e('Choose between stable releases or beta versions with latest features', 'almaseo'); ?></p>
+            <p class="description"><?php _e('Choose between stable releases or beta versions with latest features', 'almaseo-seo-playground'); ?></p>
         </div>
         
         <div class="almaseo-update-info">
             <div class="almaseo-stat-grid">
                 <div class="almaseo-stat">
                     <div class="almaseo-stat-value"><?php echo ALMASEO_PLUGIN_VERSION; ?></div>
-                    <div class="almaseo-stat-label"><?php _e('Current Version', 'almaseo'); ?></div>
+                    <div class="almaseo-stat-label"><?php _e('Current Version', 'almaseo-seo-playground'); ?></div>
                 </div>
                 <?php if ($last_found): ?>
                 <div class="almaseo-stat">
                     <div class="almaseo-stat-value <?php echo version_compare($last_found, ALMASEO_PLUGIN_VERSION, '>') ? 'almaseo-text-warning' : 'almaseo-text-success'; ?>">
                         <?php echo esc_html($last_found); ?>
                     </div>
-                    <div class="almaseo-stat-label"><?php _e('Latest Version', 'almaseo'); ?></div>
+                    <div class="almaseo-stat-label"><?php _e('Latest Version', 'almaseo-seo-playground'); ?></div>
                 </div>
                 <?php endif; ?>
                 <?php if ($last_check > 0): ?>
                 <div class="almaseo-stat">
                     <div class="almaseo-stat-value"><?php echo human_time_diff($last_check); ?></div>
-                    <div class="almaseo-stat-label"><?php _e('Last Check', 'almaseo'); ?></div>
+                    <div class="almaseo-stat-label"><?php _e('Last Check', 'almaseo-seo-playground'); ?></div>
                 </div>
                 <?php endif; ?>
             </div>
@@ -82,12 +82,12 @@ try {
         <div class="almaseo-button-group">
             <button type="button" class="button button-primary" id="check-updates-btn">
                 <span class="dashicons dashicons-update"></span>
-                <?php _e('Check for Updates Now', 'almaseo'); ?>
+                <?php _e('Check for Updates Now', 'almaseo-seo-playground'); ?>
             </button>
             <?php if ($last_found && version_compare($last_found, ALMASEO_PLUGIN_VERSION, '>')): ?>
             <button type="button" class="button button-secondary" id="install-update-btn">
                 <span class="dashicons dashicons-download"></span>
-                <?php _e('Install Update', 'almaseo'); ?>
+                <?php _e('Install Update', 'almaseo-seo-playground'); ?>
             </button>
             <?php endif; ?>
         </div>
@@ -97,26 +97,26 @@ try {
             <div class="almaseo-progress-bar">
                 <div class="almaseo-progress-fill" style="width: 0%"></div>
             </div>
-            <p id="update-status-text"><?php _e('Checking for updates...', 'almaseo'); ?></p>
+            <p id="update-status-text"><?php _e('Checking for updates...', 'almaseo-seo-playground'); ?></p>
         </div>
         
         <!-- Auto-Update Settings -->
         <div class="almaseo-form-section">
-            <h3><?php _e('Automatic Updates', 'almaseo'); ?></h3>
+            <h3><?php _e('Automatic Updates', 'almaseo-seo-playground'); ?></h3>
             <div class="almaseo-form-group">
                 <label class="almaseo-toggle-item">
                     <input type="checkbox" id="auto-updates-enabled" 
                            <?php checked(get_option('almaseo_auto_updates_enabled', false)); ?>>
-                    <span><?php _e('Enable Automatic Updates', 'almaseo'); ?></span>
-                    <small><?php _e('Automatically install updates when available', 'almaseo'); ?></small>
+                    <span><?php _e('Enable Automatic Updates', 'almaseo-seo-playground'); ?></span>
+                    <small><?php _e('Automatically install updates when available', 'almaseo-seo-playground'); ?></small>
                 </label>
             </div>
             <div class="almaseo-form-group">
                 <label class="almaseo-toggle-item">
                     <input type="checkbox" id="auto-updates-beta" 
                            <?php checked(get_option('almaseo_auto_updates_beta', false)); ?>>
-                    <span><?php _e('Include Beta Versions', 'almaseo'); ?></span>
-                    <small><?php _e('Also auto-update to beta releases (not recommended for production)', 'almaseo'); ?></small>
+                    <span><?php _e('Include Beta Versions', 'almaseo-seo-playground'); ?></span>
+                    <small><?php _e('Also auto-update to beta releases (not recommended for production)', 'almaseo-seo-playground'); ?></small>
                 </label>
             </div>
         </div>
@@ -127,28 +127,28 @@ try {
     <!-- Export Settings -->
     <div class="almaseo-card">
         <div class="almaseo-card-header">
-            <h2><?php _e('Export Settings', 'almaseo'); ?></h2>
+            <h2><?php _e('Export Settings', 'almaseo-seo-playground'); ?></h2>
         </div>
         <div class="almaseo-card-body">
             <div class="almaseo-form-group">
-                <p class="description"><?php _e('Download your current sitemap settings as a JSON file for backup or migration purposes.', 'almaseo'); ?></p>
+                <p class="description"><?php _e('Download your current sitemap settings as a JSON file for backup or migration purposes.', 'almaseo-seo-playground'); ?></p>
                 
                 <div class="almaseo-export-options">
                     <label class="almaseo-toggle-item">
                         <input type="checkbox" id="export-all-settings" checked>
-                        <span><?php _e('All Settings', 'almaseo'); ?></span>
+                        <span><?php _e('All Settings', 'almaseo-seo-playground'); ?></span>
                     </label>
                     <label class="almaseo-toggle-item">
                         <input type="checkbox" id="export-types-rules">
-                        <span><?php _e('Types & Rules Only', 'almaseo'); ?></span>
+                        <span><?php _e('Types & Rules Only', 'almaseo-seo-playground'); ?></span>
                     </label>
                     <label class="almaseo-toggle-item">
                         <input type="checkbox" id="export-media-settings">
-                        <span><?php _e('Media Settings Only', 'almaseo'); ?></span>
+                        <span><?php _e('Media Settings Only', 'almaseo-seo-playground'); ?></span>
                     </label>
                     <label class="almaseo-toggle-item">
                         <input type="checkbox" id="export-additional-urls">
-                        <span><?php _e('Additional URLs', 'almaseo'); ?></span>
+                        <span><?php _e('Additional URLs', 'almaseo-seo-playground'); ?></span>
                     </label>
                 </div>
             </div>
@@ -156,11 +156,11 @@ try {
             <div class="almaseo-button-group">
                 <button type="button" class="button button-primary" id="export-settings-btn">
                     <span class="dashicons dashicons-download"></span>
-                    <?php _e('Export Settings', 'almaseo'); ?>
+                    <?php _e('Export Settings', 'almaseo-seo-playground'); ?>
                 </button>
                 <button type="button" class="button almaseo-button-secondary" id="export-logs-btn">
                     <span class="dashicons dashicons-media-text"></span>
-                    <?php _e('Export Logs', 'almaseo'); ?>
+                    <?php _e('Export Logs', 'almaseo-seo-playground'); ?>
                 </button>
             </div>
             
@@ -168,7 +168,7 @@ try {
             <div id="export-status" style="display:none;">
                 <p class="almaseo-text-success">
                     <span class="dashicons dashicons-yes-alt"></span>
-                    <span id="export-message"><?php _e('Settings exported successfully!', 'almaseo'); ?></span>
+                    <span id="export-message"><?php _e('Settings exported successfully!', 'almaseo-seo-playground'); ?></span>
                 </p>
             </div>
         </div>
@@ -177,17 +177,17 @@ try {
     <!-- Import Settings -->
     <div class="almaseo-card">
         <div class="almaseo-card-header">
-            <h2><?php _e('Import Settings', 'almaseo'); ?></h2>
+            <h2><?php _e('Import Settings', 'almaseo-seo-playground'); ?></h2>
         </div>
         <div class="almaseo-card-body">
             <div class="almaseo-form-group">
-                <p class="description"><?php _e('Import sitemap settings from a previously exported JSON file. This will overwrite your current settings.', 'almaseo'); ?></p>
+                <p class="description"><?php _e('Import sitemap settings from a previously exported JSON file. This will overwrite your current settings.', 'almaseo-seo-playground'); ?></p>
                 
                 <div class="almaseo-import-area">
                     <input type="file" id="import-settings-file" accept=".json" style="display:none;">
                     <div class="almaseo-file-drop-zone" id="import-drop-zone">
                         <span class="dashicons dashicons-upload"></span>
-                        <p><?php _e('Drop JSON file here or click to browse', 'almaseo'); ?></p>
+                        <p><?php _e('Drop JSON file here or click to browse', 'almaseo-seo-playground'); ?></p>
                         <div class="almaseo-file-info" id="import-file-info" style="display:none;">
                             <strong id="import-file-name"></strong>
                             <small id="import-file-size"></small>
@@ -199,24 +199,24 @@ try {
             <div class="almaseo-import-options" id="import-options" style="display:none;">
                 <label class="almaseo-toggle-item">
                     <input type="checkbox" id="import-merge-settings" checked>
-                    <span><?php _e('Merge with existing settings', 'almaseo'); ?></span>
-                    <small><?php _e('Preserve settings not included in the import file', 'almaseo'); ?></small>
+                    <span><?php _e('Merge with existing settings', 'almaseo-seo-playground'); ?></span>
+                    <small><?php _e('Preserve settings not included in the import file', 'almaseo-seo-playground'); ?></small>
                 </label>
                 <label class="almaseo-toggle-item">
                     <input type="checkbox" id="import-create-backup">
-                    <span><?php _e('Create backup before import', 'almaseo'); ?></span>
-                    <small><?php _e('Automatically download current settings as backup', 'almaseo'); ?></small>
+                    <span><?php _e('Create backup before import', 'almaseo-seo-playground'); ?></span>
+                    <small><?php _e('Automatically download current settings as backup', 'almaseo-seo-playground'); ?></small>
                 </label>
             </div>
             
             <div class="almaseo-button-group">
                 <button type="button" class="button almaseo-button-secondary" id="import-settings-btn">
                     <span class="dashicons dashicons-upload"></span>
-                    <?php _e('Choose File', 'almaseo'); ?>
+                    <?php _e('Choose File', 'almaseo-seo-playground'); ?>
                 </button>
                 <button type="button" class="button button-primary" id="import-confirm-btn" disabled>
                     <span class="dashicons dashicons-yes"></span>
-                    <?php _e('Import Settings', 'almaseo'); ?>
+                    <?php _e('Import Settings', 'almaseo-seo-playground'); ?>
                 </button>
             </div>
             
@@ -226,7 +226,7 @@ try {
                     <div class="almaseo-progress-bar">
                         <div class="almaseo-progress-fill" style="width: 0%"></div>
                     </div>
-                    <p id="import-progress-text"><?php _e('Importing settings...', 'almaseo'); ?></p>
+                    <p id="import-progress-text"><?php _e('Importing settings...', 'almaseo-seo-playground'); ?></p>
                 </div>
             </div>
         </div>
@@ -236,17 +236,17 @@ try {
 <!-- Quick Tools & Helpers -->
 <div class="almaseo-card">
     <div class="almaseo-card-header">
-        <h2><?php _e('Quick Tools & Helpers', 'almaseo'); ?></h2>
+        <h2><?php _e('Quick Tools & Helpers', 'almaseo-seo-playground'); ?></h2>
     </div>
     <div class="almaseo-card-body">
         <div class="almaseo-tools-grid">
             <!-- Copy Sitemap URLs -->
             <div class="almaseo-tool-item">
-                <h4><?php _e('Copy Sitemap URLs', 'almaseo'); ?></h4>
-                <p class="description"><?php _e('Copy all enabled sitemap URLs to clipboard for easy submission to search engines.', 'almaseo'); ?></p>
+                <h4><?php _e('Copy Sitemap URLs', 'almaseo-seo-playground'); ?></h4>
+                <p class="description"><?php _e('Copy all enabled sitemap URLs to clipboard for easy submission to search engines.', 'almaseo-seo-playground'); ?></p>
                 <button type="button" class="button almaseo-button-secondary" id="copy-all-urls-btn">
                     <span class="dashicons dashicons-clipboard"></span>
-                    <?php _e('Copy All URLs', 'almaseo'); ?>
+                    <?php _e('Copy All URLs', 'almaseo-seo-playground'); ?>
                 </button>
                 <div id="sitemap-urls-list" style="display:none; margin-top:10px;">
                     <textarea class="almaseo-input" rows="8" readonly></textarea>
@@ -255,21 +255,21 @@ try {
             
             <!-- HTML Sitemap Shortcode -->
             <div class="almaseo-tool-item">
-                <h4><?php _e('HTML Sitemap Shortcode', 'almaseo'); ?></h4>
-                <p class="description"><?php _e('Generate shortcode for displaying HTML sitemaps on pages.', 'almaseo'); ?></p>
+                <h4><?php _e('HTML Sitemap Shortcode', 'almaseo-seo-playground'); ?></h4>
+                <p class="description"><?php _e('Generate shortcode for displaying HTML sitemaps on pages.', 'almaseo-seo-playground'); ?></p>
                 
                 <div class="almaseo-shortcode-builder">
                     <div class="almaseo-form-row">
                         <div class="almaseo-form-group">
-                            <label><?php _e('Types:', 'almaseo'); ?></label>
+                            <label><?php _e('Types:', 'almaseo-seo-playground'); ?></label>
                             <div class="almaseo-checkbox-group">
-                                <label><input type="checkbox" value="posts" checked> <?php _e('Posts', 'almaseo'); ?></label>
-                                <label><input type="checkbox" value="pages" checked> <?php _e('Pages', 'almaseo'); ?></label>
-                                <label><input type="checkbox" value="tax"> <?php _e('Taxonomies', 'almaseo'); ?></label>
+                                <label><input type="checkbox" value="posts" checked> <?php _e('Posts', 'almaseo-seo-playground'); ?></label>
+                                <label><input type="checkbox" value="pages" checked> <?php _e('Pages', 'almaseo-seo-playground'); ?></label>
+                                <label><input type="checkbox" value="tax"> <?php _e('Taxonomies', 'almaseo-seo-playground'); ?></label>
                             </div>
                         </div>
                         <div class="almaseo-form-group">
-                            <label for="shortcode-columns"><?php _e('Columns:', 'almaseo'); ?></label>
+                            <label for="shortcode-columns"><?php _e('Columns:', 'almaseo-seo-playground'); ?></label>
                             <input type="number" id="shortcode-columns" min="1" max="4" value="2" class="almaseo-input almaseo-input-small">
                         </div>
                     </div>
@@ -278,7 +278,7 @@ try {
                         <input type="text" id="generated-shortcode" value="[almaseo_html_sitemap types=&quot;posts,pages&quot; columns=&quot;2&quot;]" class="almaseo-input" readonly>
                         <button type="button" class="button almaseo-button-secondary" id="copy-shortcode-btn">
                             <span class="dashicons dashicons-clipboard"></span>
-                            <?php _e('Copy', 'almaseo'); ?>
+                            <?php _e('Copy', 'almaseo-seo-playground'); ?>
                         </button>
                     </div>
                 </div>
@@ -286,29 +286,29 @@ try {
                 <div class="almaseo-shortcode-preview">
                     <button type="button" class="button" id="preview-shortcode-btn">
                         <span class="dashicons dashicons-visibility"></span>
-                        <?php _e('Preview HTML Sitemap', 'almaseo'); ?>
+                        <?php _e('Preview HTML Sitemap', 'almaseo-seo-playground'); ?>
                     </button>
                 </div>
             </div>
             
             <!-- robots.txt Helper -->
             <div class="almaseo-tool-item">
-                <h4><?php _e('robots.txt Integration', 'almaseo'); ?></h4>
-                <p class="description"><?php _e('Preview and manage how your sitemaps appear in robots.txt.', 'almaseo'); ?></p>
+                <h4><?php _e('robots.txt Integration', 'almaseo-seo-playground'); ?></h4>
+                <p class="description"><?php _e('Preview and manage how your sitemaps appear in robots.txt.', 'almaseo-seo-playground'); ?></p>
                 <button type="button" class="button almaseo-button-secondary" id="preview-robots-btn">
                     <span class="dashicons dashicons-visibility"></span>
-                    <?php _e('Preview robots.txt', 'almaseo'); ?>
+                    <?php _e('Preview robots.txt', 'almaseo-seo-playground'); ?>
                 </button>
                 <div id="robots-preview" style="display:none; margin-top:10px;">
                     <pre class="almaseo-code-preview"></pre>
                     <div class="almaseo-button-group">
                         <button type="button" class="button" id="copy-robots-entries">
                             <span class="dashicons dashicons-clipboard"></span>
-                            <?php _e('Copy Sitemap Lines', 'almaseo'); ?>
+                            <?php _e('Copy Sitemap Lines', 'almaseo-seo-playground'); ?>
                         </button>
                         <button type="button" class="button" id="download-robots">
                             <span class="dashicons dashicons-download"></span>
-                            <?php _e('Download robots.txt', 'almaseo'); ?>
+                            <?php _e('Download robots.txt', 'almaseo-seo-playground'); ?>
                         </button>
                     </div>
                 </div>
@@ -316,20 +316,20 @@ try {
             
             <!-- Bulk Operations -->
             <div class="almaseo-tool-item">
-                <h4><?php _e('Bulk Operations', 'almaseo'); ?></h4>
-                <p class="description"><?php _e('Perform operations on multiple sitemaps at once.', 'almaseo'); ?></p>
+                <h4><?php _e('Bulk Operations', 'almaseo-seo-playground'); ?></h4>
+                <p class="description"><?php _e('Perform operations on multiple sitemaps at once.', 'almaseo-seo-playground'); ?></p>
                 <div class="almaseo-button-group">
                     <button type="button" class="button" id="validate-all-sitemaps">
                         <span class="dashicons dashicons-yes-alt"></span>
-                        <?php _e('Validate All', 'almaseo'); ?>
+                        <?php _e('Validate All', 'almaseo-seo-playground'); ?>
                     </button>
                     <button type="button" class="button" id="rebuild-all-sitemaps">
                         <span class="dashicons dashicons-update"></span>
-                        <?php _e('Rebuild All', 'almaseo'); ?>
+                        <?php _e('Rebuild All', 'almaseo-seo-playground'); ?>
                     </button>
                     <button type="button" class="button" id="ping-all-search-engines">
                         <span class="dashicons dashicons-megaphone"></span>
-                        <?php _e('Ping Search Engines', 'almaseo'); ?>
+                        <?php _e('Ping Search Engines', 'almaseo-seo-playground'); ?>
                     </button>
                 </div>
             </div>
@@ -340,44 +340,44 @@ try {
 <!-- System Information -->
 <div class="almaseo-card">
     <div class="almaseo-card-header">
-        <h2><?php _e('System Information', 'almaseo'); ?></h2>
+        <h2><?php _e('System Information', 'almaseo-seo-playground'); ?></h2>
         <button type="button" class="button almaseo-button-secondary" id="copy-system-info">
             <span class="dashicons dashicons-clipboard"></span>
-            <?php _e('Copy for Support', 'almaseo'); ?>
+            <?php _e('Copy for Support', 'almaseo-seo-playground'); ?>
         </button>
     </div>
     <div class="almaseo-card-body">
         <div class="almaseo-system-info">
             <div class="almaseo-info-grid">
                 <div class="almaseo-info-item">
-                    <strong><?php _e('Plugin Version:', 'almaseo'); ?></strong>
+                    <strong><?php _e('Plugin Version:', 'almaseo-seo-playground'); ?></strong>
                     <?php echo ALMASEO_PLUGIN_VERSION; ?>
                 </div>
                 <div class="almaseo-info-item">
-                    <strong><?php _e('WordPress Version:', 'almaseo'); ?></strong>
+                    <strong><?php _e('WordPress Version:', 'almaseo-seo-playground'); ?></strong>
                     <?php echo esc_html(get_bloginfo('version')); ?>
                 </div>
                 <div class="almaseo-info-item">
-                    <strong><?php _e('PHP Version:', 'almaseo'); ?></strong>
+                    <strong><?php _e('PHP Version:', 'almaseo-seo-playground'); ?></strong>
                     <?php echo esc_html(PHP_VERSION); ?>
                 </div>
                 <div class="almaseo-info-item">
-                    <strong><?php _e('Memory Limit:', 'almaseo'); ?></strong>
+                    <strong><?php _e('Memory Limit:', 'almaseo-seo-playground'); ?></strong>
                     <?php echo esc_html(ini_get('memory_limit')); ?>
                 </div>
                 <div class="almaseo-info-item">
-                    <strong><?php _e('Max Execution Time:', 'almaseo'); ?></strong>
+                    <strong><?php _e('Max Execution Time:', 'almaseo-seo-playground'); ?></strong>
                     <?php echo esc_html(ini_get('max_execution_time')); ?>s
                 </div>
                 <div class="almaseo-info-item">
-                    <strong><?php _e('Server:', 'almaseo'); ?></strong>
+                    <strong><?php _e('Server:', 'almaseo-seo-playground'); ?></strong>
                     <?php echo esc_html(isset($_SERVER['SERVER_SOFTWARE']) ? $_SERVER['SERVER_SOFTWARE'] : 'Unknown'); ?>
                 </div>
             </div>
             
             <!-- Active Plugins -->
             <details class="almaseo-system-details">
-                <summary><?php _e('Active Plugins', 'almaseo'); ?></summary>
+                <summary><?php _e('Active Plugins', 'almaseo-seo-playground'); ?></summary>
                 <div class="almaseo-plugins-list">
                     <?php
                     $active_plugins = get_option('active_plugins', array());
@@ -396,7 +396,7 @@ try {
             
             <!-- Environment Checks -->
             <details class="almaseo-system-details">
-                <summary><?php _e('Environment Checks', 'almaseo'); ?></summary>
+                <summary><?php _e('Environment Checks', 'almaseo-seo-playground'); ?></summary>
                 <div class="almaseo-checks-list">
                     <?php
                     $checks = array(
@@ -412,7 +412,7 @@ try {
                         echo '<div class="almaseo-check-item">';
                         echo '<span class="dashicons dashicons-' . ($status ? 'yes-alt almaseo-text-success' : 'warning almaseo-text-warning') . '"></span>';
                         echo '<strong>' . $label . ':</strong> ';
-                        echo $status ? __('Enabled', 'almaseo') : __('Disabled', 'almaseo');
+                        echo $status ? __('Enabled', 'almaseo-seo-playground') : __('Disabled', 'almaseo-seo-playground');
                         echo '</div>';
                     }
                     ?>

@@ -400,7 +400,7 @@ class AlmaSEO_Breadcrumbs_Builder {
         if ($settings['show_current']) {
             $breadcrumbs[] = array(
                 /* translators: %s: tag name */
-                'text'       => sprintf(__('Tag: %s', 'almaseo'), $current_tag->name),
+                'text'       => sprintf(__('Tag: %s', 'almaseo-seo-playground'), $current_tag->name),
                 'url'        => get_tag_link($current_tag->term_id),
                 'is_current' => true,
             );
@@ -520,7 +520,7 @@ class AlmaSEO_Breadcrumbs_Builder {
         if ($settings['show_current'] && $author) {
             $breadcrumbs[] = array(
                 /* translators: %s: author name */
-                'text'       => sprintf(__('Author: %s', 'almaseo'), $author->display_name),
+                'text'       => sprintf(__('Author: %s', 'almaseo-seo-playground'), $author->display_name),
                 'url'        => get_author_posts_url($author->ID),
                 'is_current' => true,
             );
@@ -606,7 +606,7 @@ class AlmaSEO_Breadcrumbs_Builder {
         if ($settings['show_current']) {
             $breadcrumbs[] = array(
                 /* translators: %s: search query */
-                'text'       => sprintf(__('Search: %s', 'almaseo'), get_search_query()),
+                'text'       => sprintf(__('Search: %s', 'almaseo-seo-playground'), get_search_query()),
                 'url'        => get_search_link(),
                 'is_current' => true,
             );
@@ -625,7 +625,7 @@ class AlmaSEO_Breadcrumbs_Builder {
     private static function build_404($breadcrumbs, $settings) {
         if ($settings['show_current']) {
             $breadcrumbs[] = array(
-                'text'       => __('Page Not Found', 'almaseo'),
+                'text'       => __('Page Not Found', 'almaseo-seo-playground'),
                 'url'        => '',
                 'is_current' => true,
             );

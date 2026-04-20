@@ -65,16 +65,16 @@ function almaseo_health_get_weights() {
  */
 function almaseo_health_get_signal_labels() {
     return array(
-        'title'          => __('Title', 'almaseo'),
-        'meta_desc'      => __('Meta Description', 'almaseo'),
-        'h1'             => __('H1 Heading', 'almaseo'),
-        'kw_intro'       => __('Keyword in Introduction', 'almaseo'),
-        'internal_link'  => __('Internal Link', 'almaseo'),
-        'outbound_link'  => __('Outbound Link', 'almaseo'),
-        'image_alt'      => __('Image Alt Text', 'almaseo'),
-        'readability'    => __('Readability', 'almaseo'),
-        'canonical'      => __('Canonical URL', 'almaseo'),
-        'robots'         => __('Robots Settings', 'almaseo'),
+        'title'          => __('Title', 'almaseo-seo-playground'),
+        'meta_desc'      => __('Meta Description', 'almaseo-seo-playground'),
+        'h1'             => __('H1 Heading', 'almaseo-seo-playground'),
+        'kw_intro'       => __('Keyword in Introduction', 'almaseo-seo-playground'),
+        'internal_link'  => __('Internal Link', 'almaseo-seo-playground'),
+        'outbound_link'  => __('Outbound Link', 'almaseo-seo-playground'),
+        'image_alt'      => __('Image Alt Text', 'almaseo-seo-playground'),
+        'readability'    => __('Readability', 'almaseo-seo-playground'),
+        'canonical'      => __('Canonical URL', 'almaseo-seo-playground'),
+        'robots'         => __('Robots Settings', 'almaseo-seo-playground'),
     );
 }
 
@@ -85,15 +85,15 @@ function almaseo_health_get_signal_labels() {
  */
 function almaseo_health_get_signal_help() {
     return array(
-        'title' => __('A compelling title helps search engines and users understand your content.', 'almaseo'),
-        'meta_desc' => __('Meta descriptions provide a summary for search engine results.', 'almaseo'),
-        'h1' => __('One unique H1 heading provides clear structure for your content.', 'almaseo'),
-        'kw_intro' => __('Including keywords early signals relevance to search engines.', 'almaseo'),
-        'internal_link' => __('Internal links help distribute page authority and improve navigation.', 'almaseo'),
-        'outbound_link' => __('Quality outbound links add credibility and context.', 'almaseo'),
-        'image_alt' => __('Alt text improves accessibility and helps search engines understand images.', 'almaseo'),
-        'readability' => __('Clear, concise writing improves user experience and engagement.', 'almaseo'),
-        'canonical' => __('Canonical URLs prevent duplicate content issues.', 'almaseo'),
-        'robots' => __('Proper robots settings ensure your content can be indexed.', 'almaseo'),
+        'title' => __('A compelling title helps search engines and users understand your content.', 'almaseo-seo-playground'),
+        'meta_desc' => __('Meta descriptions provide a summary for search engine results.', 'almaseo-seo-playground'),
+        'h1' => __('One unique H1 heading provides clear structure for your content.', 'almaseo-seo-playground'),
+        'kw_intro' => __('Including keywords early signals relevance to search engines.', 'almaseo-seo-playground'),
+        'internal_link' => __('Internal links help distribute page authority and improve navigation.', 'almaseo-seo-playground'),
+        'outbound_link' => __('Quality outbound links add credibility and context.', 'almaseo-seo-playground'),
+        'image_alt' => __('Alt text improves accessibility and helps search engines understand images.', 'almaseo-seo-playground'),
+        'readability' => __('Clear, concise writing improves user experience and engagement.', 'almaseo-seo-playground'),
+        'canonical' => __('Canonical URLs prevent duplicate content issues.', 'almaseo-seo-playground'),
+        'robots' => __('Proper robots settings ensure your content can be indexed.', 'almaseo-seo-playground'),
     );
 }

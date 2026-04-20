@@ -87,7 +87,7 @@ add_action('admin_enqueue_scripts', function($hook) {
                 $target = ($component === 'all_almaseo_js') ? $wp_scripts : $wp_styles;
                 if (!$target) return;
                 foreach ($target->registered as $handle => $dep) {
-                    if (stripos($handle, 'almaseo') !== false || stripos($handle, 'alma') !== false) {
+                    if (stripos($handle, 'almaseo-seo-playground') !== false || stripos($handle, 'alma') !== false) {
                         if ($component === 'all_almaseo_js') {
                             wp_dequeue_script($handle);
                         } else {

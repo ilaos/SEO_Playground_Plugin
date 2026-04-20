@@ -37,8 +37,8 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
     // Add help text for sitemaps
     if (function_exists('almaseo_render_help')) {
         almaseo_render_help(
-            __('Sitemaps list your URLs for search engines to discover quickly. Keep them enabled unless your site is private.', 'almaseo'),
-            __('Health checks validate URLs and alert you to conflicts with other SEO plugins.', 'almaseo')
+            __('Sitemaps list your URLs for search engines to discover quickly. Keep them enabled unless your site is private.', 'almaseo-seo-playground'),
+            __('Health checks validate URLs and alert you to conflicts with other SEO plugins.', 'almaseo-seo-playground')
         );
     }
     ?>
@@ -49,12 +49,12 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
         <div class="cta-content">
             <span class="dashicons dashicons-warning cta-icon"></span>
             <div class="cta-text">
-                <h3><?php _e('Sitemaps are currently disabled', 'almaseo'); ?></h3>
-                <p><?php _e('Enable sitemaps to help search engines discover and index your content.', 'almaseo'); ?></p>
+                <h3><?php _e('Sitemaps are currently disabled', 'almaseo-seo-playground'); ?></h3>
+                <p><?php _e('Enable sitemaps to help search engines discover and index your content.', 'almaseo-seo-playground'); ?></p>
             </div>
             <button type="button" class="button button-primary button-hero" id="enable-sitemaps-cta">
                 <span class="dashicons dashicons-yes-alt"></span>
-                <?php _e('Enable Sitemaps', 'almaseo'); ?>
+                <?php _e('Enable Sitemaps', 'almaseo-seo-playground'); ?>
             </button>
         </div>
     </div>
@@ -62,20 +62,20 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
     
     <!-- Compact Stats Card -->
     <div class="almaseo-card almaseo-stats-card">
-        <h2><?php _e('Sitemap Statistics', 'almaseo'); ?></h2>
+        <h2><?php _e('Sitemap Statistics', 'almaseo-seo-playground'); ?></h2>
         <div class="stats-grid">
             <div class="stat-item">
                 <span class="stat-icon dashicons dashicons-media-text"></span>
                 <div class="stat-content">
                     <div class="stat-value" data-stat="files"><?php echo number_format($build_stats['files']); ?></div>
-                    <div class="stat-label"><?php _e('Files', 'almaseo'); ?></div>
+                    <div class="stat-label"><?php _e('Files', 'almaseo-seo-playground'); ?></div>
                 </div>
             </div>
             <div class="stat-item">
                 <span class="stat-icon dashicons dashicons-admin-links"></span>
                 <div class="stat-content">
                     <div class="stat-value" data-stat="urls"><?php echo number_format($build_stats['urls']); ?></div>
-                    <div class="stat-label"><?php _e('URLs', 'almaseo'); ?></div>
+                    <div class="stat-label"><?php _e('URLs', 'almaseo-seo-playground'); ?></div>
                 </div>
             </div>
             <div class="stat-item">
@@ -84,20 +84,20 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
                     <div class="stat-value" data-stat="last-built">
                         <?php 
                         if ($build_stats['last_built']) {
-                            echo human_time_diff($build_stats['last_built']) . ' ' . __('ago', 'almaseo');
+                            echo human_time_diff($build_stats['last_built']) . ' ' . __('ago', 'almaseo-seo-playground');
                         } else {
-                            _e('Never', 'almaseo');
+                            _e('Never', 'almaseo-seo-playground');
                         }
                         ?>
                     </div>
-                    <div class="stat-label"><?php _e('Last Built', 'almaseo'); ?></div>
+                    <div class="stat-label"><?php _e('Last Built', 'almaseo-seo-playground'); ?></div>
                 </div>
             </div>
             <div class="stat-item">
                 <span class="stat-icon dashicons dashicons-admin-settings"></span>
                 <div class="stat-content">
                     <div class="stat-value"><?php echo ucfirst($generation_mode); ?></div>
-                    <div class="stat-label"><?php _e('Mode', 'almaseo'); ?></div>
+                    <div class="stat-label"><?php _e('Mode', 'almaseo-seo-playground'); ?></div>
                 </div>
             </div>
         </div>
@@ -105,23 +105,23 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
     
     <!-- Quick Status -->
     <div class="almaseo-card">
-        <h2><?php _e('Quick Status', 'almaseo'); ?></h2>
+        <h2><?php _e('Quick Status', 'almaseo-seo-playground'); ?></h2>
         
         <div class="status-grid">
             <div class="status-item">
-                <span class="status-label"><?php _e('Sitemap Status:', 'almaseo'); ?></span>
+                <span class="status-label"><?php _e('Sitemap Status:', 'almaseo-seo-playground'); ?></span>
                 <span class="status-value <?php echo $enabled ? 'status-enabled' : 'status-disabled'; ?>">
-                    <?php echo $enabled ? __('Enabled', 'almaseo') : __('Disabled', 'almaseo'); ?>
+                    <?php echo $enabled ? __('Enabled', 'almaseo-seo-playground') : __('Disabled', 'almaseo-seo-playground'); ?>
                 </span>
             </div>
             
             <div class="status-item">
-                <span class="status-label"><?php _e('Primary URL:', 'almaseo'); ?></span>
+                <span class="status-label"><?php _e('Primary URL:', 'almaseo-seo-playground'); ?></span>
                 <div class="status-value status-url">
                     <code id="primary-sitemap-url"><?php echo $primary_url; ?></code>
                     <button type="button" class="button-link copy-url-btn" 
                             data-url="<?php echo esc_attr($primary_url); ?>" 
-                            title="<?php esc_attr_e('Copy URL', 'almaseo'); ?>"
+                            title="<?php esc_attr_e('Copy URL', 'almaseo-seo-playground'); ?>"
                             <?php echo !$enabled ? 'disabled aria-disabled="true"' : ''; ?>>
                         <span class="dashicons dashicons-clipboard"></span>
                     </button>
@@ -130,25 +130,25 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
             
             <?php if ($takeover): ?>
             <div class="status-item">
-                <span class="status-label"><?php _e('Direct URL:', 'almaseo'); ?></span>
+                <span class="status-label"><?php _e('Direct URL:', 'almaseo-seo-playground'); ?></span>
                 <div class="status-value status-url">
                     <code><?php echo $direct_url; ?></code>
-                    <span class="status-badge status-takeover"><?php _e('Takeover Active', 'almaseo'); ?></span>
+                    <span class="status-badge status-takeover"><?php _e('Takeover Active', 'almaseo-seo-playground'); ?></span>
                 </div>
             </div>
             <?php endif; ?>
             
             <?php if (!empty($settings['include']['posts'])): ?>
             <div class="status-item">
-                <span class="status-label"><?php _e('Posts Included:', 'almaseo'); ?></span>
-                <span class="status-value"><?php _e('Yes', 'almaseo'); ?></span>
+                <span class="status-label"><?php _e('Posts Included:', 'almaseo-seo-playground'); ?></span>
+                <span class="status-value"><?php _e('Yes', 'almaseo-seo-playground'); ?></span>
             </div>
             <?php endif; ?>
             
             <?php if (!empty($settings['include']['pages'])): ?>
             <div class="status-item">
-                <span class="status-label"><?php _e('Pages Included:', 'almaseo'); ?></span>
-                <span class="status-value"><?php _e('Yes', 'almaseo'); ?></span>
+                <span class="status-label"><?php _e('Pages Included:', 'almaseo-seo-playground'); ?></span>
+                <span class="status-value"><?php _e('Yes', 'almaseo-seo-playground'); ?></span>
             </div>
             <?php endif; ?>
         </div>
@@ -156,19 +156,19 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
     
     <!-- Enhanced Health Summary -->
     <div class="almaseo-card">
-        <h2><?php _e('Health Summary', 'almaseo'); ?></h2>
+        <h2><?php _e('Health Summary', 'almaseo-seo-playground'); ?></h2>
         
         <div class="health-chips">
             <a href="<?php echo admin_url('admin.php?page=almaseo-sitemaps&tab=health'); ?>" class="health-chip">
                 <span class="dashicons dashicons-yes-alt"></span>
                 <div class="chip-content">
-                    <div class="chip-label"><?php _e('Last Validate', 'almaseo'); ?></div>
+                    <div class="chip-label"><?php _e('Last Validate', 'almaseo-seo-playground'); ?></div>
                     <div class="chip-value">
                         <?php 
                         if ($last_validate) {
-                            echo human_time_diff($last_validate) . ' ' . __('ago', 'almaseo');
+                            echo human_time_diff($last_validate) . ' ' . __('ago', 'almaseo-seo-playground');
                         } else {
-                            _e('Never', 'almaseo');
+                            _e('Never', 'almaseo-seo-playground');
                         }
                         ?>
                     </div>
@@ -178,9 +178,11 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
             <a href="<?php echo admin_url('admin.php?page=almaseo-sitemaps&tab=health'); ?>" class="health-chip <?php echo $conflict_count > 0 ? 'has-issues' : ''; ?>">
                 <span class="dashicons dashicons-<?php echo $conflict_count > 0 ? 'warning' : 'yes-alt'; ?>"></span>
                 <div class="chip-content">
-                    <div class="chip-label"><?php _e('Conflicts', 'almaseo'); ?></div>
+                    <div class="chip-label"><?php _e('Conflicts', 'almaseo-seo-playground'); ?></div>
                     <div class="chip-value">
-                        <?php echo $conflict_count > 0 ? sprintf(_n('%d found', '%d found', $conflict_count, 'almaseo'), $conflict_count) : __('None', 'almaseo'); ?>
+                        <?php
+                        /* translators: %d: number of conflicts found */
+                        echo $conflict_count > 0 ? sprintf(_n('%d found', '%d found', $conflict_count, 'almaseo-seo-playground'), $conflict_count) : __('None', 'almaseo-seo-playground'); ?>
                     </div>
                 </div>
             </a>
@@ -188,13 +190,13 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
             <a href="<?php echo admin_url('admin.php?page=almaseo-sitemaps&tab=updates'); ?>" class="health-chip">
                 <span class="dashicons dashicons-update"></span>
                 <div class="chip-content">
-                    <div class="chip-label"><?php _e('Last IndexNow', 'almaseo'); ?></div>
+                    <div class="chip-label"><?php _e('Last IndexNow', 'almaseo-seo-playground'); ?></div>
                     <div class="chip-value">
                         <?php 
                         if ($last_indexnow) {
-                            echo human_time_diff($last_indexnow) . ' ' . __('ago', 'almaseo');
+                            echo human_time_diff($last_indexnow) . ' ' . __('ago', 'almaseo-seo-playground');
                         } else {
-                            _e('Never', 'almaseo');
+                            _e('Never', 'almaseo-seo-playground');
                         }
                         ?>
                     </div>
@@ -209,28 +211,28 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
         if (!$enabled) {
             $health_issues[] = [
                 'type' => 'warning',
-                'message' => __('Sitemaps are currently disabled', 'almaseo')
+                'message' => __('Sitemaps are currently disabled', 'almaseo-seo-playground')
             ];
         }
         
         if ($build_stats['last_built'] && (time() - $build_stats['last_built']) > 604800) { // 7 days
             $health_issues[] = [
                 'type' => 'info',
-                'message' => __('Sitemaps haven\'t been rebuilt in over a week', 'almaseo')
+                'message' => __('Sitemaps haven\'t been rebuilt in over a week', 'almaseo-seo-playground')
             ];
         }
         
         if ($build_stats['urls'] > 50000) {
             $health_issues[] = [
                 'type' => 'info',
-                'message' => sprintf(__('Large sitemap detected (%s URLs)', 'almaseo'), number_format($build_stats['urls']))
+                'message' => sprintf(__('Large sitemap detected (%s URLs)', 'almaseo-seo-playground'), number_format($build_stats['urls']))
             ];
         }
         
         if (!$indexnow_key) {
             $health_issues[] = [
                 'type' => 'info',
-                'message' => __('IndexNow key not configured - instant indexing disabled', 'almaseo')
+                'message' => __('IndexNow key not configured - instant indexing disabled', 'almaseo-seo-playground')
             ];
         }
         ?>
@@ -247,7 +249,7 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
         <?php else: ?>
             <div class="health-status health-good">
                 <span class="dashicons dashicons-yes-alt"></span>
-                <span><?php _e('All systems operational', 'almaseo'); ?></span>
+                <span><?php _e('All systems operational', 'almaseo-seo-playground'); ?></span>
             </div>
         <?php endif; ?>
     </div>
@@ -255,8 +257,8 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
     <!-- Robots.txt Preview (Collapsed by default) -->
     <div class="almaseo-card">
         <div class="card-header-collapsible">
-            <h2><?php _e('Robots.txt Preview', 'almaseo'); ?></h2>
-            <button type="button" class="toggle-collapse" aria-expanded="false" aria-label="<?php esc_attr_e('Toggle robots.txt preview', 'almaseo'); ?>">
+            <h2><?php _e('Robots.txt Preview', 'almaseo-seo-playground'); ?></h2>
+            <button type="button" class="toggle-collapse" aria-expanded="false" aria-label="<?php esc_attr_e('Toggle robots.txt preview', 'almaseo-seo-playground'); ?>">
                 <span class="dashicons dashicons-arrow-down-alt2"></span>
             </button>
         </div>
@@ -276,16 +278,16 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
                 
                 <?php if (strpos($robots_content, 'sitemap') !== false || strpos($robots_content, 'Sitemap') !== false): ?>
                     <div class="notice notice-success inline">
-                        <p><?php _e('✓ Sitemap reference found in robots.txt', 'almaseo'); ?></p>
+                        <p><?php _e('✓ Sitemap reference found in robots.txt', 'almaseo-seo-playground'); ?></p>
                     </div>
                 <?php else: ?>
                     <div class="notice notice-warning inline">
-                        <p><?php _e('⚠ No sitemap reference found in robots.txt', 'almaseo'); ?></p>
+                        <p><?php _e('⚠ No sitemap reference found in robots.txt', 'almaseo-seo-playground'); ?></p>
                     </div>
                 <?php endif; ?>
             <?php else: ?>
                 <div class="robots-disabled">
-                    <p><?php _e('Enable sitemaps to preview robots.txt configuration', 'almaseo'); ?></p>
+                    <p><?php _e('Enable sitemaps to preview robots.txt configuration', 'almaseo-seo-playground'); ?></p>
                 </div>
             <?php endif; ?>
         </div>
@@ -293,55 +295,55 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
     
     <!-- Quick Tools -->
     <div class="almaseo-card">
-        <h2><?php _e('Quick Tools', 'almaseo'); ?></h2>
+        <h2><?php _e('Quick Tools', 'almaseo-seo-playground'); ?></h2>
         
         <div class="quick-tools">
             <button type="button" class="button" id="validate-sitemap" 
-                    <?php echo !$enabled ? 'disabled aria-disabled="true" title="' . esc_attr__('Enable sitemaps first', 'almaseo') . '"' : ''; ?>>
+                    <?php echo !$enabled ? 'disabled aria-disabled="true" title="' . esc_attr__('Enable sitemaps first', 'almaseo-seo-playground') . '"' : ''; ?>>
                 <span class="dashicons dashicons-yes-alt"></span>
-                <?php _e('Validate', 'almaseo'); ?>
+                <?php _e('Validate', 'almaseo-seo-playground'); ?>
             </button>
             
             <button type="button" class="button" id="submit-to-search-console">
                 <span class="dashicons dashicons-google"></span>
-                <?php _e('Search Console', 'almaseo'); ?>
+                <?php _e('Search Console', 'almaseo-seo-playground'); ?>
             </button>
             
             <?php if ($indexnow_key): ?>
             <button type="button" class="button" id="ping-indexnow" 
                     <?php echo !$enabled ? 'disabled aria-disabled="true"' : ''; ?> 
-                    title="<?php esc_attr_e('Instantly notify search engines of content changes', 'almaseo'); ?>">
+                    title="<?php esc_attr_e('Instantly notify search engines of content changes', 'almaseo-seo-playground'); ?>">
                 <span class="dashicons dashicons-megaphone"></span>
-                <?php _e('IndexNow', 'almaseo'); ?>
+                <?php _e('IndexNow', 'almaseo-seo-playground'); ?>
             </button>
             <?php else: ?>
             <button type="button" class="button" disabled aria-disabled="true" 
-                    title="<?php esc_attr_e('Configure IndexNow key in Updates & I/O tab first', 'almaseo'); ?>">
+                    title="<?php esc_attr_e('Configure IndexNow key in Updates & I/O tab first', 'almaseo-seo-playground'); ?>">
                 <span class="dashicons dashicons-megaphone"></span>
-                <?php _e('IndexNow', 'almaseo'); ?> <span class="dashicons dashicons-lock" style="font-size: 12px; margin-left: 4px;"></span>
+                <?php _e('IndexNow', 'almaseo-seo-playground'); ?> <span class="dashicons dashicons-lock" style="font-size: 12px; margin-left: 4px;"></span>
             </button>
             <?php endif; ?>
             
             <button type="button" class="button" id="clear-cache" 
                     <?php echo !$enabled ? 'disabled aria-disabled="true"' : ''; ?>>
                 <span class="dashicons dashicons-trash"></span>
-                <?php _e('Clear Cache', 'almaseo'); ?>
+                <?php _e('Clear Cache', 'almaseo-seo-playground'); ?>
             </button>
             
             <button type="button" class="button" id="copy-all-urls" 
                     <?php echo !$enabled ? 'disabled aria-disabled="true"' : ''; ?>>
                 <span class="dashicons dashicons-admin-page"></span>
-                <?php _e('Copy All URLs', 'almaseo'); ?>
+                <?php _e('Copy All URLs', 'almaseo-seo-playground'); ?>
             </button>
         </div>
         
         <p class="description">
             <?php if (!$enabled): ?>
-                <?php _e('Enable sitemaps to use these tools.', 'almaseo'); ?>
+                <?php _e('Enable sitemaps to use these tools.', 'almaseo-seo-playground'); ?>
             <?php elseif (!$indexnow_key): ?>
-                <?php _e('Configure IndexNow in the Updates & I/O tab for instant search engine notifications.', 'almaseo'); ?>
+                <?php _e('Configure IndexNow in the Updates & I/O tab for instant search engine notifications.', 'almaseo-seo-playground'); ?>
             <?php else: ?>
-                <?php _e('Use these tools to validate your sitemap structure, submit to search engines, or manage sitemap content.', 'almaseo'); ?>
+                <?php _e('Use these tools to validate your sitemap structure, submit to search engines, or manage sitemap content.', 'almaseo-seo-playground'); ?>
             <?php endif; ?>
         </p>
     </div>

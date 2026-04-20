@@ -65,7 +65,7 @@ class AlmaSEO_Woo_Meta {
     public function add_product_meta_box() {
         add_meta_box(
             'almaseo_woo_meta',
-            __('WooCommerce SEO Settings', 'almaseo'),
+            __('WooCommerce SEO Settings', 'almaseo-seo-playground'),
             array($this, 'render_product_meta_box'),
             'product',
             'normal',
@@ -99,7 +99,7 @@ class AlmaSEO_Woo_Meta {
         <div class="almaseo-woo-meta-wrapper">
             <!-- SEO Preview -->
             <div class="almaseo-woo-preview">
-                <h3><?php _e('Search Engine Preview', 'almaseo'); ?></h3>
+                <h3><?php _e('Search Engine Preview', 'almaseo-seo-playground'); ?></h3>
                 <div class="almaseo-preview-box">
                     <div class="preview-title" id="preview-title">
                         <?php echo esc_html($seo_title ?: $post->post_title); ?>
@@ -112,7 +112,7 @@ class AlmaSEO_Woo_Meta {
                     </div>
                     <?php if ($price): ?>
                     <div class="preview-price">
-                        <?php echo sprintf(__('Price: %s', 'almaseo'), wc_price($price)); ?>
+                        <?php echo sprintf(__('Price: %s', 'almaseo-seo-playground'), wc_price($price)); ?>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -120,11 +120,11 @@ class AlmaSEO_Woo_Meta {
             
             <!-- Basic SEO -->
             <div class="almaseo-woo-section">
-                <h3><?php _e('Basic SEO', 'almaseo'); ?></h3>
+                <h3><?php _e('Basic SEO', 'almaseo-seo-playground'); ?></h3>
                 
                 <div class="almaseo-field">
                     <label for="almaseo_woo_title">
-                        <?php _e('SEO Title', 'almaseo'); ?>
+                        <?php _e('SEO Title', 'almaseo-seo-playground'); ?>
                         <span class="almaseo-char-count" data-target="almaseo_woo_title" data-max="60">
                             <span class="count">0</span>/60
                         </span>
@@ -132,63 +132,63 @@ class AlmaSEO_Woo_Meta {
                     <input type="text" id="almaseo_woo_title" name="almaseo_woo_title" 
                            value="<?php echo esc_attr($seo_title); ?>" 
                            placeholder="<?php echo esc_attr($post->post_title); ?>" />
-                    <p class="description"><?php _e('Leave empty to use product title. Recommended: 50-60 characters.', 'almaseo'); ?></p>
+                    <p class="description"><?php _e('Leave empty to use product title. Recommended: 50-60 characters.', 'almaseo-seo-playground'); ?></p>
                 </div>
                 
                 <div class="almaseo-field">
                     <label for="almaseo_woo_description">
-                        <?php _e('Meta Description', 'almaseo'); ?>
+                        <?php _e('Meta Description', 'almaseo-seo-playground'); ?>
                         <span class="almaseo-char-count" data-target="almaseo_woo_description" data-max="160">
                             <span class="count">0</span>/160
                         </span>
                     </label>
                     <textarea id="almaseo_woo_description" name="almaseo_woo_description" 
-                              rows="3" placeholder="<?php _e('Brief product description for search results...', 'almaseo'); ?>"><?php echo esc_textarea($meta_desc); ?></textarea>
-                    <p class="description"><?php _e('Recommended: 150-160 characters. Include key features and benefits.', 'almaseo'); ?></p>
+                              rows="3" placeholder="<?php _e('Brief product description for search results...', 'almaseo-seo-playground'); ?>"><?php echo esc_textarea($meta_desc); ?></textarea>
+                    <p class="description"><?php _e('Recommended: 150-160 characters. Include key features and benefits.', 'almaseo-seo-playground'); ?></p>
                 </div>
             </div>
             
             <!-- Social Media -->
             <div class="almaseo-woo-section">
-                <h3><?php _e('Social Media', 'almaseo'); ?></h3>
+                <h3><?php _e('Social Media', 'almaseo-seo-playground'); ?></h3>
                 
                 <!-- OpenGraph -->
-                <h4><?php _e('Facebook/OpenGraph', 'almaseo'); ?></h4>
+                <h4><?php _e('Facebook/OpenGraph', 'almaseo-seo-playground'); ?></h4>
                 
                 <div class="almaseo-field">
-                    <label for="almaseo_woo_og_title"><?php _e('OG Title', 'almaseo'); ?></label>
+                    <label for="almaseo_woo_og_title"><?php _e('OG Title', 'almaseo-seo-playground'); ?></label>
                     <input type="text" id="almaseo_woo_og_title" name="almaseo_woo_og_title" 
                            value="<?php echo esc_attr($og_title); ?>" 
-                           placeholder="<?php _e('Leave empty to use SEO title', 'almaseo'); ?>" />
+                           placeholder="<?php _e('Leave empty to use SEO title', 'almaseo-seo-playground'); ?>" />
                 </div>
                 
                 <div class="almaseo-field">
-                    <label for="almaseo_woo_og_description"><?php _e('OG Description', 'almaseo'); ?></label>
+                    <label for="almaseo_woo_og_description"><?php _e('OG Description', 'almaseo-seo-playground'); ?></label>
                     <textarea id="almaseo_woo_og_description" name="almaseo_woo_og_description" 
                               rows="2"><?php echo esc_textarea($og_desc); ?></textarea>
                 </div>
                 
                 <div class="almaseo-field">
-                    <label for="almaseo_woo_og_image"><?php _e('OG Image URL', 'almaseo'); ?></label>
+                    <label for="almaseo_woo_og_image"><?php _e('OG Image URL', 'almaseo-seo-playground'); ?></label>
                     <input type="url" id="almaseo_woo_og_image" name="almaseo_woo_og_image" 
                            value="<?php echo esc_url($og_image); ?>" 
-                           placeholder="<?php _e('Leave empty to use product image', 'almaseo'); ?>" />
+                           placeholder="<?php _e('Leave empty to use product image', 'almaseo-seo-playground'); ?>" />
                     <button type="button" class="button almaseo-media-upload" 
-                            data-target="almaseo_woo_og_image"><?php _e('Choose Image', 'almaseo'); ?></button>
+                            data-target="almaseo_woo_og_image"><?php _e('Choose Image', 'almaseo-seo-playground'); ?></button>
                 </div>
                 
                 <!-- Twitter -->
-                <h4><?php _e('Twitter/X', 'almaseo'); ?></h4>
+                <h4><?php _e('Twitter/X', 'almaseo-seo-playground'); ?></h4>
                 
                 <div class="almaseo-field">
-                    <label for="almaseo_woo_twitter_title"><?php _e('Twitter Title', 'almaseo'); ?></label>
+                    <label for="almaseo_woo_twitter_title"><?php _e('Twitter Title', 'almaseo-seo-playground'); ?></label>
                     <input type="text" id="almaseo_woo_twitter_title" name="almaseo_woo_twitter_title" 
                            value="<?php echo esc_attr($twitter_title); ?>" 
-                           placeholder="<?php _e('Leave empty to use OG title', 'almaseo'); ?>" />
+                           placeholder="<?php _e('Leave empty to use OG title', 'almaseo-seo-playground'); ?>" />
                 </div>
                 
                 <div class="almaseo-field">
-                    <label for="almaseo_woo_twitter_description"><?php _e('Twitter Description', 'almaseo'); ?></label>
+                    <label for="almaseo_woo_twitter_description"><?php _e('Twitter Description', 'almaseo-seo-playground'); ?></label>
                     <textarea id="almaseo_woo_twitter_description" name="almaseo_woo_twitter_description" 
                               rows="2"><?php echo esc_textarea($twitter_desc); ?></textarea>
                 </div>
@@ -196,13 +196,13 @@ class AlmaSEO_Woo_Meta {
             
             <!-- Advanced -->
             <div class="almaseo-woo-section">
-                <h3><?php _e('Advanced Settings', 'almaseo'); ?></h3>
+                <h3><?php _e('Advanced Settings', 'almaseo-seo-playground'); ?></h3>
                 
                 <div class="almaseo-field almaseo-field-inline">
                     <label>
                         <input type="checkbox" name="almaseo_woo_noindex" value="1" 
                                <?php checked($noindex, '1'); ?> />
-                        <?php _e('NoIndex - Prevent search engines from indexing this product', 'almaseo'); ?>
+                        <?php _e('NoIndex - Prevent search engines from indexing this product', 'almaseo-seo-playground'); ?>
                     </label>
                 </div>
                 
@@ -210,7 +210,7 @@ class AlmaSEO_Woo_Meta {
                     <label>
                         <input type="checkbox" name="almaseo_woo_nofollow" value="1" 
                                <?php checked($nofollow, '1'); ?> />
-                        <?php _e('NoFollow - Tell search engines not to follow links', 'almaseo'); ?>
+                        <?php _e('NoFollow - Tell search engines not to follow links', 'almaseo-seo-playground'); ?>
                     </label>
                 </div>
             </div>
@@ -274,21 +274,21 @@ class AlmaSEO_Woo_Meta {
     public function add_term_meta_fields($taxonomy) {
         ?>
         <div class="form-field">
-            <label for="almaseo_woo_term_title"><?php _e('SEO Title', 'almaseo'); ?></label>
+            <label for="almaseo_woo_term_title"><?php _e('SEO Title', 'almaseo-seo-playground'); ?></label>
             <input type="text" name="almaseo_woo_term_title" id="almaseo_woo_term_title" />
-            <p class="description"><?php _e('Custom SEO title for this category/tag', 'almaseo'); ?></p>
+            <p class="description"><?php _e('Custom SEO title for this category/tag', 'almaseo-seo-playground'); ?></p>
         </div>
         
         <div class="form-field">
-            <label for="almaseo_woo_term_description"><?php _e('Meta Description', 'almaseo'); ?></label>
+            <label for="almaseo_woo_term_description"><?php _e('Meta Description', 'almaseo-seo-playground'); ?></label>
             <textarea name="almaseo_woo_term_description" id="almaseo_woo_term_description" rows="3"></textarea>
-            <p class="description"><?php _e('Meta description for search results', 'almaseo'); ?></p>
+            <p class="description"><?php _e('Meta description for search results', 'almaseo-seo-playground'); ?></p>
         </div>
         
         <div class="form-field">
-            <label for="almaseo_woo_term_og_image"><?php _e('Social Media Image', 'almaseo'); ?></label>
+            <label for="almaseo_woo_term_og_image"><?php _e('Social Media Image', 'almaseo-seo-playground'); ?></label>
             <input type="url" name="almaseo_woo_term_og_image" id="almaseo_woo_term_og_image" />
-            <p class="description"><?php _e('Image URL for social media sharing', 'almaseo'); ?></p>
+            <p class="description"><?php _e('Image URL for social media sharing', 'almaseo-seo-playground'); ?></p>
         </div>
         <?php
     }
@@ -306,46 +306,46 @@ class AlmaSEO_Woo_Meta {
         
         <tr class="form-field">
             <th scope="row">
-                <label for="almaseo_woo_term_title"><?php _e('SEO Title', 'almaseo'); ?></label>
+                <label for="almaseo_woo_term_title"><?php _e('SEO Title', 'almaseo-seo-playground'); ?></label>
             </th>
             <td>
                 <input type="text" name="almaseo_woo_term_title" id="almaseo_woo_term_title" 
                        value="<?php echo esc_attr($seo_title); ?>" />
-                <p class="description"><?php _e('Custom SEO title for this category/tag', 'almaseo'); ?></p>
+                <p class="description"><?php _e('Custom SEO title for this category/tag', 'almaseo-seo-playground'); ?></p>
             </td>
         </tr>
         
         <tr class="form-field">
             <th scope="row">
-                <label for="almaseo_woo_term_description"><?php _e('Meta Description', 'almaseo'); ?></label>
+                <label for="almaseo_woo_term_description"><?php _e('Meta Description', 'almaseo-seo-playground'); ?></label>
             </th>
             <td>
                 <textarea name="almaseo_woo_term_description" id="almaseo_woo_term_description" 
                           rows="3"><?php echo esc_textarea($meta_desc); ?></textarea>
-                <p class="description"><?php _e('Meta description for search results', 'almaseo'); ?></p>
+                <p class="description"><?php _e('Meta description for search results', 'almaseo-seo-playground'); ?></p>
             </td>
         </tr>
         
         <tr class="form-field">
             <th scope="row">
-                <label for="almaseo_woo_term_og_image"><?php _e('Social Media Image', 'almaseo'); ?></label>
+                <label for="almaseo_woo_term_og_image"><?php _e('Social Media Image', 'almaseo-seo-playground'); ?></label>
             </th>
             <td>
                 <input type="url" name="almaseo_woo_term_og_image" id="almaseo_woo_term_og_image" 
                        value="<?php echo esc_url($og_image); ?>" />
-                <p class="description"><?php _e('Image URL for social media sharing', 'almaseo'); ?></p>
+                <p class="description"><?php _e('Image URL for social media sharing', 'almaseo-seo-playground'); ?></p>
             </td>
         </tr>
         
         <tr class="form-field">
             <th scope="row">
-                <label for="almaseo_woo_term_noindex"><?php _e('Search Visibility', 'almaseo'); ?></label>
+                <label for="almaseo_woo_term_noindex"><?php _e('Search Visibility', 'almaseo-seo-playground'); ?></label>
             </th>
             <td>
                 <label>
                     <input type="checkbox" name="almaseo_woo_term_noindex" value="1" 
                            <?php checked($noindex, '1'); ?> />
-                    <?php _e('NoIndex - Prevent search engines from indexing this category', 'almaseo'); ?>
+                    <?php _e('NoIndex - Prevent search engines from indexing this category', 'almaseo-seo-playground'); ?>
                 </label>
             </td>
         </tr>

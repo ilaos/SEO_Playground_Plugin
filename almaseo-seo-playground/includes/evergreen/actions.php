@@ -20,7 +20,7 @@ add_action('admin_post_almaseo_eg_analyze_all', function () {
     
     // Check permissions
     if (!current_user_can('manage_options')) {
-        wp_die(esc_html__('Forbidden', 'almaseo'), 403);
+        wp_die(esc_html__('Forbidden', 'almaseo-seo-playground'), 403);
     }
     
     // Ensure required files are loaded
@@ -88,7 +88,7 @@ add_action('admin_post_almaseo_eg_rebuild_stats', function () {
     
     // Check permissions
     if (!current_user_can('manage_options')) {
-        wp_die(esc_html__('Forbidden', 'almaseo'), 403);
+        wp_die(esc_html__('Forbidden', 'almaseo-seo-playground'), 403);
     }
     
     // Load required functions

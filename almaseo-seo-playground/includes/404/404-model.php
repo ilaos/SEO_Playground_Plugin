@@ -354,8 +354,9 @@ class AlmaSEO_404_Model {
             'source' => $source,
             'target' => '', // Admin will fill this
             'status' => 301,
+            /* translators: %1$d: number of 404 hits, %2$s: date last seen */
             'note' => sprintf(
-                __('Created from 404 log: %d hits, last seen %s', 'almaseo'),
+                __('Created from 404 log: %1$d hits, last seen %2$s', 'almaseo-seo-playground'),
                 $log['hits'],
                 $log['last_seen']
             )

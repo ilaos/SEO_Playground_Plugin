@@ -25,7 +25,7 @@ function almaseo_health_add_meta_box() {
     foreach ($post_types as $post_type) {
         add_meta_box(
             'almaseo_health_score',
-            __('🏥 SEO Health Score', 'almaseo'),
+            __('🏥 SEO Health Score', 'almaseo-seo-playground'),
             'almaseo_health_meta_box_callback',
             $post_type,
             'normal',
@@ -112,15 +112,15 @@ function almaseo_health_meta_box_callback($post) {
             </div>
             
             <div class="almaseo-health-gauge-info">
-                <h3><?php _e('Overall SEO Health', 'almaseo'); ?></h3>
+                <h3><?php _e('Overall SEO Health', 'almaseo-seo-playground'); ?></h3>
                 <p class="health-status health-<?php echo esc_attr($color_class); ?>">
                     <?php
                     if ($score >= 80) {
-                        _e('Excellent! Your content is well-optimized.', 'almaseo');
+                        _e('Excellent! Your content is well-optimized.', 'almaseo-seo-playground');
                     } elseif ($score >= 50) {
-                        _e('Good, but there\'s room for improvement.', 'almaseo');
+                        _e('Good, but there\'s room for improvement.', 'almaseo-seo-playground');
                     } else {
-                        _e('Needs attention. Follow the suggestions below.', 'almaseo');
+                        _e('Needs attention. Follow the suggestions below.', 'almaseo-seo-playground');
                     }
                     ?>
                 </p>
@@ -129,7 +129,7 @@ function almaseo_health_meta_box_callback($post) {
         
         <!-- Signal Bars Section -->
         <div class="almaseo-health-signals">
-            <h4><?php _e('SEO Signal Analysis', 'almaseo'); ?></h4>
+            <h4><?php _e('SEO Signal Analysis', 'almaseo-seo-playground'); ?></h4>
             
             <?php 
             // Debug: Check if breakdown is empty
@@ -155,11 +155,11 @@ function almaseo_health_meta_box_callback($post) {
                     <span class="signal-icon"><?php echo $icon; ?></span>
                     <span class="signal-label">
                         <?php echo esc_html($label); ?>
-                        <span class="signal-weight" title="<?php printf(esc_attr__('Worth %d points out of 100', 'almaseo'), $weight); ?>">(<?php echo esc_html($weight); ?> pts)</span>
+                        <span class="signal-weight" title="<?php printf(esc_attr__('Worth %d points out of 100', 'almaseo-seo-playground'), $weight); ?>">(<?php echo esc_html($weight); ?> pts)</span>
                     </span>
                     <?php if (!$result['pass']): ?>
                     <button type="button" class="signal-fix-btn" data-signal="<?php echo esc_attr($signal); ?>">
-                        <?php _e('Fix', 'almaseo'); ?> →
+                        <?php _e('Fix', 'almaseo-seo-playground'); ?> →
                     </button>
                     <?php endif; ?>
                 </div>
@@ -185,89 +185,89 @@ function almaseo_health_meta_box_callback($post) {
                     switch ($signal) {
                         case 'title':
                             ?>
-                            <p><?php _e('Add a compelling title for your content.', 'almaseo'); ?></p>
+                            <p><?php _e('Add a compelling title for your content.', 'almaseo-seo-playground'); ?></p>
                             <button type="button" class="button focus-field" data-field="title">
-                                <?php _e('Edit Title', 'almaseo'); ?>
+                                <?php _e('Edit Title', 'almaseo-seo-playground'); ?>
                             </button>
                             <?php
                             break;
                             
                         case 'meta_desc':
                             ?>
-                            <p><?php _e('Add a meta description to improve click-through rates.', 'almaseo'); ?></p>
+                            <p><?php _e('Add a meta description to improve click-through rates.', 'almaseo-seo-playground'); ?></p>
                             <button type="button" class="button focus-field" data-field="almaseo_seo_description">
-                                <?php _e('Edit Meta Description', 'almaseo'); ?>
+                                <?php _e('Edit Meta Description', 'almaseo-seo-playground'); ?>
                             </button>
                             <button type="button" class="button draft-meta-desc">
-                                <?php _e('Draft from First Paragraph', 'almaseo'); ?>
+                                <?php _e('Draft from First Paragraph', 'almaseo-seo-playground'); ?>
                             </button>
                             <?php
                             break;
                             
                         case 'h1':
                             ?>
-                            <p><?php _e('Ensure you have exactly one H1 heading in your content.', 'almaseo'); ?></p>
-                            <p class="description"><?php _e('Use Heading 1 format for your main title.', 'almaseo'); ?></p>
+                            <p><?php _e('Ensure you have exactly one H1 heading in your content.', 'almaseo-seo-playground'); ?></p>
+                            <p class="description"><?php _e('Use Heading 1 format for your main title.', 'almaseo-seo-playground'); ?></p>
                             <?php
                             break;
                             
                         case 'kw_intro':
                             ?>
-                            <p><?php _e('Include your focus keyword in the first 100 words.', 'almaseo'); ?></p>
+                            <p><?php _e('Include your focus keyword in the first 100 words.', 'almaseo-seo-playground'); ?></p>
                             <button type="button" class="button focus-field" data-field="almaseo_focus_keyword">
-                                <?php _e('Set Focus Keyword', 'almaseo'); ?>
+                                <?php _e('Set Focus Keyword', 'almaseo-seo-playground'); ?>
                             </button>
                             <?php
                             break;
                             
                         case 'internal_link':
                             ?>
-                            <p><?php _e('Add links to other pages on your site.', 'almaseo'); ?></p>
-                            <p class="description"><?php _e('Example: Link to related articles or pages.', 'almaseo'); ?></p>
+                            <p><?php _e('Add links to other pages on your site.', 'almaseo-seo-playground'); ?></p>
+                            <p class="description"><?php _e('Example: Link to related articles or pages.', 'almaseo-seo-playground'); ?></p>
                             <?php
                             break;
                             
                         case 'outbound_link':
                             ?>
-                            <p><?php _e('Add links to authoritative external sources.', 'almaseo'); ?></p>
-                            <p class="description"><?php _e('Example: Link to studies, references, or resources.', 'almaseo'); ?></p>
+                            <p><?php _e('Add links to authoritative external sources.', 'almaseo-seo-playground'); ?></p>
+                            <p class="description"><?php _e('Example: Link to studies, references, or resources.', 'almaseo-seo-playground'); ?></p>
                             <?php
                             break;
                             
                         case 'image_alt':
                             ?>
-                            <p><?php _e('Add descriptive alt text to your images.', 'almaseo'); ?></p>
+                            <p><?php _e('Add descriptive alt text to your images.', 'almaseo-seo-playground'); ?></p>
                             <?php if (has_post_thumbnail($post->ID)): ?>
                             <button type="button" class="button open-media-modal">
-                                <?php _e('Edit Featured Image Alt Text', 'almaseo'); ?>
+                                <?php _e('Edit Featured Image Alt Text', 'almaseo-seo-playground'); ?>
                             </button>
                             <?php else: ?>
-                            <p class="description"><?php _e('Add alt text when inserting images.', 'almaseo'); ?></p>
+                            <p class="description"><?php _e('Add alt text when inserting images.', 'almaseo-seo-playground'); ?></p>
                             <?php endif; ?>
                             <?php
                             break;
                             
                         case 'readability':
                             ?>
-                            <p><?php _e('Improve readability with shorter sentences and paragraphs.', 'almaseo'); ?></p>
-                            <p class="description"><?php _e('Aim for sentences under 24 words and paragraphs under 150 words.', 'almaseo'); ?></p>
+                            <p><?php _e('Improve readability with shorter sentences and paragraphs.', 'almaseo-seo-playground'); ?></p>
+                            <p class="description"><?php _e('Aim for sentences under 24 words and paragraphs under 150 words.', 'almaseo-seo-playground'); ?></p>
                             <?php
                             break;
                             
                         case 'canonical':
                             ?>
-                            <p><?php _e('Set a canonical URL or leave empty for default.', 'almaseo'); ?></p>
+                            <p><?php _e('Set a canonical URL or leave empty for default.', 'almaseo-seo-playground'); ?></p>
                             <button type="button" class="button focus-field" data-field="almaseo_canonical_url">
-                                <?php _e('Edit Canonical URL', 'almaseo'); ?>
+                                <?php _e('Edit Canonical URL', 'almaseo-seo-playground'); ?>
                             </button>
                             <?php
                             break;
                             
                         case 'robots':
                             ?>
-                            <p><?php _e('Check your robots meta settings.', 'almaseo'); ?></p>
+                            <p><?php _e('Check your robots meta settings.', 'almaseo-seo-playground'); ?></p>
                             <button type="button" class="button jump-to-robots">
-                                <?php _e('Edit Robots Settings', 'almaseo'); ?>
+                                <?php _e('Edit Robots Settings', 'almaseo-seo-playground'); ?>
                             </button>
                             <?php
                             break;
@@ -287,7 +287,7 @@ function almaseo_health_meta_box_callback($post) {
         ?>
         <div class="almaseo-readability-panel" style="margin-top: 16px;">
             <div style="display: flex; align-items: center; justify-content: space-between; cursor: pointer;" id="readability-panel-toggle">
-                <h4 style="margin: 0;"><?php _e( 'Readability Breakdown', 'almaseo' ); ?></h4>
+                <h4 style="margin: 0;"><?php _e( 'Readability Breakdown', 'almaseo-seo-playground' ); ?></h4>
                 <span class="dashicons dashicons-arrow-down-alt2" id="readability-toggle-icon" style="color: #646970;"></span>
             </div>
             <div id="readability-panel-content" style="display: none; margin-top: 10px;">
@@ -303,7 +303,7 @@ function almaseo_health_meta_box_callback($post) {
                 <?php endforeach; ?>
                 <p style="margin: 10px 0 0; font-size: 12px; color: #646970;">
                     <?php printf(
-                        __( '%d of %d checks pass. Recalculate to refresh after editing.', 'almaseo' ),
+                        __( '%d of %d checks pass. Recalculate to refresh after editing.', 'almaseo-seo-playground' ),
                         $readability_data['pass_count'],
                         $readability_data['total_checks']
                     ); ?>
@@ -339,11 +339,11 @@ function almaseo_health_meta_box_callback($post) {
         <div style="margin-top: 12px; padding: 10px 12px; background: linear-gradient(135deg, #f0f4ff 0%, #f8f9ff 100%); border: 1px solid #d0d5ff; border-radius: 6px;">
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
                 <span style="font-size: 12px; font-weight: 600; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI</span>
-                <strong style="font-size: 13px;"><?php _e( 'SERP Readability Benchmark', 'almaseo' ); ?></strong>
+                <strong style="font-size: 13px;"><?php _e( 'SERP Readability Benchmark', 'almaseo-seo-playground' ); ?></strong>
             </div>
             <?php if ( ! empty( $rd_dash_data['competitor_avg_score'] ) ) : ?>
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font-size: 12px;">
-                <span><?php _e( 'Competitor Avg:', 'almaseo' ); ?></span>
+                <span><?php _e( 'Competitor Avg:', 'almaseo-seo-playground' ); ?></span>
                 <div style="flex: 1; height: 8px; background: #e2e4e7; border-radius: 4px; overflow: hidden;">
                     <div style="width: <?php echo esc_attr( min( 100, $rd_dash_data['competitor_avg_score'] ) ); ?>%; height: 100%; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 4px;"></div>
                 </div>
@@ -359,7 +359,7 @@ function almaseo_health_meta_box_callback($post) {
             <?php if ( ! empty( $rd_dash_data['paragraphs'] ) ) : ?>
             <div style="margin-top: 8px;">
                 <div style="cursor: pointer; font-size: 12px; color: #2271b1;" onclick="var el=this.nextElementSibling;el.style.display=el.style.display==='none'?'':'none';">
-                    <?php printf( __( '%d paragraph suggestions — click to expand', 'almaseo' ), count( $rd_dash_data['paragraphs'] ) ); ?>
+                    <?php printf( __( '%d paragraph suggestions — click to expand', 'almaseo-seo-playground' ), count( $rd_dash_data['paragraphs'] ) ); ?>
                 </div>
                 <div style="display: none; margin-top: 6px;">
                     <?php foreach ( array_slice( $rd_dash_data['paragraphs'], 0, 10 ) as $p ) :
@@ -384,30 +384,30 @@ function almaseo_health_meta_box_callback($post) {
         
         <!-- Keyword Suggestions Section -->
         <div class="almaseo-keyword-suggestions">
-            <h4><?php _e('Keyword Suggestions', 'almaseo'); ?></h4>
+            <h4><?php _e('Keyword Suggestions', 'almaseo-seo-playground'); ?></h4>
             <?php
             // Check if connected to AlmaSEO Dashboard
             $api_key = get_option('almaseo_api_key');
             if (!empty($api_key)):
             ?>
                 <div class="keyword-suggestions-content">
-                    <p class="description"><?php _e('🔗 Connected to AlmaSEO Dashboard - Live keyword intelligence available', 'almaseo'); ?></p>
+                    <p class="description"><?php _e('🔗 Connected to AlmaSEO Dashboard - Live keyword intelligence available', 'almaseo-seo-playground'); ?></p>
                     <div id="keyword-suggestions-list">
                         <!-- Populated via AJAX from AlmaSEO API -->
-                        <span class="spinner"></span> <?php _e('Loading keyword suggestions...', 'almaseo'); ?>
+                        <span class="spinner"></span> <?php _e('Loading keyword suggestions...', 'almaseo-seo-playground'); ?>
                     </div>
                 </div>
             <?php else: ?>
                 <div class="keyword-suggestions-placeholder">
-                    <p class="description"><?php _e('📝 Currently using local content analysis for keyword extraction', 'almaseo'); ?></p>
-                    <p><?php _e('Connect to AlmaSEO Dashboard to unlock:', 'almaseo'); ?></p>
+                    <p class="description"><?php _e('📝 Currently using local content analysis for keyword extraction', 'almaseo-seo-playground'); ?></p>
+                    <p><?php _e('Connect to AlmaSEO Dashboard to unlock:', 'almaseo-seo-playground'); ?></p>
                     <ul>
-                        <li><?php _e('✨ Live keyword suggestions from search data', 'almaseo'); ?></li>
-                        <li><?php _e('📊 Search volume and competition metrics', 'almaseo'); ?></li>
-                        <li><?php _e('🎯 Related keyword opportunities', 'almaseo'); ?></li>
+                        <li><?php _e('✨ Live keyword suggestions from search data', 'almaseo-seo-playground'); ?></li>
+                        <li><?php _e('📊 Search volume and competition metrics', 'almaseo-seo-playground'); ?></li>
+                        <li><?php _e('🎯 Related keyword opportunities', 'almaseo-seo-playground'); ?></li>
                     </ul>
                     <a href="<?php echo admin_url('admin.php?page=almaseo-settings'); ?>" class="button button-primary">
-                        <?php _e('Connect AlmaSEO Dashboard', 'almaseo'); ?>
+                        <?php _e('Connect AlmaSEO Dashboard', 'almaseo-seo-playground'); ?>
                     </a>
                 </div>
             <?php endif; ?>
@@ -417,18 +417,18 @@ function almaseo_health_meta_box_callback($post) {
         <div class="almaseo-health-footer">
             <button type="button" class="button button-primary" id="almaseo-health-recalculate">
                 <span class="dashicons dashicons-update" style="vertical-align: middle;"></span>
-                <?php _e('Recalculate', 'almaseo'); ?>
+                <?php _e('Recalculate', 'almaseo-seo-playground'); ?>
             </button>
             
             <span class="almaseo-health-updated">
                 <?php if ($updated_at): ?>
-                    <?php _e('Last updated', 'almaseo'); ?>: 
+                    <?php _e('Last updated', 'almaseo-seo-playground'); ?>: 
                     <span class="updated-time">
                         <?php echo human_time_diff($updated_at, current_time('U')); ?> 
-                        <?php _e('ago', 'almaseo'); ?>
+                        <?php _e('ago', 'almaseo-seo-playground'); ?>
                     </span>
                 <?php else: ?>
-                    <?php _e('Not yet calculated', 'almaseo'); ?>
+                    <?php _e('Not yet calculated', 'almaseo-seo-playground'); ?>
                 <?php endif; ?>
             </span>
         </div>
@@ -444,7 +444,7 @@ function almaseo_health_meta_box_callback($post) {
  * Get score explanation text for tooltip
  */
 function almaseo_health_get_score_explanation($weights) {
-    $explanation = __('SEO Health Score Breakdown:', 'almaseo') . "\n\n";
+    $explanation = __('SEO Health Score Breakdown:', 'almaseo-seo-playground') . "\n\n";
     $labels = almaseo_health_get_signal_labels();
     
     foreach ($weights as $signal => $weight) {
@@ -452,7 +452,7 @@ function almaseo_health_get_score_explanation($weights) {
         $explanation .= sprintf("• %s: %d points\n", $label, $weight);
     }
     
-    $explanation .= "\n" . __('Total: 100 points. Score is weighted by importance of each signal.', 'almaseo');
+    $explanation .= "\n" . __('Total: 100 points. Score is weighted by importance of each signal.', 'almaseo-seo-playground');
     
     return $explanation;
 }
@@ -489,7 +489,7 @@ function almaseo_health_render_search_preview($post_id) {
     
     ?>
     <div class="almaseo-search-preview">
-        <h4><?php _e('Google Search Preview', 'almaseo'); ?></h4>
+        <h4><?php _e('Google Search Preview', 'almaseo-seo-playground'); ?></h4>
         <div class="serp-preview">
             <div class="serp-url"><?php echo esc_html($url_display); ?></div>
             <div class="serp-title"><?php echo esc_html($title_truncated); ?></div>

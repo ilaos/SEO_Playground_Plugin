@@ -41,7 +41,7 @@ class AlmaSEO_WC_Metabox {
     public static function register_metabox() {
         add_meta_box(
             'almaseo_wc_seo',
-            __('AlmaSEO - Product SEO', 'almaseo'),
+            __('AlmaSEO - Product SEO', 'almaseo-seo-playground'),
             array(__CLASS__, 'render_metabox'),
             'product',
             'normal',
@@ -126,7 +126,7 @@ class AlmaSEO_WC_Metabox {
             <!-- SEO Title -->
             <div class="almaseo-wc-seo-field">
                 <label for="almaseo_wc_seo_title">
-                    <?php _e('SEO Title', 'almaseo'); ?>
+                    <?php _e('SEO Title', 'almaseo-seo-playground'); ?>
                     <span class="almaseo-wc-char-counter" id="title-counter">
                         <span class="count"><?php echo esc_html($title_length); ?></span> / 60
                     </span>
@@ -141,14 +141,14 @@ class AlmaSEO_WC_Metabox {
                     maxlength="100"
                 >
                 <span class="almaseo-wc-seo-help">
-                    <?php _e('Leave empty to use product title. Recommended: 50-60 characters.', 'almaseo'); ?>
+                    <?php _e('Leave empty to use product title. Recommended: 50-60 characters.', 'almaseo-seo-playground'); ?>
                 </span>
             </div>
 
             <!-- Meta Description -->
             <div class="almaseo-wc-seo-field">
                 <label for="almaseo_wc_meta_description">
-                    <?php _e('Meta Description', 'almaseo'); ?>
+                    <?php _e('Meta Description', 'almaseo-seo-playground'); ?>
                     <span class="almaseo-wc-char-counter" id="desc-counter">
                         <span class="count"><?php echo esc_html($desc_length); ?></span> / 160
                     </span>
@@ -157,18 +157,18 @@ class AlmaSEO_WC_Metabox {
                     id="almaseo_wc_meta_description"
                     name="almaseo_wc_meta_description"
                     class="widefat"
-                    placeholder="<?php _e('Enter a compelling product description for search results...', 'almaseo'); ?>"
+                    placeholder="<?php _e('Enter a compelling product description for search results...', 'almaseo-seo-playground'); ?>"
                     maxlength="320"
                 ><?php echo esc_textarea($meta_description); ?></textarea>
                 <span class="almaseo-wc-seo-help">
-                    <?php _e('Recommended: 150-160 characters. This appears in search results.', 'almaseo'); ?>
+                    <?php _e('Recommended: 150-160 characters. This appears in search results.', 'almaseo-seo-playground'); ?>
                 </span>
             </div>
 
             <!-- Focus Keyword -->
             <div class="almaseo-wc-seo-field">
                 <label for="almaseo_wc_focus_keyword">
-                    <?php _e('Focus Keyword', 'almaseo'); ?>
+                    <?php _e('Focus Keyword', 'almaseo-seo-playground'); ?>
                 </label>
                 <input
                     type="text"
@@ -176,10 +176,10 @@ class AlmaSEO_WC_Metabox {
                     name="almaseo_wc_focus_keyword"
                     value="<?php echo esc_attr($focus_keyword); ?>"
                     class="widefat"
-                    placeholder="<?php _e('e.g., wireless bluetooth headphones', 'almaseo'); ?>"
+                    placeholder="<?php _e('e.g., wireless bluetooth headphones', 'almaseo-seo-playground'); ?>"
                 >
                 <span class="almaseo-wc-seo-help">
-                    <?php _e('The main keyword you want this product to rank for.', 'almaseo'); ?>
+                    <?php _e('The main keyword you want this product to rank for.', 'almaseo-seo-playground'); ?>
                 </span>
             </div>
 
@@ -194,18 +194,18 @@ class AlmaSEO_WC_Metabox {
                         <?php checked($noindex, '1'); ?>
                     >
                     <label for="almaseo_wc_noindex" style="margin: 0; font-weight: normal;">
-                        <?php _e('Noindex this product (prevent search engines from indexing)', 'almaseo'); ?>
+                        <?php _e('Noindex this product (prevent search engines from indexing)', 'almaseo-seo-playground'); ?>
                     </label>
                 </div>
                 <span class="almaseo-wc-seo-help">
-                    <?php _e('Check this to hide this specific product from search engines.', 'almaseo'); ?>
+                    <?php _e('Check this to hide this specific product from search engines.', 'almaseo-seo-playground'); ?>
                 </span>
             </div>
 
             <!-- Canonical URL -->
             <div class="almaseo-wc-seo-field">
                 <label for="almaseo_wc_canonical">
-                    <?php _e('Canonical URL', 'almaseo'); ?>
+                    <?php _e('Canonical URL', 'almaseo-seo-playground'); ?>
                 </label>
                 <input
                     type="url"
@@ -216,7 +216,7 @@ class AlmaSEO_WC_Metabox {
                     placeholder="<?php echo esc_url(get_permalink($post->ID)); ?>"
                 >
                 <span class="almaseo-wc-seo-help">
-                    <?php _e('Leave empty to use default URL. Set custom canonical for duplicate products.', 'almaseo'); ?>
+                    <?php _e('Leave empty to use default URL. Set custom canonical for duplicate products.', 'almaseo-seo-playground'); ?>
                 </span>
             </div>
 

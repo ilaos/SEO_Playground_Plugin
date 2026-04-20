@@ -31,8 +31,8 @@ class AlmaSEO_Date_Hygiene_Controller {
     public static function register_menu() {
         add_submenu_page(
             'seo-playground',
-            __( 'Date Hygiene', 'almaseo' ),
-            __( 'Date Hygiene', 'almaseo' ),
+            __( 'Date Hygiene', 'almaseo-seo-playground' ),
+            __( 'Date Hygiene', 'almaseo-seo-playground' ),
             'manage_options',
             self::SLUG,
             array( __CLASS__, 'render' )
@@ -44,7 +44,7 @@ class AlmaSEO_Date_Hygiene_Controller {
      */
     public static function render() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( __( 'You do not have sufficient permissions to access this page.', 'almaseo' ) );
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'almaseo-seo-playground' ) );
         }
 
         // Pro gate.
@@ -88,7 +88,7 @@ class AlmaSEO_Date_Hygiene_Controller {
             'restBase'    => rest_url( 'almaseo/v1/date-hygiene' ),
             'nonce'       => wp_create_nonce( 'wp_rest' ),
             'adminUrl'    => admin_url( 'admin.php?page=' . self::SLUG ),
-            'noFindings'  => __( 'No findings yet. Click Scan Now to analyze your content for stale references.', 'almaseo' ),
+            'noFindings'  => __( 'No findings yet. Click Scan Now to analyze your content for stale references.', 'almaseo-seo-playground' ),
             'currentYear' => (int) gmdate( 'Y' ),
         ) );
     }

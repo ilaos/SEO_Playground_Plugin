@@ -146,7 +146,7 @@ class Alma_HTML_Sitemap {
         ob_start();
         ?>
         <div class="almaseo-sitemap-section">
-            <h3><?php _e('Posts', 'almaseo'); ?></h3>
+            <h3><?php _e('Posts', 'almaseo-seo-playground'); ?></h3>
             <ul>
                 <?php foreach ($posts as $post): ?>
                 <li>
@@ -213,7 +213,7 @@ class Alma_HTML_Sitemap {
         ob_start();
         ?>
         <div class="almaseo-sitemap-section">
-            <h3><?php _e('Pages', 'almaseo'); ?></h3>
+            <h3><?php _e('Pages', 'almaseo-seo-playground'); ?></h3>
             <?php echo self::render_page_tree($pages); ?>
         </div>
         <?php
@@ -308,7 +308,7 @@ class Alma_HTML_Sitemap {
         ob_start();
         ?>
         <div class="almaseo-sitemap-section">
-            <h3><?php _e('Custom Content', 'almaseo'); ?></h3>
+            <h3><?php _e('Custom Content', 'almaseo-seo-playground'); ?></h3>
             <?php
             foreach ($post_types as $post_type) {
                 $posts = get_posts(array(
@@ -343,7 +343,7 @@ class Alma_HTML_Sitemap {
         ob_start();
         ?>
         <div class="almaseo-sitemap-section">
-            <h3><?php _e('Categories & Tags', 'almaseo'); ?></h3>
+            <h3><?php _e('Categories & Tags', 'almaseo-seo-playground'); ?></h3>
             <?php
             // Categories
             if (!empty($settings['include']['tax']['category'])) {
@@ -353,7 +353,7 @@ class Alma_HTML_Sitemap {
                 ));
                 
                 if (!empty($categories)) {
-                    echo '<h4>' . __('Categories', 'almaseo') . '</h4>';
+                    echo '<h4>' . __('Categories', 'almaseo-seo-playground') . '</h4>';
                     echo '<ul>';
                     foreach ($categories as $cat) {
                         echo '<li><a href="' . get_category_link($cat) . '">';
@@ -372,7 +372,7 @@ class Alma_HTML_Sitemap {
                 ));
                 
                 if (!empty($tags)) {
-                    echo '<h4>' . __('Tags', 'almaseo') . '</h4>';
+                    echo '<h4>' . __('Tags', 'almaseo-seo-playground') . '</h4>';
                     echo '<ul class="almaseo-tag-list">';
                     foreach ($tags as $tag) {
                         echo '<li><a href="' . get_tag_link($tag) . '">';
@@ -405,7 +405,7 @@ class Alma_HTML_Sitemap {
         ob_start();
         ?>
         <div class="almaseo-sitemap-section">
-            <h3><?php _e('Authors', 'almaseo'); ?></h3>
+            <h3><?php _e('Authors', 'almaseo-seo-playground'); ?></h3>
             <ul>
                 <?php foreach ($users as $user): ?>
                 <li>
@@ -415,7 +415,7 @@ class Alma_HTML_Sitemap {
                     <?php
                     $count = count_user_posts($user->ID);
                     if ($count > 0) {
-                        echo ' (' . $count . ' ' . _n('post', 'posts', $count, 'almaseo') . ')';
+                        echo ' (' . $count . ' ' . _n('post', 'posts', $count, 'almaseo-seo-playground') . ')';
                     }
                     ?>
                 </li>

@@ -46,7 +46,7 @@ class Alma_Sitemap_Validator {
         
         $status = array(
             'ok' => true,
-            'msg' => __('Sitemap index is valid', 'almaseo'),
+            'msg' => __('Sitemap index is valid', 'almaseo-seo-playground'),
             'files' => 0,
             'issues' => array()
         );
@@ -62,13 +62,13 @@ class Alma_Sitemap_Validator {
         
         if (is_wp_error($response)) {
             $status['ok'] = false;
-            $status['msg'] = __('Sitemap index is not accessible', 'almaseo');
+            $status['msg'] = __('Sitemap index is not accessible', 'almaseo-seo-playground');
             $status['issues'][] = $response->get_error_message();
         } else {
             $status_code = wp_remote_retrieve_response_code($response);
             if ($status_code !== 200) {
                 $status['ok'] = false;
-                $status['msg'] = sprintf(__('Sitemap index returned status %d', 'almaseo'), $status_code);
+                $status['msg'] = sprintf(__('Sitemap index returned status %d', 'almaseo-seo-playground'), $status_code);
             }
         }
         
@@ -117,7 +117,7 @@ class Alma_Sitemap_Validator {
                 if (count($urls) > $settings['links_per_sitemap']) {
                     $checks['max_links_ok'] = false;
                     $checks['issues'][] = sprintf(
-                        __('Provider %s exceeds links_per_sitemap limit', 'almaseo'),
+                        __('Provider %s exceeds links_per_sitemap limit', 'almaseo-seo-playground'),
                         $name
                     );
                 }
@@ -140,7 +140,7 @@ class Alma_Sitemap_Validator {
             $checks['gzip_ok'] = true;
         } else {
             $checks['gzip_ok'] = false;
-            $checks['issues'][] = __('Gzip compression not available', 'almaseo');
+            $checks['issues'][] = __('Gzip compression not available', 'almaseo-seo-playground');
         }
         
         return $checks;
@@ -334,7 +334,7 @@ class Alma_Sitemap_Validator {
             if (!empty($yoast_options['enable_xml_sitemap'])) {
                 $conflicts[] = array(
                     'plugin' => 'Yoast SEO',
-                    'issue' => __('XML Sitemaps are enabled in Yoast SEO', 'almaseo'),
+                    'issue' => __('XML Sitemaps are enabled in Yoast SEO', 'almaseo-seo-playground'),
                     'severity' => 'high'
                 );
             }
@@ -346,7 +346,7 @@ class Alma_Sitemap_Validator {
             if (!isset($rm_options['sitemap_enable']) || $rm_options['sitemap_enable']) {
                 $conflicts[] = array(
                     'plugin' => 'Rank Math',
-                    'issue' => __('XML Sitemaps are enabled in Rank Math', 'almaseo'),
+                    'issue' => __('XML Sitemaps are enabled in Rank Math', 'almaseo-seo-playground'),
                     'severity' => 'high'
                 );
             }
@@ -358,7 +358,7 @@ class Alma_Sitemap_Validator {
             if (!empty($aioseo_options['sitemap']['general']['enable'])) {
                 $conflicts[] = array(
                     'plugin' => 'All in One SEO',
-                    'issue' => __('XML Sitemaps are enabled in AIOSEO', 'almaseo'),
+                    'issue' => __('XML Sitemaps are enabled in AIOSEO', 'almaseo-seo-playground'),
                     'severity' => 'high'
                 );
             }
@@ -370,7 +370,7 @@ class Alma_Sitemap_Validator {
             if ($wp_sitemaps && !has_filter('wp_sitemaps_enabled', '__return_false')) {
                 $conflicts[] = array(
                     'plugin' => 'WordPress Core',
-                    'issue' => __('WordPress Core sitemaps are enabled', 'almaseo'),
+                    'issue' => __('WordPress Core sitemaps are enabled', 'almaseo-seo-playground'),
                     'severity' => 'medium'
                 );
             }
@@ -391,7 +391,7 @@ class Alma_Sitemap_Validator {
         if (!empty($conflicts) && !empty($settings['takeover'])) {
             $recommendations[] = array(
                 'type' => 'warning',
-                'message' => __('Disable takeover mode due to conflicts with other plugins', 'almaseo')
+                'message' => __('Disable takeover mode due to conflicts with other plugins', 'almaseo-seo-playground')
             );
         }
         
@@ -399,7 +399,7 @@ class Alma_Sitemap_Validator {
         if ($settings['links_per_sitemap'] > 5000) {
             $recommendations[] = array(
                 'type' => 'info',
-                'message' => __('Consider reducing links per sitemap to improve performance', 'almaseo')
+                'message' => __('Consider reducing links per sitemap to improve performance', 'almaseo-seo-playground')
             );
         }
         
@@ -407,7 +407,7 @@ class Alma_Sitemap_Validator {
         if (empty($settings['indexnow']['enabled'])) {
             $recommendations[] = array(
                 'type' => 'tip',
-                'message' => __('Enable IndexNow for instant search engine notifications', 'almaseo')
+                'message' => __('Enable IndexNow for instant search engine notifications', 'almaseo-seo-playground')
             );
         }
         

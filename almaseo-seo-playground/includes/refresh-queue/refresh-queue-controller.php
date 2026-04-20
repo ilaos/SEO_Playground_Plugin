@@ -31,8 +31,8 @@ class AlmaSEO_Refresh_Queue_Controller {
     public static function register_menu() {
         add_submenu_page(
             'seo-playground',
-            __( 'Refresh Queue', 'almaseo' ),
-            __( 'Refresh Queue', 'almaseo' ),
+            __( 'Refresh Queue', 'almaseo-seo-playground' ),
+            __( 'Refresh Queue', 'almaseo-seo-playground' ),
             'manage_options',
             self::SLUG,
             array( __CLASS__, 'render' )
@@ -44,7 +44,7 @@ class AlmaSEO_Refresh_Queue_Controller {
      */
     public static function render() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( __( 'You do not have sufficient permissions to access this page.', 'almaseo' ) );
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'almaseo-seo-playground' ) );
         }
 
         // Pro gate.
@@ -89,7 +89,7 @@ class AlmaSEO_Refresh_Queue_Controller {
             'nonce'            => wp_create_nonce( 'wp_rest' ),
             'adminUrl'         => admin_url( 'admin.php?page=' . self::SLUG ),
             'refreshDraftsUrl' => admin_url( 'admin.php?page=almaseo-refresh-drafts' ),
-            'noItems'          => __( 'No posts have been scored yet. Click Recalculate to analyze your content.', 'almaseo' ),
+            'noItems'          => __( 'No posts have been scored yet. Click Recalculate to analyze your content.', 'almaseo-seo-playground' ),
         ) );
     }
 }

@@ -73,7 +73,7 @@ class AlmaSEO_Import_Term_Mapper {
     public static function process_batch( $source, $offset = 0, $overwrite = false ) {
         $method = 'get_batch_' . $source;
         if ( ! method_exists( __CLASS__, $method ) ) {
-            return new WP_Error( 'invalid_source', __( 'Unknown import source.', 'almaseo' ) );
+            return new WP_Error( 'invalid_source', __( 'Unknown import source.', 'almaseo-seo-playground' ) );
         }
 
         $rows = self::$method( $offset, self::BATCH_SIZE );

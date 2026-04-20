@@ -130,7 +130,7 @@ class AlmaSEO_Role_Manager {
         foreach ( $wp_roles->roles as $slug => $role_data ) {
             // Skip super-admin role if exists.
             if ( $slug === 'administrator' ) {
-                $roles[ $slug ] = $role_data['name'] . ' (' . __( 'always enabled', 'almaseo' ) . ')';
+                $roles[ $slug ] = $role_data['name'] . ' (' . __( 'always enabled', 'almaseo-seo-playground' ) . ')';
             } else {
                 $roles[ $slug ] = $role_data['name'];
             }

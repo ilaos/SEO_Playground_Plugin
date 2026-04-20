@@ -42,8 +42,8 @@ class AlmaSEO_Redirects_Controller {
         
         add_submenu_page(
             'seo-playground',  // Changed from 'almaseo-dashboard' to match parent menu
-            __('Redirect Manager', 'almaseo'),
-            __('Redirects', 'almaseo'),
+            __('Redirect Manager', 'almaseo-seo-playground'),
+            __('Redirects', 'almaseo-seo-playground'),
             'manage_options',
             'almaseo-redirects',
             array(__CLASS__, 'render_admin_page')
@@ -56,7 +56,7 @@ class AlmaSEO_Redirects_Controller {
     public static function render_admin_page() {
         // Check capabilities
         if (!current_user_can('manage_options')) {
-            wp_die(__('You do not have sufficient permissions to access this page.', 'almaseo'));
+            wp_die(__('You do not have sufficient permissions to access this page.', 'almaseo-seo-playground'));
         }
 
         // Include the admin page template
@@ -95,14 +95,14 @@ class AlmaSEO_Redirects_Controller {
             'nonce' => wp_create_nonce('wp_rest'),
             'homeUrl' => home_url(),
             'strings' => array(
-                'confirmDelete' => __('Are you sure you want to delete this redirect?', 'almaseo'),
-                'confirmBulkDelete' => __('Are you sure you want to delete the selected redirects?', 'almaseo'),
-                'error' => __('An error occurred. Please try again.', 'almaseo'),
-                'success' => __('Operation completed successfully.', 'almaseo'),
-                'invalidSource' => __('Source path must start with /', 'almaseo'),
-                'invalidTarget' => __('Please enter a valid URL or path starting with /', 'almaseo'),
-                'duplicateSource' => __('A redirect with this source path already exists.', 'almaseo'),
-                'loopDetected' => __('This would create a redirect loop.', 'almaseo')
+                'confirmDelete' => __('Are you sure you want to delete this redirect?', 'almaseo-seo-playground'),
+                'confirmBulkDelete' => __('Are you sure you want to delete the selected redirects?', 'almaseo-seo-playground'),
+                'error' => __('An error occurred. Please try again.', 'almaseo-seo-playground'),
+                'success' => __('Operation completed successfully.', 'almaseo-seo-playground'),
+                'invalidSource' => __('Source path must start with /', 'almaseo-seo-playground'),
+                'invalidTarget' => __('Please enter a valid URL or path starting with /', 'almaseo-seo-playground'),
+                'duplicateSource' => __('A redirect with this source path already exists.', 'almaseo-seo-playground'),
+                'loopDetected' => __('This would create a redirect loop.', 'almaseo-seo-playground')
             )
         ));
     }
@@ -160,13 +160,13 @@ class AlmaSEO_Redirects_Controller {
         
         // Validate source
         if (empty($data['source'])) {
-            $errors->add('invalid_source', __('Source path is required.', 'almaseo'));
+            $errors->add('invalid_source', __('Source path is required.', 'almaseo-seo-playground'));
         } else {
             require_once plugin_dir_path(__FILE__) . 'redirects-model.php';
             $normalized_source = AlmaSEO_Redirects_Model::normalize_path($data['source']);
             
             if (!$normalized_source) {
-                $errors->add('invalid_source', __('Invalid source path. Must start with /.', 'almaseo'));
+                $errors->add('invalid_source', __('Invalid source path. Must start with /.', 'almaseo-seo-playground'));
             } else {
                 // Check for duplicates
                 global $wpdb;
@@ -183,14 +183,14 @@ class AlmaSEO_Redirects_Controller {
                 $exists = $wpdb->get_var($wpdb->prepare($query, $params));
                 
                 if ($exists > 0) {
-                    $errors->add('duplicate_source', __('A redirect with this source path already exists.', 'almaseo'));
+                    $errors->add('duplicate_source', __('A redirect with this source path already exists.', 'almaseo-seo-playground'));
                 }
             }
         }
         
         // Validate target
         if (empty($data['target'])) {
-            $errors->add('invalid_target', __('Target URL is required.', 'almaseo'));
+            $errors->add('invalid_target', __('Target URL is required.', 'almaseo-seo-playground'));
         } else {
             // Check if it's a valid URL or path
             if (!filter_var($data['target'], FILTER_VALIDATE_URL)) {
@@ -199,19 +199,19 @@ class AlmaSEO_Redirects_Controller {
                 $normalized_target = AlmaSEO_Redirects_Model::normalize_path($data['target']);
                 
                 if (!$normalized_target) {
-                    $errors->add('invalid_target', __('Invalid target. Must be a valid URL or path starting with /.', 'almaseo'));
+                    $errors->add('invalid_target', __('Invalid target. Must be a valid URL or path starting with /.', 'almaseo-seo-playground'));
                 }
                 
                 // Check for potential loops
                 if (isset($normalized_source) && $normalized_source === $normalized_target) {
-                    $errors->add('redirect_loop', __('Source and target cannot be the same.', 'almaseo'));
+                    $errors->add('redirect_loop', __('Source and target cannot be the same.', 'almaseo-seo-playground'));
                 }
             }
         }
         
         // Validate status
         if (isset($data['status']) && !in_array($data['status'], array(301, 302))) {
-            $errors->add('invalid_status', __('Status must be 301 or 302.', 'almaseo'));
+            $errors->add('invalid_status', __('Status must be 301 or 302.', 'almaseo-seo-playground'));
         }
         
         if ($errors->has_errors()) {

@@ -74,7 +74,7 @@ class AlmaSEO_Woo_Breadcrumbs {
         
         $settings = AlmaSEO_Woo_Loader::get_settings();
         
-        echo '<nav class="almaseo-woo-breadcrumbs" aria-label="' . esc_attr__('Breadcrumb', 'almaseo') . '">';
+        echo '<nav class="almaseo-woo-breadcrumbs" aria-label="' . esc_attr__('Breadcrumb', 'almaseo-seo-playground') . '">';
         echo '<ol class="breadcrumb">';
         
         $total = count($breadcrumbs);
@@ -169,7 +169,7 @@ class AlmaSEO_Woo_Breadcrumbs {
             // Current tag
             $current_term = get_queried_object();
             $breadcrumbs[] = array(
-                'text' => sprintf(__('Products tagged "%s"', 'almaseo'), $current_term->name),
+                'text' => sprintf(__('Products tagged "%s"', 'almaseo-seo-playground'), $current_term->name),
                 'url' => ''
             );
         }
@@ -215,7 +215,7 @@ class AlmaSEO_Woo_Breadcrumbs {
         // Cart
         elseif (is_cart()) {
             $breadcrumbs[] = array(
-                'text' => __('Cart', 'almaseo'),
+                'text' => __('Cart', 'almaseo-seo-playground'),
                 'url' => ''
             );
         }
@@ -223,12 +223,12 @@ class AlmaSEO_Woo_Breadcrumbs {
         elseif (is_checkout()) {
             if (!is_order_received_page()) {
                 $breadcrumbs[] = array(
-                    'text' => __('Checkout', 'almaseo'),
+                    'text' => __('Checkout', 'almaseo-seo-playground'),
                     'url' => ''
                 );
             } else {
                 $breadcrumbs[] = array(
-                    'text' => __('Order Received', 'almaseo'),
+                    'text' => __('Order Received', 'almaseo-seo-playground'),
                     'url' => ''
                 );
             }
@@ -236,7 +236,7 @@ class AlmaSEO_Woo_Breadcrumbs {
         // My Account
         elseif (is_account_page()) {
             $breadcrumbs[] = array(
-                'text' => __('My Account', 'almaseo'),
+                'text' => __('My Account', 'almaseo-seo-playground'),
                 'url' => ''
             );
             
@@ -323,7 +323,7 @@ class AlmaSEO_Woo_Breadcrumbs {
         $settings = AlmaSEO_Woo_Loader::get_settings();
         
         $defaults['delimiter'] = '<span class="breadcrumb-separator">' . esc_html($settings['breadcrumb_separator']) . '</span>';
-        $defaults['wrap_before'] = '<nav class="almaseo-woo-breadcrumbs woocommerce-breadcrumb" aria-label="' . esc_attr__('Breadcrumb', 'almaseo') . '">';
+        $defaults['wrap_before'] = '<nav class="almaseo-woo-breadcrumbs woocommerce-breadcrumb" aria-label="' . esc_attr__('Breadcrumb', 'almaseo-seo-playground') . '">';
         $defaults['wrap_after'] = '</nav>';
         $defaults['before'] = '<span class="breadcrumb-item">';
         $defaults['after'] = '</span>';

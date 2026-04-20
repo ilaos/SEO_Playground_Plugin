@@ -52,12 +52,12 @@ class Alma_Settings_Porter {
         $data = json_decode($json, true);
         
         if (json_last_error() !== JSON_ERROR_NONE) {
-            return new WP_Error('invalid_json', __('Invalid JSON format', 'almaseo'));
+            return new WP_Error('invalid_json', __('Invalid JSON format', 'almaseo-seo-playground'));
         }
         
         // Validate structure
         if (!isset($data['settings']) || !is_array($data['settings'])) {
-            return new WP_Error('invalid_format', __('Invalid export format', 'almaseo'));
+            return new WP_Error('invalid_format', __('Invalid export format', 'almaseo-seo-playground'));
         }
         
         // Check version compatibility
@@ -69,7 +69,7 @@ class Alma_Settings_Porter {
             if (version_compare($import_version, $current_version, '<')) {
                 // Allow import from older versions with warning
                 Alma_Health_Log::log('import', sprintf(
-                    __('Imported settings from older version %s', 'almaseo'),
+                    __('Imported settings from older version %s', 'almaseo-seo-playground'),
                     $import_version
                 ));
             }
@@ -105,7 +105,7 @@ class Alma_Settings_Porter {
         update_option('almaseo_sitemap_settings', $merged);
         
         // Log import
-        Alma_Health_Log::log('import', __('Settings imported successfully', 'almaseo'), array(
+        Alma_Health_Log::log('import', __('Settings imported successfully', 'almaseo-seo-playground'), array(
             'source_url' => isset($data['site_url']) ? $data['site_url'] : 'unknown',
             'exported' => isset($data['exported']) ? date('Y-m-d H:i:s', $data['exported']) : 'unknown'
         ));

@@ -63,7 +63,7 @@ class AlmaSEO_Import_Redirects_Mapper {
     public static function process_batch( $source, $offset = 0, $overwrite = false ) {
         $method = 'get_batch_' . $source;
         if ( ! method_exists( __CLASS__, $method ) ) {
-            return new WP_Error( 'invalid_source', __( 'Unknown redirect source.', 'almaseo' ) );
+            return new WP_Error( 'invalid_source', __( 'Unknown redirect source.', 'almaseo-seo-playground' ) );
         }
 
         global $wpdb;
@@ -72,7 +72,7 @@ class AlmaSEO_Import_Redirects_Mapper {
         // Verify our redirects table exists.
         $our_table_exists = (bool) $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $table ) );
         if ( ! $our_table_exists ) {
-            return new WP_Error( 'table_missing', __( 'AlmaSEO redirects table does not exist. Please visit the Redirects page first.', 'almaseo' ) );
+            return new WP_Error( 'table_missing', __( 'AlmaSEO redirects table does not exist. Please visit the Redirects page first.', 'almaseo-seo-playground' ) );
         }
 
         $rows = self::$method( $offset, self::BATCH_SIZE );

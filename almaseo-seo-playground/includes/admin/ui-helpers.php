@@ -52,7 +52,7 @@ function almaseo_render_help($text, $tooltip = '') {
 if (!function_exists('almaseo_render_help_with_link')) {
 function almaseo_render_help_with_link($text, $url, $link_text = '') {
     if (empty($link_text)) {
-        $link_text = __('Learn more', 'almaseo');
+        $link_text = __('Learn more', 'almaseo-seo-playground');
     }
     
     echo '<p class="description almaseo-help">';

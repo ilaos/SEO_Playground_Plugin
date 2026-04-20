@@ -144,7 +144,7 @@ class AlmaSEO_HowTo_Block {
         /* Supplies section. */
         if ( ! empty( $supplies ) ) {
             $html .= '<div class="almaseo-howto-supplies">';
-            $html .= '<h4 class="almaseo-howto-section-title">' . esc_html__( 'Supplies', 'almaseo' ) . '</h4>';
+            $html .= '<h4 class="almaseo-howto-section-title">' . esc_html__( 'Supplies', 'almaseo-seo-playground' ) . '</h4>';
             $html .= '<ul>';
             foreach ( $supplies as $supply ) {
                 $html .= '<li>' . esc_html( $supply ) . '</li>';
@@ -155,7 +155,7 @@ class AlmaSEO_HowTo_Block {
         /* Tools section. */
         if ( ! empty( $tools ) ) {
             $html .= '<div class="almaseo-howto-tools">';
-            $html .= '<h4 class="almaseo-howto-section-title">' . esc_html__( 'Tools', 'almaseo' ) . '</h4>';
+            $html .= '<h4 class="almaseo-howto-section-title">' . esc_html__( 'Tools', 'almaseo-seo-playground' ) . '</h4>';
             $html .= '<ul>';
             foreach ( $tools as $tool ) {
                 $html .= '<li>' . esc_html( $tool ) . '</li>';
@@ -177,7 +177,7 @@ class AlmaSEO_HowTo_Block {
             $html .= '<h3 class="almaseo-howto-step-title">'
                     . esc_html( sprintf(
                         /* translators: %1$d = step number, %2$s = step title */
-                        __( 'Step %1$d: %2$s', 'almaseo' ),
+                        __( 'Step %1$d: %2$s', 'almaseo-seo-playground' ),
                         $step_num,
                         $title
                     ) )

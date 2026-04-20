@@ -22,7 +22,7 @@ function almaseo_eg_add_columns($columns) {
         
         // Add after title column
         if ($key === 'title') {
-            $new_columns['evergreen'] = __('Evergreen', 'almaseo');
+            $new_columns['evergreen'] = __('Evergreen', 'almaseo-seo-playground');
         }
     }
     
@@ -45,18 +45,19 @@ function almaseo_eg_column_content($column_name, $post_id) {
     
     // Build tooltip text
     $tooltip_parts = array();
-    $tooltip_parts[] = sprintf(__('Last updated: %d days ago', 'almaseo'), $ages['updated_days']);
+    /* translators: %d: number of days since last update */
+    $tooltip_parts[] = sprintf(__('Last updated: %d days ago', 'almaseo-seo-playground'), $ages['updated_days']);
     
     if ($trend != 0) {
-        $tooltip_parts[] = sprintf(__('Trend: %+.1f%%', 'almaseo'), $trend);
+        $tooltip_parts[] = sprintf(__('Trend: %+.1f%%', 'almaseo-seo-playground'), $trend);
     }
     
     if ($notes['seasonal']) {
-        $tooltip_parts[] = __('Seasonal: Yes', 'almaseo');
+        $tooltip_parts[] = __('Seasonal: Yes', 'almaseo-seo-playground');
     }
     
     if ($notes['pinned']) {
-        $tooltip_parts[] = __('Pinned', 'almaseo');
+        $tooltip_parts[] = __('Pinned', 'almaseo-seo-playground');
     }
     
     $tooltip = implode(' • ', $tooltip_parts);
@@ -65,7 +66,7 @@ function almaseo_eg_column_content($column_name, $post_id) {
     switch ($status) {
         case ALMASEO_EG_STATUS_EVERGREEN:
             echo '<span class="almaseo-eg-pill almaseo-eg-evergreen" data-eg-tooltip="' . esc_attr($tooltip) . '" tabindex="0">';
-            echo '🟢 ' . __('Evergreen', 'almaseo');
+            echo '🟢 ' . __('Evergreen', 'almaseo-seo-playground');
             if ($notes['pinned']) {
                 echo ' 📌';
             }
@@ -74,20 +75,20 @@ function almaseo_eg_column_content($column_name, $post_id) {
             
         case ALMASEO_EG_STATUS_WATCH:
             echo '<span class="almaseo-eg-pill almaseo-eg-watch" data-eg-tooltip="' . esc_attr($tooltip) . '" tabindex="0">';
-            echo '🟡 ' . __('Watch', 'almaseo');
+            echo '🟡 ' . __('Watch', 'almaseo-seo-playground');
             echo '</span>';
             break;
             
         case ALMASEO_EG_STATUS_STALE:
             echo '<span class="almaseo-eg-pill almaseo-eg-stale" data-eg-tooltip="' . esc_attr($tooltip) . '" tabindex="0">';
-            echo '🔴 ' . __('Stale', 'almaseo');
+            echo '🔴 ' . __('Stale', 'almaseo-seo-playground');
             echo '</span>';
             break;
             
         default:
-            $default_tooltip = __('Not analyzed yet', 'almaseo');
+            $default_tooltip = __('Not analyzed yet', 'almaseo-seo-playground');
             echo '<span class="almaseo-eg-pill almaseo-eg-unknown" data-eg-tooltip="' . esc_attr($default_tooltip) . '" tabindex="0">';
-            echo '⚪ ' . __('Unknown', 'almaseo');
+            echo '⚪ ' . __('Unknown', 'almaseo-seo-playground');
             echo '</span>';
             break;
     }
@@ -183,18 +184,18 @@ function almaseo_eg_add_filter_dropdown() {
     $selected = isset($_GET['evergreen_filter']) ? sanitize_text_field($_GET['evergreen_filter']) : '';
     ?>
     <select name="evergreen_filter" id="evergreen_filter">
-        <option value=""><?php _e('All Evergreen Status', 'almaseo'); ?></option>
+        <option value=""><?php _e('All Evergreen Status', 'almaseo-seo-playground'); ?></option>
         <option value="evergreen" <?php selected($selected, 'evergreen'); ?>>
-            <?php _e('🟢 Evergreen', 'almaseo'); ?>
+            <?php _e('🟢 Evergreen', 'almaseo-seo-playground'); ?>
         </option>
         <option value="watch" <?php selected($selected, 'watch'); ?>>
-            <?php _e('🟡 Watch', 'almaseo'); ?>
+            <?php _e('🟡 Watch', 'almaseo-seo-playground'); ?>
         </option>
         <option value="stale" <?php selected($selected, 'stale'); ?>>
-            <?php _e('🔴 Stale', 'almaseo'); ?>
+            <?php _e('🔴 Stale', 'almaseo-seo-playground'); ?>
         </option>
         <option value="old" <?php selected($selected, 'old'); ?>>
-            <?php _e('Updated > 6 months', 'almaseo'); ?>
+            <?php _e('Updated > 6 months', 'almaseo-seo-playground'); ?>
         </option>
     </select>
     <?php

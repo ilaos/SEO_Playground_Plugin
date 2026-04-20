@@ -48,15 +48,15 @@ function almaseo_health_get_tab_content($post) {
     if ($health_score >= 80) {
         $score_class = 'excellent';
         $color_hex = '#00a32a';
-        $status_text = __('Excellent! Your content is well-optimized.', 'almaseo');
+        $status_text = __('Excellent! Your content is well-optimized.', 'almaseo-seo-playground');
     } elseif ($health_score >= 50) {
         $score_class = 'good';
         $color_hex = '#dba617';
-        $status_text = __('Good, but there\'s room for improvement.', 'almaseo');
+        $status_text = __('Good, but there\'s room for improvement.', 'almaseo-seo-playground');
     } else {
         $score_class = 'poor';
         $color_hex = '#d63638';
-        $status_text = __('Needs attention. Check the full analyzer below.', 'almaseo');
+        $status_text = __('Needs attention. Check the full analyzer below.', 'almaseo-seo-playground');
     }
     
     // Check if search engines are discouraged
@@ -91,7 +91,7 @@ function almaseo_health_get_tab_content($post) {
                 
                 <!-- Summary -->
                 <div class="health-breakdown">
-                    <h4><?php _e('Overall SEO Health', 'almaseo'); ?></h4>
+                    <h4><?php _e('Overall SEO Health', 'almaseo-seo-playground'); ?></h4>
                     <p class="health-status-message <?php echo $score_class; ?>">
                         <?php echo esc_html($status_text); ?>
                     </p>
@@ -113,18 +113,18 @@ function almaseo_health_get_tab_content($post) {
                         ?>
                         <span class="health-stat-item">
                             <span class="stat-icon">✅</span>
-                            <strong><?php echo $pass_count; ?></strong> <?php _e('Passed', 'almaseo'); ?>
+                            <strong><?php echo $pass_count; ?></strong> <?php _e('Passed', 'almaseo-seo-playground'); ?>
                         </span>
                         <span class="health-stat-item">
                             <span class="stat-icon">❌</span>
-                            <strong><?php echo $fail_count; ?></strong> <?php _e('Issues', 'almaseo'); ?>
+                            <strong><?php echo $fail_count; ?></strong> <?php _e('Issues', 'almaseo-seo-playground'); ?>
                         </span>
                     </div>
                     
                     <!-- Link to Full Analyzer -->
                     <div class="health-analyzer-link">
                         <a href="#almaseo_health_score" class="button button-secondary" onclick="jQuery('html, body').animate({scrollTop: jQuery('#almaseo_health_score').offset().top - 50}, 500); return false;">
-                            <?php _e('Open Full Health Analyzer', 'almaseo'); ?> ↓
+                            <?php _e('Open Full Health Analyzer', 'almaseo-seo-playground'); ?> ↓
                         </a>
                     </div>
                 </div>

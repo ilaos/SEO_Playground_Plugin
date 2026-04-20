@@ -31,8 +31,8 @@ class AlmaSEO_Search_Appearance_Controller {
     public static function add_admin_menu() {
         add_submenu_page(
             'seo-playground',
-            __( 'Search Appearance', 'almaseo' ),
-            __( 'Search Appearance', 'almaseo' ),
+            __( 'Search Appearance', 'almaseo-seo-playground' ),
+            __( 'Search Appearance', 'almaseo-seo-playground' ),
             'manage_options',
             self::SLUG,
             array( __CLASS__, 'render_page' )
@@ -70,9 +70,9 @@ class AlmaSEO_Search_Appearance_Controller {
             'smart_tags' => AlmaSEO_Smart_Tags::get_available_tags(),
             'separators' => AlmaSEO_Search_Appearance_Settings::get_separator_options(),
             'strings'    => array(
-                'saving' => __( 'Saving...', 'almaseo' ),
-                'saved'  => __( 'Settings saved successfully!', 'almaseo' ),
-                'error'  => __( 'An error occurred. Please try again.', 'almaseo' ),
+                'saving' => __( 'Saving...', 'almaseo-seo-playground' ),
+                'saved'  => __( 'Settings saved successfully!', 'almaseo-seo-playground' ),
+                'error'  => __( 'An error occurred. Please try again.', 'almaseo-seo-playground' ),
             ),
         ) );
     }
@@ -82,7 +82,7 @@ class AlmaSEO_Search_Appearance_Controller {
      */
     public static function render_page() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'You do not have sufficient permissions.', 'almaseo' ) );
+            wp_die( esc_html__( 'You do not have sufficient permissions.', 'almaseo-seo-playground' ) );
         }
 
         require_once ALMASEO_PATH . 'admin/pages/search-appearance.php';
@@ -95,19 +95,19 @@ class AlmaSEO_Search_Appearance_Controller {
         check_ajax_referer( 'almaseo_search_appearance_nonce', 'nonce' );
 
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_send_json_error( array( 'message' => __( 'Permission denied.', 'almaseo' ) ) );
+            wp_send_json_error( array( 'message' => __( 'Permission denied.', 'almaseo-seo-playground' ) ) );
         }
 
         $raw = isset( $_POST['settings'] ) ? wp_unslash( $_POST['settings'] ) : '{}';
         $input = json_decode( $raw, true );
 
         if ( ! is_array( $input ) ) {
-            wp_send_json_error( array( 'message' => __( 'Invalid data format.', 'almaseo' ) ) );
+            wp_send_json_error( array( 'message' => __( 'Invalid data format.', 'almaseo-seo-playground' ) ) );
         }
 
         $sanitized = AlmaSEO_Search_Appearance_Settings::sanitize( $input );
         update_option( AlmaSEO_Search_Appearance_Settings::OPTION_KEY, $sanitized );
 
-        wp_send_json_success( array( 'message' => __( 'Settings saved.', 'almaseo' ) ) );
+        wp_send_json_success( array( 'message' => __( 'Settings saved.', 'almaseo-seo-playground' ) ) );
     }
 }

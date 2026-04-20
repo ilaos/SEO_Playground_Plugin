@@ -37,8 +37,8 @@ class Alma_Sitemap_Admin_Page {
     public function add_admin_menu() {
         add_submenu_page(
             'seo-playground',
-            __('Sitemaps', 'almaseo'),
-            __('Sitemaps', 'almaseo'),
+            __('Sitemaps', 'almaseo-seo-playground'),
+            __('Sitemaps', 'almaseo-seo-playground'),
             'manage_options',
             'almaseo-sitemaps',
             [$this, 'render_page']
@@ -107,13 +107,13 @@ class Alma_Sitemap_Admin_Page {
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('almaseo_sitemaps_nonce'),
             'strings' => [
-                'saving' => __('Saving...', 'almaseo'),
-                'saved' => __('Settings saved', 'almaseo'),
-                'error' => __('An error occurred', 'almaseo'),
-                'rebuilding' => __('Rebuilding sitemaps...', 'almaseo'),
-                'rebuilt' => __('Sitemaps rebuilt successfully', 'almaseo'),
-                'copied' => __('URL copied to clipboard', 'almaseo'),
-                'confirm_disable' => __('Are you sure you want to disable sitemaps?', 'almaseo')
+                'saving' => __('Saving...', 'almaseo-seo-playground'),
+                'saved' => __('Settings saved', 'almaseo-seo-playground'),
+                'error' => __('An error occurred', 'almaseo-seo-playground'),
+                'rebuilding' => __('Rebuilding sitemaps...', 'almaseo-seo-playground'),
+                'rebuilt' => __('Sitemaps rebuilt successfully', 'almaseo-seo-playground'),
+                'copied' => __('URL copied to clipboard', 'almaseo-seo-playground'),
+                'confirm_disable' => __('Are you sure you want to disable sitemaps?', 'almaseo-seo-playground')
             ]
         ]);
     }
@@ -124,7 +124,7 @@ class Alma_Sitemap_Admin_Page {
     public function render_page() {
         // Check permissions
         if (!current_user_can('manage_options')) {
-            wp_die(__('You do not have sufficient permissions to access this page.', 'almaseo'));
+            wp_die(__('You do not have sufficient permissions to access this page.', 'almaseo-seo-playground'));
         }
         
         // Load the screen controller
@@ -134,7 +134,7 @@ class Alma_Sitemap_Admin_Page {
         if (function_exists('almaseo_render_sitemaps_screen_v2')) {
             almaseo_render_sitemaps_screen_v2();
         } else {
-            echo '<div class="error"><p>' . __('Unable to load sitemap interface.', 'almaseo') . '</p></div>';
+            echo '<div class="error"><p>' . __('Unable to load sitemap interface.', 'almaseo-seo-playground') . '</p></div>';
         }
     }
 }

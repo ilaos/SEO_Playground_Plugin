@@ -303,7 +303,7 @@ class AlmaSEO_Evergreen_REST_API {
             'data' => array(
                 'status' => ALMASEO_EG_STATUS_EVERGREEN,
                 'last_calculated' => time(),
-                'message' => __('Content marked as refreshed', 'almaseo')
+                'message' => __('Content marked as refreshed', 'almaseo-seo-playground')
             )
         );
     }
@@ -545,7 +545,7 @@ class AlmaSEO_Evergreen_REST_API {
         if (!almaseo_feature_available('evergreen_advanced')) {
             return new WP_Error(
                 'evergreen_advanced_required',
-                __('Advanced Evergreen features require Pro or Agency tier.', 'almaseo'),
+                __('Advanced Evergreen features require Pro or Agency tier.', 'almaseo-seo-playground'),
                 array('status' => 403)
             );
         }
@@ -581,7 +581,7 @@ class AlmaSEO_Evergreen_REST_API {
         if ($has_advanced_filters && !almaseo_feature_available('evergreen_advanced')) {
             return new WP_Error(
                 'evergreen_advanced_required',
-                __('Advanced filtering requires Pro or Agency tier.', 'almaseo'),
+                __('Advanced filtering requires Pro or Agency tier.', 'almaseo-seo-playground'),
                 array('status' => 403)
             );
         }

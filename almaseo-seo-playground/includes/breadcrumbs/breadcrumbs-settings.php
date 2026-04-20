@@ -100,7 +100,7 @@ class AlmaSEO_Breadcrumbs_Settings {
             'default'           => array(
                 'enabled'                => true,
                 'separator'              => '&gt;',
-                'home_text'              => __('Home', 'almaseo'),
+                'home_text'              => __('Home', 'almaseo-seo-playground'),
                 'show_on_home'           => false,
                 'show_current'           => true,
                 'include_css'            => true,
@@ -131,7 +131,7 @@ class AlmaSEO_Breadcrumbs_Settings {
         $sanitized['enabled']      = isset($input['enabled']) ? (bool) $input['enabled'] : false;
         $separator = isset($input['separator']) ? wp_kses_post($input['separator']) : '>';
         $sanitized['separator']    = !empty(trim($separator)) ? $separator : '>'; // Ensure not empty
-        $sanitized['home_text']    = isset($input['home_text']) ? sanitize_text_field($input['home_text']) : __('Home', 'almaseo');
+        $sanitized['home_text']    = isset($input['home_text']) ? sanitize_text_field($input['home_text']) : __('Home', 'almaseo-seo-playground');
         $sanitized['show_on_home'] = isset($input['show_on_home']) ? (bool) $input['show_on_home'] : false;
         $sanitized['show_current'] = isset($input['show_current']) ? (bool) $input['show_current'] : true;
         $sanitized['include_css']  = isset($input['include_css']) ? (bool) $input['include_css'] : true;
@@ -170,28 +170,28 @@ class AlmaSEO_Breadcrumbs_Settings {
         $settings = AlmaSEO_Breadcrumbs_Loader::get_settings();
         ?>
         <div class="almaseo-settings-section" style="margin-top: 40px; padding-top: 40px; border-top: 2px solid #e5e7eb;">
-            <h2><?php esc_html_e('Breadcrumbs', 'almaseo'); ?></h2>
+            <h2><?php esc_html_e('Breadcrumbs', 'almaseo-seo-playground'); ?></h2>
             <p class="description" style="margin-bottom: 15px;">
-                <?php esc_html_e('Configure breadcrumb navigation for your site. Use the shortcode to display breadcrumbs anywhere.', 'almaseo'); ?>
+                <?php esc_html_e('Configure breadcrumb navigation for your site. Use the shortcode to display breadcrumbs anywhere.', 'almaseo-seo-playground'); ?>
             </p>
 
             <table class="form-table">
                 <tr>
-                    <th scope="row"><?php esc_html_e('Enable Breadcrumbs', 'almaseo'); ?></th>
+                    <th scope="row"><?php esc_html_e('Enable Breadcrumbs', 'almaseo-seo-playground'); ?></th>
                     <td>
                         <label>
                             <input type="checkbox"
                                    name="almaseo_breadcrumbs_settings[enabled]"
                                    value="1"
                                    <?php checked($settings['enabled'], true); ?>>
-                            <?php esc_html_e('Enable breadcrumbs feature', 'almaseo'); ?>
+                            <?php esc_html_e('Enable breadcrumbs feature', 'almaseo-seo-playground'); ?>
                         </label>
                     </td>
                 </tr>
 
                 <tr>
                     <th scope="row">
-                        <label for="almaseo_breadcrumbs_home_text"><?php esc_html_e('Home Text', 'almaseo'); ?></label>
+                        <label for="almaseo_breadcrumbs_home_text"><?php esc_html_e('Home Text', 'almaseo-seo-playground'); ?></label>
                     </th>
                     <td>
                         <input type="text"
@@ -200,13 +200,13 @@ class AlmaSEO_Breadcrumbs_Settings {
                                value="<?php echo esc_attr($settings['home_text']); ?>"
                                class="regular-text">
                         <p class="description">
-                            <?php esc_html_e('Text for the home/first breadcrumb item.', 'almaseo'); ?>
+                            <?php esc_html_e('Text for the home/first breadcrumb item.', 'almaseo-seo-playground'); ?>
                         </p>
                     </td>
                 </tr>
 
                 <tr>
-                    <th scope="row"><?php esc_html_e('Display Options', 'almaseo'); ?></th>
+                    <th scope="row"><?php esc_html_e('Display Options', 'almaseo-seo-playground'); ?></th>
                     <td>
                         <fieldset>
                             <label>
@@ -214,7 +214,7 @@ class AlmaSEO_Breadcrumbs_Settings {
                                        name="almaseo_breadcrumbs_settings[show_current]"
                                        value="1"
                                        <?php checked($settings['show_current'], true); ?>>
-                                <?php esc_html_e('Show current page in breadcrumbs', 'almaseo'); ?>
+                                <?php esc_html_e('Show current page in breadcrumbs', 'almaseo-seo-playground'); ?>
                             </label>
                             <br>
                             <label>
@@ -222,7 +222,7 @@ class AlmaSEO_Breadcrumbs_Settings {
                                        name="almaseo_breadcrumbs_settings[show_on_home]"
                                        value="1"
                                        <?php checked($settings['show_on_home'], true); ?>>
-                                <?php esc_html_e('Show breadcrumbs on homepage', 'almaseo'); ?>
+                                <?php esc_html_e('Show breadcrumbs on homepage', 'almaseo-seo-playground'); ?>
                             </label>
                             <br>
                             <label>
@@ -230,7 +230,7 @@ class AlmaSEO_Breadcrumbs_Settings {
                                        name="almaseo_breadcrumbs_settings[show_post_type_archive]"
                                        value="1"
                                        <?php checked($settings['show_post_type_archive'], true); ?>>
-                                <?php esc_html_e('Include post type archive in trail (for custom post types)', 'almaseo'); ?>
+                                <?php esc_html_e('Include post type archive in trail (for custom post types)', 'almaseo-seo-playground'); ?>
                             </label>
                         </fieldset>
                     </td>
@@ -238,30 +238,30 @@ class AlmaSEO_Breadcrumbs_Settings {
 
                 <tr>
                     <th scope="row">
-                        <label for="almaseo_breadcrumbs_category_selection"><?php esc_html_e('Category Selection', 'almaseo'); ?></label>
+                        <label for="almaseo_breadcrumbs_category_selection"><?php esc_html_e('Category Selection', 'almaseo-seo-playground'); ?></label>
                     </th>
                     <td>
                         <select id="almaseo_breadcrumbs_category_selection"
                                 name="almaseo_breadcrumbs_settings[category_selection]">
                             <option value="primary" <?php selected($settings['category_selection'], 'primary'); ?>>
-                                <?php esc_html_e('Primary category (Yoast/Rank Math compatible)', 'almaseo'); ?>
+                                <?php esc_html_e('Primary category (Yoast/Rank Math compatible)', 'almaseo-seo-playground'); ?>
                             </option>
                             <option value="deepest" <?php selected($settings['category_selection'], 'deepest'); ?>>
-                                <?php esc_html_e('Deepest category (most specific)', 'almaseo'); ?>
+                                <?php esc_html_e('Deepest category (most specific)', 'almaseo-seo-playground'); ?>
                             </option>
                             <option value="first" <?php selected($settings['category_selection'], 'first'); ?>>
-                                <?php esc_html_e('First category', 'almaseo'); ?>
+                                <?php esc_html_e('First category', 'almaseo-seo-playground'); ?>
                             </option>
                         </select>
                         <p class="description">
-                            <?php esc_html_e('How to select category when a post has multiple categories.', 'almaseo'); ?>
+                            <?php esc_html_e('How to select category when a post has multiple categories.', 'almaseo-seo-playground'); ?>
                         </p>
                     </td>
                 </tr>
 
                 <tr>
                     <th scope="row">
-                        <label for="almaseo_breadcrumbs_separator"><?php esc_html_e('Separator', 'almaseo'); ?></label>
+                        <label for="almaseo_breadcrumbs_separator"><?php esc_html_e('Separator', 'almaseo-seo-playground'); ?></label>
                     </th>
                     <td>
                         <?php
@@ -286,18 +286,18 @@ class AlmaSEO_Breadcrumbs_Settings {
                             <?php endforeach; ?>
                         </select>
                         <p class="description">
-                            <?php esc_html_e('Character displayed between breadcrumb items.', 'almaseo'); ?>
+                            <?php esc_html_e('Character displayed between breadcrumb items.', 'almaseo-seo-playground'); ?>
                         </p>
                     </td>
                 </tr>
 
                 <tr>
-                    <th scope="row"><?php esc_html_e('Font', 'almaseo'); ?></th>
+                    <th scope="row"><?php esc_html_e('Font', 'almaseo-seo-playground'); ?></th>
                     <td>
                         <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end;">
                             <div>
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                    <?php esc_html_e('Size (px)', 'almaseo'); ?>
+                                    <?php esc_html_e('Size (px)', 'almaseo-seo-playground'); ?>
                                 </label>
                                 <input type="number"
                                        name="almaseo_breadcrumbs_settings[font_size]"
@@ -307,29 +307,29 @@ class AlmaSEO_Breadcrumbs_Settings {
                             </div>
                             <div>
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                    <?php esc_html_e('Weight', 'almaseo'); ?>
+                                    <?php esc_html_e('Weight', 'almaseo-seo-playground'); ?>
                                 </label>
                                 <select name="almaseo_breadcrumbs_settings[font_weight]" style="min-width: 140px;">
-                                    <option value="300" <?php selected($settings['font_weight'] ?? 'normal', '300'); ?>><?php esc_html_e('Light (300)', 'almaseo'); ?></option>
-                                    <option value="normal" <?php selected($settings['font_weight'] ?? 'normal', 'normal'); ?>><?php esc_html_e('Normal (400)', 'almaseo'); ?></option>
-                                    <option value="500" <?php selected($settings['font_weight'] ?? 'normal', '500'); ?>><?php esc_html_e('Medium (500)', 'almaseo'); ?></option>
-                                    <option value="600" <?php selected($settings['font_weight'] ?? 'normal', '600'); ?>><?php esc_html_e('Semi-Bold (600)', 'almaseo'); ?></option>
-                                    <option value="bold" <?php selected($settings['font_weight'] ?? 'normal', 'bold'); ?>><?php esc_html_e('Bold (700)', 'almaseo'); ?></option>
+                                    <option value="300" <?php selected($settings['font_weight'] ?? 'normal', '300'); ?>><?php esc_html_e('Light (300)', 'almaseo-seo-playground'); ?></option>
+                                    <option value="normal" <?php selected($settings['font_weight'] ?? 'normal', 'normal'); ?>><?php esc_html_e('Normal (400)', 'almaseo-seo-playground'); ?></option>
+                                    <option value="500" <?php selected($settings['font_weight'] ?? 'normal', '500'); ?>><?php esc_html_e('Medium (500)', 'almaseo-seo-playground'); ?></option>
+                                    <option value="600" <?php selected($settings['font_weight'] ?? 'normal', '600'); ?>><?php esc_html_e('Semi-Bold (600)', 'almaseo-seo-playground'); ?></option>
+                                    <option value="bold" <?php selected($settings['font_weight'] ?? 'normal', 'bold'); ?>><?php esc_html_e('Bold (700)', 'almaseo-seo-playground'); ?></option>
                                 </select>
                             </div>
                             <div>
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                    <?php esc_html_e('Style', 'almaseo'); ?>
+                                    <?php esc_html_e('Style', 'almaseo-seo-playground'); ?>
                                 </label>
                                 <select name="almaseo_breadcrumbs_settings[font_style]" style="min-width: 120px;">
-                                    <option value="normal" <?php selected($settings['font_style'] ?? 'normal', 'normal'); ?>><?php esc_html_e('Normal', 'almaseo'); ?></option>
-                                    <option value="italic" <?php selected($settings['font_style'] ?? 'normal', 'italic'); ?>><?php esc_html_e('Italic', 'almaseo'); ?></option>
+                                    <option value="normal" <?php selected($settings['font_style'] ?? 'normal', 'normal'); ?>><?php esc_html_e('Normal', 'almaseo-seo-playground'); ?></option>
+                                    <option value="italic" <?php selected($settings['font_style'] ?? 'normal', 'italic'); ?>><?php esc_html_e('Italic', 'almaseo-seo-playground'); ?></option>
                                 </select>
                             </div>
                         </div>
                         <!-- Live preview -->
                         <div style="margin-top: 12px; padding: 10px 14px; background: #fff; border: 1px solid #ddd; border-radius: 4px; max-width: 600px;">
-                            <label style="display: block; margin-bottom: 6px; font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.5px;"><?php esc_html_e('Preview', 'almaseo'); ?></label>
+                            <label style="display: block; margin-bottom: 6px; font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.5px;"><?php esc_html_e('Preview', 'almaseo-seo-playground'); ?></label>
                             <div id="almaseo-breadcrumb-font-preview" style="font-size: <?php echo esc_attr($settings['font_size'] ?? '14'); ?>px; font-weight: <?php echo esc_attr($settings['font_weight'] ?? 'normal'); ?>; font-style: <?php echo esc_attr($settings['font_style'] ?? 'normal'); ?>;">
                                 <span style="color: <?php echo esc_attr($settings['color_link'] ?? '#0073aa'); ?>;">Home</span>
                                 <span class="almaseo-sep-char" style="color: <?php echo esc_attr($settings['color_separator'] ?? '#757575'); ?>; margin: 0 6px;"><?php echo $current_sep; ?></span>
@@ -342,12 +342,12 @@ class AlmaSEO_Breadcrumbs_Settings {
                 </tr>
 
                 <tr>
-                    <th scope="row"><?php esc_html_e('Colors', 'almaseo'); ?></th>
+                    <th scope="row"><?php esc_html_e('Colors', 'almaseo-seo-playground'); ?></th>
                     <td>
                         <div style="display: flex; flex-wrap: wrap; gap: 20px;">
                             <div>
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                    <?php esc_html_e('Link Color', 'almaseo'); ?>
+                                    <?php esc_html_e('Link Color', 'almaseo-seo-playground'); ?>
                                 </label>
                                 <input type="text"
                                        name="almaseo_breadcrumbs_settings[color_link]"
@@ -357,7 +357,7 @@ class AlmaSEO_Breadcrumbs_Settings {
                             </div>
                             <div>
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                    <?php esc_html_e('Link Hover Color', 'almaseo'); ?>
+                                    <?php esc_html_e('Link Hover Color', 'almaseo-seo-playground'); ?>
                                 </label>
                                 <input type="text"
                                        name="almaseo_breadcrumbs_settings[color_link_hover]"
@@ -367,7 +367,7 @@ class AlmaSEO_Breadcrumbs_Settings {
                             </div>
                             <div>
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                    <?php esc_html_e('Current Page Color', 'almaseo'); ?>
+                                    <?php esc_html_e('Current Page Color', 'almaseo-seo-playground'); ?>
                                 </label>
                                 <input type="text"
                                        name="almaseo_breadcrumbs_settings[color_text]"
@@ -377,7 +377,7 @@ class AlmaSEO_Breadcrumbs_Settings {
                             </div>
                             <div>
                                 <label style="display: block; margin-bottom: 5px; font-weight: 500;">
-                                    <?php esc_html_e('Separator Color', 'almaseo'); ?>
+                                    <?php esc_html_e('Separator Color', 'almaseo-seo-playground'); ?>
                                 </label>
                                 <input type="text"
                                        name="almaseo_breadcrumbs_settings[color_separator]"
@@ -387,13 +387,13 @@ class AlmaSEO_Breadcrumbs_Settings {
                             </div>
                         </div>
                         <p class="description" style="margin-top: 10px;">
-                            <?php esc_html_e('Click any color field to open the color picker.', 'almaseo'); ?>
+                            <?php esc_html_e('Click any color field to open the color picker.', 'almaseo-seo-playground'); ?>
                         </p>
                     </td>
                 </tr>
 
                 <tr>
-                    <th scope="row"><?php esc_html_e('Styling & Schema', 'almaseo'); ?></th>
+                    <th scope="row"><?php esc_html_e('Styling & Schema', 'almaseo-seo-playground'); ?></th>
                     <td>
                         <fieldset>
                             <label>
@@ -401,10 +401,10 @@ class AlmaSEO_Breadcrumbs_Settings {
                                        name="almaseo_breadcrumbs_settings[include_css]"
                                        value="1"
                                        <?php checked($settings['include_css'], true); ?>>
-                                <?php esc_html_e('Include default CSS styling', 'almaseo'); ?>
+                                <?php esc_html_e('Include default CSS styling', 'almaseo-seo-playground'); ?>
                             </label>
                             <p class="description" style="margin-left: 24px; margin-top: 4px;">
-                                <?php esc_html_e('Disable to use your own styles. Color settings above still apply.', 'almaseo'); ?>
+                                <?php esc_html_e('Disable to use your own styles. Color settings above still apply.', 'almaseo-seo-playground'); ?>
                             </p>
                             <br>
                             <label>
@@ -412,10 +412,10 @@ class AlmaSEO_Breadcrumbs_Settings {
                                        name="almaseo_breadcrumbs_settings[schema_output]"
                                        value="1"
                                        <?php checked($settings['schema_output'], true); ?>>
-                                <?php esc_html_e('Output BreadcrumbList JSON-LD schema', 'almaseo'); ?>
+                                <?php esc_html_e('Output BreadcrumbList JSON-LD schema', 'almaseo-seo-playground'); ?>
                             </label>
                             <p class="description" style="margin-left: 24px; margin-top: 4px;">
-                                <?php esc_html_e('Schema is output only where the shortcode is placed.', 'almaseo'); ?>
+                                <?php esc_html_e('Schema is output only where the shortcode is placed.', 'almaseo-seo-playground'); ?>
                             </p>
                         </fieldset>
                     </td>
@@ -424,21 +424,21 @@ class AlmaSEO_Breadcrumbs_Settings {
 
             <!-- Usage Info Box -->
             <div style="background: #f0f6fc; border: 1px solid #c5d9ed; border-radius: 4px; padding: 15px; margin-top: 20px; max-width: 800px;">
-                <h3 style="margin-top: 0; font-size: 14px; color: #1d4ed8;"><?php esc_html_e('Usage', 'almaseo'); ?></h3>
+                <h3 style="margin-top: 0; font-size: 14px; color: #1d4ed8;"><?php esc_html_e('Usage', 'almaseo-seo-playground'); ?></h3>
 
-                <p style="margin-bottom: 8px;"><strong><?php esc_html_e('Shortcode:', 'almaseo'); ?></strong></p>
+                <p style="margin-bottom: 8px;"><strong><?php esc_html_e('Shortcode:', 'almaseo-seo-playground'); ?></strong></p>
                 <code style="display: inline-block; background: #fff; padding: 6px 12px; border-radius: 3px; font-size: 13px;">[almaseo_breadcrumbs]</code>
 
-                <p style="margin-top: 15px; margin-bottom: 8px;"><strong><?php esc_html_e('Shortcode attributes:', 'almaseo'); ?></strong></p>
+                <p style="margin-top: 15px; margin-bottom: 8px;"><strong><?php esc_html_e('Shortcode attributes:', 'almaseo-seo-playground'); ?></strong></p>
                 <ul style="margin-left: 20px; list-style: disc; color: #4b5563;">
-                    <li><code>separator="/"</code> &mdash; <?php esc_html_e('Custom separator', 'almaseo'); ?></li>
-                    <li><code>home_text="Start"</code> &mdash; <?php esc_html_e('Custom home text', 'almaseo'); ?></li>
-                    <li><code>show_current="no"</code> &mdash; <?php esc_html_e('Hide current page', 'almaseo'); ?></li>
-                    <li><code>schema="no"</code> &mdash; <?php esc_html_e('Disable JSON-LD output', 'almaseo'); ?></li>
-                    <li><code>class="my-class"</code> &mdash; <?php esc_html_e('Add custom CSS class', 'almaseo'); ?></li>
+                    <li><code>separator="/"</code> &mdash; <?php esc_html_e('Custom separator', 'almaseo-seo-playground'); ?></li>
+                    <li><code>home_text="Start"</code> &mdash; <?php esc_html_e('Custom home text', 'almaseo-seo-playground'); ?></li>
+                    <li><code>show_current="no"</code> &mdash; <?php esc_html_e('Hide current page', 'almaseo-seo-playground'); ?></li>
+                    <li><code>schema="no"</code> &mdash; <?php esc_html_e('Disable JSON-LD output', 'almaseo-seo-playground'); ?></li>
+                    <li><code>class="my-class"</code> &mdash; <?php esc_html_e('Add custom CSS class', 'almaseo-seo-playground'); ?></li>
                 </ul>
 
-                <p style="margin-top: 15px; margin-bottom: 8px;"><strong><?php esc_html_e('PHP template tag:', 'almaseo'); ?></strong></p>
+                <p style="margin-top: 15px; margin-bottom: 8px;"><strong><?php esc_html_e('PHP template tag:', 'almaseo-seo-playground'); ?></strong></p>
                 <code style="display: inline-block; background: #fff; padding: 6px 12px; border-radius: 3px; font-size: 13px;">&lt;?php do_action('almaseo_breadcrumbs'); ?&gt;</code>
             </div>
         </div>

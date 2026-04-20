@@ -19,8 +19,8 @@ function almaseo_eg_admin_menu() {
     // Add single submenu under AlmaSEO
     add_submenu_page(
         'seo-playground',
-        __('Evergreen Content', 'almaseo'),
-        __('Evergreen', 'almaseo'),
+        __('Evergreen Content', 'almaseo-seo-playground'),
+        __('Evergreen', 'almaseo-seo-playground'),
         'manage_options',
         'almaseo-evergreen',
         'almaseo_eg_admin_page'
@@ -54,8 +54,8 @@ function almaseo_eg_admin_page() {
     // Fallback to simple message if dashboard function not available
     ?>
     <div class="wrap">
-        <h1><?php _e('Evergreen Content Health', 'almaseo'); ?></h1>
-        <p><?php _e('Dashboard function not available. Please check your installation.', 'almaseo'); ?></p>
+        <h1><?php _e('Evergreen Content Health', 'almaseo-seo-playground'); ?></h1>
+        <p><?php _e('Dashboard function not available. Please check your installation.', 'almaseo-seo-playground'); ?></p>
     </div>
     <?php
 }

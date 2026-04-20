@@ -102,8 +102,8 @@ class AlmaSEO_Crawl_Optimization {
 
         if ( $should_disable ) {
             wp_die(
-                __( 'This feed has been disabled.', 'almaseo' ),
-                __( 'Feed Disabled', 'almaseo' ),
+                __( 'This feed has been disabled.', 'almaseo-seo-playground' ),
+                __( 'Feed Disabled', 'almaseo-seo-playground' ),
                 array( 'response' => 404 )
             );
         }
@@ -113,20 +113,20 @@ class AlmaSEO_Crawl_Optimization {
         $s = self::get_settings();
         ?>
         <div class="almaseo-settings-section">
-            <h2><?php _e( 'Crawl Optimization', 'almaseo' ); ?></h2>
-            <p class="description"><?php _e( 'Remove unnecessary metadata from your site to improve crawl efficiency and reduce page size.', 'almaseo' ); ?></p>
+            <h2><?php _e( 'Crawl Optimization', 'almaseo-seo-playground' ); ?></h2>
+            <p class="description"><?php _e( 'Remove unnecessary metadata from your site to improve crawl efficiency and reduce page size.', 'almaseo-seo-playground' ); ?></p>
 
-            <h3 style="margin-top:20px;"><?php _e( 'Head Cleanup', 'almaseo' ); ?></h3>
+            <h3 style="margin-top:20px;"><?php _e( 'Head Cleanup', 'almaseo-seo-playground' ); ?></h3>
             <table class="form-table">
                 <?php
                 $head_toggles = array(
-                    'remove_emoji'      => __( 'Remove Emoji Scripts', 'almaseo' ),
-                    'remove_rsd'        => __( 'Remove RSD Link', 'almaseo' ),
-                    'remove_wlw'        => __( 'Remove WLW Manifest Link', 'almaseo' ),
-                    'remove_generator'  => __( 'Remove WordPress Generator Tag', 'almaseo' ),
-                    'remove_shortlinks' => __( 'Remove Shortlinks', 'almaseo' ),
-                    'remove_rest_api'   => __( 'Remove REST API Discovery Links', 'almaseo' ),
-                    'remove_oembed'     => __( 'Remove oEmbed Discovery Links', 'almaseo' ),
+                    'remove_emoji'      => __( 'Remove Emoji Scripts', 'almaseo-seo-playground' ),
+                    'remove_rsd'        => __( 'Remove RSD Link', 'almaseo-seo-playground' ),
+                    'remove_wlw'        => __( 'Remove WLW Manifest Link', 'almaseo-seo-playground' ),
+                    'remove_generator'  => __( 'Remove WordPress Generator Tag', 'almaseo-seo-playground' ),
+                    'remove_shortlinks' => __( 'Remove Shortlinks', 'almaseo-seo-playground' ),
+                    'remove_rest_api'   => __( 'Remove REST API Discovery Links', 'almaseo-seo-playground' ),
+                    'remove_oembed'     => __( 'Remove oEmbed Discovery Links', 'almaseo-seo-playground' ),
                 );
                 foreach ( $head_toggles as $key => $label ) : ?>
                 <tr>
@@ -134,23 +134,23 @@ class AlmaSEO_Crawl_Optimization {
                     <td>
                         <label>
                             <input type="checkbox" name="almaseo_crawl_optimization[<?php echo esc_attr( $key ); ?>]" value="1" <?php checked( ! empty( $s[ $key ] ) ); ?> />
-                            <?php _e( 'Enable', 'almaseo' ); ?>
+                            <?php _e( 'Enable', 'almaseo-seo-playground' ); ?>
                         </label>
                     </td>
                 </tr>
                 <?php endforeach; ?>
             </table>
 
-            <h3 style="margin-top:20px;"><?php _e( 'Feed Controls', 'almaseo' ); ?></h3>
+            <h3 style="margin-top:20px;"><?php _e( 'Feed Controls', 'almaseo-seo-playground' ); ?></h3>
             <table class="form-table">
                 <?php
                 $feed_toggles = array(
-                    'disable_rss_global'   => __( 'Disable Global RSS Feed', 'almaseo' ),
-                    'disable_rss_comments' => __( 'Disable Comments Feed', 'almaseo' ),
-                    'disable_rss_author'   => __( 'Disable Author Feeds', 'almaseo' ),
-                    'disable_rss_search'   => __( 'Disable Search Feeds', 'almaseo' ),
-                    'disable_rss_tag'      => __( 'Disable Tag Feeds', 'almaseo' ),
-                    'disable_rss_category' => __( 'Disable Category Feeds', 'almaseo' ),
+                    'disable_rss_global'   => __( 'Disable Global RSS Feed', 'almaseo-seo-playground' ),
+                    'disable_rss_comments' => __( 'Disable Comments Feed', 'almaseo-seo-playground' ),
+                    'disable_rss_author'   => __( 'Disable Author Feeds', 'almaseo-seo-playground' ),
+                    'disable_rss_search'   => __( 'Disable Search Feeds', 'almaseo-seo-playground' ),
+                    'disable_rss_tag'      => __( 'Disable Tag Feeds', 'almaseo-seo-playground' ),
+                    'disable_rss_category' => __( 'Disable Category Feeds', 'almaseo-seo-playground' ),
                 );
                 foreach ( $feed_toggles as $key => $label ) : ?>
                 <tr>
@@ -158,7 +158,7 @@ class AlmaSEO_Crawl_Optimization {
                     <td>
                         <label>
                             <input type="checkbox" name="almaseo_crawl_optimization[<?php echo esc_attr( $key ); ?>]" value="1" <?php checked( ! empty( $s[ $key ] ) ); ?> />
-                            <?php _e( 'Enable', 'almaseo' ); ?>
+                            <?php _e( 'Enable', 'almaseo-seo-playground' ); ?>
                         </label>
                     </td>
                 </tr>

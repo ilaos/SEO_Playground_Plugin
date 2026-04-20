@@ -79,12 +79,12 @@ class AlmaSEO_LLMS_Txt_Controller {
             'nonce'   => wp_create_nonce( 'almaseo_llms_txt_nonce' ),
             'siteUrl' => home_url( '/llms.txt' ),
             'strings' => array(
-                'saving'         => __( 'Saving...', 'almaseo' ),
-                'saved'          => __( 'Settings saved successfully!', 'almaseo' ),
-                'error'          => __( 'An error occurred. Please try again.', 'almaseo' ),
-                'generating'     => __( 'Generating...', 'almaseo' ),
-                'generated'      => __( 'Content generated! Review and save.', 'almaseo' ),
-                'confirmReplace' => __( 'This will replace current content. Continue?', 'almaseo' ),
+                'saving'         => __( 'Saving...', 'almaseo-seo-playground' ),
+                'saved'          => __( 'Settings saved successfully!', 'almaseo-seo-playground' ),
+                'error'          => __( 'An error occurred. Please try again.', 'almaseo-seo-playground' ),
+                'generating'     => __( 'Generating...', 'almaseo-seo-playground' ),
+                'generated'      => __( 'Content generated! Review and save.', 'almaseo-seo-playground' ),
+                'confirmReplace' => __( 'This will replace current content. Continue?', 'almaseo-seo-playground' ),
             ),
         ) );
     }
@@ -94,7 +94,7 @@ class AlmaSEO_LLMS_Txt_Controller {
      */
     public function render_admin_page() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( esc_html__( 'Insufficient permissions.', 'almaseo' ) );
+            wp_die( esc_html__( 'Insufficient permissions.', 'almaseo-seo-playground' ) );
         }
 
         require_once ALMASEO_PATH . 'admin/pages/llms-txt-editor.php';
@@ -136,7 +136,7 @@ class AlmaSEO_LLMS_Txt_Controller {
         check_ajax_referer( 'almaseo_llms_txt_nonce', 'nonce' );
 
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_send_json_error( array( 'message' => __( 'Permission denied.', 'almaseo' ) ) );
+            wp_send_json_error( array( 'message' => __( 'Permission denied.', 'almaseo-seo-playground' ) ) );
         }
 
         $content = isset( $_POST['content'] ) ? sanitize_textarea_field( wp_unslash( $_POST['content'] ) ) : '';
@@ -149,7 +149,7 @@ class AlmaSEO_LLMS_Txt_Controller {
         update_option( 'almaseo_llms_txt_content', $content );
         update_option( 'almaseo_llms_txt_mode', $mode );
 
-        wp_send_json_success( array( 'message' => __( 'Saved.', 'almaseo' ) ) );
+        wp_send_json_success( array( 'message' => __( 'Saved.', 'almaseo-seo-playground' ) ) );
     }
 
     /**
@@ -159,7 +159,7 @@ class AlmaSEO_LLMS_Txt_Controller {
         check_ajax_referer( 'almaseo_llms_txt_nonce', 'nonce' );
 
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_send_json_error( array( 'message' => __( 'Permission denied.', 'almaseo' ) ) );
+            wp_send_json_error( array( 'message' => __( 'Permission denied.', 'almaseo-seo-playground' ) ) );
         }
 
         if ( ! class_exists( 'AlmaSEO_LLMS_Txt_Generator' ) ) {

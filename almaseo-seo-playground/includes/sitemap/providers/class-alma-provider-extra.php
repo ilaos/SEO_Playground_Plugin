@@ -198,7 +198,7 @@ class Alma_Additional_URLs_Storage {
         
         // Validate URL
         if (!filter_var($url, FILTER_VALIDATE_URL)) {
-            return new WP_Error('invalid_url', __('Invalid URL', 'almaseo'));
+            return new WP_Error('invalid_url', __('Invalid URL', 'almaseo-seo-playground'));
         }
         
         // Validate priority
@@ -248,7 +248,7 @@ class Alma_Additional_URLs_Storage {
         
         if (isset($data['url'])) {
             if (!filter_var($data['url'], FILTER_VALIDATE_URL)) {
-                return new WP_Error('invalid_url', __('Invalid URL', 'almaseo'));
+                return new WP_Error('invalid_url', __('Invalid URL', 'almaseo-seo-playground'));
             }
             $update_data['url'] = $data['url'];
             $update_format[] = '%s';
@@ -377,7 +377,7 @@ class Alma_Additional_URLs_Storage {
         }
         
         if (!isset($header_map['url'])) {
-            return new WP_Error('missing_url_column', __('CSV must have a URL column', 'almaseo'));
+            return new WP_Error('missing_url_column', __('CSV must have a URL column', 'almaseo-seo-playground'));
         }
         
         $imported = 0;

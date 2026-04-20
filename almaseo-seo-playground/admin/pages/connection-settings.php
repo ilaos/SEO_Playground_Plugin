@@ -149,7 +149,7 @@ function almaseo_connector_settings_page() {
     echo '<h1>SEO Playground by AlmaSEO - Connection Settings</h1>';
     echo '<p>Connect your WordPress site to AlmaSEO AI for automated content creation and deeper LLM optimization analysis</p>';
     echo '<p style="color: rgba(255,255,255,0.9); font-size: 13px; margin: 8px 0 0;">';
-    esc_html_e('Connect to AlmaSEO Dashboard to unlock AI tools, deeper LLM optimization analysis (more accurate summaries, entities, and trust signals), and enhanced data sources. Core features work without it.', 'almaseo');
+    esc_html_e('Connect to AlmaSEO Dashboard to unlock AI tools, deeper LLM optimization analysis (more accurate summaries, entities, and trust signals), and enhanced data sources. Core features work without it.', 'almaseo-seo-playground');
     echo '</p>';
     echo '</div>';
     echo '<div class="header-logo">';

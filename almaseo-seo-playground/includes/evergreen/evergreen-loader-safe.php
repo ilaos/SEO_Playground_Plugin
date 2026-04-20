@@ -245,9 +245,9 @@ class AlmaSEO_Evergreen_Loader_Safe {
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('almaseo_eg_ajax'),
             'i18n' => array(
-                'updating' => __('Updating...', 'almaseo'),
-                'refreshed' => __('Refreshed!', 'almaseo'),
-                'error' => __('Error', 'almaseo')
+                'updating' => __('Updating...', 'almaseo-seo-playground'),
+                'refreshed' => __('Refreshed!', 'almaseo-seo-playground'),
+                'error' => __('Error', 'almaseo-seo-playground')
             )
         ));
     }

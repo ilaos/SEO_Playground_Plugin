@@ -15,26 +15,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 <div class="wrap almaseo-eeat-wrap">
 
-    <h1 class="almaseo-eeat-title"><?php esc_html_e( 'E-E-A-T Enforcement', 'almaseo' ); ?></h1>
+    <h1 class="almaseo-eeat-title"><?php esc_html_e( 'E-E-A-T Enforcement', 'almaseo-seo-playground' ); ?></h1>
 
     <!-- Feature Intro -->
     <div class="almaseo-eeat-intro">
         <p class="almaseo-eeat-intro-lead">
-            <?php esc_html_e( 'Scan your content for missing trust signals that Google looks for: author attribution, credentials, biographical info, and citation links.', 'almaseo' ); ?>
+            <?php esc_html_e( 'Scan your content for missing trust signals that Google looks for: author attribution, credentials, biographical info, and citation links.', 'almaseo-seo-playground' ); ?>
         </p>
 
         <div class="almaseo-eeat-how-it-works">
-            <h3><?php esc_html_e( 'How it works', 'almaseo' ); ?></h3>
+            <h3><?php esc_html_e( 'How it works', 'almaseo-seo-playground' ); ?></h3>
             <ol>
-                <li><?php esc_html_e( 'Click Scan Now to check all published content for E-E-A-T gaps.', 'almaseo' ); ?></li>
-                <li><?php esc_html_e( 'Review findings — missing authors, empty bios, no credentials, missing schema, and absent citations.', 'almaseo' ); ?></li>
-                <li><?php esc_html_e( 'Fix issues to strengthen Experience, Expertise, Authoritativeness, and Trustworthiness.', 'almaseo' ); ?></li>
+                <li><?php esc_html_e( 'Click Scan Now to check all published content for E-E-A-T gaps.', 'almaseo-seo-playground' ); ?></li>
+                <li><?php esc_html_e( 'Review findings — missing authors, empty bios, no credentials, missing schema, and absent citations.', 'almaseo-seo-playground' ); ?></li>
+                <li><?php esc_html_e( 'Fix issues to strengthen Experience, Expertise, Authoritativeness, and Trustworthiness.', 'almaseo-seo-playground' ); ?></li>
             </ol>
         </div>
 
         <p class="almaseo-eeat-intro-note">
             <span class="dashicons dashicons-info"></span>
-            <?php esc_html_e( 'E-E-A-T is especially important for YMYL (Your Money or Your Life) content. Configure YMYL categories in Settings below for stricter checks.', 'almaseo' ); ?>
+            <?php esc_html_e( 'E-E-A-T is especially important for YMYL (Your Money or Your Life) content. Configure YMYL categories in Settings below for stricter checks.', 'almaseo-seo-playground' ); ?>
         </p>
     </div>
 
@@ -43,22 +43,22 @@ if ( ! defined( 'ABSPATH' ) ) {
         <div class="almaseo-eeat-stat-card">
             <span class="dashicons dashicons-groups"></span>
             <div class="almaseo-eeat-stat-value" id="almaseo-eeat-total">—</div>
-            <div class="almaseo-eeat-stat-label"><?php esc_html_e( 'Total Findings', 'almaseo' ); ?></div>
+            <div class="almaseo-eeat-stat-label"><?php esc_html_e( 'Total Findings', 'almaseo-seo-playground' ); ?></div>
         </div>
         <div class="almaseo-eeat-stat-card almaseo-eeat-stat-high">
             <span class="dashicons dashicons-warning"></span>
             <div class="almaseo-eeat-stat-value" id="almaseo-eeat-high">—</div>
-            <div class="almaseo-eeat-stat-label"><?php esc_html_e( 'High Severity', 'almaseo' ); ?></div>
+            <div class="almaseo-eeat-stat-label"><?php esc_html_e( 'High Severity', 'almaseo-seo-playground' ); ?></div>
         </div>
         <div class="almaseo-eeat-stat-card almaseo-eeat-stat-medium">
             <span class="dashicons dashicons-info"></span>
             <div class="almaseo-eeat-stat-value" id="almaseo-eeat-medium">—</div>
-            <div class="almaseo-eeat-stat-label"><?php esc_html_e( 'Medium Severity', 'almaseo' ); ?></div>
+            <div class="almaseo-eeat-stat-label"><?php esc_html_e( 'Medium Severity', 'almaseo-seo-playground' ); ?></div>
         </div>
         <div class="almaseo-eeat-stat-card almaseo-eeat-stat-low">
             <span class="dashicons dashicons-marker"></span>
             <div class="almaseo-eeat-stat-value" id="almaseo-eeat-low">—</div>
-            <div class="almaseo-eeat-stat-label"><?php esc_html_e( 'Low Severity', 'almaseo' ); ?></div>
+            <div class="almaseo-eeat-stat-label"><?php esc_html_e( 'Low Severity', 'almaseo-seo-playground' ); ?></div>
         </div>
     </div>
 
@@ -66,31 +66,31 @@ if ( ! defined( 'ABSPATH' ) ) {
     <div class="almaseo-eeat-actions">
         <button id="almaseo-eeat-scan" class="button button-primary">
             <span class="dashicons dashicons-search"></span>
-            <?php esc_html_e( 'Scan Now', 'almaseo' ); ?>
+            <?php esc_html_e( 'Scan Now', 'almaseo-seo-playground' ); ?>
         </button>
 
         <select id="almaseo-eeat-status-filter" class="almaseo-eeat-select">
-            <option value=""><?php esc_html_e( 'All statuses', 'almaseo' ); ?></option>
-            <option value="open"><?php esc_html_e( 'Open', 'almaseo' ); ?></option>
-            <option value="resolved"><?php esc_html_e( 'Resolved', 'almaseo' ); ?></option>
-            <option value="dismissed"><?php esc_html_e( 'Dismissed', 'almaseo' ); ?></option>
+            <option value=""><?php esc_html_e( 'All statuses', 'almaseo-seo-playground' ); ?></option>
+            <option value="open"><?php esc_html_e( 'Open', 'almaseo-seo-playground' ); ?></option>
+            <option value="resolved"><?php esc_html_e( 'Resolved', 'almaseo-seo-playground' ); ?></option>
+            <option value="dismissed"><?php esc_html_e( 'Dismissed', 'almaseo-seo-playground' ); ?></option>
         </select>
 
         <select id="almaseo-eeat-severity-filter" class="almaseo-eeat-select">
-            <option value=""><?php esc_html_e( 'All severities', 'almaseo' ); ?></option>
-            <option value="high"><?php esc_html_e( 'High', 'almaseo' ); ?></option>
-            <option value="medium"><?php esc_html_e( 'Medium', 'almaseo' ); ?></option>
-            <option value="low"><?php esc_html_e( 'Low', 'almaseo' ); ?></option>
+            <option value=""><?php esc_html_e( 'All severities', 'almaseo-seo-playground' ); ?></option>
+            <option value="high"><?php esc_html_e( 'High', 'almaseo-seo-playground' ); ?></option>
+            <option value="medium"><?php esc_html_e( 'Medium', 'almaseo-seo-playground' ); ?></option>
+            <option value="low"><?php esc_html_e( 'Low', 'almaseo-seo-playground' ); ?></option>
         </select>
 
         <select id="almaseo-eeat-type-filter" class="almaseo-eeat-select">
-            <option value=""><?php esc_html_e( 'All types', 'almaseo' ); ?></option>
-            <option value="missing_author"><?php esc_html_e( 'Missing Author', 'almaseo' ); ?></option>
-            <option value="missing_bio"><?php esc_html_e( 'Missing Bio', 'almaseo' ); ?></option>
-            <option value="missing_author_schema"><?php esc_html_e( 'Missing Author Schema', 'almaseo' ); ?></option>
-            <option value="missing_credentials"><?php esc_html_e( 'Missing Credentials', 'almaseo' ); ?></option>
-            <option value="no_sources"><?php esc_html_e( 'No Sources', 'almaseo' ); ?></option>
-            <option value="missing_review_date"><?php esc_html_e( 'Missing Review Date', 'almaseo' ); ?></option>
+            <option value=""><?php esc_html_e( 'All types', 'almaseo-seo-playground' ); ?></option>
+            <option value="missing_author"><?php esc_html_e( 'Missing Author', 'almaseo-seo-playground' ); ?></option>
+            <option value="missing_bio"><?php esc_html_e( 'Missing Bio', 'almaseo-seo-playground' ); ?></option>
+            <option value="missing_author_schema"><?php esc_html_e( 'Missing Author Schema', 'almaseo-seo-playground' ); ?></option>
+            <option value="missing_credentials"><?php esc_html_e( 'Missing Credentials', 'almaseo-seo-playground' ); ?></option>
+            <option value="no_sources"><?php esc_html_e( 'No Sources', 'almaseo-seo-playground' ); ?></option>
+            <option value="missing_review_date"><?php esc_html_e( 'Missing Review Date', 'almaseo-seo-playground' ); ?></option>
         </select>
 
         <span class="almaseo-eeat-last-scan" id="almaseo-eeat-last-scan"></span>
@@ -100,16 +100,16 @@ if ( ! defined( 'ABSPATH' ) ) {
     <table class="widefat striped almaseo-eeat-table" id="almaseo-eeat-table">
         <thead>
             <tr>
-                <th><?php esc_html_e( 'Post', 'almaseo' ); ?></th>
-                <th><?php esc_html_e( 'Author', 'almaseo' ); ?></th>
-                <th class="almaseo-eeat-col-finding"><?php esc_html_e( 'Finding', 'almaseo' ); ?></th>
-                <th><?php esc_html_e( 'Severity', 'almaseo' ); ?></th>
-                <th><?php esc_html_e( 'Status', 'almaseo' ); ?></th>
-                <th><?php esc_html_e( 'Actions', 'almaseo' ); ?></th>
+                <th><?php esc_html_e( 'Post', 'almaseo-seo-playground' ); ?></th>
+                <th><?php esc_html_e( 'Author', 'almaseo-seo-playground' ); ?></th>
+                <th class="almaseo-eeat-col-finding"><?php esc_html_e( 'Finding', 'almaseo-seo-playground' ); ?></th>
+                <th><?php esc_html_e( 'Severity', 'almaseo-seo-playground' ); ?></th>
+                <th><?php esc_html_e( 'Status', 'almaseo-seo-playground' ); ?></th>
+                <th><?php esc_html_e( 'Actions', 'almaseo-seo-playground' ); ?></th>
             </tr>
         </thead>
         <tbody id="almaseo-eeat-tbody">
-            <tr><td colspan="6"><?php esc_html_e( 'Loading...', 'almaseo' ); ?></td></tr>
+            <tr><td colspan="6"><?php esc_html_e( 'Loading...', 'almaseo-seo-playground' ); ?></td></tr>
         </tbody>
     </table>
 
@@ -120,45 +120,45 @@ if ( ! defined( 'ABSPATH' ) ) {
     <details class="almaseo-eeat-settings" id="almaseo-eeat-settings">
         <summary class="almaseo-eeat-settings-toggle">
             <span class="dashicons dashicons-admin-generic"></span>
-            <?php esc_html_e( 'Scan Settings', 'almaseo' ); ?>
+            <?php esc_html_e( 'Scan Settings', 'almaseo-seo-playground' ); ?>
         </summary>
         <div class="almaseo-eeat-settings-body">
             <p class="almaseo-eeat-settings-desc">
-                <?php esc_html_e( 'Configure how the E-E-A-T scanner evaluates your content. After changing settings, run a new scan to apply them.', 'almaseo' ); ?>
+                <?php esc_html_e( 'Configure how the E-E-A-T scanner evaluates your content. After changing settings, run a new scan to apply them.', 'almaseo-seo-playground' ); ?>
             </p>
             <div class="almaseo-eeat-setting-row">
-                <label for="almaseo-eeat-s-posttypes"><?php esc_html_e( 'Post Types to Scan', 'almaseo' ); ?></label>
+                <label for="almaseo-eeat-s-posttypes"><?php esc_html_e( 'Post Types to Scan', 'almaseo-seo-playground' ); ?></label>
                 <input type="text" id="almaseo-eeat-s-posttypes" value="post,page,product" style="width:300px;">
-                <span class="almaseo-eeat-setting-help"><?php esc_html_e( 'Comma-separated post types to include in scans. Default: post, page, product.', 'almaseo' ); ?></span>
+                <span class="almaseo-eeat-setting-help"><?php esc_html_e( 'Comma-separated post types to include in scans. Default: post, page, product.', 'almaseo-seo-playground' ); ?></span>
             </div>
             <div class="almaseo-eeat-setting-row">
-                <label for="almaseo-eeat-s-generics"><?php esc_html_e( 'Generic Usernames', 'almaseo' ); ?></label>
+                <label for="almaseo-eeat-s-generics"><?php esc_html_e( 'Generic Usernames', 'almaseo-seo-playground' ); ?></label>
                 <input type="text" id="almaseo-eeat-s-generics" value="admin,editor,webmaster" style="width:300px;">
-                <span class="almaseo-eeat-setting-help"><?php esc_html_e( 'Comma-separated usernames treated as generic (flagged as missing author).', 'almaseo' ); ?></span>
+                <span class="almaseo-eeat-setting-help"><?php esc_html_e( 'Comma-separated usernames treated as generic (flagged as missing author).', 'almaseo-seo-playground' ); ?></span>
             </div>
             <div class="almaseo-eeat-setting-row">
                 <label>
                     <input type="checkbox" id="almaseo-eeat-s-sources" checked>
-                    <?php esc_html_e( 'Check for citation sources (outbound links)', 'almaseo' ); ?>
+                    <?php esc_html_e( 'Check for citation sources (outbound links)', 'almaseo-seo-playground' ); ?>
                 </label>
             </div>
             <div class="almaseo-eeat-setting-row">
                 <label>
                     <input type="checkbox" id="almaseo-eeat-s-review">
-                    <?php esc_html_e( 'Check for review/fact-check attribution (YMYL posts only)', 'almaseo' ); ?>
+                    <?php esc_html_e( 'Check for review/fact-check attribution (YMYL posts only)', 'almaseo-seo-playground' ); ?>
                 </label>
             </div>
             <div class="almaseo-eeat-setting-row">
-                <label for="almaseo-eeat-s-ymyl"><?php esc_html_e( 'YMYL Categories', 'almaseo' ); ?></label>
+                <label for="almaseo-eeat-s-ymyl"><?php esc_html_e( 'YMYL Categories', 'almaseo-seo-playground' ); ?></label>
                 <input type="text" id="almaseo-eeat-s-ymyl" value="" style="width:300px;" placeholder="health,finance,legal">
-                <span class="almaseo-eeat-setting-help"><?php esc_html_e( 'Comma-separated category slugs. Posts in these categories get stricter checks.', 'almaseo' ); ?></span>
+                <span class="almaseo-eeat-setting-help"><?php esc_html_e( 'Comma-separated category slugs. Posts in these categories get stricter checks.', 'almaseo-seo-playground' ); ?></span>
             </div>
             <div class="almaseo-eeat-setting-row">
-                <label for="almaseo-eeat-s-weight"><?php esc_html_e( 'Health Score Weight', 'almaseo' ); ?></label>
+                <label for="almaseo-eeat-s-weight"><?php esc_html_e( 'Health Score Weight', 'almaseo-seo-playground' ); ?></label>
                 <input type="number" id="almaseo-eeat-s-weight" min="0" max="20" value="0" style="width:70px;">
-                <span class="almaseo-eeat-setting-help"><?php esc_html_e( 'Add E-E-A-T as a health signal (0 = disabled, 1–20 = weight). Other weights auto-adjust.', 'almaseo' ); ?></span>
+                <span class="almaseo-eeat-setting-help"><?php esc_html_e( 'Add E-E-A-T as a health signal (0 = disabled, 1–20 = weight). Other weights auto-adjust.', 'almaseo-seo-playground' ); ?></span>
             </div>
-            <button id="almaseo-eeat-save-settings" class="button button-primary"><?php esc_html_e( 'Save Settings', 'almaseo' ); ?></button>
+            <button id="almaseo-eeat-save-settings" class="button button-primary"><?php esc_html_e( 'Save Settings', 'almaseo-seo-playground' ); ?></button>
             <span id="almaseo-eeat-settings-status" class="almaseo-eeat-settings-status"></span>
         </div>
     </details>

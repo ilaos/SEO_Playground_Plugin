@@ -31,8 +31,8 @@ class AlmaSEO_Snippet_Targets_Controller {
     public static function register_menu() {
         add_submenu_page(
             'seo-playground',
-            __( 'Snippet Targets', 'almaseo' ),
-            __( 'Snippet Targets', 'almaseo' ),
+            __( 'Snippet Targets', 'almaseo-seo-playground' ),
+            __( 'Snippet Targets', 'almaseo-seo-playground' ),
             'manage_options',
             self::SLUG,
             array( __CLASS__, 'render' )
@@ -44,7 +44,7 @@ class AlmaSEO_Snippet_Targets_Controller {
      */
     public static function render() {
         if ( ! current_user_can( 'manage_options' ) ) {
-            wp_die( __( 'You do not have sufficient permissions to access this page.', 'almaseo' ) );
+            wp_die( __( 'You do not have sufficient permissions to access this page.', 'almaseo-seo-playground' ) );
         }
 
         // Pro gate.
@@ -87,7 +87,7 @@ class AlmaSEO_Snippet_Targets_Controller {
         wp_localize_script( 'almaseo-snippet-targets', 'almaseoST', array(
             'restBase'   => rest_url( 'almaseo/v1/snippet-targets' ),
             'nonce'      => wp_create_nonce( 'wp_rest' ),
-            'noTargets'  => __( 'No snippet opportunities yet. Connect your site to the AlmaSEO dashboard to receive featured snippet targeting opportunities.', 'almaseo' ),
+            'noTargets'  => __( 'No snippet opportunities yet. Connect your site to the AlmaSEO dashboard to receive featured snippet targeting opportunities.', 'almaseo-seo-playground' ),
         ) );
     }
 }

@@ -135,7 +135,7 @@ class AlmaSEO_TOC_Block {
     public static function render( $attributes, $content ) {
 
         /* ── Defaults ─────────────────────────────────────────────── */
-        $title          = isset( $attributes['title'] )         ? $attributes['title']         : __( 'Table of Contents', 'almaseo' );
+        $title          = isset( $attributes['title'] )         ? $attributes['title']         : __( 'Table of Contents', 'almaseo-seo-playground' );
         $heading_levels = isset( $attributes['headingLevels'] ) ? $attributes['headingLevels'] : array( 2, 3 );
         $list_style     = isset( $attributes['listStyle'] )     ? $attributes['listStyle']     : 'ol';
         $collapsible    = ! empty( $attributes['collapsible'] );

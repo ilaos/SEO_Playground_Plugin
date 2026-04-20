@@ -159,18 +159,18 @@ add_action('admin_enqueue_scripts', function($hook) {
         'ajaxurl' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('almaseo_eg_ajax'),
         'i18n' => array(
-            'updating' => __('Updating...', 'almaseo'),
-            'refreshed' => __('Refreshed!', 'almaseo'),
-            'error' => __('Error', 'almaseo'),
-            'analyzing' => __('Analyzing...', 'almaseo'),
-            'analyze_now' => __('Analyze Now', 'almaseo'),
-            'analysis_complete' => __('Analysis Complete!', 'almaseo'),
-            'error_analyzing' => __('Error analyzing post', 'almaseo'),
-            'network_error' => __('Network error occurred', 'almaseo'),
-            'evergreen' => __('Evergreen', 'almaseo'),
-            'watch' => __('Watch', 'almaseo'),
-            'stale' => __('Stale', 'almaseo'),
-            'last_recalculated_just_now' => __('Last recalculated: just now', 'almaseo')
+            'updating' => __('Updating...', 'almaseo-seo-playground'),
+            'refreshed' => __('Refreshed!', 'almaseo-seo-playground'),
+            'error' => __('Error', 'almaseo-seo-playground'),
+            'analyzing' => __('Analyzing...', 'almaseo-seo-playground'),
+            'analyze_now' => __('Analyze Now', 'almaseo-seo-playground'),
+            'analysis_complete' => __('Analysis Complete!', 'almaseo-seo-playground'),
+            'error_analyzing' => __('Error analyzing post', 'almaseo-seo-playground'),
+            'network_error' => __('Network error occurred', 'almaseo-seo-playground'),
+            'evergreen' => __('Evergreen', 'almaseo-seo-playground'),
+            'watch' => __('Watch', 'almaseo-seo-playground'),
+            'stale' => __('Stale', 'almaseo-seo-playground'),
+            'last_recalculated_just_now' => __('Last recalculated: just now', 'almaseo-seo-playground')
         )
     ));
 });

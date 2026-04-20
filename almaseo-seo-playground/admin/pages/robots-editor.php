@@ -36,7 +36,7 @@ if ($physical_exists) {
 
 <div class="wrap almaseo-robots-editor">
     <h1>
-        <?php echo esc_html__('Robots.txt Editor', 'almaseo'); ?>
+        <?php echo esc_html__('Robots.txt Editor', 'almaseo-seo-playground'); ?>
         <span class="almaseo-badge">AlmaSEO</span>
     </h1>
     
@@ -44,13 +44,13 @@ if ($physical_exists) {
     // Include UI helpers if not already included
     if (function_exists('almaseo_render_help')) {
         almaseo_render_help(
-            __('This controls what search engines can crawl. Most sites allow all public pages and block /wp-admin/. Use Virtual Mode if you\'re unsure.', 'almaseo'),
-            __('If a physical robots.txt exists, it overrides the virtual one served by WordPress.', 'almaseo')
+            __('This controls what search engines can crawl. Most sites allow all public pages and block /wp-admin/. Use Virtual Mode if you\'re unsure.', 'almaseo-seo-playground'),
+            __('If a physical robots.txt exists, it overrides the virtual one served by WordPress.', 'almaseo-seo-playground')
         );
     } else {
         ?>
         <p class="description">
-            <?php echo esc_html__('Control how search engines crawl your site by managing your robots.txt file.', 'almaseo'); ?>
+            <?php echo esc_html__('Control how search engines crawl your site by managing your robots.txt file.', 'almaseo-seo-playground'); ?>
         </p>
         <?php
     }
@@ -59,10 +59,10 @@ if ($physical_exists) {
     <?php if ($physical_exists && $mode === 'virtual'): ?>
     <div class="notice notice-warning">
         <p>
-            <strong><?php echo esc_html__('Warning:', 'almaseo'); ?></strong>
-            <?php echo esc_html__('A physical robots.txt file exists at', 'almaseo'); ?> 
+            <strong><?php echo esc_html__('Warning:', 'almaseo-seo-playground'); ?></strong>
+            <?php echo esc_html__('A physical robots.txt file exists at', 'almaseo-seo-playground'); ?> 
             <code><?php echo esc_html($file_path); ?></code>. 
-            <?php echo esc_html__('WordPress will serve this file regardless of your virtual mode settings. Consider switching to Physical mode to edit the file directly, or delete the physical file to use virtual mode.', 'almaseo'); ?>
+            <?php echo esc_html__('WordPress will serve this file regardless of your virtual mode settings. Consider switching to Physical mode to edit the file directly, or delete the physical file to use virtual mode.', 'almaseo-seo-playground'); ?>
         </p>
     </div>
     <?php endif; ?>
@@ -70,8 +70,8 @@ if ($physical_exists) {
     <?php if (!$is_writable && $mode === 'file'): ?>
     <div class="notice notice-error">
         <p>
-            <strong><?php echo esc_html__('Error:', 'almaseo'); ?></strong>
-            <?php echo esc_html__('The robots.txt file or directory is not writable. Physical mode has been disabled. Please check file permissions or use Virtual mode.', 'almaseo'); ?>
+            <strong><?php echo esc_html__('Error:', 'almaseo-seo-playground'); ?></strong>
+            <?php echo esc_html__('The robots.txt file or directory is not writable. Physical mode has been disabled. Please check file permissions or use Virtual mode.', 'almaseo-seo-playground'); ?>
         </p>
     </div>
     <?php endif; ?>
@@ -80,15 +80,15 @@ if ($physical_exists) {
         
         <!-- Mode Selection Card -->
         <div class="card">
-            <h2><?php echo esc_html__('Mode Selection', 'almaseo'); ?></h2>
+            <h2><?php echo esc_html__('Mode Selection', 'almaseo-seo-playground'); ?></h2>
             
             <div class="almaseo-mode-selector">
                 <label class="mode-option">
                     <input type="radio" name="robots_mode" value="virtual" <?php checked($mode, 'virtual'); ?>>
                     <div class="mode-content">
-                        <strong><?php echo esc_html__('Virtual Mode', 'almaseo'); ?></strong>
-                        <span class="recommended"><?php echo esc_html__('(Recommended)', 'almaseo'); ?></span>
-                        <p><?php echo esc_html__('Serve robots.txt content via WordPress without creating a physical file. Safe and portable.', 'almaseo'); ?></p>
+                        <strong><?php echo esc_html__('Virtual Mode', 'almaseo-seo-playground'); ?></strong>
+                        <span class="recommended"><?php echo esc_html__('(Recommended)', 'almaseo-seo-playground'); ?></span>
+                        <p><?php echo esc_html__('Serve robots.txt content via WordPress without creating a physical file. Safe and portable.', 'almaseo-seo-playground'); ?></p>
                     </div>
                 </label>
                 
@@ -97,32 +97,32 @@ if ($physical_exists) {
                            <?php checked($mode, 'file'); ?>
                            <?php echo !$is_writable ? 'disabled' : ''; ?>>
                     <div class="mode-content">
-                        <strong><?php echo esc_html__('Physical File Mode', 'almaseo'); ?></strong>
-                        <p><?php echo esc_html__('Write directly to robots.txt file in your site root. Requires write permissions.', 'almaseo'); ?></p>
+                        <strong><?php echo esc_html__('Physical File Mode', 'almaseo-seo-playground'); ?></strong>
+                        <p><?php echo esc_html__('Write directly to robots.txt file in your site root. Requires write permissions.', 'almaseo-seo-playground'); ?></p>
                         <?php if (!$is_writable): ?>
-                        <p class="error-text"><?php echo esc_html__('Not available - insufficient permissions', 'almaseo'); ?></p>
+                        <p class="error-text"><?php echo esc_html__('Not available - insufficient permissions', 'almaseo-seo-playground'); ?></p>
                         <?php endif; ?>
                     </div>
                 </label>
             </div>
             
             <div class="mode-status">
-                <h3><?php echo esc_html__('Current Status', 'almaseo'); ?></h3>
+                <h3><?php echo esc_html__('Current Status', 'almaseo-seo-playground'); ?></h3>
                 <ul>
                     <li>
-                        <?php echo esc_html__('Mode:', 'almaseo'); ?> 
-                        <strong><?php echo $mode === 'virtual' ? esc_html__('Virtual', 'almaseo') : esc_html__('Physical', 'almaseo'); ?></strong>
+                        <?php echo esc_html__('Mode:', 'almaseo-seo-playground'); ?> 
+                        <strong><?php echo $mode === 'virtual' ? esc_html__('Virtual', 'almaseo-seo-playground') : esc_html__('Physical', 'almaseo-seo-playground'); ?></strong>
                     </li>
                     <li>
-                        <?php echo esc_html__('Physical file exists:', 'almaseo'); ?> 
-                        <strong><?php echo $physical_exists ? esc_html__('Yes', 'almaseo') : esc_html__('No', 'almaseo'); ?></strong>
+                        <?php echo esc_html__('Physical file exists:', 'almaseo-seo-playground'); ?> 
+                        <strong><?php echo $physical_exists ? esc_html__('Yes', 'almaseo-seo-playground') : esc_html__('No', 'almaseo-seo-playground'); ?></strong>
                     </li>
                     <li>
-                        <?php echo esc_html__('File writable:', 'almaseo'); ?> 
-                        <strong><?php echo $is_writable ? esc_html__('Yes', 'almaseo') : esc_html__('No', 'almaseo'); ?></strong>
+                        <?php echo esc_html__('File writable:', 'almaseo-seo-playground'); ?> 
+                        <strong><?php echo $is_writable ? esc_html__('Yes', 'almaseo-seo-playground') : esc_html__('No', 'almaseo-seo-playground'); ?></strong>
                     </li>
                     <li>
-                        <?php echo esc_html__('File path:', 'almaseo'); ?> 
+                        <?php echo esc_html__('File path:', 'almaseo-seo-playground'); ?> 
                         <code><?php echo esc_html($file_path); ?></code>
                     </li>
                 </ul>
@@ -131,17 +131,17 @@ if ($physical_exists) {
         
         <!-- Editor Card -->
         <div class="card">
-            <h2><?php echo esc_html__('Robots.txt Content', 'almaseo'); ?></h2>
+            <h2><?php echo esc_html__('Robots.txt Content', 'almaseo-seo-playground'); ?></h2>
             
             <div class="editor-toolbar">
                 <button type="button" class="button" id="insert-defaults">
-                    <?php echo esc_html__('Insert AlmaSEO Defaults', 'almaseo'); ?>
+                    <?php echo esc_html__('Insert AlmaSEO Defaults', 'almaseo-seo-playground'); ?>
                 </button>
                 <button type="button" class="button" id="reset-wp-default">
-                    <?php echo esc_html__('Reset to WordPress Default', 'almaseo'); ?>
+                    <?php echo esc_html__('Reset to WordPress Default', 'almaseo-seo-playground'); ?>
                 </button>
                 <button type="button" class="button" id="test-output">
-                    <?php echo esc_html__('Test Output', 'almaseo'); ?>
+                    <?php echo esc_html__('Test Output', 'almaseo-seo-playground'); ?>
                 </button>
             </div>
             
@@ -149,20 +149,20 @@ if ($physical_exists) {
                 <textarea id="robots-content" name="robots_content" rows="20" class="large-text code"><?php echo esc_textarea($content); ?></textarea>
                 
                 <div class="editor-help">
-                    <h4><?php echo esc_html__('Quick Reference:', 'almaseo'); ?></h4>
+                    <h4><?php echo esc_html__('Quick Reference:', 'almaseo-seo-playground'); ?></h4>
                     <ul>
-                        <li><code>User-agent: *</code> - <?php echo esc_html__('Applies to all crawlers', 'almaseo'); ?></li>
-                        <li><code>Disallow: /path/</code> - <?php echo esc_html__('Block access to path', 'almaseo'); ?></li>
-                        <li><code>Allow: /path/</code> - <?php echo esc_html__('Allow access to path', 'almaseo'); ?></li>
-                        <li><code>Sitemap: <?php echo esc_url(home_url('/sitemap.xml')); ?></code> - <?php echo esc_html__('Sitemap location', 'almaseo'); ?></li>
-                        <li><code>Crawl-delay: 10</code> - <?php echo esc_html__('Delay between requests (seconds)', 'almaseo'); ?></li>
+                        <li><code>User-agent: *</code> - <?php echo esc_html__('Applies to all crawlers', 'almaseo-seo-playground'); ?></li>
+                        <li><code>Disallow: /path/</code> - <?php echo esc_html__('Block access to path', 'almaseo-seo-playground'); ?></li>
+                        <li><code>Allow: /path/</code> - <?php echo esc_html__('Allow access to path', 'almaseo-seo-playground'); ?></li>
+                        <li><code>Sitemap: <?php echo esc_url(home_url('/sitemap.xml')); ?></code> - <?php echo esc_html__('Sitemap location', 'almaseo-seo-playground'); ?></li>
+                        <li><code>Crawl-delay: 10</code> - <?php echo esc_html__('Delay between requests (seconds)', 'almaseo-seo-playground'); ?></li>
                     </ul>
                 </div>
             </div>
             
             <div class="submit-container">
                 <button type="button" class="button button-primary" id="save-robots">
-                    <?php echo esc_html__('Save Changes', 'almaseo'); ?>
+                    <?php echo esc_html__('Save Changes', 'almaseo-seo-playground'); ?>
                 </button>
                 <span class="spinner"></span>
                 <div class="save-message"></div>
@@ -171,7 +171,7 @@ if ($physical_exists) {
         
         <!-- Preview Card -->
         <div class="card" id="preview-card" style="display: none;">
-            <h2><?php echo esc_html__('Output Preview', 'almaseo'); ?></h2>
+            <h2><?php echo esc_html__('Output Preview', 'almaseo-seo-playground'); ?></h2>
             
             <div class="preview-status"></div>
             
@@ -181,7 +181,7 @@ if ($physical_exists) {
             
             <div class="preview-actions">
                 <a href="<?php echo esc_url(home_url('/robots.txt')); ?>" target="_blank" class="button">
-                    <?php echo esc_html__('View Live robots.txt', 'almaseo'); ?> ↗
+                    <?php echo esc_html__('View Live robots.txt', 'almaseo-seo-playground'); ?> ↗
                 </a>
             </div>
         </div>
@@ -189,15 +189,15 @@ if ($physical_exists) {
         <?php if ($physical_exists && $mode === 'virtual'): ?>
         <!-- Physical File Content (Read-only) -->
         <div class="card warning-card">
-            <h2><?php echo esc_html__('Physical File Content (Read-only)', 'almaseo'); ?></h2>
+            <h2><?php echo esc_html__('Physical File Content (Read-only)', 'almaseo-seo-playground'); ?></h2>
             <p class="description">
-                <?php echo esc_html__('This is the content of the physical robots.txt file that is currently being served:', 'almaseo'); ?>
+                <?php echo esc_html__('This is the content of the physical robots.txt file that is currently being served:', 'almaseo-seo-playground'); ?>
             </p>
             <div class="physical-content-container">
                 <pre class="physical-content"><?php echo esc_html($physical_content); ?></pre>
             </div>
             <p class="description">
-                <?php echo esc_html__('To edit this content, switch to Physical mode above.', 'almaseo'); ?>
+                <?php echo esc_html__('To edit this content, switch to Physical mode above.', 'almaseo-seo-playground'); ?>
             </p>
         </div>
         <?php endif; ?>

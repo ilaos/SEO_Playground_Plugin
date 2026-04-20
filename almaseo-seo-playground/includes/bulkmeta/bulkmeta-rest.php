@@ -264,7 +264,7 @@ class BulkMeta_REST {
         if (!almaseo_is_pro()) {
             return new \WP_Error(
                 'pro_required',
-                __('This feature requires AlmaSEO Pro.', 'almaseo'),
+                __('This feature requires AlmaSEO Pro.', 'almaseo-seo-playground'),
                 array('status' => 403)
             );
         }
@@ -449,7 +449,7 @@ class BulkMeta_REST {
         if (empty($data)) {
             return new \WP_Error(
                 'no_data',
-                __('No data provided.', 'almaseo'),
+                __('No data provided.', 'almaseo-seo-playground'),
                 array('status' => 400)
             );
         }

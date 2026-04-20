@@ -169,14 +169,14 @@ class Alma_IndexNow {
      */
     public function create_key_file() {
         if (empty($this->settings['key'])) {
-            return array('success' => false, 'message' => __('No IndexNow key configured', 'almaseo'));
+            return array('success' => false, 'message' => __('No IndexNow key configured', 'almaseo-seo-playground'));
         }
 
         $key = $this->settings['key'];
         $filename = sanitize_file_name($key . '.txt');
         // Prevent path traversal
         if ($filename !== $key . '.txt') {
-            return array('success' => false, 'message' => __('Invalid IndexNow key format. Use only alphanumeric characters and hyphens.', 'almaseo'));
+            return array('success' => false, 'message' => __('Invalid IndexNow key format. Use only alphanumeric characters and hyphens.', 'almaseo-seo-playground'));
         }
         $filepath = ABSPATH . $filename;
         
@@ -186,13 +186,13 @@ class Alma_IndexNow {
         if ($result === false) {
             return array(
                 'success' => false,
-                'message' => sprintf(__('Failed to create key file at %s', 'almaseo'), $filepath)
+                'message' => sprintf(__('Failed to create key file at %s', 'almaseo-seo-playground'), $filepath)
             );
         }
         
         return array(
             'success' => true,
-            'message' => __('IndexNow key file created successfully', 'almaseo'),
+            'message' => __('IndexNow key file created successfully', 'almaseo-seo-playground'),
             'path' => $filepath,
             'url' => home_url('/' . $filename)
         );
@@ -209,7 +209,7 @@ class Alma_IndexNow {
         if (!$this->settings['enabled']) {
             return array(
                 'success' => false,
-                'message' => __('IndexNow is not enabled', 'almaseo')
+                'message' => __('IndexNow is not enabled', 'almaseo-seo-playground')
             );
         }
         
@@ -217,7 +217,7 @@ class Alma_IndexNow {
         if (empty($this->settings['key'])) {
             return array(
                 'success' => false,
-                'message' => __('IndexNow key not configured', 'almaseo')
+                'message' => __('IndexNow key not configured', 'almaseo-seo-playground')
             );
         }
         
@@ -277,7 +277,7 @@ class Alma_IndexNow {
             
             return array(
                 'success' => false,
-                'message' => sprintf(__('IndexNow submission failed: %s', 'almaseo'), $response->get_error_message())
+                'message' => sprintf(__('IndexNow submission failed: %s', 'almaseo-seo-playground'), $response->get_error_message())
             );
         }
         
@@ -295,7 +295,7 @@ class Alma_IndexNow {
             return array(
                 'success' => true,
                 'message' => sprintf(
-                    __('Successfully submitted %d URLs to IndexNow', 'almaseo'),
+                    __('Successfully submitted %d URLs to IndexNow', 'almaseo-seo-playground'),
                     count($urls)
                 ),
                 'count' => count($urls),
@@ -326,15 +326,15 @@ class Alma_IndexNow {
     private function get_error_message($status_code, $body) {
         switch ($status_code) {
             case 400:
-                return __('Invalid request format', 'almaseo');
+                return __('Invalid request format', 'almaseo-seo-playground');
             case 403:
-                return __('Invalid or missing API key', 'almaseo');
+                return __('Invalid or missing API key', 'almaseo-seo-playground');
             case 422:
-                return __('URLs do not belong to this host or key location is invalid', 'almaseo');
+                return __('URLs do not belong to this host or key location is invalid', 'almaseo-seo-playground');
             case 429:
-                return __('Too many requests - please try again later', 'almaseo');
+                return __('Too many requests - please try again later', 'almaseo-seo-playground');
             default:
-                return sprintf(__('IndexNow returned status %d', 'almaseo'), $status_code);
+                return sprintf(__('IndexNow returned status %d', 'almaseo-seo-playground'), $status_code);
         }
     }
     

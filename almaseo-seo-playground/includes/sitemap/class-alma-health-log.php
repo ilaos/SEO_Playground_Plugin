@@ -78,7 +78,7 @@ class Alma_Health_Log {
      */
     public static function clear_logs() {
         delete_option(self::LOG_OPTION);
-        self::log('system', __('Logs cleared', 'almaseo'));
+        self::log('system', __('Logs cleared', 'almaseo-seo-playground'));
     }
     
     /**
@@ -119,7 +119,7 @@ class Alma_Health_Log {
      */
     public static function log_build($provider, $urls, $duration_ms) {
         self::log('build', sprintf(
-            __('Built %s sitemap: %d URLs in %dms', 'almaseo'),
+            __('Built %s sitemap: %d URLs in %dms', 'almaseo-seo-playground'),
             $provider,
             $urls,
             $duration_ms
@@ -135,8 +135,8 @@ class Alma_Health_Log {
      */
     public static function log_validation($type, $ok, $issues = 0) {
         $message = $ok ? 
-            sprintf(__('%s validation passed', 'almaseo'), ucfirst($type)) :
-            sprintf(__('%s validation failed: %d issues', 'almaseo'), ucfirst($type), $issues);
+            sprintf(__('%s validation passed', 'almaseo-seo-playground'), ucfirst($type)) :
+            sprintf(__('%s validation failed: %d issues', 'almaseo-seo-playground'), ucfirst($type), $issues);
         
         self::log('validate', $message, array(
             'type' => $type,
@@ -150,8 +150,8 @@ class Alma_Health_Log {
      */
     public static function log_indexnow($urls_count, $success) {
         $message = $success ?
-            sprintf(__('IndexNow: Submitted %d URLs', 'almaseo'), $urls_count) :
-            sprintf(__('IndexNow: Failed to submit %d URLs', 'almaseo'), $urls_count);
+            sprintf(__('IndexNow: Submitted %d URLs', 'almaseo-seo-playground'), $urls_count) :
+            sprintf(__('IndexNow: Failed to submit %d URLs', 'almaseo-seo-playground'), $urls_count);
         
         self::log('indexnow', $message, array(
             'urls' => $urls_count,
@@ -164,7 +164,7 @@ class Alma_Health_Log {
      */
     public static function log_news_refresh($items, $duration_ms) {
         self::log('news_refresh', sprintf(
-            __('News sitemap refreshed: %d items in %dms', 'almaseo'),
+            __('News sitemap refreshed: %d items in %dms', 'almaseo-seo-playground'),
             $items,
             $duration_ms
         ), array(
@@ -178,7 +178,7 @@ class Alma_Health_Log {
      */
     public static function log_error($context, $error_message) {
         self::log('error', sprintf(
-            __('Error in %s: %s', 'almaseo'),
+            __('Error in %s: %s', 'almaseo-seo-playground'),
             $context,
             $error_message
         ), array(

@@ -248,7 +248,8 @@ class AlmaSEO_Update_Manager {
             
             wp_send_json_success(array(
                 'channel' => $channel,
-                'message' => sprintf(__('Update channel changed to %s', 'almaseo'), ucfirst($channel))
+                /* translators: %s: update channel name (e.g. Stable, Beta) */
+                'message' => sprintf(__('Update channel changed to %s', 'almaseo-seo-playground'), ucfirst($channel))
             ));
         } else {
             wp_send_json_error('Invalid channel');
@@ -288,7 +289,7 @@ class AlmaSEO_Update_Manager {
     public function maybe_show_update_notice() {
         // Only on AlmaSEO pages
         $screen = get_current_screen();
-        if (!$screen || strpos($screen->id, 'almaseo') === false) {
+        if (!$screen || strpos($screen->id, 'almaseo-seo-playground') === false) {
             return;
         }
         
@@ -301,9 +302,9 @@ class AlmaSEO_Update_Manager {
                 ?>
                 <div class="notice notice-info is-dismissible" id="almaseo-update-notice">
                     <p>
-                        <?php _e('AlmaSEO auto-update check is overdue.', 'almaseo'); ?>
+                        <?php _e('AlmaSEO auto-update check is overdue.', 'almaseo-seo-playground'); ?>
                         <a href="#" class="almaseo-check-updates-now">
-                            <?php _e('Check now', 'almaseo'); ?>
+                            <?php _e('Check now', 'almaseo-seo-playground'); ?>
                         </a>
                     </p>
                 </div>
