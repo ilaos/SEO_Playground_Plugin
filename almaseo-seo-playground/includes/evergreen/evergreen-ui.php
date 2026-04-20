@@ -186,7 +186,7 @@ function almaseo_eg_admin_notices() {
     }
     ?>
     <div class="notice notice-warning is-dismissible almaseo-eg-notice">
-        <p><strong><?php _e('Evergreen Content Updates:', 'almaseo-seo-playground'); ?></strong></p>
+        <p><strong><?php esc_html_e('Evergreen Content Updates:', 'almaseo-seo-playground'); ?></strong></p>
         <ul style="margin: 5px 0 5px 20px;">
             <?php foreach ($recent_changes as $change): ?>
             <li>
@@ -201,7 +201,7 @@ function almaseo_eg_admin_notices() {
                 );
                 ?>
                 <a href="<?php echo get_edit_post_link($change['post_id']); ?>" style="margin-left: 5px;">
-                    <?php _e('Edit', 'almaseo-seo-playground'); ?>
+                    <?php esc_html_e('Edit', 'almaseo-seo-playground'); ?>
                 </a>
             </li>
             <?php endforeach; ?>
@@ -258,11 +258,11 @@ function almaseo_eg_settings_page_content() {
     $stats = almaseo_eg_get_stats();
     ?>
     <div class="wrap">
-        <h1><?php _e('Evergreen Content Tracker', 'almaseo-seo-playground'); ?></h1>
+        <h1><?php esc_html_e('Evergreen Content Tracker', 'almaseo-seo-playground'); ?></h1>
         
         <!-- Stats Overview -->
         <div class="almaseo-eg-stats-card" style="margin: 20px 0;">
-            <h2><?php _e('Content Health Overview', 'almaseo-seo-playground'); ?></h2>
+            <h2><?php esc_html_e('Content Health Overview', 'almaseo-seo-playground'); ?></h2>
             
             <div class="almaseo-eg-progress">
                 <?php
@@ -288,30 +288,30 @@ function almaseo_eg_settings_page_content() {
             <table class="widefat" style="margin-top: 20px;">
                 <thead>
                     <tr>
-                        <th><?php _e('Status', 'almaseo-seo-playground'); ?></th>
-                        <th><?php _e('Count', 'almaseo-seo-playground'); ?></th>
-                        <th><?php _e('Percentage', 'almaseo-seo-playground'); ?></th>
-                        <th><?php _e('Action', 'almaseo-seo-playground'); ?></th>
+                        <th><?php esc_html_e('Status', 'almaseo-seo-playground'); ?></th>
+                        <th><?php esc_html_e('Count', 'almaseo-seo-playground'); ?></th>
+                        <th><?php esc_html_e('Percentage', 'almaseo-seo-playground'); ?></th>
+                        <th><?php esc_html_e('Action', 'almaseo-seo-playground'); ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td><span class="almaseo-eg-pill almaseo-eg-evergreen">🟢 <?php _e('Evergreen', 'almaseo-seo-playground'); ?></span></td>
+                        <td><span class="almaseo-eg-pill almaseo-eg-evergreen">🟢 <?php esc_html_e('Evergreen', 'almaseo-seo-playground'); ?></span></td>
                         <td><?php echo esc_html($stats['evergreen']); ?></td>
                         <td><?php echo round($evergreen_pct, 1); ?>%</td>
-                        <td><a href="<?php echo admin_url('edit.php?evergreen_filter=evergreen'); ?>"><?php _e('View', 'almaseo-seo-playground'); ?></a></td>
+                        <td><a href="<?php echo admin_url('edit.php?evergreen_filter=evergreen'); ?>"><?php esc_html_e('View', 'almaseo-seo-playground'); ?></a></td>
                     </tr>
                     <tr>
-                        <td><span class="almaseo-eg-pill almaseo-eg-watch">🟡 <?php _e('Watch', 'almaseo-seo-playground'); ?></span></td>
+                        <td><span class="almaseo-eg-pill almaseo-eg-watch">🟡 <?php esc_html_e('Watch', 'almaseo-seo-playground'); ?></span></td>
                         <td><?php echo esc_html($stats['watch']); ?></td>
                         <td><?php echo round($watch_pct, 1); ?>%</td>
-                        <td><a href="<?php echo admin_url('edit.php?evergreen_filter=watch'); ?>"><?php _e('View', 'almaseo-seo-playground'); ?></a></td>
+                        <td><a href="<?php echo admin_url('edit.php?evergreen_filter=watch'); ?>"><?php esc_html_e('View', 'almaseo-seo-playground'); ?></a></td>
                     </tr>
                     <tr>
-                        <td><span class="almaseo-eg-pill almaseo-eg-stale">🔴 <?php _e('Stale', 'almaseo-seo-playground'); ?></span></td>
+                        <td><span class="almaseo-eg-pill almaseo-eg-stale">🔴 <?php esc_html_e('Stale', 'almaseo-seo-playground'); ?></span></td>
                         <td><?php echo esc_html($stats['stale']); ?></td>
                         <td><?php echo round($stale_pct, 1); ?>%</td>
-                        <td><a href="<?php echo admin_url('edit.php?evergreen_filter=stale'); ?>"><?php _e('View', 'almaseo-seo-playground'); ?></a></td>
+                        <td><a href="<?php echo admin_url('edit.php?evergreen_filter=stale'); ?>"><?php esc_html_e('View', 'almaseo-seo-playground'); ?></a></td>
                     </tr>
                 </tbody>
             </table>
@@ -319,7 +319,7 @@ function almaseo_eg_settings_page_content() {
         
         <!-- Settings -->
         <div class="almaseo-eg-stats-card">
-            <h2><?php _e('Settings', 'almaseo-seo-playground'); ?></h2>
+            <h2><?php esc_html_e('Settings', 'almaseo-seo-playground'); ?></h2>
             
             <form method="post" action="">
                 <?php wp_nonce_field('almaseo_eg_settings'); ?>
@@ -327,65 +327,65 @@ function almaseo_eg_settings_page_content() {
                 <table class="form-table">
                     <tr>
                         <th scope="row">
-                            <label for="watch_days"><?php _e('Watch Threshold (Days)', 'almaseo-seo-playground'); ?></label>
+                            <label for="watch_days"><?php esc_html_e('Watch Threshold (Days)', 'almaseo-seo-playground'); ?></label>
                         </th>
                         <td>
                             <input type="number" id="watch_days" name="watch_days" 
                                    value="<?php echo esc_attr($settings['watch_days']); ?>" 
                                    min="30" max="365" />
                             <p class="description">
-                                <?php _e('Posts not updated for this many days will be marked as "Watch"', 'almaseo-seo-playground'); ?>
+                                <?php esc_html_e('Posts not updated for this many days will be marked as "Watch"', 'almaseo-seo-playground'); ?>
                             </p>
                         </td>
                     </tr>
                     <tr>
                         <th scope="row">
-                            <label for="stale_days"><?php _e('Stale Threshold (Days)', 'almaseo-seo-playground'); ?></label>
+                            <label for="stale_days"><?php esc_html_e('Stale Threshold (Days)', 'almaseo-seo-playground'); ?></label>
                         </th>
                         <td>
                             <input type="number" id="stale_days" name="stale_days" 
                                    value="<?php echo esc_attr($settings['stale_days']); ?>" 
                                    min="90" max="730" />
                             <p class="description">
-                                <?php _e('Posts not updated for this many days will be marked as "Stale"', 'almaseo-seo-playground'); ?>
+                                <?php esc_html_e('Posts not updated for this many days will be marked as "Stale"', 'almaseo-seo-playground'); ?>
                             </p>
                         </td>
                     </tr>
                     <tr>
                         <th scope="row">
-                            <label for="watch_traffic_drop"><?php _e('Watch Traffic Drop (%)', 'almaseo-seo-playground'); ?></label>
+                            <label for="watch_traffic_drop"><?php esc_html_e('Watch Traffic Drop (%)', 'almaseo-seo-playground'); ?></label>
                         </th>
                         <td>
                             <input type="number" id="watch_traffic_drop" name="watch_traffic_drop" 
                                    value="<?php echo esc_attr($settings['watch_traffic_drop']); ?>" 
                                    min="10" max="50" step="5" />
                             <p class="description">
-                                <?php _e('Traffic drop percentage to trigger "Watch" status', 'almaseo-seo-playground'); ?>
+                                <?php esc_html_e('Traffic drop percentage to trigger "Watch" status', 'almaseo-seo-playground'); ?>
                             </p>
                         </td>
                     </tr>
                     <tr>
                         <th scope="row">
-                            <label for="stale_traffic_drop"><?php _e('Stale Traffic Drop (%)', 'almaseo-seo-playground'); ?></label>
+                            <label for="stale_traffic_drop"><?php esc_html_e('Stale Traffic Drop (%)', 'almaseo-seo-playground'); ?></label>
                         </th>
                         <td>
                             <input type="number" id="stale_traffic_drop" name="stale_traffic_drop" 
                                    value="<?php echo esc_attr($settings['stale_traffic_drop']); ?>" 
                                    min="20" max="80" step="5" />
                             <p class="description">
-                                <?php _e('Traffic drop percentage to trigger "Stale" status', 'almaseo-seo-playground'); ?>
+                                <?php esc_html_e('Traffic drop percentage to trigger "Stale" status', 'almaseo-seo-playground'); ?>
                             </p>
                         </td>
                     </tr>
                     <tr>
                         <th scope="row">
-                            <?php _e('Email Digest', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('Email Digest', 'almaseo-seo-playground'); ?>
                         </th>
                         <td>
                             <label>
                                 <input type="checkbox" name="enable_digest" value="1" 
                                        <?php checked($settings['enable_digest']); ?> />
-                                <?php _e('Send weekly email digest of stale content', 'almaseo-seo-playground'); ?>
+                                <?php esc_html_e('Send weekly email digest of stale content', 'almaseo-seo-playground'); ?>
                             </label>
                         </td>
                     </tr>
@@ -393,23 +393,23 @@ function almaseo_eg_settings_page_content() {
                 
                 <p class="submit">
                     <input type="submit" name="almaseo_eg_save_settings" class="button-primary" 
-                           value="<?php _e('Save Settings', 'almaseo-seo-playground'); ?>" />
+                           value="<?php esc_html_e('Save Settings', 'almaseo-seo-playground'); ?>" />
                 </p>
             </form>
         </div>
         
         <!-- Manual Actions -->
         <div class="almaseo-eg-stats-card" style="margin-top: 20px;">
-            <h2><?php _e('Manual Actions', 'almaseo-seo-playground'); ?></h2>
+            <h2><?php esc_html_e('Manual Actions', 'almaseo-seo-playground'); ?></h2>
             
             <form method="post" action="" style="display: inline;">
                 <?php wp_nonce_field('almaseo_eg_refresh'); ?>
                 <p>
                     <input type="submit" name="almaseo_eg_refresh_all" class="button" 
-                           value="<?php _e('Refresh All Posts (First 100)', 'almaseo-seo-playground'); ?>" 
-                           onclick="return confirm('<?php _e('This will recalculate the status for up to 100 posts. Continue?', 'almaseo-seo-playground'); ?>');" />
+                           value="<?php esc_html_e('Refresh All Posts (First 100)', 'almaseo-seo-playground'); ?>" 
+                           onclick="return confirm('<?php esc_html_e('This will recalculate the status for up to 100 posts. Continue?', 'almaseo-seo-playground'); ?>');" />
                     <span class="description" style="margin-left: 10px;">
-                        <?php _e('Manually recalculate evergreen status for all posts', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Manually recalculate evergreen status for all posts', 'almaseo-seo-playground'); ?>
                     </span>
                 </p>
             </form>

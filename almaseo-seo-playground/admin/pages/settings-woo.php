@@ -75,61 +75,61 @@ if (isset($_POST['almaseo_woo_settings_nonce']) &&
 ?>
 
 <div class="wrap almaseo-woo-settings">
-    <h1><?php _e('WooCommerce SEO Settings', 'almaseo-seo-playground'); ?></h1>
+    <h1><?php esc_html_e('WooCommerce SEO Settings', 'almaseo-seo-playground'); ?></h1>
     
     <div class="almaseo-pro-badge">
         <span class="dashicons dashicons-awards"></span>
-        <?php _e('Pro Feature', 'almaseo-seo-playground'); ?>
+        <?php esc_html_e('Pro Feature', 'almaseo-seo-playground'); ?>
     </div>
     
     <p class="description">
-        <?php _e('Optimize your WooCommerce store for search engines with advanced SEO features.', 'almaseo-seo-playground'); ?>
+        <?php esc_html_e('Optimize your WooCommerce store for search engines with advanced SEO features.', 'almaseo-seo-playground'); ?>
     </p>
     
     <form method="post" action="">
         <?php wp_nonce_field('save_almaseo_woo_settings', 'almaseo_woo_settings_nonce'); ?>
         
         <!-- Schema Settings -->
-        <h2 class="title"><?php _e('Product Schema', 'almaseo-seo-playground'); ?></h2>
-        <p><?php _e('Configure how product structured data appears in search results.', 'almaseo-seo-playground'); ?></p>
+        <h2 class="title"><?php esc_html_e('Product Schema', 'almaseo-seo-playground'); ?></h2>
+        <p><?php esc_html_e('Configure how product structured data appears in search results.', 'almaseo-seo-playground'); ?></p>
         
         <table class="form-table">
             <tr>
-                <th scope="row"><?php _e('Enable Product Schema', 'almaseo-seo-playground'); ?></th>
+                <th scope="row"><?php esc_html_e('Enable Product Schema', 'almaseo-seo-playground'); ?></th>
                 <td>
                     <label>
                         <input type="checkbox" name="enable_product_schema" value="1" 
                                <?php checked($settings['enable_product_schema'], true); ?> />
-                        <?php _e('Add Product schema markup to product pages', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Add Product schema markup to product pages', 'almaseo-seo-playground'); ?>
                     </label>
                     <p class="description">
-                        <?php _e('Helps search engines understand your products and can enable rich snippets.', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Helps search engines understand your products and can enable rich snippets.', 'almaseo-seo-playground'); ?>
                     </p>
                 </td>
             </tr>
             
             <tr>
-                <th scope="row"><?php _e('Schema Options', 'almaseo-seo-playground'); ?></th>
+                <th scope="row"><?php esc_html_e('Schema Options', 'almaseo-seo-playground'); ?></th>
                 <td>
                     <fieldset>
                         <label>
                             <input type="checkbox" name="show_price_in_schema" value="1" 
                                    <?php checked($settings['show_price_in_schema'], true); ?> />
-                            <?php _e('Include price in schema', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('Include price in schema', 'almaseo-seo-playground'); ?>
                         </label>
                         <br>
                         
                         <label>
                             <input type="checkbox" name="show_stock_in_schema" value="1" 
                                    <?php checked($settings['show_stock_in_schema'], true); ?> />
-                            <?php _e('Include stock status in schema', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('Include stock status in schema', 'almaseo-seo-playground'); ?>
                         </label>
                         <br>
                         
                         <label>
                             <input type="checkbox" name="show_reviews_in_schema" value="1" 
                                    <?php checked($settings['show_reviews_in_schema'], true); ?> />
-                            <?php _e('Include reviews and ratings in schema', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('Include reviews and ratings in schema', 'almaseo-seo-playground'); ?>
                         </label>
                     </fieldset>
                 </td>
@@ -137,41 +137,41 @@ if (isset($_POST['almaseo_woo_settings_nonce']) &&
         </table>
         
         <!-- Breadcrumbs Settings -->
-        <h2 class="title"><?php _e('Breadcrumbs', 'almaseo-seo-playground'); ?></h2>
-        <p><?php _e('Enhanced breadcrumb navigation with schema markup.', 'almaseo-seo-playground'); ?></p>
+        <h2 class="title"><?php esc_html_e('Breadcrumbs', 'almaseo-seo-playground'); ?></h2>
+        <p><?php esc_html_e('Enhanced breadcrumb navigation with schema markup.', 'almaseo-seo-playground'); ?></p>
         
         <table class="form-table">
             <tr>
-                <th scope="row"><?php _e('Enable Breadcrumbs', 'almaseo-seo-playground'); ?></th>
+                <th scope="row"><?php esc_html_e('Enable Breadcrumbs', 'almaseo-seo-playground'); ?></th>
                 <td>
                     <label>
                         <input type="checkbox" name="enable_breadcrumbs" value="1" 
                                <?php checked($settings['enable_breadcrumbs'], true); ?> />
-                        <?php _e('Replace WooCommerce breadcrumbs with enhanced version', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Replace WooCommerce breadcrumbs with enhanced version', 'almaseo-seo-playground'); ?>
                     </label>
                     <p class="description">
-                        <?php _e('Adds BreadcrumbList schema markup for better SEO.', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Adds BreadcrumbList schema markup for better SEO.', 'almaseo-seo-playground'); ?>
                     </p>
                 </td>
             </tr>
             
             <tr>
                 <th scope="row">
-                    <label for="breadcrumb_separator"><?php _e('Separator', 'almaseo-seo-playground'); ?></label>
+                    <label for="breadcrumb_separator"><?php esc_html_e('Separator', 'almaseo-seo-playground'); ?></label>
                 </th>
                 <td>
                     <input type="text" id="breadcrumb_separator" name="breadcrumb_separator" 
                            value="<?php echo esc_attr($settings['breadcrumb_separator']); ?>" 
                            class="small-text" />
                     <p class="description">
-                        <?php _e('Character(s) to separate breadcrumb items.', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Character(s) to separate breadcrumb items.', 'almaseo-seo-playground'); ?>
                     </p>
                 </td>
             </tr>
             
             <tr>
                 <th scope="row">
-                    <label for="breadcrumb_home_text"><?php _e('Home Text', 'almaseo-seo-playground'); ?></label>
+                    <label for="breadcrumb_home_text"><?php esc_html_e('Home Text', 'almaseo-seo-playground'); ?></label>
                 </th>
                 <td>
                     <input type="text" id="breadcrumb_home_text" name="breadcrumb_home_text" 
@@ -182,7 +182,7 @@ if (isset($_POST['almaseo_woo_settings_nonce']) &&
             
             <tr>
                 <th scope="row">
-                    <label for="breadcrumb_shop_text"><?php _e('Shop Text', 'almaseo-seo-playground'); ?></label>
+                    <label for="breadcrumb_shop_text"><?php esc_html_e('Shop Text', 'almaseo-seo-playground'); ?></label>
                 </th>
                 <td>
                     <input type="text" id="breadcrumb_shop_text" name="breadcrumb_shop_text" 
@@ -193,26 +193,26 @@ if (isset($_POST['almaseo_woo_settings_nonce']) &&
         </table>
         
         <!-- Sitemap Settings -->
-        <h2 class="title"><?php _e('XML Sitemap', 'almaseo-seo-playground'); ?></h2>
-        <p><?php _e('Include WooCommerce products in your XML sitemap.', 'almaseo-seo-playground'); ?></p>
+        <h2 class="title"><?php esc_html_e('XML Sitemap', 'almaseo-seo-playground'); ?></h2>
+        <p><?php esc_html_e('Include WooCommerce products in your XML sitemap.', 'almaseo-seo-playground'); ?></p>
         
         <table class="form-table">
             <tr>
-                <th scope="row"><?php _e('Product Sitemap', 'almaseo-seo-playground'); ?></th>
+                <th scope="row"><?php esc_html_e('Product Sitemap', 'almaseo-seo-playground'); ?></th>
                 <td>
                     <label>
                         <input type="checkbox" name="enable_product_sitemap" value="1" 
                                <?php checked($settings['enable_product_sitemap'], true); ?> />
-                        <?php _e('Include products in XML sitemap', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Include products in XML sitemap', 'almaseo-seo-playground'); ?>
                     </label>
                 </td>
             </tr>
             
             <tr>
-                <th scope="row"><?php _e('Product Settings', 'almaseo-seo-playground'); ?></th>
+                <th scope="row"><?php esc_html_e('Product Settings', 'almaseo-seo-playground'); ?></th>
                 <td>
                     <label for="product_sitemap_priority">
-                        <?php _e('Priority:', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Priority:', 'almaseo-seo-playground'); ?>
                         <select id="product_sitemap_priority" name="product_sitemap_priority">
                             <?php
                             $priorities = array('0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0');
@@ -224,7 +224,7 @@ if (isset($_POST['almaseo_woo_settings_nonce']) &&
                     </label>
                     
                     <label for="product_sitemap_changefreq">
-                        <?php _e('Change Frequency:', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Change Frequency:', 'almaseo-seo-playground'); ?>
                         <select id="product_sitemap_changefreq" name="product_sitemap_changefreq">
                             <?php
                             $frequencies = array(
@@ -246,10 +246,10 @@ if (isset($_POST['almaseo_woo_settings_nonce']) &&
             </tr>
             
             <tr>
-                <th scope="row"><?php _e('Category Settings', 'almaseo-seo-playground'); ?></th>
+                <th scope="row"><?php esc_html_e('Category Settings', 'almaseo-seo-playground'); ?></th>
                 <td>
                     <label for="category_sitemap_priority">
-                        <?php _e('Priority:', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Priority:', 'almaseo-seo-playground'); ?>
                         <select id="category_sitemap_priority" name="category_sitemap_priority">
                             <?php
                             foreach ($priorities as $priority) {
@@ -260,7 +260,7 @@ if (isset($_POST['almaseo_woo_settings_nonce']) &&
                     </label>
                     
                     <label for="category_sitemap_changefreq">
-                        <?php _e('Change Frequency:', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Change Frequency:', 'almaseo-seo-playground'); ?>
                         <select id="category_sitemap_changefreq" name="category_sitemap_changefreq">
                             <?php
                             foreach ($frequencies as $value => $label) {
@@ -274,51 +274,51 @@ if (isset($_POST['almaseo_woo_settings_nonce']) &&
         </table>
 
         <!-- Product Indexing Settings -->
-        <h2 class="title"><?php _e('Product Indexing', 'almaseo-seo-playground'); ?></h2>
-        <p><?php _e('Control which WooCommerce content search engines can index.', 'almaseo-seo-playground'); ?></p>
+        <h2 class="title"><?php esc_html_e('Product Indexing', 'almaseo-seo-playground'); ?></h2>
+        <p><?php esc_html_e('Control which WooCommerce content search engines can index.', 'almaseo-seo-playground'); ?></p>
 
         <table class="form-table">
             <tr>
-                <th scope="row"><?php _e('Global Noindex Settings', 'almaseo-seo-playground'); ?></th>
+                <th scope="row"><?php esc_html_e('Global Noindex Settings', 'almaseo-seo-playground'); ?></th>
                 <td>
                     <fieldset>
                         <label>
                             <input type="checkbox" name="noindex_products" value="1"
                                    <?php checked(get_option('almaseo_wc_noindex_products', false), true); ?> />
-                            <?php _e('Noindex all products (hide from search engines)', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('Noindex all products (hide from search engines)', 'almaseo-seo-playground'); ?>
                         </label>
                         <p class="description">
-                            <?php _e('Prevents search engines from indexing all product pages. Also adds Disallow rules to robots.txt.', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('Prevents search engines from indexing all product pages. Also adds Disallow rules to robots.txt.', 'almaseo-seo-playground'); ?>
                         </p>
                         <br>
 
                         <label>
                             <input type="checkbox" name="noindex_product_cats" value="1"
                                    <?php checked(get_option('almaseo_wc_noindex_product_cats', false), true); ?> />
-                            <?php _e('Noindex product categories', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('Noindex product categories', 'almaseo-seo-playground'); ?>
                         </label>
                         <p class="description">
-                            <?php _e('Prevents search engines from indexing product category archive pages.', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('Prevents search engines from indexing product category archive pages.', 'almaseo-seo-playground'); ?>
                         </p>
                         <br>
 
                         <label>
                             <input type="checkbox" name="noindex_product_tags" value="1"
                                    <?php checked(get_option('almaseo_wc_noindex_product_tags', false), true); ?> />
-                            <?php _e('Noindex product tags', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('Noindex product tags', 'almaseo-seo-playground'); ?>
                         </label>
                         <p class="description">
-                            <?php _e('Prevents search engines from indexing product tag archive pages.', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('Prevents search engines from indexing product tag archive pages.', 'almaseo-seo-playground'); ?>
                         </p>
                     </fieldset>
                 </td>
             </tr>
 
             <tr>
-                <th scope="row"><?php _e('Sitemap Priority (Optional)', 'almaseo-seo-playground'); ?></th>
+                <th scope="row"><?php esc_html_e('Sitemap Priority (Optional)', 'almaseo-seo-playground'); ?></th>
                 <td>
                     <label for="wc_product_priority">
-                        <?php _e('Products:', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Products:', 'almaseo-seo-playground'); ?>
                         <select id="wc_product_priority" name="wc_product_priority">
                             <?php
                             $product_priority = (float) get_option('almaseo_wc_product_priority', 0.6);
@@ -332,7 +332,7 @@ if (isset($_POST['almaseo_woo_settings_nonce']) &&
                     <br><br>
 
                     <label for="wc_category_priority">
-                        <?php _e('Product Categories:', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Product Categories:', 'almaseo-seo-playground'); ?>
                         <select id="wc_category_priority" name="wc_category_priority">
                             <?php
                             $category_priority = (float) get_option('almaseo_wc_category_priority', 0.5);
@@ -344,31 +344,31 @@ if (isset($_POST['almaseo_woo_settings_nonce']) &&
                     </label>
 
                     <p class="description">
-                        <?php _e('Set priority values for products and categories in XML sitemaps (0.1 = lowest, 1.0 = highest).', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Set priority values for products and categories in XML sitemaps (0.1 = lowest, 1.0 = highest).', 'almaseo-seo-playground'); ?>
                     </p>
                 </td>
             </tr>
         </table>
 
         <!-- Shortcodes Reference -->
-        <h2 class="title"><?php _e('Available Shortcodes', 'almaseo-seo-playground'); ?></h2>
+        <h2 class="title"><?php esc_html_e('Available Shortcodes', 'almaseo-seo-playground'); ?></h2>
         <div class="almaseo-shortcodes-reference">
             <table class="widefat">
                 <thead>
                     <tr>
-                        <th><?php _e('Shortcode', 'almaseo-seo-playground'); ?></th>
-                        <th><?php _e('Description', 'almaseo-seo-playground'); ?></th>
-                        <th><?php _e('Parameters', 'almaseo-seo-playground'); ?></th>
+                        <th><?php esc_html_e('Shortcode', 'almaseo-seo-playground'); ?></th>
+                        <th><?php esc_html_e('Description', 'almaseo-seo-playground'); ?></th>
+                        <th><?php esc_html_e('Parameters', 'almaseo-seo-playground'); ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td><code>[almaseo_woo_breadcrumbs]</code></td>
-                        <td><?php _e('Display WooCommerce breadcrumbs', 'almaseo-seo-playground'); ?></td>
+                        <td><?php esc_html_e('Display WooCommerce breadcrumbs', 'almaseo-seo-playground'); ?></td>
                         <td>
-                            <code>separator</code> - <?php _e('Custom separator', 'almaseo-seo-playground'); ?><br>
-                            <code>home_text</code> - <?php _e('Home link text', 'almaseo-seo-playground'); ?><br>
-                            <code>shop_text</code> - <?php _e('Shop link text', 'almaseo-seo-playground'); ?>
+                            <code>separator</code> - <?php esc_html_e('Custom separator', 'almaseo-seo-playground'); ?><br>
+                            <code>home_text</code> - <?php esc_html_e('Home link text', 'almaseo-seo-playground'); ?><br>
+                            <code>shop_text</code> - <?php esc_html_e('Shop link text', 'almaseo-seo-playground'); ?>
                         </td>
                     </tr>
                 </tbody>
@@ -380,13 +380,13 @@ if (isset($_POST['almaseo_woo_settings_nonce']) &&
     
     <!-- Help Section -->
     <div class="almaseo-help-section">
-        <h2><?php _e('Need Help?', 'almaseo-seo-playground'); ?></h2>
+        <h2><?php esc_html_e('Need Help?', 'almaseo-seo-playground'); ?></h2>
         <p>
-            <?php _e('Check out our', 'almaseo-seo-playground'); ?> 
+            <?php esc_html_e('Check out our', 'almaseo-seo-playground'); ?> 
             <a href="https://almaseo.com/docs/woocommerce-seo" target="_blank">
-                <?php _e('WooCommerce SEO documentation', 'almaseo-seo-playground'); ?>
+                <?php esc_html_e('WooCommerce SEO documentation', 'almaseo-seo-playground'); ?>
             </a> 
-            <?php _e('for detailed guides and best practices.', 'almaseo-seo-playground'); ?>
+            <?php esc_html_e('for detailed guides and best practices.', 'almaseo-seo-playground'); ?>
         </p>
     </div>
 </div>

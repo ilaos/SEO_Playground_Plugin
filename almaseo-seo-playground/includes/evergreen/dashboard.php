@@ -200,7 +200,7 @@ function almaseo_eg_render_dashboard() {
     ?>
     
     <div class="wrap almaseo-eg-dashboard">
-        <h1><?php _e('Evergreen Content Overview', 'almaseo-seo-playground'); ?>
+        <h1><?php esc_html_e('Evergreen Content Overview', 'almaseo-seo-playground'); ?>
             <?php if ($stats['unanalyzed'] > 0): ?>
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="display: inline-block; margin-left: 20px;">
                 <?php wp_nonce_field('almaseo_eg_analyze_all'); ?>
@@ -224,7 +224,7 @@ function almaseo_eg_render_dashboard() {
                 <?php elseif ($stats['unanalyzed'] > 50): ?>
                 <div style="display: block; margin-top: 5px;">
                     <small style="color: #996800;">
-                        ℹ️ <?php _e('This may take a moment. The page will refresh when complete.', 'almaseo-seo-playground'); ?>
+                        ℹ️ <?php esc_html_e('This may take a moment. The page will refresh when complete.', 'almaseo-seo-playground'); ?>
                     </small>
                 </div>
                 <?php endif; ?>
@@ -247,7 +247,7 @@ function almaseo_eg_render_dashboard() {
                 <div class="almaseo-eg-card-icon">🟢</div>
                 <div class="almaseo-eg-card-content">
                     <div class="almaseo-eg-card-number"><?php echo esc_html($stats['evergreen']); ?></div>
-                    <div class="almaseo-eg-card-label"><?php _e('Evergreen', 'almaseo-seo-playground'); ?></div>
+                    <div class="almaseo-eg-card-label"><?php esc_html_e('Evergreen', 'almaseo-seo-playground'); ?></div>
                     <div class="almaseo-eg-card-percentage"><?php echo esc_html($evergreen_pct); ?>%</div>
                 </div>
             </div>
@@ -256,7 +256,7 @@ function almaseo_eg_render_dashboard() {
                 <div class="almaseo-eg-card-icon">🟡</div>
                 <div class="almaseo-eg-card-content">
                     <div class="almaseo-eg-card-number"><?php echo esc_html($stats['watch']); ?></div>
-                    <div class="almaseo-eg-card-label"><?php _e('Watch', 'almaseo-seo-playground'); ?></div>
+                    <div class="almaseo-eg-card-label"><?php esc_html_e('Watch', 'almaseo-seo-playground'); ?></div>
                     <div class="almaseo-eg-card-percentage"><?php echo esc_html($watch_pct); ?>%</div>
                 </div>
             </div>
@@ -265,7 +265,7 @@ function almaseo_eg_render_dashboard() {
                 <div class="almaseo-eg-card-icon">🔴</div>
                 <div class="almaseo-eg-card-content">
                     <div class="almaseo-eg-card-number"><?php echo esc_html($stats['stale']); ?></div>
-                    <div class="almaseo-eg-card-label"><?php _e('Stale', 'almaseo-seo-playground'); ?></div>
+                    <div class="almaseo-eg-card-label"><?php esc_html_e('Stale', 'almaseo-seo-playground'); ?></div>
                     <div class="almaseo-eg-card-percentage"><?php echo esc_html($stale_pct); ?>%</div>
                 </div>
             </div>
@@ -274,7 +274,7 @@ function almaseo_eg_render_dashboard() {
                 <div class="almaseo-eg-card-icon">⚪</div>
                 <div class="almaseo-eg-card-content">
                     <div class="almaseo-eg-card-number"><?php echo esc_html($stats['unanalyzed']); ?></div>
-                    <div class="almaseo-eg-card-label"><?php _e('Unanalyzed', 'almaseo-seo-playground'); ?></div>
+                    <div class="almaseo-eg-card-label"><?php esc_html_e('Unanalyzed', 'almaseo-seo-playground'); ?></div>
                     <div class="almaseo-eg-card-percentage">—</div>
                 </div>
             </div>
@@ -286,9 +286,9 @@ function almaseo_eg_render_dashboard() {
                 <input type="hidden" name="page" value="almaseo-evergreen" />
                 
                 <select name="post_type" id="filter-post-type">
-                    <option value="all" <?php selected($post_type, 'all'); ?>><?php _e('All Content Types', 'almaseo-seo-playground'); ?></option>
-                    <option value="post" <?php selected($post_type, 'post'); ?>><?php _e('Posts', 'almaseo-seo-playground'); ?></option>
-                    <option value="page" <?php selected($post_type, 'page'); ?>><?php _e('Pages', 'almaseo-seo-playground'); ?></option>
+                    <option value="all" <?php selected($post_type, 'all'); ?>><?php esc_html_e('All Content Types', 'almaseo-seo-playground'); ?></option>
+                    <option value="post" <?php selected($post_type, 'post'); ?>><?php esc_html_e('Posts', 'almaseo-seo-playground'); ?></option>
+                    <option value="page" <?php selected($post_type, 'page'); ?>><?php esc_html_e('Pages', 'almaseo-seo-playground'); ?></option>
                     <?php
                     // Add custom post types
                     $custom_types = get_post_types(array('public' => true, '_builtin' => false), 'objects');
@@ -303,29 +303,29 @@ function almaseo_eg_render_dashboard() {
                 </select>
                 
                 <select name="date_range" id="filter-date-range">
-                    <option value="4" <?php selected($date_range, 4); ?>><?php _e('Last 4 Weeks', 'almaseo-seo-playground'); ?></option>
-                    <option value="8" <?php selected($date_range, 8); ?>><?php _e('Last 8 Weeks', 'almaseo-seo-playground'); ?></option>
-                    <option value="12" <?php selected($date_range, 12); ?>><?php _e('Last 12 Weeks', 'almaseo-seo-playground'); ?></option>
+                    <option value="4" <?php selected($date_range, 4); ?>><?php esc_html_e('Last 4 Weeks', 'almaseo-seo-playground'); ?></option>
+                    <option value="8" <?php selected($date_range, 8); ?>><?php esc_html_e('Last 8 Weeks', 'almaseo-seo-playground'); ?></option>
+                    <option value="12" <?php selected($date_range, 12); ?>><?php esc_html_e('Last 12 Weeks', 'almaseo-seo-playground'); ?></option>
                 </select>
                 
                 <select name="status_filter" id="filter-status">
-                    <option value="all" <?php selected($status_filter, 'all'); ?>><?php _e('All Statuses', 'almaseo-seo-playground'); ?></option>
-                    <option value="evergreen" <?php selected($status_filter, 'evergreen'); ?>><?php _e('Evergreen', 'almaseo-seo-playground'); ?></option>
-                    <option value="watch" <?php selected($status_filter, 'watch'); ?>><?php _e('Watch', 'almaseo-seo-playground'); ?></option>
-                    <option value="stale" <?php selected($status_filter, 'stale'); ?>><?php _e('Stale', 'almaseo-seo-playground'); ?></option>
-                    <option value="unanalyzed" <?php selected($status_filter, 'unanalyzed'); ?>><?php _e('Unanalyzed', 'almaseo-seo-playground'); ?></option>
+                    <option value="all" <?php selected($status_filter, 'all'); ?>><?php esc_html_e('All Statuses', 'almaseo-seo-playground'); ?></option>
+                    <option value="evergreen" <?php selected($status_filter, 'evergreen'); ?>><?php esc_html_e('Evergreen', 'almaseo-seo-playground'); ?></option>
+                    <option value="watch" <?php selected($status_filter, 'watch'); ?>><?php esc_html_e('Watch', 'almaseo-seo-playground'); ?></option>
+                    <option value="stale" <?php selected($status_filter, 'stale'); ?>><?php esc_html_e('Stale', 'almaseo-seo-playground'); ?></option>
+                    <option value="unanalyzed" <?php selected($status_filter, 'unanalyzed'); ?>><?php esc_html_e('Unanalyzed', 'almaseo-seo-playground'); ?></option>
                 </select>
                 
-                <button type="submit" class="button"><?php _e('Apply Filters', 'almaseo-seo-playground'); ?></button>
+                <button type="submit" class="button"><?php esc_html_e('Apply Filters', 'almaseo-seo-playground'); ?></button>
             </form>
             
             <div class="almaseo-eg-actions">
-                <span style="color: #666; margin-right: 10px; font-weight: 500;"><?php _e('Export:', 'almaseo-seo-playground'); ?></span>
+                <span style="color: #666; margin-right: 10px; font-weight: 500;"><?php esc_html_e('Export:', 'almaseo-seo-playground'); ?></span>
                 <button type="button" class="button" id="export-csv" title="<?php esc_attr_e('Export data as CSV file', 'almaseo-seo-playground'); ?>">
-                    <span class="dashicons dashicons-download"></span> <?php _e('CSV', 'almaseo-seo-playground'); ?>
+                    <span class="dashicons dashicons-download"></span> <?php esc_html_e('CSV', 'almaseo-seo-playground'); ?>
                 </button>
                 <button type="button" class="button" id="export-pdf" title="<?php esc_attr_e('Generate PDF report', 'almaseo-seo-playground'); ?>">
-                    <span class="dashicons dashicons-pdf"></span> <?php _e('PDF', 'almaseo-seo-playground'); ?>
+                    <span class="dashicons dashicons-pdf"></span> <?php esc_html_e('PDF', 'almaseo-seo-playground'); ?>
                 </button>
                 
                 <?php if (current_user_can('manage_options')): ?>
@@ -333,11 +333,11 @@ function almaseo_eg_render_dashboard() {
                 <form method="post" style="display: inline; position: relative;" onsubmit="this.querySelector('button').disabled = true; this.querySelector('button').innerHTML = '<span class=\'dashicons dashicons-update spin\'></span> Rebuilding...';">
                     <?php wp_nonce_field('almaseo_eg_rebuild_stats'); ?>
                     <button type="submit" name="rebuild_stats" class="button" title="<?php esc_attr_e('Regenerate chart data and clear caches', 'almaseo-seo-playground'); ?>">
-                        <span class="dashicons dashicons-update"></span> <?php _e('Rebuild Stats', 'almaseo-seo-playground'); ?>
+                        <span class="dashicons dashicons-update"></span> <?php esc_html_e('Rebuild Stats', 'almaseo-seo-playground'); ?>
                     </button>
                     <div style="position: absolute; top: 100%; right: 0; margin-top: 5px; width: 200px; text-align: right;">
                         <small style="color: #666; font-style: italic;">
-                            <?php _e('Refreshes chart data & caches', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('Refreshes chart data & caches', 'almaseo-seo-playground'); ?>
                         </small>
                     </div>
                 </form>
@@ -347,22 +347,22 @@ function almaseo_eg_render_dashboard() {
         
         <!-- Trend Chart -->
         <div class="almaseo-eg-chart-container" role="img" aria-label="<?php esc_attr_e('Content health trend over time', 'almaseo-seo-playground'); ?>">
-            <h2><?php _e('Health Trend', 'almaseo-seo-playground'); ?></h2>
+            <h2><?php esc_html_e('Health Trend', 'almaseo-seo-playground'); ?></h2>
             
             <div id="almaseo-eg-trend-chart" 
                  data-weekly="<?php echo esc_attr( wp_json_encode( array_values( $weekly_data ) ) ); ?>"
                  data-weeks="<?php echo esc_attr($date_range); ?>">
-                <div class="almaseo-eg-chart-loading"><?php _e('Loading chart...', 'almaseo-seo-playground'); ?></div>
+                <div class="almaseo-eg-chart-loading"><?php esc_html_e('Loading chart...', 'almaseo-seo-playground'); ?></div>
             </div>
             <div class="almaseo-eg-chart-legend">
                 <span class="legend-item legend-evergreen">
-                    <span class="legend-color"></span> <?php _e('Evergreen', 'almaseo-seo-playground'); ?>
+                    <span class="legend-color"></span> <?php esc_html_e('Evergreen', 'almaseo-seo-playground'); ?>
                 </span>
                 <span class="legend-item legend-watch">
-                    <span class="legend-color"></span> <?php _e('Watch', 'almaseo-seo-playground'); ?>
+                    <span class="legend-color"></span> <?php esc_html_e('Watch', 'almaseo-seo-playground'); ?>
                 </span>
                 <span class="legend-item legend-stale">
-                    <span class="legend-color"></span> <?php _e('Stale', 'almaseo-seo-playground'); ?>
+                    <span class="legend-color"></span> <?php esc_html_e('Stale', 'almaseo-seo-playground'); ?>
                 </span>
             </div>
             <?php
@@ -379,16 +379,16 @@ function almaseo_eg_render_dashboard() {
         
         <!-- At-Risk Posts Table -->
         <div class="almaseo-eg-table-container">
-            <h2><?php _e('Content Requiring Attention', 'almaseo-seo-playground'); ?></h2>
+            <h2><?php esc_html_e('Content Requiring Attention', 'almaseo-seo-playground'); ?></h2>
             
             <table class="wp-list-table widefat fixed striped posts">
                 <thead>
                     <tr>
-                        <th scope="col" class="column-title"><?php _e('Post', 'almaseo-seo-playground'); ?></th>
-                        <th scope="col" class="column-status"><?php _e('Status', 'almaseo-seo-playground'); ?></th>
-                        <th scope="col" class="column-updated"><?php _e('Last Updated', 'almaseo-seo-playground'); ?></th>
-                        <th scope="col" class="column-trend"><?php _e('90d Trend', 'almaseo-seo-playground'); ?></th>
-                        <th scope="col" class="column-actions"><?php _e('Quick Actions', 'almaseo-seo-playground'); ?></th>
+                        <th scope="col" class="column-title"><?php esc_html_e('Post', 'almaseo-seo-playground'); ?></th>
+                        <th scope="col" class="column-status"><?php esc_html_e('Status', 'almaseo-seo-playground'); ?></th>
+                        <th scope="col" class="column-updated"><?php esc_html_e('Last Updated', 'almaseo-seo-playground'); ?></th>
+                        <th scope="col" class="column-trend"><?php esc_html_e('90d Trend', 'almaseo-seo-playground'); ?></th>
+                        <th scope="col" class="column-actions"><?php esc_html_e('Quick Actions', 'almaseo-seo-playground'); ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -404,12 +404,12 @@ function almaseo_eg_render_dashboard() {
                                 <div class="row-actions">
                                     <span class="view">
                                         <a href="<?php echo get_permalink($post_data['id']); ?>" target="_blank">
-                                            <?php _e('View', 'almaseo-seo-playground'); ?>
+                                            <?php esc_html_e('View', 'almaseo-seo-playground'); ?>
                                         </a> |
                                     </span>
                                     <span class="edit">
                                         <a href="<?php echo get_edit_post_link($post_data['id']); ?>" target="_blank">
-                                            <?php _e('Edit', 'almaseo-seo-playground'); ?>
+                                            <?php esc_html_e('Edit', 'almaseo-seo-playground'); ?>
                                         </a>
                                     </span>
                                 </div>
@@ -418,7 +418,7 @@ function almaseo_eg_render_dashboard() {
                                 <?php echo almaseo_eg_render_status_pill($post_data['status']); ?>
                             </td>
                             <td class="column-updated">
-                                <?php echo esc_html($post_data['days_ago']); ?> <?php _e('days ago', 'almaseo-seo-playground'); ?>
+                                <?php echo esc_html($post_data['days_ago']); ?> <?php esc_html_e('days ago', 'almaseo-seo-playground'); ?>
                             </td>
                             <td class="column-trend">
                                 <?php if ($post_data['trend'] !== null): ?>
@@ -432,12 +432,12 @@ function almaseo_eg_render_dashboard() {
                             <td class="column-actions">
                                 <button type="button" class="button button-small almaseo-eg-analyze" 
                                         data-post-id="<?php echo $post_data['id']; ?>">
-                                    <?php _e('Analyze', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('Analyze', 'almaseo-seo-playground'); ?>
                                 </button>
                                 <?php if ($post_data['status'] === 'stale'): ?>
                                 <button type="button" class="button button-small almaseo-eg-mark-refreshed" 
                                         data-post-id="<?php echo $post_data['id']; ?>">
-                                    <?php _e('Mark Refreshed', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('Mark Refreshed', 'almaseo-seo-playground'); ?>
                                 </button>
                                 <?php endif; ?>
                             </td>
@@ -446,7 +446,7 @@ function almaseo_eg_render_dashboard() {
                     <?php else: ?>
                         <tr>
                             <td colspan="5" class="no-items">
-                                <?php _e('No posts found matching your filters.', 'almaseo-seo-playground'); ?>
+                                <?php esc_html_e('No posts found matching your filters.', 'almaseo-seo-playground'); ?>
                             </td>
                         </tr>
                     <?php endif; ?>
@@ -484,7 +484,7 @@ function almaseo_eg_render_dashboard() {
                 <div class="almaseo-eg-advanced-section" style="margin-top: 40px; padding-top: 40px; border-top: 2px solid #e5e7eb;">
                     <h2 style="margin-bottom: 20px;">
                         <span style="background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-                            <?php _e('Advanced Insights', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('Advanced Insights', 'almaseo-seo-playground'); ?>
                         </span>
                         <span class="dashicons dashicons-star-filled" style="color: #7c3aed; font-size: 18px; margin-left: 8px;"></span>
                     </h2>
@@ -492,10 +492,10 @@ function almaseo_eg_render_dashboard() {
                     <!-- Refresh Priority Matrix Panel -->
                     <div class="almaseo-eg-panel" style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
                         <h3 style="margin-top: 0; color: #1e293b; font-size: 16px;">
-                            <?php _e('Refresh Priority Matrix', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('Refresh Priority Matrix', 'almaseo-seo-playground'); ?>
                         </h3>
                         <p class="description" style="margin-bottom: 20px;">
-                            <?php _e('Content segments based on refresh score and risk level', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('Content segments based on refresh score and risk level', 'almaseo-seo-playground'); ?>
                         </p>
 
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
@@ -504,10 +504,10 @@ function almaseo_eg_render_dashboard() {
                                     <?php echo esc_html($advanced_summary['segments']['urgent']['count']); ?>
                                 </div>
                                 <div style="color: #7f1d1d; font-weight: 600; margin-top: 4px;">
-                                    <?php _e('Urgent', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('Urgent', 'almaseo-seo-playground'); ?>
                                 </div>
                                 <div style="color: #991b1b; font-size: 13px; margin-top: 4px;">
-                                    <?php _e('High risk, needs immediate refresh', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('High risk, needs immediate refresh', 'almaseo-seo-playground'); ?>
                                 </div>
                             </div>
 
@@ -516,10 +516,10 @@ function almaseo_eg_render_dashboard() {
                                     <?php echo esc_html($advanced_summary['segments']['at_risk']['count']); ?>
                                 </div>
                                 <div style="color: #78350f; font-weight: 600; margin-top: 4px;">
-                                    <?php _e('At Risk', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('At Risk', 'almaseo-seo-playground'); ?>
                                 </div>
                                 <div style="color: #92400e; font-size: 13px; margin-top: 4px;">
-                                    <?php _e('Medium risk, monitor closely', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('Medium risk, monitor closely', 'almaseo-seo-playground'); ?>
                                 </div>
                             </div>
 
@@ -528,10 +528,10 @@ function almaseo_eg_render_dashboard() {
                                     <?php echo esc_html($advanced_summary['segments']['stable']['count']); ?>
                                 </div>
                                 <div style="color: #064e3b; font-weight: 600; margin-top: 4px;">
-                                    <?php _e('Stable', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('Stable', 'almaseo-seo-playground'); ?>
                                 </div>
                                 <div style="color: #065f46; font-size: 13px; margin-top: 4px;">
-                                    <?php _e('Low risk, performing well', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('Low risk, performing well', 'almaseo-seo-playground'); ?>
                                 </div>
                             </div>
                         </div>
@@ -540,34 +540,34 @@ function almaseo_eg_render_dashboard() {
                     <!-- AI Freshness Impact Panel -->
                     <div class="almaseo-eg-panel" style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
                         <h3 style="margin-top: 0; color: #1e293b; font-size: 16px;">
-                            <?php _e('AI Freshness Impact', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('AI Freshness Impact', 'almaseo-seo-playground'); ?>
                         </h3>
                         <p class="description" style="margin-bottom: 20px;">
-                            <?php _e('How content clarity and AI-friendly signals affect your content health', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('How content clarity and AI-friendly signals affect your content health', 'almaseo-seo-playground'); ?>
                         </p>
 
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 20px;">
                             <div style="background: #f8fafc; padding: 16px; border-radius: 6px; border: 1px solid #e2e8f0;">
                                 <div style="color: #64748b; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-                                    <?php _e('Average AI Freshness Score', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('Average AI Freshness Score', 'almaseo-seo-playground'); ?>
                                 </div>
                                 <div style="font-size: 36px; font-weight: 700; color: #1e293b; margin-top: 8px;">
                                     <?php echo esc_html($advanced_summary['ai_freshness']['average']); ?>
                                 </div>
                                 <div style="color: #64748b; font-size: 12px; margin-top: 4px;">
-                                    <?php _e('out of 100', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('out of 100', 'almaseo-seo-playground'); ?>
                                 </div>
                             </div>
 
                             <div style="background: #fef3c7; padding: 16px; border-radius: 6px; border: 1px solid #fde68a;">
                                 <div style="color: #92400e; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-                                    <?php _e('Posts Below Threshold (50)', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('Posts Below Threshold (50)', 'almaseo-seo-playground'); ?>
                                 </div>
                                 <div style="font-size: 36px; font-weight: 700; color: #78350f; margin-top: 8px;">
                                     <?php echo esc_html($advanced_summary['ai_freshness']['below_threshold']); ?>
                                 </div>
                                 <div style="color: #92400e; font-size: 12px; margin-top: 4px;">
-                                    <?php _e('need AI optimization', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('need AI optimization', 'almaseo-seo-playground'); ?>
                                 </div>
                             </div>
                         </div>
@@ -575,14 +575,14 @@ function almaseo_eg_render_dashboard() {
                         <?php if (!empty($advanced_summary['ai_freshness']['top_at_risk'])): ?>
                         <div>
                             <h4 style="margin: 16px 0 12px 0; color: #475569; font-size: 14px; font-weight: 600;">
-                                <?php _e('Top 5 Posts Needing AI Optimization', 'almaseo-seo-playground'); ?>
+                                <?php esc_html_e('Top 5 Posts Needing AI Optimization', 'almaseo-seo-playground'); ?>
                             </h4>
                             <table class="wp-list-table widefat fixed striped" style="font-size: 13px;">
                                 <thead>
                                     <tr>
-                                        <th><?php _e('Post', 'almaseo-seo-playground'); ?></th>
-                                        <th style="width: 120px;"><?php _e('AI Score', 'almaseo-seo-playground'); ?></th>
-                                        <th style="width: 120px;"><?php _e('Risk', 'almaseo-seo-playground'); ?></th>
+                                        <th><?php esc_html_e('Post', 'almaseo-seo-playground'); ?></th>
+                                        <th style="width: 120px;"><?php esc_html_e('AI Score', 'almaseo-seo-playground'); ?></th>
+                                        <th style="width: 120px;"><?php esc_html_e('Risk', 'almaseo-seo-playground'); ?></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -615,10 +615,10 @@ function almaseo_eg_render_dashboard() {
                     <!-- Traffic vs Freshness Trend Panel -->
                     <div class="almaseo-eg-panel" style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px;">
                         <h3 style="margin-top: 0; color: #1e293b; font-size: 16px;">
-                            <?php _e('Traffic vs Freshness Trend', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('Traffic vs Freshness Trend', 'almaseo-seo-playground'); ?>
                         </h3>
                         <p class="description" style="margin-bottom: 20px;">
-                            <?php _e('How traffic performance correlates with content freshness', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('How traffic performance correlates with content freshness', 'almaseo-seo-playground'); ?>
                         </p>
 
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
@@ -627,10 +627,10 @@ function almaseo_eg_render_dashboard() {
                                     <?php echo esc_html($advanced_summary['traffic_freshness']['high_traffic_fresh']); ?>
                                 </div>
                                 <div style="color: #075985; font-weight: 600; margin-top: 4px; font-size: 14px;">
-                                    <?php _e('High Traffic + Fresh', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('High Traffic + Fresh', 'almaseo-seo-playground'); ?>
                                 </div>
                                 <div style="color: #0369a1; font-size: 12px; margin-top: 4px;">
-                                    <?php _e('Performing well', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('Performing well', 'almaseo-seo-playground'); ?>
                                 </div>
                             </div>
 
@@ -639,10 +639,10 @@ function almaseo_eg_render_dashboard() {
                                     <?php echo esc_html($advanced_summary['traffic_freshness']['high_traffic_stale']); ?>
                                 </div>
                                 <div style="color: #78350f; font-weight: 600; margin-top: 4px; font-size: 14px;">
-                                    <?php _e('High Traffic + Stale', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('High Traffic + Stale', 'almaseo-seo-playground'); ?>
                                 </div>
                                 <div style="color: #92400e; font-size: 12px; margin-top: 4px;">
-                                    <?php _e('Priority refresh targets', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('Priority refresh targets', 'almaseo-seo-playground'); ?>
                                 </div>
                             </div>
 
@@ -651,10 +651,10 @@ function almaseo_eg_render_dashboard() {
                                     <?php echo esc_html($advanced_summary['traffic_freshness']['low_traffic_stale']); ?>
                                 </div>
                                 <div style="color: #4b5563; font-weight: 600; margin-top: 4px; font-size: 14px;">
-                                    <?php _e('Low Traffic + Stale', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('Low Traffic + Stale', 'almaseo-seo-playground'); ?>
                                 </div>
                                 <div style="color: #6b7280; font-size: 12px; margin-top: 4px;">
-                                    <?php _e('Consider archiving', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('Consider archiving', 'almaseo-seo-playground'); ?>
                                 </div>
                             </div>
                         </div>

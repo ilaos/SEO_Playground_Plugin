@@ -519,7 +519,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
 
         <!-- Top Section: SEO Editor Fields -->
         <div class="almaseo-seo-fields">
-            <h4><?php _e('SEO Editor', 'almaseo-seo-playground'); ?></h4>
+            <h4><?php esc_html_e('SEO Editor', 'almaseo-seo-playground'); ?></h4>
             <div class="almaseo-field-group">
                 <label for="almaseo_seo_title">
                     SEO Title
@@ -564,11 +564,11 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             --
                         </div>
                         <div style="flex: 1; min-width: 0;">
-                            <strong style="font-size: 13px;"><?php _e( 'Headline Score', 'almaseo-seo-playground' ); ?></strong>
+                            <strong style="font-size: 13px;"><?php esc_html_e( 'Headline Score', 'almaseo-seo-playground' ); ?></strong>
                             <span id="headline-score-label" style="font-size: 12px; color: #646970; margin-left: 6px;"></span>
                         </div>
                         <button type="button" id="headline-toggle-details" class="button-link" style="font-size: 12px; white-space: nowrap;">
-                            <?php _e( 'Show Details', 'almaseo-seo-playground' ); ?>
+                            <?php esc_html_e( 'Show Details', 'almaseo-seo-playground' ); ?>
                         </button>
                     </div>
                     <div id="headline-details" style="display: none; margin-top: 6px; padding: 10px 12px; background: #fff; border: 1px solid #c3c4c7; border-radius: 4px; font-size: 12px;">
@@ -948,15 +948,15 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 
                 <!-- Stats & Status -->
                 <div class="health-info">
-                    <h3><?php _e('Overall SEO Health', 'almaseo-seo-playground'); ?></h3>
+                    <h3><?php esc_html_e('Overall SEO Health', 'almaseo-seo-playground'); ?></h3>
                     <p class="health-status health-<?php echo esc_attr($score_class); ?>">
                         <?php
                         if ($health_score >= 80) {
-                            _e('Excellent! Your content is well-optimized.', 'almaseo-seo-playground');
+                            esc_html_e('Excellent! Your content is well-optimized.', 'almaseo-seo-playground');
                         } elseif ($health_score >= 50) {
-                            _e('Good, but there\'s room for improvement.', 'almaseo-seo-playground');
+                            esc_html_e('Good, but there\'s room for improvement.', 'almaseo-seo-playground');
                         } else {
-                            _e('Needs attention. Follow the suggestions below.', 'almaseo-seo-playground');
+                            esc_html_e('Needs attention. Follow the suggestions below.', 'almaseo-seo-playground');
                         }
                         ?>
                     </p>
@@ -972,7 +972,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     </div>
                     <button type="button" class="button button-primary" id="almaseo-health-recalculate" data-post-id="<?php echo esc_attr($post->ID); ?>">
                         <span class="dashicons dashicons-update"></span>
-                        <?php _e('Recalculate', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Recalculate', 'almaseo-seo-playground'); ?>
                     </button>
                 </div>
             </div>
@@ -980,7 +980,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
         
         <!-- Middle Section: Signal Breakdown -->
         <div class="almaseo-health-signals">
-            <h4><?php _e('SEO Signal Analysis', 'almaseo-seo-playground'); ?></h4>
+            <h4><?php esc_html_e('SEO Signal Analysis', 'almaseo-seo-playground'); ?></h4>
             
             <?php
             // Show critical warning if search engines are blocked
@@ -1075,7 +1075,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     </span>
                     <?php if (!$result['pass'] && $field_id): ?>
                     <button type="button" class="signal-goto-btn" data-field="<?php echo esc_attr($field_id); ?>">
-                        <?php _e('Go to Field', 'almaseo-seo-playground'); ?> ↓
+                        <?php esc_html_e('Go to Field', 'almaseo-seo-playground'); ?> ↓
                     </button>
                     <?php endif; ?>
                 </div>
@@ -2169,8 +2169,8 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         <input type="checkbox" name="almaseo_is_cornerstone" value="1"
                                <?php checked( get_post_meta( $post->ID, '_almaseo_is_cornerstone', true ) ); ?> />
                         <span class="dashicons dashicons-star-filled" style="color: #dba617;"></span>
-                        <strong><?php _e( 'Cornerstone Content', 'almaseo-seo-playground' ); ?></strong>
-                        <span style="color: #94a3b8; font-size: 12px; font-weight: normal; margin-left: 4px;"><?php _e( '— Mark as a key page for your SEO strategy', 'almaseo-seo-playground' ); ?></span>
+                        <strong><?php esc_html_e( 'Cornerstone Content', 'almaseo-seo-playground' ); ?></strong>
+                        <span style="color: #94a3b8; font-size: 12px; font-weight: normal; margin-left: 4px;"><?php esc_html_e( '— Mark as a key page for your SEO strategy', 'almaseo-seo-playground' ); ?></span>
                     </label>
                     <?php
                     $cs_suggested = get_post_meta( $post->ID, '_almaseo_cornerstone_suggested', true );
@@ -2442,7 +2442,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 <select id="almaseo_schema_primary_type"
                                         name="almaseo_schema_primary_type"
                                         class="almaseo-select">
-                                    <option value=""><?php _e('Use default for this post type', 'almaseo-seo-playground'); ?></option>
+                                    <option value=""><?php esc_html_e('Use default for this post type', 'almaseo-seo-playground'); ?></option>
                                     <option value="Article" <?php selected($primary_type, 'Article'); ?>>Article</option>
                                     <option value="BlogPosting" <?php selected($primary_type, 'BlogPosting'); ?>>BlogPosting</option>
                                     <option value="NewsArticle" <?php selected($primary_type, 'NewsArticle'); ?>>NewsArticle</option>
@@ -2571,7 +2571,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                            name="almaseo_schema_is_faqpage"
                                            value="1"
                                            <?php checked($is_faqpage, true); ?>>
-                                    <?php _e('Treat this page as FAQPage (when it contains Q&A content)', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('Treat this page as FAQPage (when it contains Q&A content)', 'almaseo-seo-playground'); ?>
                                 </label>
                             </div>
 
@@ -2581,7 +2581,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                            name="almaseo_schema_is_howto"
                                            value="1"
                                            <?php checked($is_howto, true); ?>>
-                                    <?php _e('Treat this page as HowTo (step-by-step instructions)', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('Treat this page as HowTo (step-by-step instructions)', 'almaseo-seo-playground'); ?>
                                 </label>
                             </div>
 
@@ -2591,7 +2591,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                            name="almaseo_schema_disable"
                                            value="1"
                                            <?php checked($disable_advanced, true); ?>>
-                                    <?php _e('Disable Advanced Schema for this post', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('Disable Advanced Schema for this post', 'almaseo-seo-playground'); ?>
                                 </label>
                                 <p class="field-hint">Turn off advanced schema output while keeping basic schema</p>
                             </div>
@@ -2706,7 +2706,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     <div class="almaseo-social-previews" style="margin-top: 20px;">
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                             <h4 style="margin: 0; font-size: 14px; font-weight: 600; color: #1d2327;">
-                                <?php _e( 'Social Sharing Preview', 'almaseo-seo-playground' ); ?>
+                                <?php esc_html_e( 'Social Sharing Preview', 'almaseo-seo-playground' ); ?>
                             </h4>
                             <button type="button" class="button button-small" id="toggle-social-previews" style="font-size: 12px;">Show Previews</button>
                         </div>
@@ -2726,7 +2726,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             <div id="fb-preview-image" style="width: 100%; aspect-ratio: 1.91/1; background: #e4e6eb url('<?php echo esc_url( $sp_image ); ?>') center/cover no-repeat; position: relative;">
                                 <?php if ( empty( $sp_image ) ) : ?>
                                 <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #8a8d91; font-size: 13px;">
-                                    <?php _e( 'No image set', 'almaseo-seo-playground' ); ?>
+                                    <?php esc_html_e( 'No image set', 'almaseo-seo-playground' ); ?>
                                 </div>
                                 <?php endif; ?>
                             </div>
@@ -2751,7 +2751,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             <div id="tw-preview-image" style="width: 100%; aspect-ratio: 2/1; background: #eff3f4 url('<?php echo esc_url( $sp_image ); ?>') center/cover no-repeat; position: relative;">
                                 <?php if ( empty( $sp_image ) ) : ?>
                                 <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #8a8d91; font-size: 13px;">
-                                    <?php _e( 'No image set', 'almaseo-seo-playground' ); ?>
+                                    <?php esc_html_e( 'No image set', 'almaseo-seo-playground' ); ?>
                                 </div>
                                 <?php endif; ?>
                             </div>
@@ -2787,7 +2787,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         </div>
 
                         <p style="margin-top: 8px; font-size: 12px; color: #646970; font-style: italic;">
-                            <?php _e( 'Previews are approximate. Actual appearance may vary by platform.', 'almaseo-seo-playground' ); ?>
+                            <?php esc_html_e( 'Previews are approximate. Actual appearance may vary by platform.', 'almaseo-seo-playground' ); ?>
                         </p>
                         </div><!-- end social-previews-content -->
                         <script>

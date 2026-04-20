@@ -505,6 +505,7 @@ class AlmaSEO_Meta_Social_Handler {
             'canonicalError' => __('Please enter a valid absolute URL starting with http:// or https://', 'almaseo-seo-playground'),
             'imageDowngrade' => __('No image available. Card type changed to summary.', 'almaseo-seo-playground'),
             'charCount' => __('characters', 'almaseo-seo-playground'),
+            /* translators: %d: maximum recommended character count */
             'charWarning' => __('Recommended maximum: %d characters', 'almaseo-seo-playground')
         ));
     }

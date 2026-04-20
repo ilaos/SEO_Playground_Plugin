@@ -302,9 +302,9 @@ class AlmaSEO_Update_Manager {
                 ?>
                 <div class="notice notice-info is-dismissible" id="almaseo-update-notice">
                     <p>
-                        <?php _e('AlmaSEO auto-update check is overdue.', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('AlmaSEO auto-update check is overdue.', 'almaseo-seo-playground'); ?>
                         <a href="#" class="almaseo-check-updates-now">
-                            <?php _e('Check now', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('Check now', 'almaseo-seo-playground'); ?>
                         </a>
                     </p>
                 </div>

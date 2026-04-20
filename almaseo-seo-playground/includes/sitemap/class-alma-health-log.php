@@ -119,7 +119,8 @@ class Alma_Health_Log {
      */
     public static function log_build($provider, $urls, $duration_ms) {
         self::log('build', sprintf(
-            __('Built %s sitemap: %d URLs in %dms', 'almaseo-seo-playground'),
+            /* translators: %1$s: sitemap provider name, %2$d: number of URLs, %3$d: build time in milliseconds */
+            __('Built %1$s sitemap: %2$d URLs in %3$dms', 'almaseo-seo-playground'),
             $provider,
             $urls,
             $duration_ms
@@ -168,7 +169,8 @@ class Alma_Health_Log {
      */
     public static function log_news_refresh($items, $duration_ms) {
         self::log('news_refresh', sprintf(
-            __('News sitemap refreshed: %d items in %dms', 'almaseo-seo-playground'),
+            /* translators: %1$d: number of news items, %2$d: refresh time in milliseconds */
+            __('News sitemap refreshed: %1$d items in %2$dms', 'almaseo-seo-playground'),
             $items,
             $duration_ms
         ), array(
@@ -182,7 +184,8 @@ class Alma_Health_Log {
      */
     public static function log_error($context, $error_message) {
         self::log('error', sprintf(
-            __('Error in %s: %s', 'almaseo-seo-playground'),
+            /* translators: %1$s: error context, %2$s: error message */
+            __('Error in %1$s: %2$s', 'almaseo-seo-playground'),
             $context,
             $error_message
         ), array(

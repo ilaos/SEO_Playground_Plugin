@@ -185,18 +185,18 @@ function almaseo_eg_add_filter_dropdown() {
     $selected = isset($_GET['evergreen_filter']) ? sanitize_text_field($_GET['evergreen_filter']) : '';
     ?>
     <select name="evergreen_filter" id="evergreen_filter">
-        <option value=""><?php _e('All Evergreen Status', 'almaseo-seo-playground'); ?></option>
+        <option value=""><?php esc_html_e('All Evergreen Status', 'almaseo-seo-playground'); ?></option>
         <option value="evergreen" <?php selected($selected, 'evergreen'); ?>>
-            <?php _e('🟢 Evergreen', 'almaseo-seo-playground'); ?>
+            <?php esc_html_e('🟢 Evergreen', 'almaseo-seo-playground'); ?>
         </option>
         <option value="watch" <?php selected($selected, 'watch'); ?>>
-            <?php _e('🟡 Watch', 'almaseo-seo-playground'); ?>
+            <?php esc_html_e('🟡 Watch', 'almaseo-seo-playground'); ?>
         </option>
         <option value="stale" <?php selected($selected, 'stale'); ?>>
-            <?php _e('🔴 Stale', 'almaseo-seo-playground'); ?>
+            <?php esc_html_e('🔴 Stale', 'almaseo-seo-playground'); ?>
         </option>
         <option value="old" <?php selected($selected, 'old'); ?>>
-            <?php _e('Updated > 6 months', 'almaseo-seo-playground'); ?>
+            <?php esc_html_e('Updated > 6 months', 'almaseo-seo-playground'); ?>
         </option>
     </select>
     <?php

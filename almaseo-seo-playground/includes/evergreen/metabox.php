@@ -93,7 +93,7 @@ function almaseo_eg_meta_box_content($post) {
             <span style="font-size: 12px; color: #999;" 
                   title="<?php esc_attr_e('This shows when Evergreen status was last recalculated.', 'almaseo-seo-playground'); ?>"
                   id="almaseo-eg-last-checked">
-                <?php _e('Not yet analyzed', 'almaseo-seo-playground'); ?>
+                <?php esc_html_e('Not yet analyzed', 'almaseo-seo-playground'); ?>
             </span>
         </div>
         <?php
@@ -102,11 +102,11 @@ function almaseo_eg_meta_box_content($post) {
     // Display metrics
     ?>
     <div style="margin-bottom: 15px;">
-        <h4 style="margin-bottom: 10px;"><?php _e('Metrics', 'almaseo-seo-playground'); ?></h4>
+        <h4 style="margin-bottom: 10px;"><?php esc_html_e('Metrics', 'almaseo-seo-playground'); ?></h4>
         
         <table style="width: 100%; font-size: 13px;">
             <tr>
-                <td style="padding: 4px 0;"><strong><?php _e('Published:', 'almaseo-seo-playground'); ?></strong></td>
+                <td style="padding: 4px 0;"><strong><?php esc_html_e('Published:', 'almaseo-seo-playground'); ?></strong></td>
                 <td style="padding: 4px 0; text-align: right;">
                     <?php
                     /* translators: %d: number of days */
@@ -114,7 +114,7 @@ function almaseo_eg_meta_box_content($post) {
                 </td>
             </tr>
             <tr>
-                <td style="padding: 4px 0;"><strong><?php _e('Updated:', 'almaseo-seo-playground'); ?></strong></td>
+                <td style="padding: 4px 0;"><strong><?php esc_html_e('Updated:', 'almaseo-seo-playground'); ?></strong></td>
                 <td style="padding: 4px 0; text-align: right;">
                     <?php
                     /* translators: %d: number of days */
@@ -123,7 +123,7 @@ function almaseo_eg_meta_box_content($post) {
             </tr>
             <?php if ($clicks['clicks_90d'] > 0 || $clicks['clicks_prev90d'] > 0): ?>
             <tr>
-                <td style="padding: 4px 0;"><strong><?php _e('Traffic Trend:', 'almaseo-seo-playground'); ?></strong></td>
+                <td style="padding: 4px 0;"><strong><?php esc_html_e('Traffic Trend:', 'almaseo-seo-playground'); ?></strong></td>
                 <td style="padding: 4px 0; text-align: right;">
                     <?php 
                     $trend_color = $trend < 0 ? '#d63638' : '#00a32a';
@@ -137,9 +137,9 @@ function almaseo_eg_meta_box_content($post) {
             <?php endif; ?>
             <?php if ($scoring['metrics']['seasonal']): ?>
             <tr>
-                <td style="padding: 4px 0;"><strong><?php _e('Seasonal:', 'almaseo-seo-playground'); ?></strong></td>
+                <td style="padding: 4px 0;"><strong><?php esc_html_e('Seasonal:', 'almaseo-seo-playground'); ?></strong></td>
                 <td style="padding: 4px 0; text-align: right;">
-                    <span style="color: #dba617;">📅 <?php _e('Yes', 'almaseo-seo-playground'); ?></span>
+                    <span style="color: #dba617;">📅 <?php esc_html_e('Yes', 'almaseo-seo-playground'); ?></span>
                 </td>
             </tr>
             <?php endif; ?>
@@ -149,7 +149,7 @@ function almaseo_eg_meta_box_content($post) {
     <!-- Reasons -->
     <?php if (!empty($scoring['reasons'])): ?>
     <div style="margin-bottom: 15px;">
-        <h4 style="margin-bottom: 10px;"><?php _e('Analysis', 'almaseo-seo-playground'); ?></h4>
+        <h4 style="margin-bottom: 10px;"><?php esc_html_e('Analysis', 'almaseo-seo-playground'); ?></h4>
         <ul style="margin: 0; padding-left: 20px; font-size: 13px;">
             <?php foreach ($scoring['reasons'] as $reason): ?>
             <li><?php echo esc_html($reason); ?></li>
@@ -160,14 +160,14 @@ function almaseo_eg_meta_box_content($post) {
     
     <!-- Actions -->
     <div style="border-top: 1px solid #dcdcde; padding-top: 15px;">
-        <h4 style="margin-bottom: 10px;"><?php _e('Actions', 'almaseo-seo-playground'); ?></h4>
+        <h4 style="margin-bottom: 10px;"><?php esc_html_e('Actions', 'almaseo-seo-playground'); ?></h4>
         
         <!-- Pin as Evergreen -->
         <p>
             <label style="display: flex; align-items: center; gap: 5px;">
                 <input type="checkbox" name="almaseo_eg_pinned" value="1" 
                        <?php checked($notes['pinned']); ?>>
-                <span><?php _e('📌 Pin as Evergreen (override)', 'almaseo-seo-playground'); ?></span>
+                <span><?php esc_html_e('📌 Pin as Evergreen (override)', 'almaseo-seo-playground'); ?></span>
             </label>
         </p>
         
@@ -176,7 +176,7 @@ function almaseo_eg_meta_box_content($post) {
             <button type="button" class="button button-secondary" id="almaseo-eg-mark-refreshed"
                     data-post-id="<?php echo esc_attr($post->ID); ?>"
                     style="width: 100%;">
-                <?php _e('✅ Mark as Refreshed', 'almaseo-seo-playground'); ?>
+                <?php esc_html_e('✅ Mark as Refreshed', 'almaseo-seo-playground'); ?>
             </button>
         </p>
         
@@ -185,7 +185,7 @@ function almaseo_eg_meta_box_content($post) {
             <button type="button" class="button" id="almaseo-eg-analyze-now"
                     data-post-id="<?php echo esc_attr($post->ID); ?>"
                     style="width: 100%;">
-                <?php _e('🔄 Analyze Now', 'almaseo-seo-playground'); ?>
+                <?php esc_html_e('🔄 Analyze Now', 'almaseo-seo-playground'); ?>
             </button>
         </p>
     </div>
@@ -197,7 +197,7 @@ function almaseo_eg_meta_box_content($post) {
             var $btn = $(this);
             var postId = $btn.data('post-id');
             
-            $btn.prop('disabled', true).text('<?php _e('Updating...', 'almaseo-seo-playground'); ?>');
+            $btn.prop('disabled', true).text('<?php esc_html_e('Updating...', 'almaseo-seo-playground'); ?>');
             
             $.post(ajaxurl, {
                 action: 'almaseo_eg_mark_refreshed',
@@ -205,13 +205,13 @@ function almaseo_eg_meta_box_content($post) {
                 nonce: '<?php echo wp_create_nonce('almaseo_eg_ajax'); ?>'
             }, function(response) {
                 if (response.success) {
-                    $btn.text('<?php _e('✅ Marked as Refreshed!', 'almaseo-seo-playground'); ?>');
+                    $btn.text('<?php esc_html_e('✅ Marked as Refreshed!', 'almaseo-seo-playground'); ?>');
                     setTimeout(function() {
                         location.reload();
                     }, 1000);
                 } else {
-                    $btn.prop('disabled', false).text('<?php _e('✅ Mark as Refreshed', 'almaseo-seo-playground'); ?>');
-                    alert(response.data || '<?php _e('Error updating status', 'almaseo-seo-playground'); ?>');
+                    $btn.prop('disabled', false).text('<?php esc_html_e('✅ Mark as Refreshed', 'almaseo-seo-playground'); ?>');
+                    alert(response.data || '<?php esc_html_e('Error updating status', 'almaseo-seo-playground'); ?>');
                 }
             });
         });

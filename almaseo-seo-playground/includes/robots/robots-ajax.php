@@ -61,6 +61,7 @@ function almaseo_ajax_robots_save() {
             
             wp_send_json_error(array(
                 'message' => sprintf(
+                    /* translators: %s: error message */
                     __('Could not write physical file: %s. Saved in virtual mode instead.', 'almaseo-seo-playground'),
                     $result->get_error_message()
                 ),

@@ -21,61 +21,62 @@ function almaseo_history_render_card($post) {
     ?>
     <div class="almaseo-history-card">
         <div class="history-card-header">
-            <h3><?php _e('📜 Metadata History', 'almaseo-seo-playground'); ?></h3>
+            <h3><?php esc_html_e('📜 Metadata History', 'almaseo-seo-playground'); ?></h3>
             <button type="button" class="button button-secondary" id="almaseo-create-snapshot" data-post-id="<?php echo esc_attr($post->ID); ?>">
                 <span class="dashicons dashicons-camera"></span>
-                <?php _e('Create Snapshot Now', 'almaseo-seo-playground'); ?>
+                <?php esc_html_e('Create Snapshot Now', 'almaseo-seo-playground'); ?>
             </button>
         </div>
         
         <!-- Help Text -->
         <div class="history-help-text">
             <p class="description">
-                <strong><?php _e('What is this?', 'almaseo-seo-playground'); ?></strong> 
-                <?php _e('Automatic version control for your SEO metadata. Every time you change the SEO title, meta description, focus keyword, or schema, a snapshot is saved automatically.', 'almaseo-seo-playground'); ?>
+                <strong><?php esc_html_e('What is this?', 'almaseo-seo-playground'); ?></strong> 
+                <?php esc_html_e('Automatic version control for your SEO metadata. Every time you change the SEO title, meta description, focus keyword, or schema, a snapshot is saved automatically.', 'almaseo-seo-playground'); ?>
             </p>
             <div class="history-features">
                 <span class="history-feature">
                     <span class="dashicons dashicons-backup"></span>
-                    <?php _e('Restore any previous version instantly', 'almaseo-seo-playground'); ?>
+                    <?php esc_html_e('Restore any previous version instantly', 'almaseo-seo-playground'); ?>
                 </span>
                 <span class="history-feature">
                     <span class="dashicons dashicons-editor-code"></span>
-                    <?php _e('Compare changes between versions', 'almaseo-seo-playground'); ?>
+                    <?php esc_html_e('Compare changes between versions', 'almaseo-seo-playground'); ?>
                 </span>
                 <span class="history-feature">
                     <span class="dashicons dashicons-update"></span>
-                    <?php _e('Last 20 versions kept automatically', 'almaseo-seo-playground'); ?>
+                    <?php esc_html_e('Last 20 versions kept automatically', 'almaseo-seo-playground'); ?>
                 </span>
             </div>
             <p class="history-tip">
-                <strong><?php _e('💡 Tip:', 'almaseo-seo-playground'); ?></strong>
-                <?php _e('Use "Create Snapshot Now" before making major changes to save a checkpoint you can return to.', 'almaseo-seo-playground'); ?>
+                <strong><?php esc_html_e('💡 Tip:', 'almaseo-seo-playground'); ?></strong>
+                <?php esc_html_e('Use "Create Snapshot Now" before making major changes to save a checkpoint you can return to.', 'almaseo-seo-playground'); ?>
             </p>
         </div>
         
         <?php if (empty($snapshots)): ?>
         <div class="history-empty-state">
             <div class="empty-state-icon">📝</div>
-            <h4><?php _e('No History Yet', 'almaseo-seo-playground'); ?></h4>
-            <p><?php _e('Your SEO metadata changes will appear here automatically when you:', 'almaseo-seo-playground'); ?></p>
+            <h4><?php esc_html_e('No History Yet', 'almaseo-seo-playground'); ?></h4>
+            <p><?php esc_html_e('Your SEO metadata changes will appear here automatically when you:', 'almaseo-seo-playground'); ?></p>
             <ul class="history-triggers">
-                <li><?php _e('✓ Update the SEO title', 'almaseo-seo-playground'); ?></li>
-                <li><?php _e('✓ Modify the meta description', 'almaseo-seo-playground'); ?></li>
-                <li><?php _e('✓ Change the focus keyword', 'almaseo-seo-playground'); ?></li>
-                <li><?php _e('✓ Edit schema markup', 'almaseo-seo-playground'); ?></li>
+                <li><?php esc_html_e('✓ Update the SEO title', 'almaseo-seo-playground'); ?></li>
+                <li><?php esc_html_e('✓ Modify the meta description', 'almaseo-seo-playground'); ?></li>
+                <li><?php esc_html_e('✓ Change the focus keyword', 'almaseo-seo-playground'); ?></li>
+                <li><?php esc_html_e('✓ Edit schema markup', 'almaseo-seo-playground'); ?></li>
             </ul>
-            <p class="description"><?php _e('Start editing your SEO fields above and save the post to create your first history snapshot.', 'almaseo-seo-playground'); ?></p>
+            <p class="description"><?php esc_html_e('Start editing your SEO fields above and save the post to create your first history snapshot.', 'almaseo-seo-playground'); ?></p>
         </div>
         <?php else: ?>
         
         <!-- Version List Header -->
         <div class="history-list-header">
-            <h4><?php _e('Version History', 'almaseo-seo-playground'); ?></h4>
+            <h4><?php esc_html_e('Version History', 'almaseo-seo-playground'); ?></h4>
             <p class="description">
                 <?php 
                 printf(
-                    __('Showing %d version%s. Click "Compare" to see differences or "Restore" to revert changes.', 'almaseo-seo-playground'),
+                    /* translators: %1$d: number of versions, %2$s: plural "s" or empty */
+                    __('Showing %1$d version%2$s. Click "Compare" to see differences or "Restore" to revert changes.', 'almaseo-seo-playground'),
                     count($snapshots),
                     count($snapshots) > 1 ? 's' : ''
                 );
@@ -117,7 +118,7 @@ function almaseo_history_render_card($post) {
                                 <div class="history-version">
                                     <strong>v<?php echo esc_html($snapshot->version); ?></strong>
                                     <span class="history-time" title="<?php echo esc_attr($snapshot->created_at); ?> UTC">
-                                        • <?php echo esc_html($time_diff); ?> <?php _e('ago', 'almaseo-seo-playground'); ?>
+                                        • <?php echo esc_html($time_diff); ?> <?php esc_html_e('ago', 'almaseo-seo-playground'); ?>
                                     </span>
                                     <span class="history-user">• <?php echo esc_html($user_name); ?></span>
                                     <span class="history-source <?php echo esc_attr($source_class); ?>" title="<?php esc_attr_e('How this version was created', 'almaseo-seo-playground'); ?>">
@@ -142,13 +143,13 @@ function almaseo_history_render_card($post) {
                                     data-version="<?php echo esc_attr($snapshot->version); ?>"
                                     title="<?php esc_attr_e('View side-by-side comparison of changes between this version and another', 'almaseo-seo-playground'); ?>">
                                 <span class="dashicons dashicons-editor-code"></span>
-                                <?php _e('Compare', 'almaseo-seo-playground'); ?>
+                                <?php esc_html_e('Compare', 'almaseo-seo-playground'); ?>
                             </button>
                             <button type="button" class="button button-small history-restore" 
                                     data-version-id="<?php echo esc_attr($snapshot->id); ?>"
                                     title="<?php esc_attr_e('Replace current SEO metadata with this version (creates a new restore point)', 'almaseo-seo-playground'); ?>">
                                 <span class="dashicons dashicons-backup"></span>
-                                <?php _e('Restore', 'almaseo-seo-playground'); ?>
+                                <?php esc_html_e('Restore', 'almaseo-seo-playground'); ?>
                             </button>
                             <div class="history-more-menu">
                                 <button type="button" class="button button-small history-more-btn">
@@ -156,10 +157,10 @@ function almaseo_history_render_card($post) {
                                 </button>
                                 <div class="history-dropdown" style="display: none;">
                                     <a href="#" class="history-copy-json" data-version-id="<?php echo esc_attr($snapshot->id); ?>">
-                                        <?php _e('Copy JSON', 'almaseo-seo-playground'); ?>
+                                        <?php esc_html_e('Copy JSON', 'almaseo-seo-playground'); ?>
                                     </a>
                                     <a href="#" class="history-delete" data-version-id="<?php echo esc_attr($snapshot->id); ?>">
-                                        <?php _e('Delete Version', 'almaseo-seo-playground'); ?>
+                                        <?php esc_html_e('Delete Version', 'almaseo-seo-playground'); ?>
                                     </a>
                                 </div>
                             </div>
@@ -182,7 +183,7 @@ function almaseo_history_render_card($post) {
         <div class="drawer-overlay"></div>
         <div class="drawer-panel">
             <div class="drawer-header">
-                <h3><?php _e('Compare Versions', 'almaseo-seo-playground'); ?></h3>
+                <h3><?php esc_html_e('Compare Versions', 'almaseo-seo-playground'); ?></h3>
                 <button type="button" class="drawer-close">
                     <span class="dashicons dashicons-no-alt"></span>
                 </button>
@@ -190,11 +191,11 @@ function almaseo_history_render_card($post) {
             
             <div class="drawer-selectors">
                 <p class="description">
-                    <?php _e('Select two versions to compare their differences. Red shows what was removed, green shows what was added.', 'almaseo-seo-playground'); ?>
+                    <?php esc_html_e('Select two versions to compare their differences. Red shows what was removed, green shows what was added.', 'almaseo-seo-playground'); ?>
                 </p>
                 <div class="selector-controls">
                     <div class="selector-group">
-                        <label><?php _e('From (Old):', 'almaseo-seo-playground'); ?></label>
+                        <label><?php esc_html_e('From (Old):', 'almaseo-seo-playground'); ?></label>
                         <select id="compare-from-version" title="<?php esc_attr_e('Select the older version to compare from', 'almaseo-seo-playground'); ?>">
                             <?php foreach ($snapshots as $snapshot): ?>
                             <option value="<?php echo esc_attr($snapshot->version); ?>">
@@ -209,7 +210,7 @@ function almaseo_history_render_card($post) {
                     </button>
                     
                     <div class="selector-group">
-                        <label><?php _e('To (New):', 'almaseo-seo-playground'); ?></label>
+                        <label><?php esc_html_e('To (New):', 'almaseo-seo-playground'); ?></label>
                         <select id="compare-to-version" title="<?php esc_attr_e('Select the newer version to compare to', 'almaseo-seo-playground'); ?>">
                             <?php foreach ($snapshots as $snapshot): ?>
                             <option value="<?php echo esc_attr($snapshot->version); ?>">
@@ -224,7 +225,7 @@ function almaseo_history_render_card($post) {
             <div class="drawer-content">
                 <div class="compare-loading" style="display: none;">
                     <span class="spinner is-active"></span>
-                    <?php _e('Loading comparison...', 'almaseo-seo-playground'); ?>
+                    <?php esc_html_e('Loading comparison...', 'almaseo-seo-playground'); ?>
                 </div>
                 
                 <div class="compare-results" id="compare-results">
@@ -234,10 +235,10 @@ function almaseo_history_render_card($post) {
             
             <div class="drawer-footer">
                 <button type="button" class="button button-primary" id="restore-to-version">
-                    <?php _e('Restore To Version', 'almaseo-seo-playground'); ?>
+                    <?php esc_html_e('Restore To Version', 'almaseo-seo-playground'); ?>
                 </button>
                 <button type="button" class="button drawer-close">
-                    <?php _e('Close', 'almaseo-seo-playground'); ?>
+                    <?php esc_html_e('Close', 'almaseo-seo-playground'); ?>
                 </button>
             </div>
         </div>
@@ -263,7 +264,7 @@ function almaseo_history_render_compare_field($field_name, $from_value, $to_valu
         
         <div class="compare-columns">
             <div class="compare-column from-column">
-                <div class="column-header"><?php _e('From (Old)', 'almaseo-seo-playground'); ?></div>
+                <div class="column-header"><?php esc_html_e('From (Old)', 'almaseo-seo-playground'); ?></div>
                 <div class="column-content">
                     <?php if ($field_name === 'schema_json'): ?>
                     <div class="schema-preview">
@@ -278,7 +279,7 @@ function almaseo_history_render_compare_field($field_name, $from_value, $to_valu
             </div>
             
             <div class="compare-column to-column">
-                <div class="column-header"><?php _e('To (New)', 'almaseo-seo-playground'); ?></div>
+                <div class="column-header"><?php esc_html_e('To (New)', 'almaseo-seo-playground'); ?></div>
                 <div class="column-content">
                     <?php if ($field_name === 'schema_json'): ?>
                     <div class="schema-preview">

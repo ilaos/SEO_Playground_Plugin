@@ -297,6 +297,7 @@ class Alma_IndexNow {
             return array(
                 'success' => true,
                 'message' => sprintf(
+                    /* translators: %d: number of URLs submitted */
                     __('Successfully submitted %d URLs to IndexNow', 'almaseo-seo-playground'),
                     count($urls)
                 ),

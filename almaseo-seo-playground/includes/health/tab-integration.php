@@ -91,7 +91,7 @@ function almaseo_health_get_tab_content($post) {
                 
                 <!-- Summary -->
                 <div class="health-breakdown">
-                    <h4><?php _e('Overall SEO Health', 'almaseo-seo-playground'); ?></h4>
+                    <h4><?php esc_html_e('Overall SEO Health', 'almaseo-seo-playground'); ?></h4>
                     <p class="health-status-message <?php echo $score_class; ?>">
                         <?php echo esc_html($status_text); ?>
                     </p>
@@ -113,18 +113,18 @@ function almaseo_health_get_tab_content($post) {
                         ?>
                         <span class="health-stat-item">
                             <span class="stat-icon">✅</span>
-                            <strong><?php echo $pass_count; ?></strong> <?php _e('Passed', 'almaseo-seo-playground'); ?>
+                            <strong><?php echo $pass_count; ?></strong> <?php esc_html_e('Passed', 'almaseo-seo-playground'); ?>
                         </span>
                         <span class="health-stat-item">
                             <span class="stat-icon">❌</span>
-                            <strong><?php echo $fail_count; ?></strong> <?php _e('Issues', 'almaseo-seo-playground'); ?>
+                            <strong><?php echo $fail_count; ?></strong> <?php esc_html_e('Issues', 'almaseo-seo-playground'); ?>
                         </span>
                     </div>
                     
                     <!-- Link to Full Analyzer -->
                     <div class="health-analyzer-link">
                         <a href="#almaseo_health_score" class="button button-secondary" onclick="jQuery('html, body').animate({scrollTop: jQuery('#almaseo_health_score').offset().top - 50}, 500); return false;">
-                            <?php _e('Open Full Health Analyzer', 'almaseo-seo-playground'); ?> ↓
+                            <?php esc_html_e('Open Full Health Analyzer', 'almaseo-seo-playground'); ?> ↓
                         </a>
                     </div>
                 </div>

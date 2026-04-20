@@ -42,7 +42,7 @@ try {
 <!-- Delta Sitemap -->
 <div class="almaseo-card">
     <div class="almaseo-card-header">
-        <h2><?php _e('Delta Sitemap', 'almaseo-seo-playground'); ?></h2>
+        <h2><?php esc_html_e('Delta Sitemap', 'almaseo-seo-playground'); ?></h2>
         <div class="almaseo-chips">
             <span class="almaseo-chip <?php echo $settings['delta']['enabled'] ? 'almaseo-chip-success' : ''; ?>">
                 <?php echo $settings['delta']['enabled'] ? __('Active', 'almaseo-seo-playground') : __('Inactive', 'almaseo-seo-playground'); ?>
@@ -54,8 +54,8 @@ try {
             </span>
             <?php if (!empty($delta_health['time'])): ?>
             <span class="almaseo-chip">
-                <?php _e('Last ping:', 'almaseo-seo-playground'); ?> 
-                <?php echo human_time_diff($delta_health['time']); ?> <?php _e('ago', 'almaseo-seo-playground'); ?>
+                <?php esc_html_e('Last ping:', 'almaseo-seo-playground'); ?> 
+                <?php echo human_time_diff($delta_health['time']); ?> <?php esc_html_e('ago', 'almaseo-seo-playground'); ?>
             </span>
             <?php endif; ?>
         </div>
@@ -64,47 +64,47 @@ try {
         <div class="almaseo-form-group">
             <label class="almaseo-toggle-item">
                 <input type="checkbox" id="delta-enabled" <?php checked($settings['delta']['enabled']); ?>>
-                <span><?php _e('Enable Delta Sitemap', 'almaseo-seo-playground'); ?></span>
-                <small><?php _e('Track recently changed URLs for faster indexing', 'almaseo-seo-playground'); ?></small>
+                <span><?php esc_html_e('Enable Delta Sitemap', 'almaseo-seo-playground'); ?></span>
+                <small><?php esc_html_e('Track recently changed URLs for faster indexing', 'almaseo-seo-playground'); ?></small>
             </label>
         </div>
         
         <div class="almaseo-info-box almaseo-info-default">
             <p>
                 <span class="dashicons dashicons-info"></span>
-                <?php _e('Delta sitemaps contain only recently modified URLs, making it easier for search engines to discover fresh content quickly.', 'almaseo-seo-playground'); ?>
+                <?php esc_html_e('Delta sitemaps contain only recently modified URLs, making it easier for search engines to discover fresh content quickly.', 'almaseo-seo-playground'); ?>
             </p>
         </div>
         
         <div class="almaseo-form-row">
             <div class="almaseo-form-group">
-                <label for="delta-max-urls"><?php _e('Max URLs:', 'almaseo-seo-playground'); ?></label>
+                <label for="delta-max-urls"><?php esc_html_e('Max URLs:', 'almaseo-seo-playground'); ?></label>
                 <input type="number" id="delta-max-urls" 
                        value="<?php echo esc_attr($settings['delta']['max_urls']); ?>"
                        min="50" max="2000" class="almaseo-input almaseo-input-small">
-                <p class="description"><?php _e('Ring buffer size (50-2000)', 'almaseo-seo-playground'); ?></p>
+                <p class="description"><?php esc_html_e('Ring buffer size (50-2000)', 'almaseo-seo-playground'); ?></p>
             </div>
             <div class="almaseo-form-group">
-                <label for="delta-retention"><?php _e('Retention Days:', 'almaseo-seo-playground'); ?></label>
+                <label for="delta-retention"><?php esc_html_e('Retention Days:', 'almaseo-seo-playground'); ?></label>
                 <input type="number" id="delta-retention" 
                        value="<?php echo esc_attr($settings['delta']['retention_days']); ?>"
                        min="1" max="90" class="almaseo-input almaseo-input-small">
-                <p class="description"><?php _e('Keep URLs for (1-90 days)', 'almaseo-seo-playground'); ?></p>
+                <p class="description"><?php esc_html_e('Keep URLs for (1-90 days)', 'almaseo-seo-playground'); ?></p>
             </div>
         </div>
         
         <div class="almaseo-sitemap-url">
-            <label><?php _e('Delta Sitemap URL:', 'almaseo-seo-playground'); ?></label>
+            <label><?php esc_html_e('Delta Sitemap URL:', 'almaseo-seo-playground'); ?></label>
             <div class="almaseo-input-group">
                 <input type="text" readonly value="<?php echo esc_url(home_url('/almaseo-sitemap-delta.xml')); ?>" class="almaseo-input" id="delta-url">
                 <div class="almaseo-button-group">
                     <button type="button" class="button almaseo-button-secondary" id="open-delta">
                         <span class="dashicons dashicons-external"></span>
-                        <?php _e('Open Delta', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Open Delta', 'almaseo-seo-playground'); ?>
                     </button>
                     <button type="button" class="button almaseo-button-secondary" id="copy-delta-url">
                         <span class="dashicons dashicons-clipboard"></span>
-                        <?php _e('Copy URL', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Copy URL', 'almaseo-seo-playground'); ?>
                     </button>
                 </div>
             </div>
@@ -113,38 +113,38 @@ try {
         <div class="almaseo-button-group">
             <button type="button" class="button button-primary" id="force-ping" <?php echo empty($delta_stats['count']) ? 'disabled' : ''; ?>>
                 <span class="dashicons dashicons-megaphone"></span>
-                <?php _e('Force Ping', 'almaseo-seo-playground'); ?>
+                <?php esc_html_e('Force Ping', 'almaseo-seo-playground'); ?>
             </button>
             <button type="button" class="button" id="purge-old">
                 <span class="dashicons dashicons-trash"></span>
-                <?php _e('Purge Old', 'almaseo-seo-playground'); ?>
+                <?php esc_html_e('Purge Old', 'almaseo-seo-playground'); ?>
             </button>
         </div>
         
         <?php if ($delta_stats['count'] > 0): ?>
         <div class="almaseo-info-box">
-            <p><strong><?php _e('Current Status:', 'almaseo-seo-playground'); ?></strong></p>
+            <p><strong><?php esc_html_e('Current Status:', 'almaseo-seo-playground'); ?></strong></p>
             <p><?php
             /* translators: %1$d: current number of URLs in the buffer, %2$d: maximum buffer capacity */
             echo sprintf(__('Ring buffer: %1$d of %2$d URLs', 'almaseo-seo-playground'), $delta_stats['count'], $delta_stats['max']); ?></p>
             <?php if ($delta_stats['oldest']): ?>
             <p><?php
             /* translators: %s: human-readable time difference */
-            echo sprintf(__('Oldest entry: %s', 'almaseo-seo-playground'), human_time_diff($delta_stats['oldest'])); ?> <?php _e('ago', 'almaseo-seo-playground'); ?></p>
+            echo sprintf(__('Oldest entry: %s', 'almaseo-seo-playground'), human_time_diff($delta_stats['oldest'])); ?> <?php esc_html_e('ago', 'almaseo-seo-playground'); ?></p>
             <?php endif; ?>
             <?php if (!empty($delta_health['success'])): ?>
             <p class="almaseo-text-success"><?php
             /* translators: %d: number of URLs submitted in the last ping */
             echo sprintf(__('Last ping: %d URLs submitted successfully', 'almaseo-seo-playground'), $delta_health['count']); ?></p>
             <?php elseif (isset($delta_health['success']) && !$delta_health['success']): ?>
-            <p class="almaseo-text-danger"><?php _e('Last ping failed', 'almaseo-seo-playground'); ?></p>
+            <p class="almaseo-text-danger"><?php esc_html_e('Last ping failed', 'almaseo-seo-playground'); ?></p>
             <?php endif; ?>
         </div>
         <?php else: ?>
         <div class="almaseo-empty-state">
             <span class="dashicons dashicons-update-alt"></span>
-            <p><?php _e('No changes tracked yet', 'almaseo-seo-playground'); ?></p>
-            <p class="description"><?php _e('URLs will appear here as content is modified', 'almaseo-seo-playground'); ?></p>
+            <p><?php esc_html_e('No changes tracked yet', 'almaseo-seo-playground'); ?></p>
+            <p class="description"><?php esc_html_e('URLs will appear here as content is modified', 'almaseo-seo-playground'); ?></p>
         </div>
         <?php endif; ?>
     </div>
@@ -153,7 +153,7 @@ try {
 <!-- IndexNow Integration -->
 <div class="almaseo-card">
     <div class="almaseo-card-header">
-        <h2><?php _e('IndexNow Integration', 'almaseo-seo-playground'); ?></h2>
+        <h2><?php esc_html_e('IndexNow Integration', 'almaseo-seo-playground'); ?></h2>
         <div class="almaseo-chips">
             <?php 
             $indexnow_enabled = get_option('almaseo_indexnow_enabled', false);
@@ -164,7 +164,7 @@ try {
             </span>
             <?php if ($indexnow_key): ?>
             <span class="almaseo-chip">
-                <?php _e('Key Set', 'almaseo-seo-playground'); ?>
+                <?php esc_html_e('Key Set', 'almaseo-seo-playground'); ?>
             </span>
             <?php endif; ?>
         </div>
@@ -173,73 +173,73 @@ try {
         <div class="almaseo-form-group">
             <label class="almaseo-toggle-item">
                 <input type="checkbox" id="indexnow-enabled" <?php checked($indexnow_enabled); ?>>
-                <span><?php _e('Enable IndexNow', 'almaseo-seo-playground'); ?></span>
-                <small><?php _e('Automatically notify search engines when content changes', 'almaseo-seo-playground'); ?></small>
+                <span><?php esc_html_e('Enable IndexNow', 'almaseo-seo-playground'); ?></span>
+                <small><?php esc_html_e('Automatically notify search engines when content changes', 'almaseo-seo-playground'); ?></small>
             </label>
         </div>
         
         <div class="almaseo-info-box almaseo-info-default">
             <p>
                 <span class="dashicons dashicons-info"></span>
-                <?php _e('IndexNow is a protocol that allows search engines to be notified when URLs are updated. Supported by Bing, Yandex, and others.', 'almaseo-seo-playground'); ?>
+                <?php esc_html_e('IndexNow is a protocol that allows search engines to be notified when URLs are updated. Supported by Bing, Yandex, and others.', 'almaseo-seo-playground'); ?>
             </p>
         </div>
         
         <div class="almaseo-form-group">
-            <label for="indexnow-key"><?php _e('IndexNow Key:', 'almaseo-seo-playground'); ?></label>
+            <label for="indexnow-key"><?php esc_html_e('IndexNow Key:', 'almaseo-seo-playground'); ?></label>
             <input type="text" id="indexnow-key" 
                    value="<?php echo esc_attr($indexnow_key); ?>"
                    class="almaseo-input"
-                   placeholder="<?php _e('Auto-generated or custom key', 'almaseo-seo-playground'); ?>">
-            <p class="description"><?php _e('Leave empty to auto-generate a key. Must be 8-128 characters.', 'almaseo-seo-playground'); ?></p>
+                   placeholder="<?php esc_html_e('Auto-generated or custom key', 'almaseo-seo-playground'); ?>">
+            <p class="description"><?php esc_html_e('Leave empty to auto-generate a key. Must be 8-128 characters.', 'almaseo-seo-playground'); ?></p>
         </div>
         
         <div class="almaseo-form-row">
             <div class="almaseo-form-group">
-                <label for="indexnow-endpoint"><?php _e('Endpoint:', 'almaseo-seo-playground'); ?></label>
+                <label for="indexnow-endpoint"><?php esc_html_e('Endpoint:', 'almaseo-seo-playground'); ?></label>
                 <select id="indexnow-endpoint" class="almaseo-input">
                     <option value="bing" <?php selected(get_option('almaseo_indexnow_endpoint', 'bing'), 'bing'); ?>>
-                        <?php _e('Bing (api.indexnow.org)', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Bing (api.indexnow.org)', 'almaseo-seo-playground'); ?>
                     </option>
                     <option value="yandex" <?php selected(get_option('almaseo_indexnow_endpoint', 'bing'), 'yandex'); ?>>
-                        <?php _e('Yandex (yandex.com)', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Yandex (yandex.com)', 'almaseo-seo-playground'); ?>
                     </option>
                 </select>
             </div>
             <div class="almaseo-form-group">
-                <label for="indexnow-batch-size"><?php _e('Batch Size:', 'almaseo-seo-playground'); ?></label>
+                <label for="indexnow-batch-size"><?php esc_html_e('Batch Size:', 'almaseo-seo-playground'); ?></label>
                 <input type="number" id="indexnow-batch-size" 
                        value="<?php echo esc_attr(get_option('almaseo_indexnow_batch_size', 100)); ?>"
                        min="1" max="10000" class="almaseo-input almaseo-input-small">
-                <p class="description"><?php _e('URLs per request (1-10000)', 'almaseo-seo-playground'); ?></p>
+                <p class="description"><?php esc_html_e('URLs per request (1-10000)', 'almaseo-seo-playground'); ?></p>
             </div>
         </div>
         
         <div class="almaseo-button-group">
             <button type="button" class="button button-primary" id="test-indexnow">
                 <span class="dashicons dashicons-yes-alt"></span>
-                <?php _e('Test IndexNow', 'almaseo-seo-playground'); ?>
+                <?php esc_html_e('Test IndexNow', 'almaseo-seo-playground'); ?>
             </button>
             <button type="button" class="button" id="generate-indexnow-key">
                 <span class="dashicons dashicons-admin-network"></span>
-                <?php _e('Generate Key', 'almaseo-seo-playground'); ?>
+                <?php esc_html_e('Generate Key', 'almaseo-seo-playground'); ?>
             </button>
             <button type="button" class="button" id="ping-all-indexnow" <?php echo !$indexnow_enabled ? 'disabled' : ''; ?>>
                 <span class="dashicons dashicons-megaphone"></span>
-                <?php _e('Ping All URLs', 'almaseo-seo-playground'); ?>
+                <?php esc_html_e('Ping All URLs', 'almaseo-seo-playground'); ?>
             </button>
         </div>
         
         <?php if ($indexnow_key): ?>
         <div class="almaseo-info-box">
-            <p><strong><?php _e('Key File URL:', 'almaseo-seo-playground'); ?></strong></p>
+            <p><strong><?php esc_html_e('Key File URL:', 'almaseo-seo-playground'); ?></strong></p>
             <p>
                 <code><?php echo esc_url(home_url('/' . $indexnow_key . '.txt')); ?></code>
                 <button type="button" class="button-link" id="copy-key-url">
                     <span class="dashicons dashicons-clipboard"></span>
                 </button>
             </p>
-            <p class="description"><?php _e('This file must be accessible for IndexNow verification', 'almaseo-seo-playground'); ?></p>
+            <p class="description"><?php esc_html_e('This file must be accessible for IndexNow verification', 'almaseo-seo-playground'); ?></p>
         </div>
         <?php endif; ?>
     </div>
@@ -248,11 +248,11 @@ try {
 <!-- Change Tracking History -->
 <div class="almaseo-card">
     <div class="almaseo-card-header">
-        <h2><?php _e('Change Tracking History', 'almaseo-seo-playground'); ?></h2>
+        <h2><?php esc_html_e('Change Tracking History', 'almaseo-seo-playground'); ?></h2>
         <div class="almaseo-button-group">
             <button type="button" class="button almaseo-button-secondary" id="export-delta-history">
                 <span class="dashicons dashicons-download"></span>
-                <?php _e('Export History', 'almaseo-seo-playground'); ?>
+                <?php esc_html_e('Export History', 'almaseo-seo-playground'); ?>
             </button>
         </div>
     </div>
@@ -277,10 +277,10 @@ try {
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
-                        <th><?php _e('URL', 'almaseo-seo-playground'); ?></th>
-                        <th><?php _e('Change Type', 'almaseo-seo-playground'); ?></th>
-                        <th><?php _e('Modified', 'almaseo-seo-playground'); ?></th>
-                        <th><?php _e('Status', 'almaseo-seo-playground'); ?></th>
+                        <th><?php esc_html_e('URL', 'almaseo-seo-playground'); ?></th>
+                        <th><?php esc_html_e('Change Type', 'almaseo-seo-playground'); ?></th>
+                        <th><?php esc_html_e('Modified', 'almaseo-seo-playground'); ?></th>
+                        <th><?php esc_html_e('Status', 'almaseo-seo-playground'); ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -302,11 +302,11 @@ try {
                             <?php if ($change['pinged']): ?>
                             <span class="almaseo-text-success">
                                 <span class="dashicons dashicons-yes-alt"></span>
-                                <?php _e('Notified', 'almaseo-seo-playground'); ?>
+                                <?php esc_html_e('Notified', 'almaseo-seo-playground'); ?>
                             </span>
                             <?php else: ?>
                             <span class="almaseo-text-muted">
-                                <?php _e('Pending', 'almaseo-seo-playground'); ?>
+                                <?php esc_html_e('Pending', 'almaseo-seo-playground'); ?>
                             </span>
                             <?php endif; ?>
                         </td>
@@ -318,8 +318,8 @@ try {
         <?php else: ?>
         <div class="almaseo-empty-state">
             <span class="dashicons dashicons-clock"></span>
-            <p><?php _e('No recent changes tracked', 'almaseo-seo-playground'); ?></p>
-            <p class="description"><?php _e('Recent content modifications will appear here', 'almaseo-seo-playground'); ?></p>
+            <p><?php esc_html_e('No recent changes tracked', 'almaseo-seo-playground'); ?></p>
+            <p class="description"><?php esc_html_e('Recent content modifications will appear here', 'almaseo-seo-playground'); ?></p>
         </div>
         <?php endif; ?>
     </div>

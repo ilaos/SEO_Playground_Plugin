@@ -170,12 +170,12 @@ function almaseo_schema_meta_box_content($post) {
         <label>
             <input type="checkbox" name="almaseo_schema_enabled" value="enabled" 
                    <?php checked($schema_enabled !== 'disabled'); ?>>
-            <?php _e('Enable Schema Markup', 'almaseo-seo-playground'); ?>
+            <?php esc_html_e('Enable Schema Markup', 'almaseo-seo-playground'); ?>
         </label>
     </p>
     
     <p>
-        <label for="almaseo_schema_type"><?php _e('Schema Type:', 'almaseo-seo-playground'); ?></label>
+        <label for="almaseo_schema_type"><?php esc_html_e('Schema Type:', 'almaseo-seo-playground'); ?></label>
         <select name="almaseo_schema_type" id="almaseo_schema_type" style="width: 100%;">
             <option value="Article" <?php selected($schema_type, 'Article'); ?>>Article</option>
             <option value="BlogPosting" <?php selected($schema_type, 'BlogPosting'); ?>>Blog Post</option>
@@ -191,7 +191,7 @@ function almaseo_schema_meta_box_content($post) {
     
     <?php if (almaseo_is_aioseo_active()): ?>
     <p style="color: #d63638; font-style: italic;">
-        <?php _e('Note: AIOSEO is active. AlmaSEO schema output is disabled to prevent conflicts.', 'almaseo-seo-playground'); ?>
+        <?php esc_html_e('Note: AIOSEO is active. AlmaSEO schema output is disabled to prevent conflicts.', 'almaseo-seo-playground'); ?>
     </p>
     <?php endif; ?>
     <?php

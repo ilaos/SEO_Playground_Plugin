@@ -27,41 +27,41 @@ $logs_data = AlmaSEO_404_Model::get_logs(array(
 ?>
 <div class="wrap almaseo-404-logs">
     <h1>
-        <?php _e('404 Error Logs', 'almaseo-seo-playground'); ?>
-        <span class="help-text"><?php _e('Track and fix broken links on your site', 'almaseo-seo-playground'); ?></span>
+        <?php esc_html_e('404 Error Logs', 'almaseo-seo-playground'); ?>
+        <span class="help-text"><?php esc_html_e('Track and fix broken links on your site', 'almaseo-seo-playground'); ?></span>
     </h1>
     
     <!-- Stats Cards -->
     <div class="stats-cards">
         <div class="stat-card">
             <div class="stat-value"><?php echo number_format($stats['total_7d']); ?></div>
-            <div class="stat-label"><?php _e('404s (7 days)', 'almaseo-seo-playground'); ?></div>
+            <div class="stat-label"><?php esc_html_e('404s (7 days)', 'almaseo-seo-playground'); ?></div>
         </div>
         <div class="stat-card">
             <div class="stat-value"><?php echo number_format($stats['unique_7d']); ?></div>
-            <div class="stat-label"><?php _e('Unique Paths (7d)', 'almaseo-seo-playground'); ?></div>
+            <div class="stat-label"><?php esc_html_e('Unique Paths (7d)', 'almaseo-seo-playground'); ?></div>
         </div>
         <div class="stat-card">
             <div class="stat-value"><?php echo esc_html($top_referrer); ?></div>
-            <div class="stat-label"><?php _e('Top Referrer (7d)', 'almaseo-seo-playground'); ?></div>
+            <div class="stat-label"><?php esc_html_e('Top Referrer (7d)', 'almaseo-seo-playground'); ?></div>
         </div>
         <div class="stat-card">
             <div class="stat-value"><?php echo number_format($stats['today']); ?></div>
-            <div class="stat-label"><?php _e("Today's 404s", 'almaseo-seo-playground'); ?></div>
+            <div class="stat-label"><?php esc_html_e("Today's 404s", 'almaseo-seo-playground'); ?></div>
         </div>
     </div>
     
     <!-- Inline Help -->
     <div class="inline-help">
         <span class="dashicons dashicons-info"></span>
-        <?php _e('404 logs show missing URLs on your site. Fix broken links by creating redirects or restoring missing pages. Use "Ignore" to hide bot noise and unimportant paths.', 'almaseo-seo-playground'); ?>
+        <?php esc_html_e('404 logs show missing URLs on your site. Fix broken links by creating redirects or restoring missing pages. Use "Ignore" to hide bot noise and unimportant paths.', 'almaseo-seo-playground'); ?>
     </div>
 
     <!-- Spike Alerts (v7.6.0+) -->
     <details class="almaseo-404-intelligence-panel" open>
         <summary>
             <span class="dashicons dashicons-chart-bar"></span>
-            <?php _e( 'Spike Alerts', 'almaseo-seo-playground' ); ?>
+            <?php esc_html_e( 'Spike Alerts', 'almaseo-seo-playground' ); ?>
         </summary>
         <div id="almaseo-404-spikes" class="almaseo-404-panel-body">
             <p><?php esc_html_e( 'Checking for spikes...', 'almaseo-seo-playground' ); ?></p>
@@ -72,7 +72,7 @@ $logs_data = AlmaSEO_404_Model::get_logs(array(
     <details class="almaseo-404-intelligence-panel">
         <summary>
             <span class="dashicons dashicons-star-filled"></span>
-            <?php _e( 'High Impact 404s', 'almaseo-seo-playground' ); ?>
+            <?php esc_html_e( 'High Impact 404s', 'almaseo-seo-playground' ); ?>
         </summary>
         <div id="almaseo-404-high-impact" class="almaseo-404-panel-body">
             <p><?php esc_html_e( 'Loading impact data...', 'almaseo-seo-playground' ); ?></p>
@@ -83,25 +83,25 @@ $logs_data = AlmaSEO_404_Model::get_logs(array(
     <div class="tablenav top">
         <div class="alignleft actions">
             <select id="bulk-action-selector">
-                <option value=""><?php _e('Bulk Actions', 'almaseo-seo-playground'); ?></option>
-                <option value="ignore"><?php _e('Ignore', 'almaseo-seo-playground'); ?></option>
-                <option value="unignore"><?php _e('Unignore', 'almaseo-seo-playground'); ?></option>
-                <option value="delete"><?php _e('Delete', 'almaseo-seo-playground'); ?></option>
+                <option value=""><?php esc_html_e('Bulk Actions', 'almaseo-seo-playground'); ?></option>
+                <option value="ignore"><?php esc_html_e('Ignore', 'almaseo-seo-playground'); ?></option>
+                <option value="unignore"><?php esc_html_e('Unignore', 'almaseo-seo-playground'); ?></option>
+                <option value="delete"><?php esc_html_e('Delete', 'almaseo-seo-playground'); ?></option>
             </select>
-            <button type="button" class="button" id="do-bulk-action"><?php _e('Apply', 'almaseo-seo-playground'); ?></button>
+            <button type="button" class="button" id="do-bulk-action"><?php esc_html_e('Apply', 'almaseo-seo-playground'); ?></button>
         </div>
         
         <div class="alignright">
             <input type="text" id="search-input" placeholder="<?php esc_attr_e('Search paths, referrers...', 'almaseo-seo-playground'); ?>" />
             <select id="ignored-filter">
-                <option value=""><?php _e('All', 'almaseo-seo-playground'); ?></option>
-                <option value="0"><?php _e('Active Only', 'almaseo-seo-playground'); ?></option>
-                <option value="1"><?php _e('Ignored Only', 'almaseo-seo-playground'); ?></option>
+                <option value=""><?php esc_html_e('All', 'almaseo-seo-playground'); ?></option>
+                <option value="0"><?php esc_html_e('Active Only', 'almaseo-seo-playground'); ?></option>
+                <option value="1"><?php esc_html_e('Ignored Only', 'almaseo-seo-playground'); ?></option>
             </select>
             <input type="date" id="date-from" placeholder="<?php esc_attr_e('From', 'almaseo-seo-playground'); ?>" />
             <input type="date" id="date-to" placeholder="<?php esc_attr_e('To', 'almaseo-seo-playground'); ?>" />
-            <button type="button" class="button button-primary" id="apply-filters"><?php _e('Filter', 'almaseo-seo-playground'); ?></button>
-            <button type="button" class="button" id="clear-filters"><?php _e('Clear', 'almaseo-seo-playground'); ?></button>
+            <button type="button" class="button button-primary" id="apply-filters"><?php esc_html_e('Filter', 'almaseo-seo-playground'); ?></button>
+            <button type="button" class="button" id="clear-filters"><?php esc_html_e('Clear', 'almaseo-seo-playground'); ?></button>
         </div>
     </div>
     
@@ -112,13 +112,13 @@ $logs_data = AlmaSEO_404_Model::get_logs(array(
                 <td class="check-column">
                     <input type="checkbox" id="select-all" />
                 </td>
-                <th class="column-path"><?php _e('Path', 'almaseo-seo-playground'); ?></th>
-                <th class="column-query"><?php _e('Query', 'almaseo-seo-playground'); ?></th>
-                <th class="column-hits"><?php _e('Hits', 'almaseo-seo-playground'); ?></th>
-                <th class="column-last-seen"><?php _e('Last Seen', 'almaseo-seo-playground'); ?></th>
-                <th class="column-referrer"><?php _e('Referrer', 'almaseo-seo-playground'); ?></th>
-                <th class="column-user-agent"><?php _e('User Agent', 'almaseo-seo-playground'); ?></th>
-                <th class="column-actions"><?php _e('Actions', 'almaseo-seo-playground'); ?></th>
+                <th class="column-path"><?php esc_html_e('Path', 'almaseo-seo-playground'); ?></th>
+                <th class="column-query"><?php esc_html_e('Query', 'almaseo-seo-playground'); ?></th>
+                <th class="column-hits"><?php esc_html_e('Hits', 'almaseo-seo-playground'); ?></th>
+                <th class="column-last-seen"><?php esc_html_e('Last Seen', 'almaseo-seo-playground'); ?></th>
+                <th class="column-referrer"><?php esc_html_e('Referrer', 'almaseo-seo-playground'); ?></th>
+                <th class="column-user-agent"><?php esc_html_e('User Agent', 'almaseo-seo-playground'); ?></th>
+                <th class="column-actions"><?php esc_html_e('Actions', 'almaseo-seo-playground'); ?></th>
             </tr>
         </thead>
         <tbody id="404-logs-tbody">
@@ -131,7 +131,7 @@ $logs_data = AlmaSEO_404_Model::get_logs(array(
                     <td class="column-path">
                         <strong><?php echo esc_html($log['path']); ?></strong>
                         <?php if ($log['is_ignored']): ?>
-                            <span class="ignored-badge"><?php _e('Ignored', 'almaseo-seo-playground'); ?></span>
+                            <span class="ignored-badge"><?php esc_html_e('Ignored', 'almaseo-seo-playground'); ?></span>
                         <?php endif; ?>
                     </td>
                     <td class="column-query">
@@ -169,22 +169,22 @@ $logs_data = AlmaSEO_404_Model::get_logs(array(
                     </td>
                     <td class="column-actions">
                         <button type="button" class="button button-small almaseo-404-suggest-btn" data-id="<?php echo esc_attr($log['id']); ?>">
-                            <?php _e('Suggestions', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('Suggestions', 'almaseo-seo-playground'); ?>
                         </button>
                         <button type="button" class="button button-small create-redirect" data-id="<?php echo esc_attr($log['id']); ?>">
-                            <?php _e('Create Redirect', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('Create Redirect', 'almaseo-seo-playground'); ?>
                         </button>
                         <?php if ($log['is_ignored']): ?>
                             <button type="button" class="button button-small unignore-log" data-id="<?php echo esc_attr($log['id']); ?>">
-                                <?php _e('Unignore', 'almaseo-seo-playground'); ?>
+                                <?php esc_html_e('Unignore', 'almaseo-seo-playground'); ?>
                             </button>
                         <?php else: ?>
                             <button type="button" class="button button-small ignore-log" data-id="<?php echo esc_attr($log['id']); ?>">
-                                <?php _e('Ignore', 'almaseo-seo-playground'); ?>
+                                <?php esc_html_e('Ignore', 'almaseo-seo-playground'); ?>
                             </button>
                         <?php endif; ?>
                         <button type="button" class="button button-small button-link-delete delete-log" data-id="<?php echo esc_attr($log['id']); ?>">
-                            <?php _e('Delete', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('Delete', 'almaseo-seo-playground'); ?>
                         </button>
                     </td>
                 </tr>
@@ -192,7 +192,7 @@ $logs_data = AlmaSEO_404_Model::get_logs(array(
             <?php else: ?>
                 <tr>
                     <td colspan="8" class="no-items">
-                        <?php _e('No 404 errors found. Great job!', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('No 404 errors found. Great job!', 'almaseo-seo-playground'); ?>
                     </td>
                 </tr>
             <?php endif; ?>
@@ -202,13 +202,13 @@ $logs_data = AlmaSEO_404_Model::get_logs(array(
                 <td class="check-column">
                     <input type="checkbox" id="select-all-bottom" />
                 </td>
-                <th><?php _e('Path', 'almaseo-seo-playground'); ?></th>
-                <th><?php _e('Query', 'almaseo-seo-playground'); ?></th>
-                <th><?php _e('Hits', 'almaseo-seo-playground'); ?></th>
-                <th><?php _e('Last Seen', 'almaseo-seo-playground'); ?></th>
-                <th><?php _e('Referrer', 'almaseo-seo-playground'); ?></th>
-                <th><?php _e('User Agent', 'almaseo-seo-playground'); ?></th>
-                <th><?php _e('Actions', 'almaseo-seo-playground'); ?></th>
+                <th><?php esc_html_e('Path', 'almaseo-seo-playground'); ?></th>
+                <th><?php esc_html_e('Query', 'almaseo-seo-playground'); ?></th>
+                <th><?php esc_html_e('Hits', 'almaseo-seo-playground'); ?></th>
+                <th><?php esc_html_e('Last Seen', 'almaseo-seo-playground'); ?></th>
+                <th><?php esc_html_e('Referrer', 'almaseo-seo-playground'); ?></th>
+                <th><?php esc_html_e('User Agent', 'almaseo-seo-playground'); ?></th>
+                <th><?php esc_html_e('Actions', 'almaseo-seo-playground'); ?></th>
             </tr>
         </tfoot>
     </table>
@@ -217,9 +217,8 @@ $logs_data = AlmaSEO_404_Model::get_logs(array(
     <div class="tablenav bottom">
         <div class="tablenav-pages">
             <span class="displaying-num">
-                <?php
-                /* translators: %s: number of items */
-                printf(
+                <?php printf(
+                    /* translators: %s: number of items */
                     _n('%s item', '%s items', $logs_data['total'], 'almaseo-seo-playground'),
                     number_format($logs_data['total'])
                 ); ?>

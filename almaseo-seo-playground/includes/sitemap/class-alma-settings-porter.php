@@ -69,6 +69,7 @@ class Alma_Settings_Porter {
             if (version_compare($import_version, $current_version, '<')) {
                 // Allow import from older versions with warning
                 Alma_Health_Log::log('import', sprintf(
+                    /* translators: %s: version number of the imported settings */
                     __('Imported settings from older version %s', 'almaseo-seo-playground'),
                     $import_version
                 ));

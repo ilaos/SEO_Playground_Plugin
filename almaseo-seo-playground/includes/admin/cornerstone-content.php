@@ -93,9 +93,9 @@ class AlmaSEO_Cornerstone_Content {
         $selected = isset( $_GET['almaseo_cornerstone_filter'] ) ? sanitize_text_field( $_GET['almaseo_cornerstone_filter'] ) : '';
         ?>
         <select name="almaseo_cornerstone_filter">
-            <option value=""><?php _e( 'All Posts', 'almaseo-seo-playground' ); ?></option>
-            <option value="cornerstone" <?php selected( $selected, 'cornerstone' ); ?>><?php _e( 'Cornerstone Only', 'almaseo-seo-playground' ); ?></option>
-            <option value="non-cornerstone" <?php selected( $selected, 'non-cornerstone' ); ?>><?php _e( 'Non-Cornerstone', 'almaseo-seo-playground' ); ?></option>
+            <option value=""><?php esc_html_e( 'All Posts', 'almaseo-seo-playground' ); ?></option>
+            <option value="cornerstone" <?php selected( $selected, 'cornerstone' ); ?>><?php esc_html_e( 'Cornerstone Only', 'almaseo-seo-playground' ); ?></option>
+            <option value="non-cornerstone" <?php selected( $selected, 'non-cornerstone' ); ?>><?php esc_html_e( 'Non-Cornerstone', 'almaseo-seo-playground' ); ?></option>
         </select>
         <?php
     }
@@ -144,7 +144,7 @@ class AlmaSEO_Cornerstone_Content {
             <div class="inline-edit-col">
                 <label class="inline-edit-cornerstone">
                     <input type="checkbox" name="almaseo_is_cornerstone" value="1" />
-                    <span class="checkbox-title"><?php _e( 'Cornerstone Content', 'almaseo-seo-playground' ); ?></span>
+                    <span class="checkbox-title"><?php esc_html_e( 'Cornerstone Content', 'almaseo-seo-playground' ); ?></span>
                 </label>
             </div>
         </fieldset>

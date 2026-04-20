@@ -44,7 +44,7 @@ function almaseo_eg_dashboard_widget_content() {
                     <?php echo esc_html($stats['evergreen']); ?>
                 </div>
                 <div style="font-size: 12px; color: #666;">
-                    🟢 <?php _e('Evergreen', 'almaseo-seo-playground'); ?>
+                    🟢 <?php esc_html_e('Evergreen', 'almaseo-seo-playground'); ?>
                 </div>
                 <div style="font-size: 11px; color: #999;">
                     <?php echo esc_html($evergreen_pct); ?>%
@@ -56,7 +56,7 @@ function almaseo_eg_dashboard_widget_content() {
                     <?php echo esc_html($stats['watch']); ?>
                 </div>
                 <div style="font-size: 12px; color: #666;">
-                    🟡 <?php _e('Watch', 'almaseo-seo-playground'); ?>
+                    🟡 <?php esc_html_e('Watch', 'almaseo-seo-playground'); ?>
                 </div>
                 <div style="font-size: 11px; color: #999;">
                     <?php echo esc_html($watch_pct); ?>%
@@ -68,7 +68,7 @@ function almaseo_eg_dashboard_widget_content() {
                     <?php echo esc_html($stats['stale']); ?>
                 </div>
                 <div style="font-size: 12px; color: #666;">
-                    🔴 <?php _e('Stale', 'almaseo-seo-playground'); ?>
+                    🔴 <?php esc_html_e('Stale', 'almaseo-seo-playground'); ?>
                 </div>
                 <div style="font-size: 11px; color: #999;">
                     <?php echo esc_html($stale_pct); ?>%
@@ -108,7 +108,7 @@ function almaseo_eg_dashboard_widget_content() {
     ?>
     <div style="border-top: 1px solid #dcdcde; padding-top: 15px;">
         <h4 style="margin: 0 0 10px 0; font-size: 13px; font-weight: 600;">
-            <?php _e('Top 5 Posts Needing Refresh', 'almaseo-seo-playground'); ?>
+            <?php esc_html_e('Top 5 Posts Needing Refresh', 'almaseo-seo-playground'); ?>
         </h4>
         
         <table style="width: 100%; font-size: 12px;">
@@ -131,7 +131,7 @@ function almaseo_eg_dashboard_widget_content() {
                     <button class="button button-small almaseo-eg-widget-refresh" 
                             data-post-id="<?php echo esc_attr($post->ID); ?>"
                             style="font-size: 11px; padding: 0 8px; height: 22px; line-height: 20px;">
-                        <?php _e('Refresh', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Refresh', 'almaseo-seo-playground'); ?>
                     </button>
                 </td>
             </tr>
@@ -141,7 +141,7 @@ function almaseo_eg_dashboard_widget_content() {
     <?php else: ?>
     <div style="border-top: 1px solid #dcdcde; padding-top: 15px; text-align: center; color: #666;">
         <p style="margin: 0;">
-            ✨ <?php _e('All content is fresh!', 'almaseo-seo-playground'); ?>
+            ✨ <?php esc_html_e('All content is fresh!', 'almaseo-seo-playground'); ?>
         </p>
     </div>
     <?php endif; ?>
@@ -150,12 +150,12 @@ function almaseo_eg_dashboard_widget_content() {
     <div style="border-top: 1px solid #dcdcde; margin-top: 15px; padding-top: 15px; display: flex; gap: 10px;">
         <a href="<?php echo admin_url('admin.php?page=almaseo-evergreen'); ?>" 
            class="button button-primary" style="flex: 1; text-align: center;">
-            <?php _e('View All', 'almaseo-seo-playground'); ?>
+            <?php esc_html_e('View All', 'almaseo-seo-playground'); ?>
         </a>
         
         <a href="<?php echo admin_url('edit.php?evergreen_filter=stale'); ?>" 
            class="button" style="flex: 1; text-align: center;">
-            <?php _e('View Stale', 'almaseo-seo-playground'); ?>
+            <?php esc_html_e('View Stale', 'almaseo-seo-playground'); ?>
         </a>
     </div>
     
@@ -179,7 +179,7 @@ function almaseo_eg_dashboard_widget_content() {
                     $btn.text('✓');
                     $btn.closest('tr').fadeOut();
                 } else {
-                    $btn.prop('disabled', false).text('<?php _e('Refresh', 'almaseo-seo-playground'); ?>');
+                    $btn.prop('disabled', false).text('<?php esc_html_e('Refresh', 'almaseo-seo-playground'); ?>');
                 }
             });
         });

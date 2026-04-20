@@ -113,10 +113,10 @@ class AlmaSEO_Crawl_Optimization {
         $s = self::get_settings();
         ?>
         <div class="almaseo-settings-section">
-            <h2><?php _e( 'Crawl Optimization', 'almaseo-seo-playground' ); ?></h2>
-            <p class="description"><?php _e( 'Remove unnecessary metadata from your site to improve crawl efficiency and reduce page size.', 'almaseo-seo-playground' ); ?></p>
+            <h2><?php esc_html_e( 'Crawl Optimization', 'almaseo-seo-playground' ); ?></h2>
+            <p class="description"><?php esc_html_e( 'Remove unnecessary metadata from your site to improve crawl efficiency and reduce page size.', 'almaseo-seo-playground' ); ?></p>
 
-            <h3 style="margin-top:20px;"><?php _e( 'Head Cleanup', 'almaseo-seo-playground' ); ?></h3>
+            <h3 style="margin-top:20px;"><?php esc_html_e( 'Head Cleanup', 'almaseo-seo-playground' ); ?></h3>
             <table class="form-table">
                 <?php
                 $head_toggles = array(
@@ -134,14 +134,14 @@ class AlmaSEO_Crawl_Optimization {
                     <td>
                         <label>
                             <input type="checkbox" name="almaseo_crawl_optimization[<?php echo esc_attr( $key ); ?>]" value="1" <?php checked( ! empty( $s[ $key ] ) ); ?> />
-                            <?php _e( 'Enable', 'almaseo-seo-playground' ); ?>
+                            <?php esc_html_e( 'Enable', 'almaseo-seo-playground' ); ?>
                         </label>
                     </td>
                 </tr>
                 <?php endforeach; ?>
             </table>
 
-            <h3 style="margin-top:20px;"><?php _e( 'Feed Controls', 'almaseo-seo-playground' ); ?></h3>
+            <h3 style="margin-top:20px;"><?php esc_html_e( 'Feed Controls', 'almaseo-seo-playground' ); ?></h3>
             <table class="form-table">
                 <?php
                 $feed_toggles = array(
@@ -158,7 +158,7 @@ class AlmaSEO_Crawl_Optimization {
                     <td>
                         <label>
                             <input type="checkbox" name="almaseo_crawl_optimization[<?php echo esc_attr( $key ); ?>]" value="1" <?php checked( ! empty( $s[ $key ] ) ); ?> />
-                            <?php _e( 'Enable', 'almaseo-seo-playground' ); ?>
+                            <?php esc_html_e( 'Enable', 'almaseo-seo-playground' ); ?>
                         </label>
                     </td>
                 </tr>

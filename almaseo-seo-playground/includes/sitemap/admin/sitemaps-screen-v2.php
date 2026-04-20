@@ -96,25 +96,25 @@ class Alma_Sitemaps_Screen_V2 {
                     <span class="logo-dot"></span>
                     <span class="brand-name">AlmaSEO</span>
                     <span class="divider">•</span>
-                    <span class="screen-title"><?php _e('XML Sitemaps', 'almaseo-seo-playground'); ?></span>
+                    <span class="screen-title"><?php esc_html_e('XML Sitemaps', 'almaseo-seo-playground'); ?></span>
                 </div>
                 <div class="quick-actions">
                     <a href="<?php echo esc_url($primary_url); ?>" target="_blank" 
                        class="button button-secondary" 
                        <?php echo !$enabled ? 'aria-disabled="true" onclick="return false;" style="opacity:0.5;cursor:not-allowed;" title="' . esc_attr__('Enable sitemaps first', 'almaseo-seo-playground') . '"' : ''; ?>>
                         <span class="dashicons dashicons-external"></span>
-                        <?php _e('Open', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Open', 'almaseo-seo-playground'); ?>
                     </a>
                     <button type="button" class="button button-secondary" id="copy-sitemap-url" 
                             data-url="<?php echo esc_attr($primary_url); ?>" 
                             <?php echo !$enabled ? 'disabled aria-disabled="true" title="' . esc_attr__('Enable sitemaps first', 'almaseo-seo-playground') . '"' : ''; ?>>
                         <span class="dashicons dashicons-clipboard"></span>
-                        <?php _e('Copy', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Copy', 'almaseo-seo-playground'); ?>
                     </button>
                     <button type="button" class="button button-primary" id="rebuild-sitemaps" 
                             <?php echo !$enabled ? 'disabled aria-disabled="true" title="' . esc_attr__('Enable sitemaps first', 'almaseo-seo-playground') . '"' : ''; ?>>
                         <span class="dashicons dashicons-update"></span>
-                        <?php _e('Rebuild', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Rebuild', 'almaseo-seo-playground'); ?>
                     </button>
                 </div>
             </header>
@@ -127,26 +127,26 @@ class Alma_Sitemaps_Screen_V2 {
                 <?php if ($takeover): ?>
                 <span class="chip chip-warning">
                     <span class="dashicons dashicons-admin-site"></span>
-                    <?php _e('Serving /sitemap.xml', 'almaseo-seo-playground'); ?>
+                    <?php esc_html_e('Serving /sitemap.xml', 'almaseo-seo-playground'); ?>
                 </span>
                 <?php else: ?>
                 <span class="chip chip-default">
                     <span class="dashicons dashicons-admin-site-alt3"></span>
-                    <?php _e('Not taking over', 'almaseo-seo-playground'); ?>
+                    <?php esc_html_e('Not taking over', 'almaseo-seo-playground'); ?>
                 </span>
                 <?php endif; ?>
                 <span class="chip chip-info">
                     <?php echo $generation_mode === 'static' ? __('Static', 'almaseo-seo-playground') : __('Dynamic', 'almaseo-seo-playground'); ?>
                 </span>
                 <span class="chip chip-default" data-live-stat="files">
-                    <span class="num"><?php echo number_format($stats['total_files']); ?></span> <?php _e('Files', 'almaseo-seo-playground'); ?>
+                    <span class="num"><?php echo number_format($stats['total_files']); ?></span> <?php esc_html_e('Files', 'almaseo-seo-playground'); ?>
                 </span>
                 <span class="chip chip-default" data-live-stat="urls">
-                    <span class="num"><?php echo number_format($stats['total_urls']); ?></span> <?php _e('URLs', 'almaseo-seo-playground'); ?>
+                    <span class="num"><?php echo number_format($stats['total_urls']); ?></span> <?php esc_html_e('URLs', 'almaseo-seo-playground'); ?>
                 </span>
                 <?php if (!empty($stats['last_built'])): ?>
                 <span class="chip chip-muted">
-                    <?php _e('Built', 'almaseo-seo-playground'); ?> <?php echo human_time_diff(strtotime($stats['last_built'])); ?> <?php _e('ago', 'almaseo-seo-playground'); ?>
+                    <?php esc_html_e('Built', 'almaseo-seo-playground'); ?> <?php echo human_time_diff(strtotime($stats['last_built'])); ?> <?php esc_html_e('ago', 'almaseo-seo-playground'); ?>
                 </span>
                 <?php endif; ?>
             </div>

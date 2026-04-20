@@ -146,7 +146,7 @@ class Alma_HTML_Sitemap {
         ob_start();
         ?>
         <div class="almaseo-sitemap-section">
-            <h3><?php _e('Posts', 'almaseo-seo-playground'); ?></h3>
+            <h3><?php esc_html_e('Posts', 'almaseo-seo-playground'); ?></h3>
             <ul>
                 <?php foreach ($posts as $post): ?>
                 <li>
@@ -213,7 +213,7 @@ class Alma_HTML_Sitemap {
         ob_start();
         ?>
         <div class="almaseo-sitemap-section">
-            <h3><?php _e('Pages', 'almaseo-seo-playground'); ?></h3>
+            <h3><?php esc_html_e('Pages', 'almaseo-seo-playground'); ?></h3>
             <?php echo self::render_page_tree($pages); ?>
         </div>
         <?php
@@ -308,7 +308,7 @@ class Alma_HTML_Sitemap {
         ob_start();
         ?>
         <div class="almaseo-sitemap-section">
-            <h3><?php _e('Custom Content', 'almaseo-seo-playground'); ?></h3>
+            <h3><?php esc_html_e('Custom Content', 'almaseo-seo-playground'); ?></h3>
             <?php
             foreach ($post_types as $post_type) {
                 $posts = get_posts(array(
@@ -343,7 +343,7 @@ class Alma_HTML_Sitemap {
         ob_start();
         ?>
         <div class="almaseo-sitemap-section">
-            <h3><?php _e('Categories & Tags', 'almaseo-seo-playground'); ?></h3>
+            <h3><?php esc_html_e('Categories & Tags', 'almaseo-seo-playground'); ?></h3>
             <?php
             // Categories
             if (!empty($settings['include']['tax']['category'])) {
@@ -405,7 +405,7 @@ class Alma_HTML_Sitemap {
         ob_start();
         ?>
         <div class="almaseo-sitemap-section">
-            <h3><?php _e('Authors', 'almaseo-seo-playground'); ?></h3>
+            <h3><?php esc_html_e('Authors', 'almaseo-seo-playground'); ?></h3>
             <ul>
                 <?php foreach ($users as $user): ?>
                 <li>

@@ -118,6 +118,7 @@ class Alma_Sitemap_Validator {
                 if (count($urls) > $settings['links_per_sitemap']) {
                     $checks['max_links_ok'] = false;
                     $checks['issues'][] = sprintf(
+                        /* translators: %s: sitemap provider name */
                         __('Provider %s exceeds links_per_sitemap limit', 'almaseo-seo-playground'),
                         $name
                     );

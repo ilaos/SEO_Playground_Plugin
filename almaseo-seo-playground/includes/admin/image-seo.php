@@ -124,55 +124,55 @@ class AlmaSEO_Image_SEO {
         $s = self::get_settings();
         ?>
         <div class="almaseo-settings-section">
-            <h2><?php _e( 'Image SEO', 'almaseo-seo-playground' ); ?></h2>
-            <p class="description"><?php _e( 'Automatically add alt text and title attributes to images that are missing them.', 'almaseo-seo-playground' ); ?></p>
+            <h2><?php esc_html_e( 'Image SEO', 'almaseo-seo-playground' ); ?></h2>
+            <p class="description"><?php esc_html_e( 'Automatically add alt text and title attributes to images that are missing them.', 'almaseo-seo-playground' ); ?></p>
             <?php if ( function_exists('seo_playground_is_alma_connected') && seo_playground_is_alma_connected() ) : ?>
             <p class="description" style="margin-top: 4px; padding: 6px 10px; background: linear-gradient(135deg, #f0f4ff, #f8f9ff); border-left: 3px solid #667eea; border-radius: 3px;">
                 <strong style="background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI Enhanced</strong> —
-                <?php _e( 'Your dashboard connection provides AI-generated alt text that understands image context.', 'almaseo-seo-playground' ); ?>
+                <?php esc_html_e( 'Your dashboard connection provides AI-generated alt text that understands image context.', 'almaseo-seo-playground' ); ?>
             </p>
             <?php endif; ?>
             <table class="form-table">
                 <tr>
-                    <th scope="row"><?php _e( 'Enable Image SEO', 'almaseo-seo-playground' ); ?></th>
+                    <th scope="row"><?php esc_html_e( 'Enable Image SEO', 'almaseo-seo-playground' ); ?></th>
                     <td>
                         <label>
                             <input type="checkbox" name="almaseo_image_seo_settings[enabled]" value="1" <?php checked( $s['enabled'] ); ?> />
-                            <?php _e( 'Automatically add missing alt and title attributes', 'almaseo-seo-playground' ); ?>
+                            <?php esc_html_e( 'Automatically add missing alt and title attributes', 'almaseo-seo-playground' ); ?>
                         </label>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="img_alt_format"><?php _e( 'Alt Text Format', 'almaseo-seo-playground' ); ?></label></th>
+                    <th scope="row"><label for="img_alt_format"><?php esc_html_e( 'Alt Text Format', 'almaseo-seo-playground' ); ?></label></th>
                     <td>
                         <input type="text" id="img_alt_format" name="almaseo_image_seo_settings[alt_format]"
                                value="<?php echo esc_attr( $s['alt_format'] ); ?>" class="regular-text" />
-                        <p class="description"><?php _e( 'Tags: %%filename%%, %%sitename%%, %%post_title%%', 'almaseo-seo-playground' ); ?></p>
+                        <p class="description"><?php esc_html_e( 'Tags: %%filename%%, %%sitename%%, %%post_title%%', 'almaseo-seo-playground' ); ?></p>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><label for="img_title_format"><?php _e( 'Title Format', 'almaseo-seo-playground' ); ?></label></th>
+                    <th scope="row"><label for="img_title_format"><?php esc_html_e( 'Title Format', 'almaseo-seo-playground' ); ?></label></th>
                     <td>
                         <input type="text" id="img_title_format" name="almaseo_image_seo_settings[title_format]"
                                value="<?php echo esc_attr( $s['title_format'] ); ?>" class="regular-text" />
-                        <p class="description"><?php _e( 'Leave empty to skip title attribute. Tags: %%filename%%, %%sitename%%, %%post_title%%', 'almaseo-seo-playground' ); ?></p>
+                        <p class="description"><?php esc_html_e( 'Leave empty to skip title attribute. Tags: %%filename%%, %%sitename%%, %%post_title%%', 'almaseo-seo-playground' ); ?></p>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><?php _e( 'Strip File Extension', 'almaseo-seo-playground' ); ?></th>
+                    <th scope="row"><?php esc_html_e( 'Strip File Extension', 'almaseo-seo-playground' ); ?></th>
                     <td>
                         <label>
                             <input type="checkbox" name="almaseo_image_seo_settings[strip_extension]" value="1" <?php checked( $s['strip_extension'] ); ?> />
-                            <?php _e( 'Remove file extension from filename when generating text', 'almaseo-seo-playground' ); ?>
+                            <?php esc_html_e( 'Remove file extension from filename when generating text', 'almaseo-seo-playground' ); ?>
                         </label>
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><?php _e( 'Override Existing', 'almaseo-seo-playground' ); ?></th>
+                    <th scope="row"><?php esc_html_e( 'Override Existing', 'almaseo-seo-playground' ); ?></th>
                     <td>
                         <label>
                             <input type="checkbox" name="almaseo_image_seo_settings[override_existing]" value="1" <?php checked( $s['override_existing'] ); ?> />
-                            <?php _e( 'Replace existing alt text (not recommended)', 'almaseo-seo-playground' ); ?>
+                            <?php esc_html_e( 'Replace existing alt text (not recommended)', 'almaseo-seo-playground' ); ?>
                         </label>
                     </td>
                 </tr>

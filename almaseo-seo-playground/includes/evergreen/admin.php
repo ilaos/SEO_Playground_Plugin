@@ -54,8 +54,8 @@ function almaseo_eg_admin_page() {
     // Fallback to simple message if dashboard function not available
     ?>
     <div class="wrap">
-        <h1><?php _e('Evergreen Content Health', 'almaseo-seo-playground'); ?></h1>
-        <p><?php _e('Dashboard function not available. Please check your installation.', 'almaseo-seo-playground'); ?></p>
+        <h1><?php esc_html_e('Evergreen Content Health', 'almaseo-seo-playground'); ?></h1>
+        <p><?php esc_html_e('Dashboard function not available. Please check your installation.', 'almaseo-seo-playground'); ?></p>
     </div>
     <?php
 }
