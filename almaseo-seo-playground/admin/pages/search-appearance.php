@@ -308,7 +308,7 @@ $smart_tags  = AlmaSEO_Smart_Tags::get_available_tags();
 
         <div class="almaseo-sa-separator-picker">
             <?php foreach ( $separators as $sep_val => $sep_display ) : ?>
-                <label class="almaseo-sa-sep-option <?php echo $settings['separator'] === $sep_val ? 'active' : ''; ?>">
+                <label class="almaseo-sa-sep-option <?php echo esc_attr($settings['separator'] === $sep_val ? 'active' : ''); ?>">
                     <input type="radio" name="separator" value="<?php echo esc_attr( $sep_val ); ?>"
                            <?php checked( $settings['separator'], $sep_val ); ?> />
                     <span><?php echo esc_html( $sep_display ); ?></span>

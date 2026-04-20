@@ -94,7 +94,7 @@ function almaseo_health_meta_box_callback($post) {
                     Your content will NOT appear in Google or other search results.
                 </span>
             </div>
-            <a href="<?php echo admin_url('options-reading.php'); ?>" class="button button-secondary" style="margin-left: 15px; background: white; color: #dc3232; border: none;">
+            <a href="<?php echo esc_url(admin_url('options-reading.php')); ?>" class="button button-secondary" style="margin-left: 15px; background: white; color: #dc3232; border: none;">
                 Fix Now →
             </a>
         </div>
@@ -152,7 +152,7 @@ function almaseo_health_meta_box_callback($post) {
             ?>
             <div class="almaseo-health-signal <?php echo esc_attr($status_class); ?>">
                 <div class="signal-header">
-                    <span class="signal-icon"><?php echo $icon; ?></span>
+                    <span class="signal-icon"><?php echo esc_html($icon); ?></span>
                     <span class="signal-label">
                         <?php echo esc_html($label); ?>
                         <?php /* translators: %d: weight value in points */ ?>
@@ -168,7 +168,7 @@ function almaseo_health_meta_box_callback($post) {
                 <div class="signal-bar-wrapper">
                     <div class="signal-bar">
                         <div class="signal-bar-fill <?php echo esc_attr($status_class); ?>" 
-                             style="width: <?php echo $result['pass'] ? '100' : '0'; ?>%"></div>
+                             style="width: <?php echo esc_attr($result['pass'] ? '100' : '0'); ?>%"></div>
                     </div>
                 </div>
                 
@@ -296,7 +296,7 @@ function almaseo_health_meta_box_callback($post) {
                     $icon = ! empty( $check['pass'] ) ? '<span style="color:#00a32a;">&#10003;</span>' : '<span style="color:#d63638;">&#10007;</span>';
                 ?>
                 <div style="padding: 6px 0; border-bottom: 1px solid #f0f0f1; font-size: 13px;">
-                    <?php echo $icon; ?>
+                    <?php echo wp_kses_post($icon); ?>
                     <strong><?php echo esc_html( $check['label'] ); ?></strong>
                     &mdash;
                     <span style="color: #646970;"><?php echo esc_html( $check['tip'] ); ?></span>
@@ -305,7 +305,7 @@ function almaseo_health_meta_box_callback($post) {
                 <p style="margin: 10px 0 0; font-size: 12px; color: #646970;">
                     <?php printf(
                         /* translators: %1$d: number of checks passed, %2$d: total number of checks */
-                        __( '%1$d of %2$d checks pass. Recalculate to refresh after editing.', 'almaseo-seo-playground' ),
+                        esc_html__( '%1$d of %2$d checks pass. Recalculate to refresh after editing.', 'almaseo-seo-playground' ),
                         $readability_data['pass_count'],
                         $readability_data['total_checks']
                     ); ?>
@@ -363,7 +363,7 @@ function almaseo_health_meta_box_callback($post) {
                 <div style="cursor: pointer; font-size: 12px; color: #2271b1;" onclick="var el=this.nextElementSibling;el.style.display=el.style.display==='none'?'':'none';">
                     <?php
                     /* translators: %d: number of paragraph suggestions */
-                    printf( __( '%d paragraph suggestions — click to expand', 'almaseo-seo-playground' ), count( $rd_dash_data['paragraphs'] ) ); ?>
+                    printf( esc_html__( '%d paragraph suggestions — click to expand', 'almaseo-seo-playground' ), count( $rd_dash_data['paragraphs'] ) ); ?>
                 </div>
                 <div style="display: none; margin-top: 6px;">
                     <?php foreach ( array_slice( $rd_dash_data['paragraphs'], 0, 10 ) as $p ) :
@@ -410,7 +410,7 @@ function almaseo_health_meta_box_callback($post) {
                         <li><?php esc_html_e('📊 Search volume and competition metrics', 'almaseo-seo-playground'); ?></li>
                         <li><?php esc_html_e('🎯 Related keyword opportunities', 'almaseo-seo-playground'); ?></li>
                     </ul>
-                    <a href="<?php echo admin_url('admin.php?page=almaseo-settings'); ?>" class="button button-primary">
+                    <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-settings')); ?>" class="button button-primary">
                         <?php esc_html_e('Connect AlmaSEO Dashboard', 'almaseo-seo-playground'); ?>
                     </a>
                 </div>
@@ -428,7 +428,7 @@ function almaseo_health_meta_box_callback($post) {
                 <?php if ($updated_at): ?>
                     <?php esc_html_e('Last updated', 'almaseo-seo-playground'); ?>: 
                     <span class="updated-time">
-                        <?php echo human_time_diff($updated_at, current_time('U')); ?> 
+                        <?php echo esc_html(human_time_diff($updated_at, current_time('U'))); ?>
                         <?php esc_html_e('ago', 'almaseo-seo-playground'); ?>
                     </span>
                 <?php else: ?>

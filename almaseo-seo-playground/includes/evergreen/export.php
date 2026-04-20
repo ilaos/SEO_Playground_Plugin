@@ -118,7 +118,7 @@ function almaseo_eg_handle_pdf_export() {
     <html <?php language_attributes(); ?>>
     <head>
         <meta charset="<?php bloginfo('charset'); ?>">
-        <title><?php esc_html_e('Evergreen Content Report', 'almaseo-seo-playground'); ?> - <?php echo date('Y-m-d'); ?></title>
+        <title><?php esc_html_e('Evergreen Content Report', 'almaseo-seo-playground'); ?> - <?php echo esc_html(date('Y-m-d')); ?></title>
         <style>
             * {
                 margin: 0;
@@ -300,7 +300,7 @@ function almaseo_eg_handle_pdf_export() {
         <div class="report-date">
             <?php
             /* translators: %s: date and time the report was generated */
-            echo sprintf(__('Generated: %s', 'almaseo-seo-playground'), date_i18n(get_option('date_format') . ' ' . get_option('time_format'))); ?>
+            echo esc_html(sprintf(__('Generated: %s', 'almaseo-seo-playground'), date_i18n(get_option('date_format') . ' ' . get_option('time_format')))); ?>
         </div>
         
         <div class="stats-grid">
@@ -352,14 +352,14 @@ function almaseo_eg_handle_pdf_export() {
                     <td><?php echo esc_html($post['title']); ?></td>
                     <td>
                         <span class="status-pill status-<?php echo esc_attr($post['status']); ?>">
-                            <?php echo ucfirst($post['status']); ?>
+                            <?php echo esc_html(ucfirst($post['status'])); ?>
                         </span>
                     </td>
                     <td><?php echo esc_html($post['days_ago']); ?> <?php esc_html_e('days ago', 'almaseo-seo-playground'); ?></td>
                     <td>
                         <?php if ($post['trend'] !== null): ?>
-                            <span class="<?php echo $post['trend'] < 0 ? 'trend-down' : 'trend-up'; ?>">
-                                <?php echo $post['trend'] >= 0 ? '+' : ''; ?><?php echo esc_html($post['trend']); ?>%
+                            <span class="<?php echo esc_attr($post['trend'] < 0 ? 'trend-down' : 'trend-up'); ?>">
+                                <?php echo esc_html($post['trend'] >= 0 ? '+' : ''); ?><?php echo esc_html($post['trend']); ?>%
                             </span>
                         <?php else: ?>
                             —

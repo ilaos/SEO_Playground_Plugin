@@ -178,7 +178,7 @@ function almaseo_eg_render_dashboard() {
         almaseo_eg_get_weekly_snapshots_cached( 8 );
         almaseo_eg_get_weekly_snapshots_cached( 12 );
         
-        echo '<div class="notice notice-success is-dismissible"><p><strong>✅ ' . __('Statistics rebuilt and cache refreshed successfully!', 'almaseo-seo-playground') . '</strong><br><small>' . __('The chart now shows refreshed data. Caches have been pre-warmed for optimal performance.', 'almaseo-seo-playground') . '</small></p></div>';
+        echo '<div class="notice notice-success is-dismissible"><p><strong>✅ ' . esc_html__('Statistics rebuilt and cache refreshed successfully!', 'almaseo-seo-playground') . '</strong><br><small>' . esc_html__('The chart now shows refreshed data. Caches have been pre-warmed for optimal performance.', 'almaseo-seo-playground') . '</small></p></div>';
     }
     
     // Get filters
@@ -216,9 +216,9 @@ function almaseo_eg_render_dashboard() {
                     <small style="color: #d63638;">
                         ⚠️ <?php
                         /* translators: %1$d: number of unanalyzed posts, %2$d: number of times to click */
-                        echo sprintf(__('Will process 100 posts at a time. You have %1$d unanalyzed posts - you may need to click this %2$d times.', 'almaseo-seo-playground'),
-                            $stats['unanalyzed'], 
-                            ceil($stats['unanalyzed'] / 100)); ?>
+                        echo esc_html(sprintf(__('Will process 100 posts at a time. You have %1$d unanalyzed posts - you may need to click this %2$d times.', 'almaseo-seo-playground'),
+                            $stats['unanalyzed'],
+                            ceil($stats['unanalyzed'] / 100))); ?>
                     </small>
                 </div>
                 <?php elseif ($stats['unanalyzed'] > 50): ?>
@@ -394,21 +394,21 @@ function almaseo_eg_render_dashboard() {
                 <tbody>
                     <?php if (!empty($at_risk_posts['posts'])): ?>
                         <?php foreach ($at_risk_posts['posts'] as $post_data): ?>
-                        <tr id="post-<?php echo $post_data['id']; ?>" data-post-id="<?php echo $post_data['id']; ?>">
+                        <tr id="post-<?php echo esc_attr($post_data['id']); ?>" data-post-id="<?php echo esc_attr($post_data['id']); ?>">
                             <td class="column-title">
                                 <strong>
-                                    <a href="<?php echo get_permalink($post_data['id']); ?>" target="_blank">
+                                    <a href="<?php echo esc_url(get_permalink($post_data['id'])); ?>" target="_blank">
                                         <?php echo esc_html($post_data['title']); ?>
                                     </a>
                                 </strong>
                                 <div class="row-actions">
                                     <span class="view">
-                                        <a href="<?php echo get_permalink($post_data['id']); ?>" target="_blank">
+                                        <a href="<?php echo esc_url(get_permalink($post_data['id'])); ?>" target="_blank">
                                             <?php esc_html_e('View', 'almaseo-seo-playground'); ?>
                                         </a> |
                                     </span>
                                     <span class="edit">
-                                        <a href="<?php echo get_edit_post_link($post_data['id']); ?>" target="_blank">
+                                        <a href="<?php echo esc_url(get_edit_post_link($post_data['id'])); ?>" target="_blank">
                                             <?php esc_html_e('Edit', 'almaseo-seo-playground'); ?>
                                         </a>
                                     </span>
@@ -422,21 +422,21 @@ function almaseo_eg_render_dashboard() {
                             </td>
                             <td class="column-trend">
                                 <?php if ($post_data['trend'] !== null): ?>
-                                    <span class="trend-value <?php echo $post_data['trend'] < 0 ? 'trend-down' : 'trend-up'; ?>">
-                                        <?php echo $post_data['trend'] >= 0 ? '+' : ''; ?><?php echo esc_html($post_data['trend']); ?>%
+                                    <span class="trend-value <?php echo esc_attr($post_data['trend'] < 0 ? 'trend-down' : 'trend-up'); ?>">
+                                        <?php echo esc_html($post_data['trend'] >= 0 ? '+' : ''); ?><?php echo esc_html($post_data['trend']); ?>%
                                     </span>
                                 <?php else: ?>
                                     <span class="trend-na">—</span>
                                 <?php endif; ?>
                             </td>
                             <td class="column-actions">
-                                <button type="button" class="button button-small almaseo-eg-analyze" 
-                                        data-post-id="<?php echo $post_data['id']; ?>">
+                                <button type="button" class="button button-small almaseo-eg-analyze"
+                                        data-post-id="<?php echo esc_attr($post_data['id']); ?>">
                                     <?php esc_html_e('Analyze', 'almaseo-seo-playground'); ?>
                                 </button>
                                 <?php if ($post_data['status'] === 'stale'): ?>
-                                <button type="button" class="button button-small almaseo-eg-mark-refreshed" 
-                                        data-post-id="<?php echo $post_data['id']; ?>">
+                                <button type="button" class="button button-small almaseo-eg-mark-refreshed"
+                                        data-post-id="<?php echo esc_attr($post_data['id']); ?>">
                                     <?php esc_html_e('Mark Refreshed', 'almaseo-seo-playground'); ?>
                                 </button>
                                 <?php endif; ?>
@@ -589,14 +589,14 @@ function almaseo_eg_render_dashboard() {
                                     <?php foreach ($advanced_summary['ai_freshness']['top_at_risk'] as $item): ?>
                                     <tr>
                                         <td>
-                                            <a href="<?php echo get_edit_post_link($item['post_id']); ?>" target="_blank">
+                                            <a href="<?php echo esc_url(get_edit_post_link($item['post_id'])); ?>" target="_blank">
                                                 <?php echo esc_html($item['title']); ?>
                                             </a>
                                         </td>
                                         <td>
                                             <div style="display: flex; align-items: center; gap: 8px;">
                                                 <div style="flex: 1; background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden;">
-                                                    <div style="background: <?php echo $item['ai_score'] >= 75 ? '#dc2626' : ($item['ai_score'] >= 50 ? '#f59e0b' : '#10b981'); ?>; height: 100%; width: <?php echo esc_attr($item['ai_score']); ?>%;"></div>
+                                                    <div style="background: <?php echo esc_attr($item['ai_score'] >= 75 ? '#dc2626' : ($item['ai_score'] >= 50 ? '#f59e0b' : '#10b981')); ?>; height: 100%; width: <?php echo esc_attr($item['ai_score']); ?>%;"></div>
                                                 </div>
                                                 <span style="font-weight: 600; color: #1e293b;"><?php echo esc_html($item['ai_score']); ?></span>
                                             </div>

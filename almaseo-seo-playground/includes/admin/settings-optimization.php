@@ -178,7 +178,7 @@ $languages = [
         </table>
         
         <!-- Google Search Console Settings -->
-        <div id="gsc-settings" style="<?php echo $current_provider === 'gsc' ? '' : 'display:none;'; ?>">
+        <div id="gsc-settings" style="<?php echo esc_attr($current_provider === 'gsc' ? '' : 'display:none;'); ?>">
             <h2>Google Search Console Settings</h2>
             <table class="form-table">
                 <tr>
@@ -213,7 +213,7 @@ $languages = [
         </div>
         
         <!-- DataForSEO Settings - Coming Soon -->
-        <div id="dataforseo-settings" style="<?php echo $current_provider === 'dataforseo' ? '' : 'display:none;'; ?>">
+        <div id="dataforseo-settings" style="<?php echo esc_attr($current_provider === 'dataforseo' ? '' : 'display:none;'); ?>">
             <div style="background: #fff9e6; border: 2px solid #f7b731; border-radius: 8px; padding: 20px; margin: 20px 0; position: relative; overflow: hidden;">
                 <!-- Gold Coming Soon Badge -->
                 <div style="position: absolute; top: 15px; right: -35px; width: 200px; text-align: center; transform: rotate(45deg); background: linear-gradient(135deg, #f5a623 0%, #f7b731 100%); box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2); z-index: 1;">

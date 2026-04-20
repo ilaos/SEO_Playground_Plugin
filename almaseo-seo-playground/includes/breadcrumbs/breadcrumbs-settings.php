@@ -332,9 +332,9 @@ class AlmaSEO_Breadcrumbs_Settings {
                             <label style="display: block; margin-bottom: 6px; font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.5px;"><?php esc_html_e('Preview', 'almaseo-seo-playground'); ?></label>
                             <div id="almaseo-breadcrumb-font-preview" style="font-size: <?php echo esc_attr($settings['font_size'] ?? '14'); ?>px; font-weight: <?php echo esc_attr($settings['font_weight'] ?? 'normal'); ?>; font-style: <?php echo esc_attr($settings['font_style'] ?? 'normal'); ?>;">
                                 <span style="color: <?php echo esc_attr($settings['color_link'] ?? '#0073aa'); ?>;">Home</span>
-                                <span class="almaseo-sep-char" style="color: <?php echo esc_attr($settings['color_separator'] ?? '#757575'); ?>; margin: 0 6px;"><?php echo $current_sep; ?></span>
+                                <span class="almaseo-sep-char" style="color: <?php echo esc_attr($settings['color_separator'] ?? '#757575'); ?>; margin: 0 6px;"><?php echo esc_html($current_sep); ?></span>
                                 <span style="color: <?php echo esc_attr($settings['color_link'] ?? '#0073aa'); ?>;">Services</span>
-                                <span class="almaseo-sep-char" style="color: <?php echo esc_attr($settings['color_separator'] ?? '#757575'); ?>; margin: 0 6px;"><?php echo $current_sep; ?></span>
+                                <span class="almaseo-sep-char" style="color: <?php echo esc_attr($settings['color_separator'] ?? '#757575'); ?>; margin: 0 6px;"><?php echo esc_html($current_sep); ?></span>
                                 <span style="color: <?php echo esc_attr($settings['color_text'] ?? '#1e1e1e'); ?>;">Current Page</span>
                             </div>
                         </div>

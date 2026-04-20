@@ -150,11 +150,11 @@ class Alma_HTML_Sitemap {
             <ul>
                 <?php foreach ($posts as $post): ?>
                 <li>
-                    <a href="<?php echo get_permalink($post); ?>">
+                    <a href="<?php echo esc_url(get_permalink($post)); ?>">
                         <?php echo esc_html($post->post_title); ?>
                     </a>
                     <span class="almaseo-sitemap-date">
-                        <?php echo get_the_date('', $post); ?>
+                        <?php echo esc_html(get_the_date('', $post)); ?>
                     </span>
                 </li>
                 <?php endforeach; ?>
@@ -409,13 +409,13 @@ class Alma_HTML_Sitemap {
             <ul>
                 <?php foreach ($users as $user): ?>
                 <li>
-                    <a href="<?php echo get_author_posts_url($user->ID); ?>">
+                    <a href="<?php echo esc_url(get_author_posts_url($user->ID)); ?>">
                         <?php echo esc_html($user->display_name); ?>
                     </a>
                     <?php
                     $count = count_user_posts($user->ID);
                     if ($count > 0) {
-                        echo ' (' . $count . ' ' . _n('post', 'posts', $count, 'almaseo-seo-playground') . ')';
+                        echo ' (' . esc_html($count) . ' ' . esc_html(_n('post', 'posts', $count, 'almaseo-seo-playground')) . ')';
                     }
                     ?>
                 </li>

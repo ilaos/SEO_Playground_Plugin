@@ -121,8 +121,8 @@ class Alma_Sitemaps_Screen_V2 {
             
             <!-- Status Chips -->
             <div class="alma-status-bar">
-                <span class="chip chip-<?php echo $enabled ? 'success' : 'muted'; ?>">
-                    <?php echo $enabled ? __('Enabled', 'almaseo-seo-playground') : __('Disabled', 'almaseo-seo-playground'); ?>
+                <span class="chip chip-<?php echo esc_attr($enabled ? 'success' : 'muted'); ?>">
+                    <?php echo $enabled ? esc_html__('Enabled', 'almaseo-seo-playground') : esc_html__('Disabled', 'almaseo-seo-playground'); ?>
                 </span>
                 <?php if ($takeover): ?>
                 <span class="chip chip-warning">
@@ -136,17 +136,17 @@ class Alma_Sitemaps_Screen_V2 {
                 </span>
                 <?php endif; ?>
                 <span class="chip chip-info">
-                    <?php echo $generation_mode === 'static' ? __('Static', 'almaseo-seo-playground') : __('Dynamic', 'almaseo-seo-playground'); ?>
+                    <?php echo $generation_mode === 'static' ? esc_html__('Static', 'almaseo-seo-playground') : esc_html__('Dynamic', 'almaseo-seo-playground'); ?>
                 </span>
                 <span class="chip chip-default" data-live-stat="files">
-                    <span class="num"><?php echo number_format($stats['total_files']); ?></span> <?php esc_html_e('Files', 'almaseo-seo-playground'); ?>
+                    <span class="num"><?php echo esc_html(number_format($stats['total_files'])); ?></span> <?php esc_html_e('Files', 'almaseo-seo-playground'); ?>
                 </span>
                 <span class="chip chip-default" data-live-stat="urls">
-                    <span class="num"><?php echo number_format($stats['total_urls']); ?></span> <?php esc_html_e('URLs', 'almaseo-seo-playground'); ?>
+                    <span class="num"><?php echo esc_html(number_format($stats['total_urls'])); ?></span> <?php esc_html_e('URLs', 'almaseo-seo-playground'); ?>
                 </span>
                 <?php if (!empty($stats['last_built'])): ?>
                 <span class="chip chip-muted">
-                    <?php esc_html_e('Built', 'almaseo-seo-playground'); ?> <?php echo human_time_diff(strtotime($stats['last_built'])); ?> <?php esc_html_e('ago', 'almaseo-seo-playground'); ?>
+                    <?php esc_html_e('Built', 'almaseo-seo-playground'); ?> <?php echo esc_html(human_time_diff(strtotime($stats['last_built']))); ?> <?php esc_html_e('ago', 'almaseo-seo-playground'); ?>
                 </span>
                 <?php endif; ?>
             </div>
@@ -203,8 +203,8 @@ class Alma_Sitemaps_Screen_V2 {
             <script>
                 window.__ALMA_BOOT = {
                     loaded: { overview: true },
-                    nonce: '<?php echo wp_create_nonce('almaseo_sitemaps_nonce'); ?>',
-                    ajaxUrl: '<?php echo admin_url('admin-ajax.php'); ?>'
+                    nonce: '<?php echo esc_js(wp_create_nonce('almaseo_sitemaps_nonce')); ?>',
+                    ajaxUrl: '<?php echo esc_js(admin_url('admin-ajax.php')); ?>'
                 };
             </script>
         </div>

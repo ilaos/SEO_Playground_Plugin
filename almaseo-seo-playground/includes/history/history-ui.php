@@ -113,7 +113,7 @@ function almaseo_history_render_card($post) {
                 <div class="history-item" data-version-id="<?php echo esc_attr($snapshot->id); ?>" data-version="<?php echo esc_attr($snapshot->version); ?>">
                     <div class="history-item-header">
                         <div class="history-meta">
-                            <?php echo $avatar; ?>
+                            <?php echo wp_kses_post($avatar); ?>
                             <div class="history-info">
                                 <div class="history-version">
                                     <strong>v<?php echo esc_html($snapshot->version); ?></strong>

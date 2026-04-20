@@ -113,8 +113,8 @@ class AlmaSEO_Woo_Meta {
                     <?php if ($price): ?>
                     <div class="preview-price">
                         <?php
-                        /* translators: %s: formatted product price */
-                        echo sprintf(__('Price: %s', 'almaseo-seo-playground'), wc_price($price)); ?>
+                        /* translators: %s: formatted product price (HTML) */
+                        echo wp_kses_post(sprintf(__('Price: %s', 'almaseo-seo-playground'), wc_price($price))); ?>
                     </div>
                     <?php endif; ?>
                 </div>

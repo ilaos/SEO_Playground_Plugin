@@ -44,18 +44,18 @@ try {
     <div class="almaseo-card-header">
         <h2><?php esc_html_e('Delta Sitemap', 'almaseo-seo-playground'); ?></h2>
         <div class="almaseo-chips">
-            <span class="almaseo-chip <?php echo $settings['delta']['enabled'] ? 'almaseo-chip-success' : ''; ?>">
-                <?php echo $settings['delta']['enabled'] ? __('Active', 'almaseo-seo-playground') : __('Inactive', 'almaseo-seo-playground'); ?>
+            <span class="almaseo-chip <?php echo esc_attr($settings['delta']['enabled'] ? 'almaseo-chip-success' : ''); ?>">
+                <?php echo $settings['delta']['enabled'] ? esc_html__('Active', 'almaseo-seo-playground') : esc_html__('Inactive', 'almaseo-seo-playground'); ?>
             </span>
             <span class="almaseo-chip">
                 <?php
                 /* translators: %d: number of URLs in the delta sitemap */
-                echo sprintf(__('%d URLs', 'almaseo-seo-playground'), $delta_stats['count']); ?>
+                echo esc_html(sprintf(__('%d URLs', 'almaseo-seo-playground'), $delta_stats['count'])); ?>
             </span>
             <?php if (!empty($delta_health['time'])): ?>
             <span class="almaseo-chip">
                 <?php esc_html_e('Last ping:', 'almaseo-seo-playground'); ?> 
-                <?php echo human_time_diff($delta_health['time']); ?> <?php esc_html_e('ago', 'almaseo-seo-playground'); ?>
+                <?php echo esc_html(human_time_diff($delta_health['time'])); ?> <?php esc_html_e('ago', 'almaseo-seo-playground'); ?>
             </span>
             <?php endif; ?>
         </div>
@@ -126,16 +126,16 @@ try {
             <p><strong><?php esc_html_e('Current Status:', 'almaseo-seo-playground'); ?></strong></p>
             <p><?php
             /* translators: %1$d: current number of URLs in the buffer, %2$d: maximum buffer capacity */
-            echo sprintf(__('Ring buffer: %1$d of %2$d URLs', 'almaseo-seo-playground'), $delta_stats['count'], $delta_stats['max']); ?></p>
+            echo esc_html(sprintf(__('Ring buffer: %1$d of %2$d URLs', 'almaseo-seo-playground'), $delta_stats['count'], $delta_stats['max'])); ?></p>
             <?php if ($delta_stats['oldest']): ?>
             <p><?php
             /* translators: %s: human-readable time difference */
-            echo sprintf(__('Oldest entry: %s', 'almaseo-seo-playground'), human_time_diff($delta_stats['oldest'])); ?> <?php esc_html_e('ago', 'almaseo-seo-playground'); ?></p>
+            echo esc_html(sprintf(__('Oldest entry: %s', 'almaseo-seo-playground'), human_time_diff($delta_stats['oldest']))); ?> <?php esc_html_e('ago', 'almaseo-seo-playground'); ?></p>
             <?php endif; ?>
             <?php if (!empty($delta_health['success'])): ?>
             <p class="almaseo-text-success"><?php
             /* translators: %d: number of URLs submitted in the last ping */
-            echo sprintf(__('Last ping: %d URLs submitted successfully', 'almaseo-seo-playground'), $delta_health['count']); ?></p>
+            echo esc_html(sprintf(__('Last ping: %d URLs submitted successfully', 'almaseo-seo-playground'), $delta_health['count'])); ?></p>
             <?php elseif (isset($delta_health['success']) && !$delta_health['success']): ?>
             <p class="almaseo-text-danger"><?php esc_html_e('Last ping failed', 'almaseo-seo-playground'); ?></p>
             <?php endif; ?>
@@ -159,8 +159,8 @@ try {
             $indexnow_enabled = get_option('almaseo_indexnow_enabled', false);
             $indexnow_key = get_option('almaseo_indexnow_key', '');
             ?>
-            <span class="almaseo-chip <?php echo $indexnow_enabled ? 'almaseo-chip-success' : ''; ?>">
-                <?php echo $indexnow_enabled ? __('Active', 'almaseo-seo-playground') : __('Inactive', 'almaseo-seo-playground'); ?>
+            <span class="almaseo-chip <?php echo esc_attr($indexnow_enabled ? 'almaseo-chip-success' : ''); ?>">
+                <?php echo $indexnow_enabled ? esc_html__('Active', 'almaseo-seo-playground') : esc_html__('Inactive', 'almaseo-seo-playground'); ?>
             </span>
             <?php if ($indexnow_key): ?>
             <span class="almaseo-chip">
@@ -297,7 +297,7 @@ try {
                                 <?php echo esc_html(ucfirst($change['type'])); ?>
                             </span>
                         </td>
-                        <td><?php echo human_time_diff($change['modified']) . ' ' . __('ago', 'almaseo-seo-playground'); ?></td>
+                        <td><?php echo esc_html(human_time_diff($change['modified']) . ' ' . __('ago', 'almaseo-seo-playground')); ?></td>
                         <td>
                             <?php if ($change['pinged']): ?>
                             <span class="almaseo-text-success">

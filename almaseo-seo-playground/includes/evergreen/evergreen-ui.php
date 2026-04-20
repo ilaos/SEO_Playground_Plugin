@@ -200,7 +200,7 @@ function almaseo_eg_admin_notices() {
                     '<strong>' . almaseo_eg_get_state_label($change['new_state']) . '</strong>'
                 );
                 ?>
-                <a href="<?php echo get_edit_post_link($change['post_id']); ?>" style="margin-left: 5px;">
+                <a href="<?php echo esc_url(get_edit_post_link($change['post_id'])); ?>" style="margin-left: 5px;">
                     <?php esc_html_e('Edit', 'almaseo-seo-playground'); ?>
                 </a>
             </li>
@@ -240,7 +240,7 @@ function almaseo_eg_settings_page_content() {
         
         update_option(ALMASEO_EG_SETTINGS_OPTION, $settings);
         
-        echo '<div class="notice notice-success"><p>' . __('Settings saved successfully!', 'almaseo-seo-playground') . '</p></div>';
+        echo '<div class="notice notice-success"><p>' . esc_html__('Settings saved successfully!', 'almaseo-seo-playground') . '</p></div>';
     }
     
     // Handle manual refresh
@@ -249,7 +249,7 @@ function almaseo_eg_settings_page_content() {
         
         echo '<div class="notice notice-success"><p>';
         /* translators: %d: number of posts refreshed */
-        printf(__('Refreshed %d posts successfully!', 'almaseo-seo-playground'), $result['processed']);
+        printf(esc_html__('Refreshed %d posts successfully!', 'almaseo-seo-playground'), $result['processed']);
         echo '</p></div>';
     }
     
@@ -271,17 +271,17 @@ function almaseo_eg_settings_page_content() {
                 $watch_pct = ($stats['watch'] / $total) * 100;
                 $stale_pct = ($stats['stale'] / $total) * 100;
                 ?>
-                <div class="almaseo-eg-progress-segment almaseo-eg-progress-evergreen" 
-                     style="width: <?php echo $evergreen_pct; ?>%;">
-                    <?php if ($evergreen_pct > 10): echo round($evergreen_pct) . '%'; endif; ?>
+                <div class="almaseo-eg-progress-segment almaseo-eg-progress-evergreen"
+                     style="width: <?php echo esc_attr($evergreen_pct); ?>%;">
+                    <?php if ($evergreen_pct > 10): echo esc_html(round($evergreen_pct) . '%'); endif; ?>
                 </div>
-                <div class="almaseo-eg-progress-segment almaseo-eg-progress-watch" 
-                     style="width: <?php echo $watch_pct; ?>%;">
-                    <?php if ($watch_pct > 10): echo round($watch_pct) . '%'; endif; ?>
+                <div class="almaseo-eg-progress-segment almaseo-eg-progress-watch"
+                     style="width: <?php echo esc_attr($watch_pct); ?>%;">
+                    <?php if ($watch_pct > 10): echo esc_html(round($watch_pct) . '%'); endif; ?>
                 </div>
-                <div class="almaseo-eg-progress-segment almaseo-eg-progress-stale" 
-                     style="width: <?php echo $stale_pct; ?>%;">
-                    <?php if ($stale_pct > 10): echo round($stale_pct) . '%'; endif; ?>
+                <div class="almaseo-eg-progress-segment almaseo-eg-progress-stale"
+                     style="width: <?php echo esc_attr($stale_pct); ?>%;">
+                    <?php if ($stale_pct > 10): echo esc_html(round($stale_pct) . '%'); endif; ?>
                 </div>
             </div>
             
@@ -298,20 +298,20 @@ function almaseo_eg_settings_page_content() {
                     <tr>
                         <td><span class="almaseo-eg-pill almaseo-eg-evergreen">🟢 <?php esc_html_e('Evergreen', 'almaseo-seo-playground'); ?></span></td>
                         <td><?php echo esc_html($stats['evergreen']); ?></td>
-                        <td><?php echo round($evergreen_pct, 1); ?>%</td>
-                        <td><a href="<?php echo admin_url('edit.php?evergreen_filter=evergreen'); ?>"><?php esc_html_e('View', 'almaseo-seo-playground'); ?></a></td>
+                        <td><?php echo esc_html(round($evergreen_pct, 1)); ?>%</td>
+                        <td><a href="<?php echo esc_url(admin_url('edit.php?evergreen_filter=evergreen')); ?>"><?php esc_html_e('View', 'almaseo-seo-playground'); ?></a></td>
                     </tr>
                     <tr>
                         <td><span class="almaseo-eg-pill almaseo-eg-watch">🟡 <?php esc_html_e('Watch', 'almaseo-seo-playground'); ?></span></td>
                         <td><?php echo esc_html($stats['watch']); ?></td>
-                        <td><?php echo round($watch_pct, 1); ?>%</td>
-                        <td><a href="<?php echo admin_url('edit.php?evergreen_filter=watch'); ?>"><?php esc_html_e('View', 'almaseo-seo-playground'); ?></a></td>
+                        <td><?php echo esc_html(round($watch_pct, 1)); ?>%</td>
+                        <td><a href="<?php echo esc_url(admin_url('edit.php?evergreen_filter=watch')); ?>"><?php esc_html_e('View', 'almaseo-seo-playground'); ?></a></td>
                     </tr>
                     <tr>
                         <td><span class="almaseo-eg-pill almaseo-eg-stale">🔴 <?php esc_html_e('Stale', 'almaseo-seo-playground'); ?></span></td>
                         <td><?php echo esc_html($stats['stale']); ?></td>
-                        <td><?php echo round($stale_pct, 1); ?>%</td>
-                        <td><a href="<?php echo admin_url('edit.php?evergreen_filter=stale'); ?>"><?php esc_html_e('View', 'almaseo-seo-playground'); ?></a></td>
+                        <td><?php echo esc_html(round($stale_pct, 1)); ?>%</td>
+                        <td><a href="<?php echo esc_url(admin_url('edit.php?evergreen_filter=stale')); ?>"><?php esc_html_e('View', 'almaseo-seo-playground'); ?></a></td>
                     </tr>
                 </tbody>
             </table>

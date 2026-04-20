@@ -150,22 +150,22 @@ try {
             <?php elseif ($scan_status['status'] === 'running') : ?>
                 <div class="almaseo-scan-progress">
                     <div class="almaseo-progress-bar">
-                        <div class="almaseo-progress-fill" style="width: <?php echo $scan_status['progress']; ?>%"></div>
+                        <div class="almaseo-progress-fill" style="width: <?php echo esc_attr($scan_status['progress']); ?>%"></div>
                     </div>
                     <p><?php
                     /* translators: %1$d: number of URLs checked so far, %2$d: total URLs to check */
-                    printf(__('Scanning: %1$d/%2$d URLs checked', 'almaseo-seo-playground'), $scan_status['checked'], $scan_status['total']); ?></p>
+                    printf(esc_html__('Scanning: %1$d/%2$d URLs checked', 'almaseo-seo-playground'), $scan_status['checked'], $scan_status['total']); ?></p>
                 </div>
             <?php else : ?>
                 <div class="almaseo-scan-results">
                     <div class="almaseo-stat-grid">
                         <div class="almaseo-stat">
-                            <div class="almaseo-stat-value"><?php echo $scan_status['checked']; ?></div>
+                            <div class="almaseo-stat-value"><?php echo esc_html($scan_status['checked']); ?></div>
                             <div class="almaseo-stat-label"><?php esc_html_e('URLs Checked', 'almaseo-seo-playground'); ?></div>
                         </div>
                         <div class="almaseo-stat">
-                            <div class="almaseo-stat-value <?php echo $scan_status['issues'] > 0 ? 'almaseo-text-warning' : 'almaseo-text-success'; ?>">
-                                <?php echo $scan_status['issues']; ?>
+                            <div class="almaseo-stat-value <?php echo esc_attr($scan_status['issues'] > 0 ? 'almaseo-text-warning' : 'almaseo-text-success'); ?>">
+                                <?php echo esc_html($scan_status['issues']); ?>
                             </div>
                             <div class="almaseo-stat-label"><?php esc_html_e('Issues Found', 'almaseo-seo-playground'); ?></div>
                         </div>
@@ -231,15 +231,15 @@ try {
                 <div class="almaseo-diff-summary">
                     <div class="almaseo-stat-grid">
                         <div class="almaseo-stat">
-                            <div class="almaseo-stat-value almaseo-text-success">+<?php echo $diff_summary['added']; ?></div>
+                            <div class="almaseo-stat-value almaseo-text-success">+<?php echo esc_html($diff_summary['added']); ?></div>
                             <div class="almaseo-stat-label"><?php esc_html_e('Added', 'almaseo-seo-playground'); ?></div>
                         </div>
                         <div class="almaseo-stat">
-                            <div class="almaseo-stat-value almaseo-text-danger">-<?php echo $diff_summary['removed']; ?></div>
+                            <div class="almaseo-stat-value almaseo-text-danger">-<?php echo esc_html($diff_summary['removed']); ?></div>
                             <div class="almaseo-stat-label"><?php esc_html_e('Removed', 'almaseo-seo-playground'); ?></div>
                         </div>
                         <div class="almaseo-stat">
-                            <div class="almaseo-stat-value almaseo-text-info">~<?php echo $diff_summary['changed']; ?></div>
+                            <div class="almaseo-stat-value almaseo-text-info">~<?php echo esc_html($diff_summary['changed']); ?></div>
                             <div class="almaseo-stat-label"><?php esc_html_e('Changed', 'almaseo-seo-playground'); ?></div>
                         </div>
                     </div>
@@ -301,11 +301,11 @@ try {
         <div class="almaseo-log-stats">
             <div class="almaseo-stat-row">
                 <span class="almaseo-stat-item">
-                    <strong><?php echo number_format($log_stats['total']); ?></strong>
+                    <strong><?php echo esc_html(number_format($log_stats['total'])); ?></strong>
                     <?php esc_html_e('events total', 'almaseo-seo-playground'); ?>
                 </span>
                 <span class="almaseo-stat-item">
-                    <strong><?php echo number_format($log_stats['last_24h']); ?></strong>
+                    <strong><?php echo esc_html(number_format($log_stats['last_24h'])); ?></strong>
                     <?php esc_html_e('in last 24h', 'almaseo-seo-playground'); ?>
                 </span>
             </div>
@@ -326,9 +326,9 @@ try {
                     <?php foreach ($logs as $log): ?>
                     <tr class="almaseo-log-entry">
                         <td>
-                            <small><?php echo human_time_diff($log['timestamp']); ?> <?php esc_html_e('ago', 'almaseo-seo-playground'); ?></small>
+                            <small><?php echo esc_html(human_time_diff($log['timestamp'])); ?> <?php esc_html_e('ago', 'almaseo-seo-playground'); ?></small>
                             <br>
-                            <code><?php echo date('Y-m-d H:i:s', $log['timestamp']); ?></code>
+                            <code><?php echo esc_html(date('Y-m-d H:i:s', $log['timestamp'])); ?></code>
                         </td>
                         <td>
                             <span class="almaseo-log-type almaseo-log-<?php echo esc_attr($log['type']); ?>">

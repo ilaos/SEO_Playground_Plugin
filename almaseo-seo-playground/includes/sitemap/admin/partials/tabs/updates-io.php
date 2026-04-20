@@ -37,7 +37,7 @@ try {
         <div class="almaseo-chips">
             <span class="almaseo-chip">
                 <?php esc_html_e('Channel:', 'almaseo-seo-playground'); ?> 
-                <strong><?php echo ucfirst($current_channel); ?></strong>
+                <strong><?php echo esc_html(ucfirst($current_channel)); ?></strong>
             </span>
             <?php if ($last_found && version_compare($last_found, ALMASEO_PLUGIN_VERSION, '>')): ?>
             <span class="almaseo-chip almaseo-chip-warning">
@@ -59,7 +59,7 @@ try {
         <div class="almaseo-update-info">
             <div class="almaseo-stat-grid">
                 <div class="almaseo-stat">
-                    <div class="almaseo-stat-value"><?php echo ALMASEO_PLUGIN_VERSION; ?></div>
+                    <div class="almaseo-stat-value"><?php echo esc_html(ALMASEO_PLUGIN_VERSION); ?></div>
                     <div class="almaseo-stat-label"><?php esc_html_e('Current Version', 'almaseo-seo-playground'); ?></div>
                 </div>
                 <?php if ($last_found): ?>
@@ -72,7 +72,7 @@ try {
                 <?php endif; ?>
                 <?php if ($last_check > 0): ?>
                 <div class="almaseo-stat">
-                    <div class="almaseo-stat-value"><?php echo human_time_diff($last_check); ?></div>
+                    <div class="almaseo-stat-value"><?php echo esc_html(human_time_diff($last_check)); ?></div>
                     <div class="almaseo-stat-label"><?php esc_html_e('Last Check', 'almaseo-seo-playground'); ?></div>
                 </div>
                 <?php endif; ?>
@@ -351,7 +351,7 @@ try {
             <div class="almaseo-info-grid">
                 <div class="almaseo-info-item">
                     <strong><?php esc_html_e('Plugin Version:', 'almaseo-seo-playground'); ?></strong>
-                    <?php echo ALMASEO_PLUGIN_VERSION; ?>
+                    <?php echo esc_html(ALMASEO_PLUGIN_VERSION); ?>
                 </div>
                 <div class="almaseo-info-item">
                     <strong><?php esc_html_e('WordPress Version:', 'almaseo-seo-playground'); ?></strong>
@@ -411,8 +411,8 @@ try {
                         $label = ucwords(str_replace('_', ' ', $check));
                         echo '<div class="almaseo-check-item">';
                         echo '<span class="dashicons dashicons-' . ($status ? 'yes-alt almaseo-text-success' : 'warning almaseo-text-warning') . '"></span>';
-                        echo '<strong>' . $label . ':</strong> ';
-                        echo $status ? __('Enabled', 'almaseo-seo-playground') : __('Disabled', 'almaseo-seo-playground');
+                        echo '<strong>' . esc_html($label) . ':</strong> ';
+                        echo $status ? esc_html__('Enabled', 'almaseo-seo-playground') : esc_html__('Disabled', 'almaseo-seo-playground');
                         echo '</div>';
                     }
                     ?>

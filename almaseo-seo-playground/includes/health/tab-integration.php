@@ -75,7 +75,7 @@ function almaseo_health_get_tab_content($post) {
                     Your site is hidden from Google and other search engines.
                 </span>
             </div>
-            <a href="<?php echo admin_url('options-reading.php'); ?>" class="button button-small" style="background: white; color: #dc3232; border: none; font-size: 12px;">
+            <a href="<?php echo esc_url(admin_url('options-reading.php')); ?>" class="button button-small" style="background: white; color: #dc3232; border: none; font-size: 12px;">
                 Fix Now →
             </a>
         </div>
@@ -84,15 +84,15 @@ function almaseo_health_get_tab_content($post) {
         <div class="almaseo-seo-health-score">
             <div class="health-score-container">
                 <!-- Compact Gauge -->
-                <div class="health-score-circle <?php echo $score_class; ?>">
-                    <div class="score-value"><?php echo $health_score; ?></div>
+                <div class="health-score-circle <?php echo esc_attr($score_class); ?>">
+                    <div class="score-value"><?php echo esc_html($health_score); ?></div>
                     <div class="score-label">SEO Score</div>
                 </div>
                 
                 <!-- Summary -->
                 <div class="health-breakdown">
                     <h4><?php esc_html_e('Overall SEO Health', 'almaseo-seo-playground'); ?></h4>
-                    <p class="health-status-message <?php echo $score_class; ?>">
+                    <p class="health-status-message <?php echo esc_attr($score_class); ?>">
                         <?php echo esc_html($status_text); ?>
                     </p>
                     
@@ -113,11 +113,11 @@ function almaseo_health_get_tab_content($post) {
                         ?>
                         <span class="health-stat-item">
                             <span class="stat-icon">✅</span>
-                            <strong><?php echo $pass_count; ?></strong> <?php esc_html_e('Passed', 'almaseo-seo-playground'); ?>
+                            <strong><?php echo intval($pass_count); ?></strong> <?php esc_html_e('Passed', 'almaseo-seo-playground'); ?>
                         </span>
                         <span class="health-stat-item">
                             <span class="stat-icon">❌</span>
-                            <strong><?php echo $fail_count; ?></strong> <?php esc_html_e('Issues', 'almaseo-seo-playground'); ?>
+                            <strong><?php echo intval($fail_count); ?></strong> <?php esc_html_e('Issues', 'almaseo-seo-playground'); ?>
                         </span>
                     </div>
                     

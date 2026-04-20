@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
-Version: 1.6.12
+Version: 1.6.13
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -50,7 +50,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
     }
     if ( $almaseo_seo_conflict ) {
         // Define only the bare minimum constants, then stop loading.
-        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.6.12' );
+        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.6.13' );
         if ( ! defined( 'ALMASEO_PATH' ) )           define( 'ALMASEO_PATH', plugin_dir_path( __FILE__ ) );
         if ( ! defined( 'ALMASEO_URL' ) )            define( 'ALMASEO_URL', plugin_dir_url( __FILE__ ) );
         if ( ! defined( 'ALMASEO_MAIN_FILE' ) )      define( 'ALMASEO_MAIN_FILE', __FILE__ );
@@ -62,7 +62,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
 if (!defined('ALMASEO_MAIN_FILE'))       define('ALMASEO_MAIN_FILE', __FILE__);
 if (!defined('ALMASEO_PATH'))            define('ALMASEO_PATH', plugin_dir_path(__FILE__));
 if (!defined('ALMASEO_URL'))             define('ALMASEO_URL', plugin_dir_url(__FILE__));
-if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.6.12');
+if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.6.13');
 if (!defined('ALMASEO_VERSION'))         define('ALMASEO_VERSION', '6.5.0');
 if (!defined('ALMASEO_API_NAMESPACE'))   define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
 if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
@@ -741,7 +741,7 @@ if (!function_exists('almaseo_display_search_engine_warning')) {
     ?>
     <div id="almaseo-sticky-warning" style="position: fixed; top: 32px; left: 0; right: 0; z-index: 99999; background: #dc3232; color: white; padding: 10px 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;">
         <strong style="margin-right: 10px;">🚨 AlmaSEO Alert: Your site is HIDDEN from Google!</strong>
-        <a href="<?php echo admin_url('options-reading.php'); ?>" class="button button-small" style="background: white; color: #dc3232; border: none; margin: 0 10px;">Fix Now</a>
+        <a href="<?php echo esc_url(admin_url('options-reading.php')); ?>" class="button button-small" style="background: white; color: #dc3232; border: none; margin: 0 10px;">Fix Now</a>
         <button type="button" onclick="jQuery('#almaseo-sticky-warning').slideUp();" style="background: transparent; border: none; color: white; cursor: pointer; padding: 0 5px;">✕</button>
     </div>
     <script>
@@ -771,13 +771,13 @@ if (!function_exists('almaseo_display_search_engine_warning')) {
                     This means your content will NOT appear in Google, Bing, or any other search results.
                 </p>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <a href="<?php echo admin_url('options-reading.php'); ?>" class="button button-primary" style="background: #dc3232; border-color: #aa2020;">
+                    <a href="<?php echo esc_url(admin_url('options-reading.php')); ?>" class="button button-primary" style="background: #dc3232; border-color: #aa2020;">
                         Fix This Now →
                     </a>
-                    <button type="button" class="button almaseo-dismiss-temp" data-nonce="<?php echo wp_create_nonce('almaseo_dismiss_warning'); ?>">
+                    <button type="button" class="button almaseo-dismiss-temp" data-nonce="<?php echo esc_attr(wp_create_nonce('almaseo_dismiss_warning')); ?>">
                         Dismiss for 24 hours
                     </button>
-                    <button type="button" class="button-link almaseo-dismiss-permanent" data-nonce="<?php echo wp_create_nonce('almaseo_dismiss_warning'); ?>" style="color: #999;">
+                    <button type="button" class="button-link almaseo-dismiss-permanent" data-nonce="<?php echo esc_attr(wp_create_nonce('almaseo_dismiss_warning')); ?>" style="color: #999;">
                         Never show again
                     </button>
                 </div>

@@ -97,12 +97,12 @@ function almaseo_health_render_compact_view($post) {
                 ?>
                 <div class="health-stat">
                     <span class="stat-icon">✅</span>
-                    <span class="stat-value"><?php echo $pass_count; ?></span>
+                    <span class="stat-value"><?php echo intval($pass_count); ?></span>
                     <span class="stat-label"><?php esc_html_e('Passed', 'almaseo-seo-playground'); ?></span>
                 </div>
                 <div class="health-stat">
                     <span class="stat-icon">❌</span>
-                    <span class="stat-value"><?php echo $fail_count; ?></span>
+                    <span class="stat-value"><?php echo intval($fail_count); ?></span>
                     <span class="stat-label"><?php esc_html_e('Issues', 'almaseo-seo-playground'); ?></span>
                 </div>
             </div>

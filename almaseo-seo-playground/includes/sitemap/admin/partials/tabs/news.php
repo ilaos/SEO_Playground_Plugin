@@ -48,31 +48,31 @@ try {
     <div class="almaseo-card-header">
         <h2><?php esc_html_e('News Sitemap', 'almaseo-seo-playground'); ?></h2>
         <div class="almaseo-chips">
-            <span class="almaseo-chip <?php echo $news_enabled ? 'almaseo-chip-success' : ''; ?>">
-                <?php echo $news_enabled ? __('Active', 'almaseo-seo-playground') : __('Inactive', 'almaseo-seo-playground'); ?>
+            <span class="almaseo-chip <?php echo esc_attr($news_enabled ? 'almaseo-chip-success' : ''); ?>">
+                <?php echo $news_enabled ? esc_html__('Active', 'almaseo-seo-playground') : esc_html__('Inactive', 'almaseo-seo-playground'); ?>
             </span>
             <?php if ($news_enabled && !empty($news_stats['items'])): ?>
             <span class="almaseo-chip">
                 <?php
                 /* translators: %d: number of news items */
-                echo sprintf(__('%d Items', 'almaseo-seo-playground'), $news_stats['items']); ?>
+                echo esc_html(sprintf(__('%d Items', 'almaseo-seo-playground'), $news_stats['items'])); ?>
             </span>
             <?php endif; ?>
             <span class="almaseo-chip">
                 <?php
                 /* translators: %d: number of hours in the news window */
-                echo sprintf(__('%dh Window', 'almaseo-seo-playground'), $settings['news']['window_hours'] ?? 48); ?>
+                echo esc_html(sprintf(__('%dh Window', 'almaseo-seo-playground'), $settings['news']['window_hours'] ?? 48)); ?>
             </span>
             <?php if (!empty($news_stats['last_build'])): ?>
             <span class="almaseo-chip">
-                <?php esc_html_e('Built:', 'almaseo-seo-playground'); ?> <?php echo human_time_diff($news_stats['last_build']); ?> <?php esc_html_e('ago', 'almaseo-seo-playground'); ?>
+                <?php esc_html_e('Built:', 'almaseo-seo-playground'); ?> <?php echo esc_html(human_time_diff($news_stats['last_build'])); ?> <?php esc_html_e('ago', 'almaseo-seo-playground'); ?>
             </span>
             <?php endif; ?>
             <?php if (!empty($news_health['validated_at'])): ?>
-            <span class="almaseo-chip <?php echo $news_health['ok'] ? 'almaseo-chip-success' : 'almaseo-chip-warning'; ?>">
+            <span class="almaseo-chip <?php echo esc_attr($news_health['ok'] ? 'almaseo-chip-success' : 'almaseo-chip-warning'); ?>">
                 <?php
                 /* translators: %d: number of validation issues */
-                echo $news_health['ok'] ? __('Valid', 'almaseo-seo-playground') : sprintf(__('%d Issues', 'almaseo-seo-playground'), count($news_health['issues'])); ?>
+                echo $news_health['ok'] ? esc_html__('Valid', 'almaseo-seo-playground') : esc_html(sprintf(__('%d Issues', 'almaseo-seo-playground'), count($news_health['issues']))); ?>
             </span>
             <?php endif; ?>
         </div>
@@ -172,7 +172,7 @@ try {
                                 <input type="checkbox" name="news[categories][]" 
                                        value="<?php echo esc_attr($cat->term_id); ?>"
                                        <?php checked(in_array($cat->term_id, $selected_cats)); ?>>
-                                <?php echo esc_html($cat->name); ?> (<?php echo $cat->count; ?>)
+                                <?php echo esc_html($cat->name); ?> (<?php echo esc_html($cat->count); ?>)
                             </label>
                             <?php 
                                 endforeach;
@@ -299,10 +299,10 @@ try {
         
         <!-- News Validation Results -->
         <?php if (!empty($news_health)): ?>
-        <div class="almaseo-info-box <?php echo $news_health['ok'] ? 'almaseo-info-success' : 'almaseo-info-warning'; ?>">
+        <div class="almaseo-info-box <?php echo esc_attr($news_health['ok'] ? 'almaseo-info-success' : 'almaseo-info-warning'); ?>">
             <p>
-                <strong><?php esc_html_e('Last validation:', 'almaseo-seo-playground'); ?></strong> 
-                <?php echo human_time_diff($news_health['validated_at']); ?> <?php esc_html_e('ago', 'almaseo-seo-playground'); ?>
+                <strong><?php esc_html_e('Last validation:', 'almaseo-seo-playground'); ?></strong>
+                <?php echo esc_html(human_time_diff($news_health['validated_at'])); ?> <?php esc_html_e('ago', 'almaseo-seo-playground'); ?>
             </p>
             <?php if (!empty($news_health['samples'])): ?>
             <p><strong><?php esc_html_e('Sample articles:', 'almaseo-seo-playground'); ?></strong></p>
@@ -324,7 +324,7 @@ try {
                 <?php if (count($news_health['issues']) > 5): ?>
                 <li><?php
                 /* translators: %d: number of additional issues not shown */
-                echo sprintf(__('... and %d more', 'almaseo-seo-playground'), count($news_health['issues']) - 5); ?></li>
+                echo esc_html(sprintf(__('... and %d more', 'almaseo-seo-playground'), count($news_health['issues']) - 5)); ?></li>
                 <?php endif; ?>
             </ul>
             <?php endif; ?>

@@ -34,11 +34,11 @@ $logs_data = AlmaSEO_404_Model::get_logs(array(
     <!-- Stats Cards -->
     <div class="stats-cards">
         <div class="stat-card">
-            <div class="stat-value"><?php echo number_format($stats['total_7d']); ?></div>
+            <div class="stat-value"><?php echo esc_html(number_format($stats['total_7d'])); ?></div>
             <div class="stat-label"><?php esc_html_e('404s (7 days)', 'almaseo-seo-playground'); ?></div>
         </div>
         <div class="stat-card">
-            <div class="stat-value"><?php echo number_format($stats['unique_7d']); ?></div>
+            <div class="stat-value"><?php echo esc_html(number_format($stats['unique_7d'])); ?></div>
             <div class="stat-label"><?php esc_html_e('Unique Paths (7d)', 'almaseo-seo-playground'); ?></div>
         </div>
         <div class="stat-card">
@@ -46,7 +46,7 @@ $logs_data = AlmaSEO_404_Model::get_logs(array(
             <div class="stat-label"><?php esc_html_e('Top Referrer (7d)', 'almaseo-seo-playground'); ?></div>
         </div>
         <div class="stat-card">
-            <div class="stat-value"><?php echo number_format($stats['today']); ?></div>
+            <div class="stat-value"><?php echo esc_html(number_format($stats['today'])); ?></div>
             <div class="stat-label"><?php esc_html_e("Today's 404s", 'almaseo-seo-playground'); ?></div>
         </div>
     </div>
@@ -124,7 +124,7 @@ $logs_data = AlmaSEO_404_Model::get_logs(array(
         <tbody id="404-logs-tbody">
             <?php if (!empty($logs_data['items'])): ?>
                 <?php foreach ($logs_data['items'] as $log): ?>
-                <tr data-id="<?php echo esc_attr($log['id']); ?>" class="<?php echo $log['is_ignored'] ? 'ignored' : ''; ?>">
+                <tr data-id="<?php echo esc_attr($log['id']); ?>" class="<?php echo esc_attr($log['is_ignored'] ? 'ignored' : ''); ?>">
                     <th scope="row" class="check-column">
                         <input type="checkbox" class="log-checkbox" value="<?php echo esc_attr($log['id']); ?>" />
                     </th>
@@ -142,7 +142,7 @@ $logs_data = AlmaSEO_404_Model::get_logs(array(
                         <?php endif; ?>
                     </td>
                     <td class="column-hits">
-                        <span class="hit-count"><?php echo number_format($log['hits']); ?></span>
+                        <span class="hit-count"><?php echo esc_html(number_format($log['hits'])); ?></span>
                     </td>
                     <td class="column-last-seen">
                         <?php echo esc_html(human_time_diff(strtotime($log['last_seen']), current_time('U'))); ?> ago
@@ -217,11 +217,11 @@ $logs_data = AlmaSEO_404_Model::get_logs(array(
     <div class="tablenav bottom">
         <div class="tablenav-pages">
             <span class="displaying-num">
-                <?php printf(
+                <?php echo esc_html(sprintf(
                     /* translators: %s: number of items */
                     _n('%s item', '%s items', $logs_data['total'], 'almaseo-seo-playground'),
                     number_format($logs_data['total'])
-                ); ?>
+                )); ?>
             </span>
             <span class="pagination-links" id="pagination-links">
                 <!-- Pagination will be rendered by JavaScript -->

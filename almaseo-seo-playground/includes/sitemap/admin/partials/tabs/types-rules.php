@@ -202,7 +202,7 @@ if (class_exists('Alma_Additional_URLs_Storage')) {
             <span class="almaseo-chip">
                 <?php
                 /* translators: %d: number of additional URLs */
-                echo sprintf(__('%d URLs', 'almaseo-seo-playground'), $additional_count); ?>
+                echo esc_html(sprintf(__('%d URLs', 'almaseo-seo-playground'), $additional_count)); ?>
             </span>
         </div>
     </div>
@@ -210,7 +210,7 @@ if (class_exists('Alma_Additional_URLs_Storage')) {
         <?php if ($additional_count > 0) : ?>
             <div class="almaseo-stat-grid">
                 <div class="almaseo-stat">
-                    <div class="almaseo-stat-value"><?php echo number_format($additional_count); ?></div>
+                    <div class="almaseo-stat-value"><?php echo esc_html(number_format($additional_count)); ?></div>
                     <div class="almaseo-stat-label"><?php esc_html_e('Active URLs', 'almaseo-seo-playground'); ?></div>
                 </div>
             </div>

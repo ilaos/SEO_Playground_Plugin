@@ -117,7 +117,7 @@ function almaseo_eg_dashboard_widget_content() {
             ?>
             <tr>
                 <td style="padding: 5px 0;">
-                    <a href="<?php echo get_edit_post_link($post->ID); ?>" 
+                    <a href="<?php echo esc_url(get_edit_post_link($post->ID)); ?>"
                        style="text-decoration: none; color: #2271b1;">
                         <?php echo esc_html(wp_trim_words($post->post_title, 6)); ?>
                     </a>
@@ -125,7 +125,7 @@ function almaseo_eg_dashboard_widget_content() {
                 <td style="padding: 5px 0; text-align: right; color: #666;">
                     <small><?php
                     /* translators: %d: number of days ago */
-                    echo sprintf(__('%dd ago', 'almaseo-seo-playground'), $ages['updated_days']); ?></small>
+                    echo esc_html(sprintf(__('%dd ago', 'almaseo-seo-playground'), $ages['updated_days'])); ?></small>
                 </td>
                 <td style="padding: 5px 0; text-align: right;">
                     <button class="button button-small almaseo-eg-widget-refresh" 
@@ -148,12 +148,12 @@ function almaseo_eg_dashboard_widget_content() {
     
     <!-- Actions -->
     <div style="border-top: 1px solid #dcdcde; margin-top: 15px; padding-top: 15px; display: flex; gap: 10px;">
-        <a href="<?php echo admin_url('admin.php?page=almaseo-evergreen'); ?>" 
+        <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-evergreen')); ?>"
            class="button button-primary" style="flex: 1; text-align: center;">
             <?php esc_html_e('View All', 'almaseo-seo-playground'); ?>
         </a>
         
-        <a href="<?php echo admin_url('edit.php?evergreen_filter=stale'); ?>" 
+        <a href="<?php echo esc_url(admin_url('edit.php?evergreen_filter=stale')); ?>"
            class="button" style="flex: 1; text-align: center;">
             <?php esc_html_e('View Stale', 'almaseo-seo-playground'); ?>
         </a>
@@ -173,7 +173,7 @@ function almaseo_eg_dashboard_widget_content() {
             $.post(ajaxurl, {
                 action: 'almaseo_eg_mark_refreshed',
                 post_id: postId,
-                nonce: '<?php echo wp_create_nonce('almaseo_eg_ajax'); ?>'
+                nonce: '<?php echo esc_js(wp_create_nonce('almaseo_eg_ajax')); ?>'
             }, function(response) {
                 if (response.success) {
                     $btn.text('✓');

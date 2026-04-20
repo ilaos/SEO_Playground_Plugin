@@ -541,12 +541,12 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     $bar_class = $title_len <= 60 ? 'good' : ($title_len <= 70 ? 'caution' : 'too-long');
                     ?>
                     <div class="char-bar-track">
-                        <div class="char-bar-fill <?php echo $bar_class; ?>" style="width: <?php echo $title_percent; ?>%"></div>
+                        <div class="char-bar-fill <?php echo esc_attr($bar_class); ?>" style="width: <?php echo esc_attr($title_percent); ?>%"></div>
                         <div class="char-bar-marker good-zone" style="left: 85.7%" aria-label="60 character mark"></div>
                     </div>
                 </div>
                 <p class="field-subtext" style="margin: 5px 0 0 0; color: #666; font-size: 12px; display: flex; align-items: center; gap: 8px;">
-                    <button type="button" class="button button-small almaseo-autofill-btn" data-field="title" style="font-size: 11px; line-height: 22px; padding: 0 8px; <?php echo $ai_autofill_available ? 'background: linear-gradient(135deg, #f0f0ff, #f5f0ff); border-color: #c4b5fd;' : ''; ?>">
+                    <button type="button" class="button button-small almaseo-autofill-btn" data-field="title" style="font-size: 11px; line-height: 22px; padding: 0 8px; <?php echo esc_attr($ai_autofill_available ? 'background: linear-gradient(135deg, #f0f0ff, #f5f0ff); border-color: #c4b5fd;' : ''); ?>">
                         <span class="dashicons dashicons-edit-page" style="font-size: 14px; line-height: 22px; width: 14px; height: 14px;"></span>
                         <span class="almaseo-autofill-label"><?php echo $ai_autofill_available ? esc_html__('Generate Title', 'almaseo-seo-playground') : esc_html__('Auto-Generate Title', 'almaseo-seo-playground'); ?></span>
                         <?php if ($ai_autofill_available): ?>
@@ -713,7 +713,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     $desc_class = ($desc_len >= 150 && $desc_len <= 160) ? 'good' :
                                   (($desc_len >= 120 && $desc_len < 150) || ($desc_len > 160 && $desc_len <= 180) ? 'caution' : 'too-long');
                     ?>
-                    <span id="description-count" class="<?php echo $desc_class; ?>"><?php echo $desc_len; ?></span>/160
+                    <span id="description-count" class="<?php echo esc_attr($desc_class); ?>"><?php echo intval($desc_len); ?></span>/160
                 </div>
                 <div class="almaseo-char-bar" data-field="description" aria-label="Description character usage">
                     <?php
@@ -723,14 +723,14 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                  ($desc_len < 120 ? 'too-short' : 'too-long'));
                     ?>
                     <div class="char-bar-track">
-                        <div class="char-bar-fill <?php echo $bar_class; ?>" style="width: <?php echo $desc_percent; ?>%"></div>
+                        <div class="char-bar-fill <?php echo esc_attr($bar_class); ?>" style="width: <?php echo esc_attr($desc_percent); ?>%"></div>
                         <div class="char-bar-marker caution-start" style="left: 66.7%" aria-label="120 character mark"></div>
                         <div class="char-bar-marker good-start" style="left: 83.3%" aria-label="150 character mark"></div>
                         <div class="char-bar-marker good-end" style="left: 88.9%" aria-label="160 character mark"></div>
                     </div>
                 </div>
                 <p class="field-subtext" style="margin: 5px 0 0 0; color: #666; font-size: 12px; display: flex; align-items: center; gap: 8px;">
-                    <button type="button" class="button button-small almaseo-autofill-btn" data-field="description" style="font-size: 11px; line-height: 22px; padding: 0 8px; <?php echo $ai_autofill_available ? 'background: linear-gradient(135deg, #f0f0ff, #f5f0ff); border-color: #c4b5fd;' : ''; ?>">
+                    <button type="button" class="button button-small almaseo-autofill-btn" data-field="description" style="font-size: 11px; line-height: 22px; padding: 0 8px; <?php echo esc_attr($ai_autofill_available ? 'background: linear-gradient(135deg, #f0f0ff, #f5f0ff); border-color: #c4b5fd;' : ''); ?>">
                         <span class="dashicons dashicons-edit-page" style="font-size: 14px; line-height: 22px; width: 14px; height: 14px;"></span>
                         <span class="almaseo-autofill-label"><?php echo $ai_autofill_available ? esc_html__('Generate Description', 'almaseo-seo-playground') : esc_html__('Auto-Generate Description', 'almaseo-seo-playground'); ?></span>
                         <?php if ($ai_autofill_available): ?>
@@ -963,11 +963,11 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     <div class="health-stats">
                         <span class="health-stat">
                             <span class="stat-icon">✅</span>
-                            <strong><?php echo $pass_count; ?></strong> Passed
+                            <strong><?php echo intval($pass_count); ?></strong> Passed
                         </span>
                         <span class="health-stat">
                             <span class="stat-icon">❌</span>
-                            <strong><?php echo $fail_count; ?></strong> Issues
+                            <strong><?php echo intval($fail_count); ?></strong> Issues
                         </span>
                     </div>
                     <button type="button" class="button button-primary" id="almaseo-health-recalculate" data-post-id="<?php echo esc_attr($post->ID); ?>">
@@ -1059,12 +1059,12 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 $extra_style = '';
                 if ($signal === 'robots' && !$result['pass'] && strpos($result['note'], 'Discourage search engines') !== false) {
                     $extra_class = ' robots-critical';
-                    $extra_style = ' style="border: 2px solid #dc3232; background: #fff5f5;"';
+                    $extra_style = 'border: 2px solid #dc3232; background: #fff5f5;';
                 }
             ?>
-            <div class="almaseo-health-signal <?php echo esc_attr($status_class . $extra_class); ?>"<?php echo $extra_style; ?>>
+            <div class="almaseo-health-signal <?php echo esc_attr($status_class . $extra_class); ?>"<?php echo $extra_style ? ' style="' . esc_attr($extra_style) . '"' : ''; ?>>
                 <div class="signal-header">
-                    <span class="signal-icon"><?php echo $icon; ?></span>
+                    <span class="signal-icon"><?php echo esc_html($icon); ?></span>
                     <span class="signal-label">
                         <?php echo esc_html($label); ?>
                         <?php if ($description): ?>
@@ -1083,7 +1083,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 <div class="signal-bar-wrapper">
                     <div class="signal-bar">
                         <div class="signal-bar-fill <?php echo esc_attr($status_class); ?>" 
-                             style="width: <?php echo $result['pass'] ? '100' : '0'; ?>%"></div>
+                             style="width: <?php echo esc_attr($result['pass'] ? '100' : '0'); ?>%"></div>
                     </div>
                 </div>
                 
@@ -1224,7 +1224,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
             $('#almaseo-health-recalculate').on('click', function(e) {
                 e.preventDefault();
                 const $btn = $(this);
-                const postId = $btn.data('post-id') || <?php echo $post->ID; ?>;
+                const postId = $btn.data('post-id') || <?php echo intval($post->ID); ?>;
                 
                 $btn.prop('disabled', true).find('.dashicons').addClass('spin');
                 
@@ -1234,7 +1234,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     data: {
                         action: 'almaseo_health_recalculate',
                         post_id: postId,
-                        nonce: '<?php echo wp_create_nonce('almaseo_health_nonce'); ?>'
+                        nonce: '<?php echo esc_js(wp_create_nonce('almaseo_health_nonce')); ?>'
                     },
                     success: function(response) {
                         if (response.success) {
@@ -1347,7 +1347,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                  data-post-id="<?php echo esc_attr($gsc_post_id); ?>"
                  data-page-url="<?php echo esc_attr($gsc_page_url); ?>"
                  data-nonce="<?php echo esc_attr(wp_create_nonce('almaseo_gsc_nonce')); ?>"
-                 data-connected="<?php echo $is_connected ? '1' : '0'; ?>">
+                 data-connected="<?php echo esc_attr($is_connected ? '1' : '0'); ?>">
 
                 <!-- ═══ State 1: Connection Issue (fallback) ═══ -->
                 <div class="almaseo-gsc-state" id="gsc-state-not-connected" style="display: none;">
@@ -2182,8 +2182,8 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     <div style="margin-top: 8px; padding: 8px 12px; background: linear-gradient(135deg, #f0f4ff 0%, #f8f9ff 100%); border: 1px solid #d0d5ff; border-radius: 4px; font-size: 12px;">
                         <span style="font-weight: 600; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI</span>
                         <?php
-                        /* translators: %s: cornerstone confidence score */
-                        printf( __( 'AlmaSEO suggests marking this as cornerstone content (score: %s/100).', 'almaseo-seo-playground' ), '<strong>' . intval( $cs_score ) . '</strong>' ); ?>
+                        /* translators: %s: cornerstone confidence score wrapped in <strong> */
+                        echo wp_kses( sprintf( __( 'AlmaSEO suggests marking this as cornerstone content (score: %s/100).', 'almaseo-seo-playground' ), '<strong>' . intval( $cs_score ) . '</strong>' ), array( 'strong' => array() ) ); ?>
                         <?php if ( $cs_reason ) : ?>
                         <br><span style="color: #666;"><?php echo esc_html( $cs_reason ); ?></span>
                         <?php endif; ?>
@@ -2371,7 +2371,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 <option value="<?php echo esc_attr($option['value']); ?>" 
                                         <?php selected($current_schema, $option['value']); ?>
                                         <?php echo $option['locked'] ? 'disabled aria-disabled="true" class="is-locked"' : ''; ?>
-                                        data-locked="<?php echo $option['locked'] ? '1' : '0'; ?>">
+                                        data-locked="<?php echo esc_attr($option['locked'] ? '1' : '0'); ?>">
                                     <?php echo esc_html($option['label']); ?><?php echo $option['locked'] ? ' 🔒' : ''; ?>
                                 </option>
                             <?php endforeach; ?>
@@ -2474,7 +2474,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             if ( ! is_array($lb_hours) ) $lb_hours = array();
                             $show_lb = ( $primary_type === 'LocalBusiness' || $current_schema === 'LocalBusiness' );
                             ?>
-                            <div id="almaseo-localbusiness-fields" style="<?php echo $show_lb ? '' : 'display:none;'; ?> margin-top: 15px; padding: 15px; background: #f9fafb; border: 1px solid #e2e4e7; border-radius: 6px;">
+                            <div id="almaseo-localbusiness-fields" style="<?php echo esc_attr(($show_lb ? '' : 'display:none; ') . 'margin-top: 15px; padding: 15px; background: #f9fafb; border: 1px solid #e2e4e7; border-radius: 6px;'); ?>">
                                 <h4 style="margin: 0 0 12px 0; font-size: 13px; font-weight: 600; color: #1d2327;">Local Business Details</h4>
 
                                 <div class="almaseo-field-group" style="margin-bottom: 10px;">
@@ -2912,7 +2912,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         foreach ($metadata_history as $index => $entry) {
                             $date = date('F j, Y g:i A', $entry['timestamp']);
                             ?>
-                            <div class="history-entry" data-index="<?php echo $index; ?>">
+                            <div class="history-entry" data-index="<?php echo esc_attr($index); ?>">
                                 <div class="history-date">
                                     <span class="date-icon">📅</span>
                                     <?php echo esc_html($date); ?>
@@ -2971,7 +2971,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 <div class="history-actions">
                                     <button type="button" 
                                             class="restore-all-btn" 
-                                            data-index="<?php echo $index; ?>"
+                                            data-index="<?php echo esc_attr($index); ?>"
                                             title="Restore all fields from this version">
                                         Restore All
                                     </button>
@@ -3318,7 +3318,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
             
             <!-- Hidden fields for data -->
             <input type="hidden" id="almaseo-current-user" value="<?php echo esc_attr(wp_get_current_user()->display_name); ?>">
-            <input type="hidden" id="almaseo_nonce" value="<?php echo wp_create_nonce('almaseo_nonce'); ?>">
+            <input type="hidden" id="almaseo_nonce" value="<?php echo esc_attr(wp_create_nonce('almaseo_nonce')); ?>">
             <input type="hidden" id="almaseo-can-edit" value="<?php echo current_user_can('edit_posts') ? 'true' : 'false'; ?>">
         </div>
         <!-- End Notes & History Tab -->
@@ -3732,7 +3732,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     include_sections: 1
                 },
                 beforeSend: function(xhr) {
-                    xhr.setRequestHeader('X-WP-Nonce', '<?php echo wp_create_nonce('wp_rest'); ?>');
+                    xhr.setRequestHeader('X-WP-Nonce', '<?php echo esc_js(wp_create_nonce('wp_rest')); ?>');
                 },
                 success: function(response) {
                     renderLLMAnalysis(response);
@@ -4449,7 +4449,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
     }
     ?>
     <script>
-    var almaseoAiAutofillAvailable = <?php echo $ai_autofill_available ? 'true' : 'false'; ?>;
+    var almaseoAiAutofillAvailable = <?php echo esc_js($ai_autofill_available ? 'true' : 'false'); ?>;
     (function() {
         var btns = document.querySelectorAll('.almaseo-autofill-btn');
         if (!btns.length) return;

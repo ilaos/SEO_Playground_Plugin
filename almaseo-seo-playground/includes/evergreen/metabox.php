@@ -83,7 +83,7 @@ function almaseo_eg_meta_box_content($post) {
                   id="almaseo-eg-last-checked">
                 <?php
                 /* translators: %s: human-readable time difference (e.g. "2 hours") */
-                echo sprintf(__('Last recalculated: %s ago', 'almaseo-seo-playground'), $time_ago); ?>
+                echo esc_html(sprintf(__('Last recalculated: %s ago', 'almaseo-seo-playground'), $time_ago)); ?>
             </span>
         </div>
         <?php
@@ -110,7 +110,7 @@ function almaseo_eg_meta_box_content($post) {
                 <td style="padding: 4px 0; text-align: right;">
                     <?php
                     /* translators: %d: number of days */
-                    echo sprintf(_n('%d day ago', '%d days ago', $ages['published_days'], 'almaseo-seo-playground'), $ages['published_days']); ?>
+                    echo esc_html(sprintf(_n('%d day ago', '%d days ago', $ages['published_days'], 'almaseo-seo-playground'), $ages['published_days'])); ?>
                 </td>
             </tr>
             <tr>
@@ -118,7 +118,7 @@ function almaseo_eg_meta_box_content($post) {
                 <td style="padding: 4px 0; text-align: right;">
                     <?php
                     /* translators: %d: number of days */
-                    echo sprintf(_n('%d day ago', '%d days ago', $ages['updated_days'], 'almaseo-seo-playground'), $ages['updated_days']); ?>
+                    echo esc_html(sprintf(_n('%d day ago', '%d days ago', $ages['updated_days'], 'almaseo-seo-playground'), $ages['updated_days'])); ?>
                 </td>
             </tr>
             <?php if ($clicks['clicks_90d'] > 0 || $clicks['clicks_prev90d'] > 0): ?>
@@ -127,8 +127,8 @@ function almaseo_eg_meta_box_content($post) {
                 <td style="padding: 4px 0; text-align: right;">
                     <?php 
                     $trend_color = $trend < 0 ? '#d63638' : '#00a32a';
-                    echo '<span style="color: ' . $trend_color . '; font-weight: bold;">';
-                    echo $trend >= 0 ? '+' : '';
+                    echo '<span style="color: ' . esc_attr($trend_color) . '; font-weight: bold;">';
+                    echo esc_html($trend >= 0 ? '+' : '');
                     echo esc_html($trend) . '%';
                     echo '</span>';
                     ?>
@@ -202,7 +202,7 @@ function almaseo_eg_meta_box_content($post) {
             $.post(ajaxurl, {
                 action: 'almaseo_eg_mark_refreshed',
                 post_id: postId,
-                nonce: '<?php echo wp_create_nonce('almaseo_eg_ajax'); ?>'
+                nonce: '<?php echo esc_js(wp_create_nonce('almaseo_eg_ajax')); ?>'
             }, function(response) {
                 if (response.success) {
                     $btn.text('<?php esc_html_e('✅ Marked as Refreshed!', 'almaseo-seo-playground'); ?>');

@@ -47,24 +47,24 @@ $validation = $hreflang_stats['validation'] ?? array();
     <div class="almaseo-card-header">
         <h2><?php esc_html_e('Hreflang Configuration', 'almaseo-seo-playground'); ?></h2>
         <div class="almaseo-chips">
-            <span class="almaseo-chip <?php echo $settings['hreflang']['enabled'] ? 'almaseo-chip-success' : ''; ?>">
-                <?php echo $settings['hreflang']['enabled'] ? __('Active', 'almaseo-seo-playground') : __('Inactive', 'almaseo-seo-playground'); ?>
+            <span class="almaseo-chip <?php echo esc_attr($settings['hreflang']['enabled'] ? 'almaseo-chip-success' : ''); ?>">
+                <?php echo $settings['hreflang']['enabled'] ? esc_html__('Active', 'almaseo-seo-playground') : esc_html__('Inactive', 'almaseo-seo-playground'); ?>
             </span>
             <?php if ($hreflang_stats['plugin']): ?>
             <span class="almaseo-chip">
-                <?php echo ucfirst($hreflang_stats['plugin']); ?>
+                <?php echo esc_html(ucfirst($hreflang_stats['plugin'])); ?>
             </span>
             <?php endif; ?>
             <span class="almaseo-chip">
                 <?php
                 /* translators: %d: number of configured locales */
-                echo sprintf(__('%d Locales', 'almaseo-seo-playground'), $hreflang_stats['languages_count']); ?>
+                echo esc_html(sprintf(__('%d Locales', 'almaseo-seo-playground'), $hreflang_stats['languages_count'])); ?>
             </span>
             <?php if (!empty($validation['validated_at'])): ?>
-            <span class="almaseo-chip <?php echo $validation['ok'] ? 'almaseo-chip-success' : 'almaseo-chip-warning'; ?>">
+            <span class="almaseo-chip <?php echo esc_attr($validation['ok'] ? 'almaseo-chip-success' : 'almaseo-chip-warning'); ?>">
                 <?php
                 /* translators: %d: number of validation issues found */
-                echo $validation['ok'] ? __('Valid', 'almaseo-seo-playground') : sprintf(__('%d Issues', 'almaseo-seo-playground'), $validation['missing_pairs'] + $validation['orphans']); ?>
+                echo $validation['ok'] ? esc_html__('Valid', 'almaseo-seo-playground') : esc_html(sprintf(__('%d Issues', 'almaseo-seo-playground'), $validation['missing_pairs'] + $validation['orphans'])); ?>
             </span>
             <?php endif; ?>
         </div>
@@ -189,27 +189,27 @@ $validation = $hreflang_stats['validation'] ?? array();
         </div>
         
         <?php if (!empty($validation)): ?>
-        <div class="almaseo-info-box <?php echo $validation['ok'] ? 'almaseo-info-success' : 'almaseo-info-warning'; ?>">
+        <div class="almaseo-info-box <?php echo esc_attr($validation['ok'] ? 'almaseo-info-success' : 'almaseo-info-warning'); ?>">
             <p>
-                <strong><?php esc_html_e('Last validation:', 'almaseo-seo-playground'); ?></strong> 
-                <?php echo human_time_diff($validation['validated_at']); ?> <?php esc_html_e('ago', 'almaseo-seo-playground'); ?>
+                <strong><?php esc_html_e('Last validation:', 'almaseo-seo-playground'); ?></strong>
+                <?php echo esc_html(human_time_diff($validation['validated_at'])); ?> <?php esc_html_e('ago', 'almaseo-seo-playground'); ?>
             </p>
             <?php if (!$validation['ok']): ?>
             <ul>
                 <?php if ($validation['missing_pairs'] > 0): ?>
                 <li><?php
                 /* translators: %d: number of missing language pairs */
-                echo sprintf(__('%d missing language pairs', 'almaseo-seo-playground'), $validation['missing_pairs']); ?></li>
+                echo esc_html(sprintf(__('%d missing language pairs', 'almaseo-seo-playground'), $validation['missing_pairs'])); ?></li>
                 <?php endif; ?>
                 <?php if ($validation['orphans'] > 0): ?>
                 <li><?php
                 /* translators: %d: number of orphan links */
-                echo sprintf(__('%d orphan links', 'almaseo-seo-playground'), $validation['orphans']); ?></li>
+                echo esc_html(sprintf(__('%d orphan links', 'almaseo-seo-playground'), $validation['orphans'])); ?></li>
                 <?php endif; ?>
                 <?php if ($validation['mismatch'] > 0): ?>
                 <li><?php
                 /* translators: %d: number of invalid language codes */
-                echo sprintf(__('%d invalid codes', 'almaseo-seo-playground'), $validation['mismatch']); ?></li>
+                echo esc_html(sprintf(__('%d invalid codes', 'almaseo-seo-playground'), $validation['mismatch'])); ?></li>
                 <?php endif; ?>
             </ul>
             <?php endif; ?>

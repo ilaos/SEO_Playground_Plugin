@@ -67,14 +67,14 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
             <div class="stat-item">
                 <span class="stat-icon dashicons dashicons-media-text"></span>
                 <div class="stat-content">
-                    <div class="stat-value" data-stat="files"><?php echo number_format($build_stats['files']); ?></div>
+                    <div class="stat-value" data-stat="files"><?php echo esc_html(number_format($build_stats['files'])); ?></div>
                     <div class="stat-label"><?php esc_html_e('Files', 'almaseo-seo-playground'); ?></div>
                 </div>
             </div>
             <div class="stat-item">
                 <span class="stat-icon dashicons dashicons-admin-links"></span>
                 <div class="stat-content">
-                    <div class="stat-value" data-stat="urls"><?php echo number_format($build_stats['urls']); ?></div>
+                    <div class="stat-value" data-stat="urls"><?php echo esc_html(number_format($build_stats['urls'])); ?></div>
                     <div class="stat-label"><?php esc_html_e('URLs', 'almaseo-seo-playground'); ?></div>
                 </div>
             </div>
@@ -84,7 +84,7 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
                     <div class="stat-value" data-stat="last-built">
                         <?php 
                         if ($build_stats['last_built']) {
-                            echo human_time_diff($build_stats['last_built']) . ' ' . __('ago', 'almaseo-seo-playground');
+                            echo esc_html(human_time_diff($build_stats['last_built']) . ' ' . __('ago', 'almaseo-seo-playground'));
                         } else {
                             esc_html_e('Never', 'almaseo-seo-playground');
                         }
@@ -96,7 +96,7 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
             <div class="stat-item">
                 <span class="stat-icon dashicons dashicons-admin-settings"></span>
                 <div class="stat-content">
-                    <div class="stat-value"><?php echo ucfirst($generation_mode); ?></div>
+                    <div class="stat-value"><?php echo esc_html(ucfirst($generation_mode)); ?></div>
                     <div class="stat-label"><?php esc_html_e('Mode', 'almaseo-seo-playground'); ?></div>
                 </div>
             </div>
@@ -110,15 +110,15 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
         <div class="status-grid">
             <div class="status-item">
                 <span class="status-label"><?php esc_html_e('Sitemap Status:', 'almaseo-seo-playground'); ?></span>
-                <span class="status-value <?php echo $enabled ? 'status-enabled' : 'status-disabled'; ?>">
-                    <?php echo $enabled ? __('Enabled', 'almaseo-seo-playground') : __('Disabled', 'almaseo-seo-playground'); ?>
+                <span class="status-value <?php echo esc_attr($enabled ? 'status-enabled' : 'status-disabled'); ?>">
+                    <?php echo $enabled ? esc_html__('Enabled', 'almaseo-seo-playground') : esc_html__('Disabled', 'almaseo-seo-playground'); ?>
                 </span>
             </div>
             
             <div class="status-item">
                 <span class="status-label"><?php esc_html_e('Primary URL:', 'almaseo-seo-playground'); ?></span>
                 <div class="status-value status-url">
-                    <code id="primary-sitemap-url"><?php echo $primary_url; ?></code>
+                    <code id="primary-sitemap-url"><?php echo esc_html($primary_url); ?></code>
                     <button type="button" class="button-link copy-url-btn" 
                             data-url="<?php echo esc_attr($primary_url); ?>" 
                             title="<?php esc_attr_e('Copy URL', 'almaseo-seo-playground'); ?>"
@@ -132,7 +132,7 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
             <div class="status-item">
                 <span class="status-label"><?php esc_html_e('Direct URL:', 'almaseo-seo-playground'); ?></span>
                 <div class="status-value status-url">
-                    <code><?php echo $direct_url; ?></code>
+                    <code><?php echo esc_html($direct_url); ?></code>
                     <span class="status-badge status-takeover"><?php esc_html_e('Takeover Active', 'almaseo-seo-playground'); ?></span>
                 </div>
             </div>
@@ -159,14 +159,14 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
         <h2><?php esc_html_e('Health Summary', 'almaseo-seo-playground'); ?></h2>
         
         <div class="health-chips">
-            <a href="<?php echo admin_url('admin.php?page=almaseo-sitemaps&tab=health'); ?>" class="health-chip">
+            <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-sitemaps&tab=health')); ?>" class="health-chip">
                 <span class="dashicons dashicons-yes-alt"></span>
                 <div class="chip-content">
                     <div class="chip-label"><?php esc_html_e('Last Validate', 'almaseo-seo-playground'); ?></div>
                     <div class="chip-value">
-                        <?php 
+                        <?php
                         if ($last_validate) {
-                            echo human_time_diff($last_validate) . ' ' . __('ago', 'almaseo-seo-playground');
+                            echo esc_html(human_time_diff($last_validate) . ' ' . __('ago', 'almaseo-seo-playground'));
                         } else {
                             esc_html_e('Never', 'almaseo-seo-playground');
                         }
@@ -175,26 +175,26 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
                 </div>
             </a>
             
-            <a href="<?php echo admin_url('admin.php?page=almaseo-sitemaps&tab=health'); ?>" class="health-chip <?php echo $conflict_count > 0 ? 'has-issues' : ''; ?>">
-                <span class="dashicons dashicons-<?php echo $conflict_count > 0 ? 'warning' : 'yes-alt'; ?>"></span>
+            <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-sitemaps&tab=health')); ?>" class="health-chip <?php echo esc_attr($conflict_count > 0 ? 'has-issues' : ''); ?>">
+                <span class="dashicons dashicons-<?php echo esc_attr($conflict_count > 0 ? 'warning' : 'yes-alt'); ?>"></span>
                 <div class="chip-content">
                     <div class="chip-label"><?php esc_html_e('Conflicts', 'almaseo-seo-playground'); ?></div>
                     <div class="chip-value">
                         <?php
                         /* translators: %d: number of conflicts found */
-                        echo $conflict_count > 0 ? sprintf(_n('%d found', '%d found', $conflict_count, 'almaseo-seo-playground'), $conflict_count) : __('None', 'almaseo-seo-playground'); ?>
+                        echo $conflict_count > 0 ? esc_html(sprintf(_n('%d found', '%d found', $conflict_count, 'almaseo-seo-playground'), $conflict_count)) : esc_html__('None', 'almaseo-seo-playground'); ?>
                     </div>
                 </div>
             </a>
             
-            <a href="<?php echo admin_url('admin.php?page=almaseo-sitemaps&tab=updates'); ?>" class="health-chip">
+            <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-sitemaps&tab=updates')); ?>" class="health-chip">
                 <span class="dashicons dashicons-update"></span>
                 <div class="chip-content">
                     <div class="chip-label"><?php esc_html_e('Last IndexNow', 'almaseo-seo-playground'); ?></div>
                     <div class="chip-value">
                         <?php 
                         if ($last_indexnow) {
-                            echo human_time_diff($last_indexnow) . ' ' . __('ago', 'almaseo-seo-playground');
+                            echo esc_html(human_time_diff($last_indexnow) . ' ' . __('ago', 'almaseo-seo-playground'));
                         } else {
                             esc_html_e('Never', 'almaseo-seo-playground');
                         }
@@ -242,7 +242,7 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
             <div class="health-issues">
                 <?php foreach ($health_issues as $issue): ?>
                     <div class="health-status health-<?php echo esc_attr($issue['type']); ?>">
-                        <span class="dashicons dashicons-<?php echo $issue['type'] === 'warning' ? 'warning' : 'info'; ?>"></span>
+                        <span class="dashicons dashicons-<?php echo esc_attr($issue['type'] === 'warning' ? 'warning' : 'info'); ?>"></span>
                         <span><?php echo esc_html($issue['message']); ?></span>
                     </div>
                 <?php endforeach; ?>
@@ -454,14 +454,14 @@ jQuery(document).ready(function($) {
         $.post(ajaxurl, {
             action: 'almaseo_toggle_sitemaps',
             enabled: true,
-            nonce: '<?php echo wp_create_nonce('almaseo_sitemaps_nonce'); ?>'
+            nonce: '<?php echo esc_js(wp_create_nonce('almaseo_sitemaps_nonce')); ?>'
         })
         .done(function(response) {
             if (response.success) {
                 // Step 2: Queue rebuild
                 $.post(ajaxurl, {
                     action: 'almaseo_rebuild_static',
-                    nonce: '<?php echo wp_create_nonce('almaseo_sitemaps_nonce'); ?>'
+                    nonce: '<?php echo esc_js(wp_create_nonce('almaseo_sitemaps_nonce')); ?>'
                 })
                 .done(function(rebuildResponse) {
                     // Step 3: Refresh stats and UI
@@ -561,7 +561,7 @@ jQuery(document).ready(function($) {
         
         $.post(ajaxurl, {
             action: 'almaseo_force_delta_ping',
-            nonce: '<?php echo wp_create_nonce('almaseo_sitemaps_nonce'); ?>'
+            nonce: '<?php echo esc_js(wp_create_nonce('almaseo_sitemaps_nonce')); ?>'
         })
         .done(function(response) {
             if (response.success) {
@@ -582,7 +582,7 @@ jQuery(document).ready(function($) {
         // Clear transients
         $.post(ajaxurl, {
             action: 'almaseo_recalculate',
-            nonce: '<?php echo wp_create_nonce('almaseo_sitemaps_nonce'); ?>'
+            nonce: '<?php echo esc_js(wp_create_nonce('almaseo_sitemaps_nonce')); ?>'
         })
         .done(function(response) {
             showToast('Cache cleared successfully', 'success');
@@ -598,7 +598,7 @@ jQuery(document).ready(function($) {
         
         $.post(ajaxurl, {
             action: 'almaseo_copy_all_urls',
-            nonce: '<?php echo wp_create_nonce('almaseo_sitemaps_nonce'); ?>'
+            nonce: '<?php echo esc_js(wp_create_nonce('almaseo_sitemaps_nonce')); ?>'
         })
         .done(function(response) {
             if (response.success && response.data.urls) {

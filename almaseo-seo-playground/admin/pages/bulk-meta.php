@@ -21,7 +21,7 @@ if ( file_exists( $autofill_ai_file ) ) {
     $ai_autofill_available = \AlmaSEO\BulkMeta\AI_Autofill_Generator::is_available();
 }
 ?>
-<script>var almaseoAutofillAi = <?php echo $ai_autofill_available ? 'true' : 'false'; ?>;</script>
+<script>var almaseoAutofillAi = <?php echo esc_js($ai_autofill_available ? 'true' : 'false'); ?>;</script>
 
 <div class="wrap almaseo-bulk-meta">
     <h1>
@@ -42,7 +42,7 @@ if ( file_exists( $autofill_ai_file ) ) {
         <button type="button" id="ai-explainer-toggle" style="
             width: 100%;
             padding: 12px 18px;
-            background: <?php echo $ai_autofill_available ? 'linear-gradient(135deg, #f0f0ff 0%, #f5f0ff 100%)' : '#f9f9f9'; ?>;
+            background: <?php echo esc_attr($ai_autofill_available ? 'linear-gradient(135deg, #f0f0ff 0%, #f5f0ff 100%)' : '#f9f9f9'); ?>;
             border: none;
             cursor: pointer;
             display: flex;
@@ -120,7 +120,7 @@ if ( file_exists( $autofill_ai_file ) ) {
     </script>
 
     <!-- Auto-Fill Actions -->
-    <div class="autofill-actions-wrapper" style="margin: 0 0 8px 0; padding: 14px 18px; background: <?php echo $ai_autofill_available ? 'linear-gradient(135deg, #f0f0ff 0%, #f5f0ff 100%)' : '#f0f6fc'; ?>; border: 1px solid <?php echo $ai_autofill_available ? '#ddd6fe' : '#c3d4e6'; ?>; border-left: 4px solid <?php echo $ai_autofill_available ? '#7c3aed' : '#2271b1'; ?>; border-radius: 4px;">
+    <div class="autofill-actions-wrapper" style="margin: 0 0 8px 0; padding: 14px 18px; background: <?php echo esc_attr($ai_autofill_available ? 'linear-gradient(135deg, #f0f0ff 0%, #f5f0ff 100%)' : '#f0f6fc'); ?>; border: 1px solid <?php echo esc_attr($ai_autofill_available ? '#ddd6fe' : '#c3d4e6'); ?>; border-left: 4px solid <?php echo esc_attr($ai_autofill_available ? '#7c3aed' : '#2271b1'); ?>; border-radius: 4px;">
         <div class="autofill-actions" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
             <?php if ( $ai_autofill_available ) : ?>
                 <span style="font-size: 18px;">&#10024;</span>

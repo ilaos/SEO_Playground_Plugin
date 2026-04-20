@@ -50,8 +50,8 @@ try {
     <div class="almaseo-card-header">
         <h2><?php esc_html_e('Media Sitemaps', 'almaseo-seo-playground'); ?></h2>
         <div class="almaseo-chips">
-            <span class="almaseo-chip <?php echo $media_active ? 'almaseo-chip-success' : ''; ?>">
-                <?php echo $media_active ? __('Active', 'almaseo-seo-playground') : __('Inactive', 'almaseo-seo-playground'); ?>
+            <span class="almaseo-chip <?php echo esc_attr($media_active ? 'almaseo-chip-success' : ''); ?>">
+                <?php echo $media_active ? esc_html__('Active', 'almaseo-seo-playground') : esc_html__('Inactive', 'almaseo-seo-playground'); ?>
             </span>
             <?php if ($image_enabled): ?>
             <span class="almaseo-chip almaseo-chip-info">
@@ -81,14 +81,14 @@ try {
         <div class="almaseo-card-header">
             <h2><?php esc_html_e('Image Sitemap', 'almaseo-seo-playground'); ?></h2>
             <div class="almaseo-chips">
-                <span class="almaseo-chip <?php echo $image_enabled ? 'almaseo-chip-success' : ''; ?>">
-                    <?php echo $image_enabled ? __('Enabled', 'almaseo-seo-playground') : __('Disabled', 'almaseo-seo-playground'); ?>
+                <span class="almaseo-chip <?php echo esc_attr($image_enabled ? 'almaseo-chip-success' : ''); ?>">
+                    <?php echo $image_enabled ? esc_html__('Enabled', 'almaseo-seo-playground') : esc_html__('Disabled', 'almaseo-seo-playground'); ?>
                 </span>
                 <?php if ($media_stats['images']['total'] > 0): ?>
                 <span class="almaseo-chip">
                     <?php
                     /* translators: %d: number of images in the sitemap */
-                    echo sprintf(__('%d Images', 'almaseo-seo-playground'), $media_stats['images']['total']); ?>
+                    echo esc_html(sprintf(__('%d Images', 'almaseo-seo-playground'), $media_stats['images']['total'])); ?>
                 </span>
                 <?php endif; ?>
             </div>
@@ -143,11 +143,11 @@ try {
             <?php if ($media_stats['images']['total'] > 0): ?>
             <div class="almaseo-stat-grid">
                 <div class="almaseo-stat">
-                    <div class="almaseo-stat-value"><?php echo number_format($media_stats['images']['total']); ?></div>
+                    <div class="almaseo-stat-value"><?php echo esc_html(number_format($media_stats['images']['total'])); ?></div>
                     <div class="almaseo-stat-label"><?php esc_html_e('Total Images', 'almaseo-seo-playground'); ?></div>
                 </div>
                 <div class="almaseo-stat">
-                    <div class="almaseo-stat-value almaseo-text-success"><?php echo number_format($media_stats['images']['valid']); ?></div>
+                    <div class="almaseo-stat-value almaseo-text-success"><?php echo esc_html(number_format($media_stats['images']['valid'])); ?></div>
                     <div class="almaseo-stat-label"><?php esc_html_e('Valid Images', 'almaseo-seo-playground'); ?></div>
                 </div>
             </div>
@@ -165,14 +165,14 @@ try {
         <div class="almaseo-card-header">
             <h2><?php esc_html_e('Video Sitemap', 'almaseo-seo-playground'); ?></h2>
             <div class="almaseo-chips">
-                <span class="almaseo-chip <?php echo $video_enabled ? 'almaseo-chip-success' : ''; ?>">
-                    <?php echo $video_enabled ? __('Enabled', 'almaseo-seo-playground') : __('Disabled', 'almaseo-seo-playground'); ?>
+                <span class="almaseo-chip <?php echo esc_attr($video_enabled ? 'almaseo-chip-success' : ''); ?>">
+                    <?php echo $video_enabled ? esc_html__('Enabled', 'almaseo-seo-playground') : esc_html__('Disabled', 'almaseo-seo-playground'); ?>
                 </span>
                 <?php if ($media_stats['videos']['total'] > 0): ?>
                 <span class="almaseo-chip">
                     <?php
                     /* translators: %d: number of videos in the sitemap */
-                    echo sprintf(__('%d Videos', 'almaseo-seo-playground'), $media_stats['videos']['total']); ?>
+                    echo esc_html(sprintf(__('%d Videos', 'almaseo-seo-playground'), $media_stats['videos']['total'])); ?>
                 </span>
                 <?php endif; ?>
             </div>
@@ -227,11 +227,11 @@ try {
             <?php if ($media_stats['videos']['total'] > 0): ?>
             <div class="almaseo-stat-grid">
                 <div class="almaseo-stat">
-                    <div class="almaseo-stat-value"><?php echo number_format($media_stats['videos']['total']); ?></div>
+                    <div class="almaseo-stat-value"><?php echo esc_html(number_format($media_stats['videos']['total'])); ?></div>
                     <div class="almaseo-stat-label"><?php esc_html_e('Total Videos', 'almaseo-seo-playground'); ?></div>
                 </div>
                 <div class="almaseo-stat">
-                    <div class="almaseo-stat-value almaseo-text-success"><?php echo number_format($media_stats['videos']['valid']); ?></div>
+                    <div class="almaseo-stat-value almaseo-text-success"><?php echo esc_html(number_format($media_stats['videos']['valid'])); ?></div>
                     <div class="almaseo-stat-label"><?php esc_html_e('Valid Videos', 'almaseo-seo-playground'); ?></div>
                 </div>
             </div>
