@@ -120,18 +120,42 @@ class AlmaSEO_Update_Manager {
                 'almaseo-seo-playground'
             );
             
-            // Add metadata filter
+            // Add metadata filter — enrich update info with readme.txt sections
             $this->updateChecker->addResultFilter(function($info) {
                 if ($info) {
                     $info->author = 'AlmaSEO';
                     $info->author_homepage = 'https://almaseo.com';
-                    
+
                     // Add icons if not present
                     if (empty($info->icons)) {
                         $info->icons = array(
                             '2x' => ALMASEO_PLUGIN_URL . 'assets/images/icon-256x256.png',
                             '1x' => ALMASEO_PLUGIN_URL . 'assets/images/icon-128x128.png'
                         );
+                    }
+
+                    // Parse local readme.txt to populate "View Details" modal
+                    $readme_file = ALMASEO_PATH . 'readme.txt';
+                    if (file_exists($readme_file) && class_exists('PucReadmeParser')) {
+                        $parser = new \PucReadmeParser();
+                        $readme = $parser->parse_readme($readme_file);
+                        if (!empty($readme) && !empty($readme['sections'])) {
+                            // Merge readme sections (description, changelog, faq, etc.)
+                            $info->sections = array_merge(
+                                isset($info->sections) ? (array) $info->sections : array(),
+                                $readme['sections']
+                            );
+                        }
+                        // Pull additional metadata from readme if not already set
+                        if (!empty($readme['requires_at_least']) && empty($info->requires)) {
+                            $info->requires = $readme['requires_at_least'];
+                        }
+                        if (!empty($readme['tested_up_to']) && empty($info->tested)) {
+                            $info->tested = $readme['tested_up_to'];
+                        }
+                        if (!empty($readme['requires_php']) && empty($info->requires_php)) {
+                            $info->requires_php = $readme['requires_php'];
+                        }
                     }
                 }
                 return $info;
