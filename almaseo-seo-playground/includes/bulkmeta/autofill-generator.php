@@ -51,7 +51,7 @@ class Autofill_Generator {
      */
     public static function generate_title( $post ) {
         $raw_title = trim( $post->post_title ?? '' );
-        $year      = date( 'Y' );
+        $year      = gmdate( 'Y' );
         $site      = get_bloginfo( 'name' );
 
         if ( empty( $raw_title ) ) {

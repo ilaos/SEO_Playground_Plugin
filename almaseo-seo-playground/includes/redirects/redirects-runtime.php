@@ -65,7 +65,7 @@ class AlmaSEO_Redirects_Runtime {
         $target_url = self::build_target_url($redirect['target']);
         
         // Perform the redirect
-        wp_redirect(esc_url_raw($target_url), intval($redirect['status']));
+        wp_redirect(esc_url_raw($target_url), intval($redirect['status'])); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- Intentional: redirects may target external URLs configured by admin
         exit;
     }
     
@@ -82,7 +82,7 @@ class AlmaSEO_Redirects_Runtime {
         $path = strtok($request_uri, '?');
         
         // Remove any subfolder from path if WordPress is in a subdirectory
-        $home_path = parse_url(home_url(), PHP_URL_PATH);
+        $home_path = wp_parse_url(home_url(), PHP_URL_PATH);
         if ($home_path && $home_path !== '/') {
             $path = preg_replace('#^' . preg_quote($home_path, '#') . '#', '', $path);
         }
@@ -127,8 +127,8 @@ class AlmaSEO_Redirects_Runtime {
     private static function would_create_loop($source, $target) {
         // If target is an absolute URL, check its path
         if (filter_var($target, FILTER_VALIDATE_URL)) {
-            $target_host = parse_url($target, PHP_URL_HOST);
-            $site_host = parse_url(home_url(), PHP_URL_HOST);
+            $target_host = wp_parse_url($target, PHP_URL_HOST);
+            $site_host = wp_parse_url(home_url(), PHP_URL_HOST);
             
             // If different domain, no loop possible
             if ($target_host !== $site_host) {
@@ -136,7 +136,7 @@ class AlmaSEO_Redirects_Runtime {
             }
             
             // Get the path from the URL
-            $target = parse_url($target, PHP_URL_PATH);
+            $target = wp_parse_url($target, PHP_URL_PATH);
         }
         
         // Normalize target path

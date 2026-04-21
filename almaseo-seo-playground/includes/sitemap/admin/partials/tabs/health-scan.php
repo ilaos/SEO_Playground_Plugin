@@ -328,7 +328,7 @@ try {
                         <td>
                             <small><?php echo esc_html(human_time_diff($log['timestamp'])); ?> <?php esc_html_e('ago', 'almaseo-seo-playground'); ?></small>
                             <br>
-                            <code><?php echo esc_html(date('Y-m-d H:i:s', $log['timestamp'])); ?></code>
+                            <code><?php echo esc_html(gmdate('Y-m-d H:i:s', $log['timestamp'])); ?></code>
                         </td>
                         <td>
                             <span class="almaseo-log-type almaseo-log-<?php echo esc_attr($log['type']); ?>">

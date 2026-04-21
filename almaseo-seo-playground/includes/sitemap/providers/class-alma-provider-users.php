@@ -109,7 +109,7 @@ class Alma_Provider_Users {
             );
             
             if ($user->last_post_modified) {
-                $url_data['lastmod'] = date('c', strtotime($user->last_post_modified));
+                $url_data['lastmod'] = gmdate('c', strtotime($user->last_post_modified));
             }
             
             // Add author avatar as image if available
@@ -158,7 +158,7 @@ class Alma_Provider_Users {
             ) as subset
         ", $per_page, $offset));
         
-        return $last_modified ? date('c', strtotime($last_modified)) : null;
+        return $last_modified ? gmdate('c', strtotime($last_modified)) : null;
     }
     
     /**

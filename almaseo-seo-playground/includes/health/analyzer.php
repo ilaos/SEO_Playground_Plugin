@@ -682,7 +682,7 @@ function almaseo_parse_html_content($html) {
     
     // Get links
     $link_elements = $dom->getElementsByTagName('a');
-    $site_host = parse_url(get_site_url(), PHP_URL_HOST);
+    $site_host = wp_parse_url(get_site_url(), PHP_URL_HOST);
     $site_domain = preg_replace('/^www\./', '', $site_host);
     
     foreach ($link_elements as $link) {
@@ -702,7 +702,7 @@ function almaseo_parse_html_content($html) {
             $href = trailingslashit(get_site_url()) . ltrim($href, '/');
         }
         
-        $link_host = parse_url($href, PHP_URL_HOST);
+        $link_host = wp_parse_url($href, PHP_URL_HOST);
         $link_domain = preg_replace('/^www\./', '', $link_host);
         
         $link_data = array(

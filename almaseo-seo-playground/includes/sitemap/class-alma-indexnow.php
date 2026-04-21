@@ -255,7 +255,7 @@ class Alma_IndexNow {
         
         // Prepare request body
         $body = array(
-            'host' => parse_url(home_url(), PHP_URL_HOST),
+            'host' => wp_parse_url(home_url(), PHP_URL_HOST),
             'key' => $this->settings['key'],
             'keyLocation' => home_url('/' . $this->settings['key'] . '.txt'),
             'urlList' => $urls

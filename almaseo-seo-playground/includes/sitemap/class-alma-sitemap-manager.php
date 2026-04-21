@@ -393,7 +393,7 @@ class Alma_Sitemap_Manager {
                         if (strpos($file['url'], 'sitemap-' . $name) !== false) {
                             $sitemaps[] = array(
                                 'loc' => $file['url'],
-                                'lastmod' => date('c')
+                                'lastmod' => gmdate('c')
                             );
                         }
                     }

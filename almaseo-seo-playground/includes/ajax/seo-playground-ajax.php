@@ -1525,7 +1525,7 @@ function seo_playground_ajax_mark_as_reoptimized() {
     wp_send_json_success(array(
         'message' => 'Post marked as reoptimized successfully',
         'timestamp' => $current_time,
-        'formatted_time' => date('F j, Y \a\t g:i A', strtotime($current_time))
+        'formatted_time' => gmdate('F j, Y \a\t g:i A', strtotime($current_time))
     ));
 }
 } // end function_exists guard: seo_playground_ajax_mark_as_reoptimized
@@ -1559,7 +1559,7 @@ function seo_playground_ajax_save_note() {
     wp_send_json_success(array(
         'message' => 'Note saved successfully',
         'timestamp' => $current_time,
-        'formatted_time' => date('F j, Y \a\t g:i A', strtotime($current_time)),
+        'formatted_time' => gmdate('F j, Y \a\t g:i A', strtotime($current_time)),
         'character_count' => strlen($note_content)
     ));
 }
@@ -1589,7 +1589,7 @@ function seo_playground_ajax_get_note() {
     wp_send_json_success(array(
         'note_content' => $note_content,
         'timestamp' => $timestamp,
-        'formatted_time' => $timestamp ? date('F j, Y \a\t g:i A', strtotime($timestamp)) : '',
+        'formatted_time' => $timestamp ? gmdate('F j, Y \a\t g:i A', strtotime($timestamp)) : '',
         'character_count' => strlen($note_content)
     ));
 }

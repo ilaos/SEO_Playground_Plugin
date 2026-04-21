@@ -470,9 +470,9 @@ class BulkMeta_Controller {
         
         $replacements = array(
             '{site}' => get_bloginfo('name') ?? '',
-            '{year}' => date('Y'),
-            '{month}' => date('F'),
-            '{day}' => date('j')
+            '{year}' => gmdate('Y'),
+            '{month}' => gmdate('F'),
+            '{day}' => gmdate('j')
         );
         
         // Add category if available

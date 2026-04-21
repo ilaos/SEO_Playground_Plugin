@@ -403,7 +403,7 @@ class Alma_Sitemap_Ajax_Handlers {
         
         wp_send_json_success(array(
             'csv' => $csv,
-            'filename' => 'sitemap-urls-' . date('Y-m-d') . '.csv'
+            'filename' => 'sitemap-urls-' . gmdate('Y-m-d') . '.csv'
         ));
     }
     
@@ -601,7 +601,7 @@ class Alma_Sitemap_Ajax_Handlers {
         $settings = get_option('almaseo_sitemap_settings', array());
         $retention_days = $settings['delta']['retention_days'] ?? 14;
         
-        $cutoff = date('Y-m-d H:i:s', strtotime("-{$retention_days} days"));
+        $cutoff = gmdate('Y-m-d H:i:s', strtotime("-{$retention_days} days"));
         
         $deleted = $wpdb->query($wpdb->prepare(
             "DELETE FROM `$table` WHERE detected_at < %s",
@@ -797,7 +797,7 @@ class Alma_Sitemap_Ajax_Handlers {
         
         wp_send_json_success(array(
             'settings' => json_encode($settings, JSON_PRETTY_PRINT),
-            'filename' => 'almaseo-sitemap-settings-' . date('Y-m-d') . '.json'
+            'filename' => 'almaseo-sitemap-settings-' . gmdate('Y-m-d') . '.json'
         ));
     }
     
@@ -858,7 +858,7 @@ class Alma_Sitemap_Ajax_Handlers {
         
         wp_send_json_success(array(
             'csv' => $csv,
-            'filename' => 'almaseo-sitemap-logs-' . date('Y-m-d') . '.csv'
+            'filename' => 'almaseo-sitemap-logs-' . gmdate('Y-m-d') . '.csv'
         ));
     }
     
@@ -1092,7 +1092,7 @@ class Alma_Sitemap_Ajax_Handlers {
         
         wp_send_json_success(array(
             'csv' => $csv,
-            'filename' => 'sitemap-conflicts-' . date('Y-m-d') . '.csv'
+            'filename' => 'sitemap-conflicts-' . gmdate('Y-m-d') . '.csv'
         ));
     }
     
@@ -1105,7 +1105,7 @@ class Alma_Sitemap_Ajax_Handlers {
         $name = sanitize_text_field($_POST['name'] ?? '');
         
         if (empty($name)) {
-            $name = 'Snapshot ' . date('Y-m-d H:i:s');
+            $name = 'Snapshot ' . gmdate('Y-m-d H:i:s');
         }
         
         // Create snapshot of current sitemap state
@@ -1177,25 +1177,25 @@ class Alma_Sitemap_Ajax_Handlers {
         
         if (!empty($diff_data['added'])) {
             foreach ($diff_data['added'] as $url) {
-                $csv .= sprintf('"Added","%s","New","%s"' . "\n", $url, date('Y-m-d'));
+                $csv .= sprintf('"Added","%s","New","%s"' . "\n", $url, gmdate('Y-m-d'));
             }
         }
         
         if (!empty($diff_data['removed'])) {
             foreach ($diff_data['removed'] as $url) {
-                $csv .= sprintf('"Removed","%s","Deleted","%s"' . "\n", $url, date('Y-m-d'));
+                $csv .= sprintf('"Removed","%s","Deleted","%s"' . "\n", $url, gmdate('Y-m-d'));
             }
         }
         
         if (!empty($diff_data['modified'])) {
             foreach ($diff_data['modified'] as $url) {
-                $csv .= sprintf('"Modified","%s","Changed","%s"' . "\n", $url, date('Y-m-d'));
+                $csv .= sprintf('"Modified","%s","Changed","%s"' . "\n", $url, gmdate('Y-m-d'));
             }
         }
         
         wp_send_json_success(array(
             'csv' => $csv,
-            'filename' => 'sitemap-diff-' . date('Y-m-d') . '.csv'
+            'filename' => 'sitemap-diff-' . gmdate('Y-m-d') . '.csv'
         ));
     }
     
@@ -1219,7 +1219,7 @@ class Alma_Sitemap_Ajax_Handlers {
         
         wp_send_json_success(array(
             'csv' => $csv,
-            'filename' => 'hreflang-issues-' . date('Y-m-d') . '.csv'
+            'filename' => 'hreflang-issues-' . gmdate('Y-m-d') . '.csv'
         ));
     }
 }

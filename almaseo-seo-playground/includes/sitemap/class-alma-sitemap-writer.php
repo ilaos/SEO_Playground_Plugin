@@ -173,7 +173,7 @@ class Alma_Sitemap_Writer {
         $this->stats['started'] = microtime(true);
         
         // Create timestamped build directory
-        $timestamp = date('Ymd_His');
+        $timestamp = gmdate('Ymd_His');
         $this->build_dir = $this->storage_path . 'build_' . $timestamp . '/';
         wp_mkdir_p($this->build_dir);
         

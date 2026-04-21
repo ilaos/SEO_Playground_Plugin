@@ -51,7 +51,7 @@ function almaseo_eg_get_weekly_snapshots($weeks = 12) {
         while (count($snapshots) < $weeks) {
             if ($has_data) {
                 $default_week = array(
-                    'week_start' => date('Y-m-d', strtotime('-' . (count($snapshots) + 1) . ' weeks')),
+                    'week_start' => gmdate('Y-m-d', strtotime('-' . (count($snapshots) + 1) . ' weeks')),
                     'evergreen' => isset($current_stats['evergreen']) ? $current_stats['evergreen'] : 0,
                     'watch' => isset($current_stats['watch']) ? $current_stats['watch'] : 0,
                     'stale' => isset($current_stats['stale']) ? $current_stats['stale'] : 0,
@@ -61,7 +61,7 @@ function almaseo_eg_get_weekly_snapshots($weeks = 12) {
             } else {
                 // Use demo data
                 $default_week = array(
-                    'week_start' => date('Y-m-d', strtotime('-' . (count($snapshots) + 1) . ' weeks')),
+                    'week_start' => gmdate('Y-m-d', strtotime('-' . (count($snapshots) + 1) . ' weeks')),
                     'evergreen' => 20 + rand(-5, 5),
                     'watch' => 8 + rand(-2, 2),
                     'stale' => 4 + rand(-1, 1),
@@ -92,7 +92,7 @@ function almaseo_eg_rebuild_weekly_snapshots() {
     
     // Generate last 12 weeks of data
     for ($i = 11; $i >= 0; $i--) {
-        $week_start = date('Y-m-d', strtotime('-' . $i . ' weeks'));
+        $week_start = gmdate('Y-m-d', strtotime('-' . $i . ' weeks'));
         
         if ($has_data) {
             // Use real data with variations
@@ -904,7 +904,7 @@ function almaseo_eg_update_weekly_snapshot() {
     // Add current week
     $current_stats = almaseo_eg_get_dashboard_stats();
     $snapshots[] = array(
-        'week_start' => date('Y-m-d', strtotime('monday this week')),
+        'week_start' => gmdate('Y-m-d', strtotime('monday this week')),
         'evergreen' => $current_stats['evergreen'],
         'watch' => $current_stats['watch'],
         'stale' => $current_stats['stale'],

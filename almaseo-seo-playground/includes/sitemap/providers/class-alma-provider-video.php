@@ -596,7 +596,7 @@ class Alma_Provider_Video {
             ) as subset
         ", $per_page, $offset));
         
-        return $last_modified ? date('c', strtotime($last_modified)) : null;
+        return $last_modified ? gmdate('c', strtotime($last_modified)) : null;
     }
     
     /**

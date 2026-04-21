@@ -650,7 +650,7 @@ class AlmaSEO_IndexNow_Command {
             $urls = $wpdb->get_col("SELECT url FROM $table");
         } else {
             $hours = isset($assoc_args['recent']) ? intval($assoc_args['recent']) : 24;
-            $since = date('Y-m-d H:i:s', strtotime("-$hours hours"));
+            $since = gmdate('Y-m-d H:i:s', strtotime("-$hours hours"));
             
             global $wpdb;
             $table = $wpdb->prefix . 'almaseo_sitemap_urls';
@@ -690,7 +690,7 @@ class AlmaSEO_IndexNow_Command {
         $endpoint = 'https://api.indexnow.org/indexnow';
         
         $body = json_encode([
-            'host' => parse_url(home_url(), PHP_URL_HOST),
+            'host' => wp_parse_url(home_url(), PHP_URL_HOST),
             'key' => $key,
             'keyLocation' => home_url("/$key.txt"),
             'urlList' => $urls

@@ -321,7 +321,7 @@ class AlmaSEO_Woo_Sitemap {
             ));
         }
         
-        return $last_modified ? date('c', strtotime($last_modified)) : date('c');
+        return $last_modified ? gmdate('c', strtotime($last_modified)) : gmdate('c');
     }
     
     /**

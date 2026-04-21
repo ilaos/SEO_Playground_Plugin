@@ -203,8 +203,8 @@ class AlmaSEO_Schema_CLI_Command {
         $rows = array();
         foreach ($entries as $entry) {
             $rows[] = array(
-                'Time' => date('Y-m-d H:i:s', $entry['time']),
-                'URL' => parse_url($entry['url'], PHP_URL_PATH) ?: '/',
+                'Time' => gmdate('Y-m-d H:i:s', $entry['time']),
+                'URL' => wp_parse_url($entry['url'], PHP_URL_PATH) ?: '/',
                 'Removed' => $entry['removed_count'],
                 'Kept' => $entry['kept_count'],
                 'Types' => implode(', ', $entry['kept_types'])

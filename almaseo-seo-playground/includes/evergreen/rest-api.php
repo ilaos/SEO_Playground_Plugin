@@ -499,7 +499,7 @@ class AlmaSEO_Evergreen_REST_API {
                 'score' => $score,
                 'published_days' => $ages['published_days'],
                 'updated_days' => $ages['updated_days'],
-                'last_calculated' => $last_calculated ? date('Y-m-d H:i:s', $last_calculated) : ''
+                'last_calculated' => $last_calculated ? gmdate('Y-m-d H:i:s', $last_calculated) : ''
             );
         }
         

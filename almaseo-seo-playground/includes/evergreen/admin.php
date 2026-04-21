@@ -35,7 +35,7 @@ add_action('admin_menu', 'almaseo_eg_admin_menu', 12);
  */
 function almaseo_eg_handle_redirects() {
     if (is_admin() && isset($_GET['page']) && $_GET['page'] === 'almaseo-evergreen-settings') {
-        wp_redirect(admin_url('admin.php?page=almaseo-evergreen#settings'), 301);
+        wp_safe_redirect(admin_url('admin.php?page=almaseo-evergreen#settings'), 301);
         exit;
     }
 }

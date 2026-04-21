@@ -94,6 +94,15 @@ Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a 
 
 == Changelog ==
 
+= 1.6.19 =
+* Fix: Replace 56 date() calls with gmdate() for timezone safety
+* Fix: Replace 25 parse_url() calls with wp_parse_url() for cross-PHP consistency
+* Fix: Replace wp_redirect() with wp_safe_redirect() where applicable
+* Fix: Escape CLI schema command CSV output
+* Fix: Wrap paginate_links() in wp_kses_post()
+* Fix: Escape $cnt, $weight, readability counts with intval()
+* Fix: Escape printf __() and almaseo_eg_get_state_label() outputs properly
+
 = 1.6.17 =
 * Fix: Add phpcs:ignore for 15 wp_json_encode() calls in JSON-LD and inline script contexts
 * Fix: Add phpcs:ignore for 7 HTML sitemap render methods (content escaped internally)

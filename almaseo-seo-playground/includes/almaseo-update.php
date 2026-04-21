@@ -322,7 +322,7 @@ class AlmaSEO_Update_Manager {
         if (time() - $last_check > 72 * HOUR_IN_SECONDS) {
             $dismissed = get_user_meta(get_current_user_id(), 'almaseo_dismissed_update_notice', true);
             
-            if ($dismissed != date('Y-m-d')) {
+            if ($dismissed != gmdate('Y-m-d')) {
                 ?>
                 <div class="notice notice-info is-dismissible" id="almaseo-update-notice">
                     <p>

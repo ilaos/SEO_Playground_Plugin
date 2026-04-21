@@ -22,7 +22,7 @@ $log_file = WP_CONTENT_DIR . '/almaseo-reload-debug.log';
  */
 function almaseo_debug_log($message) {
     global $log_file;
-    $timestamp = date('Y-m-d H:i:s');
+    $timestamp = gmdate('Y-m-d H:i:s');
     $request_id = substr(md5(uniqid()), 0, 8);
 
     if (!isset($GLOBALS['almaseo_debug_request_id'])) {

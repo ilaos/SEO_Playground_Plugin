@@ -226,7 +226,7 @@ function almaseo_eg_apply_filter($query) {
             
         case 'old':
             // Posts updated more than 6 months ago
-            $six_months_ago = date('Y-m-d H:i:s', strtotime('-6 months'));
+            $six_months_ago = gmdate('Y-m-d H:i:s', strtotime('-6 months'));
             $query->set('date_query', array(
                 array(
                     'column' => 'post_modified',

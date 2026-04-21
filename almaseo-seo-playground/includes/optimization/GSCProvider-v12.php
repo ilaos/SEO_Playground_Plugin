@@ -71,8 +71,8 @@ class GSCProvider implements KeywordProviderInterface {
         $endpoint = $this->api_base . '/sites/' . $site_url_encoded . '/searchAnalytics/query';
         
         // Calculate date range (last 28 days)
-        $end_date = date('Y-m-d', strtotime('-1 day'));
-        $start_date = date('Y-m-d', strtotime('-28 days'));
+        $end_date = gmdate('Y-m-d', strtotime('-1 day'));
+        $start_date = gmdate('Y-m-d', strtotime('-28 days'));
         
         // Build request body
         $request_body = [

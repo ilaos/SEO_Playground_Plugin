@@ -113,9 +113,9 @@ class AlmaSEO_Image_SEO_REST {
         if ( ! $suggestions ) {
             return null;
         }
-        $src_basename = basename( parse_url( $src, PHP_URL_PATH ) );
+        $src_basename = basename( wp_parse_url( $src, PHP_URL_PATH ) );
         foreach ( $suggestions as $s ) {
-            if ( ! empty( $s['src'] ) && basename( parse_url( $s['src'], PHP_URL_PATH ) ) === $src_basename ) {
+            if ( ! empty( $s['src'] ) && basename( wp_parse_url( $s['src'], PHP_URL_PATH ) ) === $src_basename ) {
                 return $s;
             }
         }

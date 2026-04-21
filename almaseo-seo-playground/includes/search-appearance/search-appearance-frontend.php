@@ -372,7 +372,7 @@ class AlmaSEO_Search_Appearance_Frontend {
             ? get_permalink( $post->post_parent )
             : home_url( '/' );
 
-        wp_redirect( $redirect_url, 301 );
+        wp_safe_redirect( $redirect_url, 301 );
         exit;
     }
 

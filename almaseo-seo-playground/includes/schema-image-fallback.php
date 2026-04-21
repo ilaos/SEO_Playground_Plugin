@@ -493,7 +493,7 @@ class AlmaSEO_Schema_Image_Fallback {
         
         // Check file extension
         $valid_extensions = array('jpg', 'jpeg', 'png', 'gif', 'webp', 'svg');
-        $extension = strtolower(pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION));
+        $extension = strtolower(pathinfo(wp_parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION));
         
         if (!in_array($extension, $valid_extensions)) {
             return false;

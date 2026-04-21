@@ -108,7 +108,7 @@ class Alma_Settings_Porter {
         // Log import
         Alma_Health_Log::log('import', __('Settings imported successfully', 'almaseo-seo-playground'), array(
             'source_url' => isset($data['site_url']) ? $data['site_url'] : 'unknown',
-            'exported' => isset($data['exported']) ? date('Y-m-d H:i:s', $data['exported']) : 'unknown'
+            'exported' => isset($data['exported']) ? gmdate('Y-m-d H:i:s', $data['exported']) : 'unknown'
         ));
         
         // Clear any caches

@@ -215,7 +215,7 @@ class Alma_Additional_URLs_Storage {
         
         // Format lastmod
         if ($lastmod) {
-            $lastmod = date('Y-m-d H:i:s', strtotime($lastmod));
+            $lastmod = gmdate('Y-m-d H:i:s', strtotime($lastmod));
         }
         
         $result = $wpdb->insert(
@@ -271,7 +271,7 @@ class Alma_Additional_URLs_Storage {
         }
         
         if (isset($data['lastmod'])) {
-            $update_data['lastmod'] = $data['lastmod'] ? date('Y-m-d H:i:s', strtotime($data['lastmod'])) : null;
+            $update_data['lastmod'] = $data['lastmod'] ? gmdate('Y-m-d H:i:s', strtotime($data['lastmod'])) : null;
             $update_format[] = '%s';
         }
         

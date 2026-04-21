@@ -291,7 +291,7 @@ class Alma_Provider_News {
         
         $last_modified = $wpdb->get_var($wpdb->prepare($query, $window_date, $per_page, $offset));
         
-        return $last_modified ? date('c', strtotime($last_modified)) : null;
+        return $last_modified ? gmdate('c', strtotime($last_modified)) : null;
     }
     
     /**

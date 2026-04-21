@@ -171,7 +171,7 @@ class Alma_Provider_Tax {
             AND p.post_status = 'publish'
         ", $term_id, $taxonomy));
         
-        return $last_modified ? date('c', strtotime($last_modified)) : null;
+        return $last_modified ? gmdate('c', strtotime($last_modified)) : null;
     }
     
     /**
@@ -214,7 +214,7 @@ class Alma_Provider_Tax {
             ) as subset
         ", ...$query_args));
         
-        return $last_modified ? date('c', strtotime($last_modified)) : null;
+        return $last_modified ? gmdate('c', strtotime($last_modified)) : null;
     }
     
     /**

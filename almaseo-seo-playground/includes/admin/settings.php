@@ -912,7 +912,7 @@ class AlmaSEO_Settings {
                     <td><?php echo esc_html(date_i18n('Y-m-d H:i:s', $entry['time'])); ?></td>
                     <td>
                         <a href="<?php echo esc_url($entry['url']); ?>" target="_blank">
-                            <?php echo esc_html(parse_url($entry['url'], PHP_URL_PATH) ?: '/'); ?>
+                            <?php echo esc_html(wp_parse_url($entry['url'], PHP_URL_PATH) ?: '/'); ?>
                         </a>
                     </td>
                     <td><?php echo esc_html($entry['removed_count']); ?></td>

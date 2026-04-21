@@ -79,7 +79,7 @@ class Alma_Provider_Pages {
 
         // Exclude pages older than X years
         if ($older_than_years > 0) {
-            $cutoff_date = date('Y-m-d H:i:s', strtotime("-{$older_than_years} years"));
+            $cutoff_date = gmdate('Y-m-d H:i:s', strtotime("-{$older_than_years} years"));
             $where .= $wpdb->prepare(" AND p.post_date >= %s ", $cutoff_date);
         }
 
@@ -177,7 +177,7 @@ class Alma_Provider_Pages {
             ) as subset
         ", $per_page, $offset));
 
-        return $last_modified ? date('c', strtotime($last_modified)) : null;
+        return $last_modified ? gmdate('c', strtotime($last_modified)) : null;
     }
 
     /**

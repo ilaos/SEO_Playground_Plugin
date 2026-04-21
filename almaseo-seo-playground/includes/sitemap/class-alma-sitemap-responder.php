@@ -403,11 +403,11 @@ class Alma_Sitemap_Responder {
      */
     private function format_date($date) {
         if (is_numeric($date)) {
-            $date = date('Y-m-d\TH:i:s\Z', $date);
+            $date = gmdate('Y-m-d\TH:i:s\Z', $date);
         } else {
             $timestamp = strtotime($date);
             if ($timestamp) {
-                $date = date('c', $timestamp);
+                $date = gmdate('c', $timestamp);
             }
         }
         return $date;

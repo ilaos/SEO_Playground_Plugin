@@ -112,7 +112,7 @@ class Alma_Sitemap_CLI {
                         if (strpos($file['url'], 'sitemap-' . $name) !== false) {
                             $sitemaps[] = array(
                                 'loc' => $file['url'],
-                                'lastmod' => date('c')
+                                'lastmod' => gmdate('c')
                             );
                         }
                     }
@@ -435,7 +435,7 @@ class Alma_Sitemap_CLI {
             WP_CLI::log('  Duration: ' . $stats['duration_ms'] . 'ms');
             
             if ($stats['started']) {
-                $built = date('Y-m-d H:i:s', $stats['started']);
+                $built = gmdate('Y-m-d H:i:s', $stats['started']);
                 WP_CLI::log('  Built: ' . $built);
             }
         } else {

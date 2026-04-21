@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
-Version: 1.6.18
+Version: 1.6.19
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -50,7 +50,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
     }
     if ( $almaseo_seo_conflict ) {
         // Define only the bare minimum constants, then stop loading.
-        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.6.18' );
+        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.6.19' );
         if ( ! defined( 'ALMASEO_PATH' ) )           define( 'ALMASEO_PATH', plugin_dir_path( __FILE__ ) );
         if ( ! defined( 'ALMASEO_URL' ) )            define( 'ALMASEO_URL', plugin_dir_url( __FILE__ ) );
         if ( ! defined( 'ALMASEO_MAIN_FILE' ) )      define( 'ALMASEO_MAIN_FILE', __FILE__ );
@@ -1608,7 +1608,7 @@ require_once plugin_dir_path(__FILE__) . 'admin/pages/overview.php';
 if (!function_exists('almaseo_check_dashboard_registration')) {
 function almaseo_check_dashboard_registration() {
     $site_url = get_site_url();
-    $site_domain = parse_url($site_url, PHP_URL_HOST);
+    $site_domain = wp_parse_url($site_url, PHP_URL_HOST);
     
     // Log discovery attempt if debug mode
     if (defined('WP_DEBUG') && WP_DEBUG) {
@@ -1961,7 +1961,7 @@ if (!function_exists('almaseo_get_connection_status')) {
             return array(
                 'connected' => true,
                 'connected_user' => $connected_user,
-                'connected_date' => $connected_date ? date('M j, Y', strtotime($connected_date)) : 'Recently',
+                'connected_date' => $connected_date ? gmdate('M j, Y', strtotime($connected_date)) : 'Recently',
                 'site_url' => get_site_url(),
                 'connection_type' => get_option('almaseo_connection_type', 'dashboard_initiated')
             );
@@ -1978,9 +1978,9 @@ if (!function_exists('almaseo_get_connection_status')) {
                     if (strpos($app_password['name'] ?? '', 'AlmaSEO AI') === 0) {
                         // Found a AlmaSEO password, update our records
                         update_option('almaseo_connected_user', $user->user_login);
-                        update_option('almaseo_connected_date', date('Y-m-d H:i:s', $app_password['created']));
+                        update_option('almaseo_connected_date', gmdate('Y-m-d H:i:s', $app_password['created']));
                         $connected_user = $user->user_login;
-                        $connected_date = date('Y-m-d H:i:s', $app_password['created']);
+                        $connected_date = gmdate('Y-m-d H:i:s', $app_password['created']);
                         break 2; // Break both loops
                     }
                 }
@@ -2010,7 +2010,7 @@ if (!function_exists('almaseo_get_connection_status')) {
                     return array(
                         'connected' => true,
                         'connected_user' => $connected_user,
-                        'connected_date' => $connected_date ? date('M j, Y', strtotime($connected_date)) : 'Recently',
+                        'connected_date' => $connected_date ? gmdate('M j, Y', strtotime($connected_date)) : 'Recently',
                         'site_url' => get_site_url()
                     );
                 }
@@ -2381,7 +2381,7 @@ function almaseo_track_ai_usage($type) {
     // Also track in user meta for reporting
     $current_user_id = get_current_user_id();
     if ($current_user_id) {
-        $user_usage = get_user_meta($current_user_id, 'almaseo_ai_usage_' . date('Y_m'), true);
+        $user_usage = get_user_meta($current_user_id, 'almaseo_ai_usage_' . gmdate('Y_m'), true);
         if (!is_array($user_usage)) {
             $user_usage = array();
         }
@@ -2390,7 +2390,7 @@ function almaseo_track_ai_usage($type) {
         $user_usage['total'] = ($user_usage['total'] ?? 0) + 1;
         $user_usage['last_used'] = current_time('U');
         
-        update_user_meta($current_user_id, 'almaseo_ai_usage_' . date('Y_m'), $user_usage);
+        update_user_meta($current_user_id, 'almaseo_ai_usage_' . gmdate('Y_m'), $user_usage);
     }
     
     // Clear tier cache to force refresh on next check

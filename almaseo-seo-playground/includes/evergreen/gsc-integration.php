@@ -32,8 +32,8 @@ function almaseo_gsc_get_url_metrics($url, $days = 90, $offset = 0) {
     }
     
     // Prepare date range
-    $end_date = date('Y-m-d', strtotime("-{$offset} days"));
-    $start_date = date('Y-m-d', strtotime("-" . ($days + $offset) . " days"));
+    $end_date = gmdate('Y-m-d', strtotime("-{$offset} days"));
+    $start_date = gmdate('Y-m-d', strtotime("-" . ($days + $offset) . " days"));
     
     // Build API request
     $site_url = get_site_url();
@@ -292,7 +292,7 @@ function almaseo_gsc_run_updates() {
             ),
             array(
                 'key' => ALMASEO_EG_META_LAST_CHECKED,
-                'value' => date('Y-m-d H:i:s', strtotime('-7 days')),
+                'value' => gmdate('Y-m-d H:i:s', strtotime('-7 days')),
                 'compare' => '<',
                 'type' => 'DATETIME'
             )

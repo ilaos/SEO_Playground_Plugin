@@ -381,7 +381,7 @@ class Alma_Provider_Image {
         }
         
         // Parse URL
-        $parsed = parse_url($url);
+        $parsed = wp_parse_url($url);
         if (!$parsed || !isset($parsed['query'])) {
             return $url;
         }
@@ -443,7 +443,7 @@ class Alma_Provider_Image {
             ) as subset
         ", $per_page, $offset));
         
-        return $last_modified ? date('c', strtotime($last_modified)) : null;
+        return $last_modified ? gmdate('c', strtotime($last_modified)) : null;
     }
     
     /**

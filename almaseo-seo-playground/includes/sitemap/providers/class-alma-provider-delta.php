@@ -100,7 +100,7 @@ class Alma_Provider_Delta {
         }
         
         // Most recent item's timestamp
-        return date('c', $ring[0]['ts']);
+        return gmdate('c', $ring[0]['ts']);
     }
     
     /**
@@ -152,7 +152,7 @@ class Alma_Provider_Delta {
         // Create entry
         $entry = array(
             'url' => $url,
-            'lastmod' => date('c'),
+            'lastmod' => gmdate('c'),
             'reason' => $reason,
             'ts' => time()
         );
@@ -336,8 +336,8 @@ class Alma_Provider_Delta {
      */
     private function is_url_valid($url) {
         // Must be same host
-        $site_host = parse_url(home_url(), PHP_URL_HOST);
-        $url_host = parse_url($url, PHP_URL_HOST);
+        $site_host = wp_parse_url(home_url(), PHP_URL_HOST);
+        $url_host = wp_parse_url($url, PHP_URL_HOST);
         
         return $site_host === $url_host;
     }

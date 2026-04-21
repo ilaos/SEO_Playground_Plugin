@@ -39,7 +39,7 @@ function almaseo_eg_handle_csv_export() {
     $posts_data = almaseo_eg_get_export_data($post_type, $status_filter);
     
     // Set headers for CSV download
-    $filename = 'evergreen-content-' . date('Y-m-d') . '.csv';
+    $filename = 'evergreen-content-' . gmdate('Y-m-d') . '.csv';
     header('Content-Type: text/csv; charset=utf-8');
     header('Content-Disposition: attachment; filename="' . $filename . '"');
     header('Pragma: no-cache');
@@ -118,7 +118,7 @@ function almaseo_eg_handle_pdf_export() {
     <html <?php language_attributes(); ?>>
     <head>
         <meta charset="<?php bloginfo('charset'); ?>">
-        <title><?php esc_html_e('Evergreen Content Report', 'almaseo-seo-playground'); ?> - <?php echo esc_html(date('Y-m-d')); ?></title>
+        <title><?php esc_html_e('Evergreen Content Report', 'almaseo-seo-playground'); ?> - <?php echo esc_html(gmdate('Y-m-d')); ?></title>
         <style>
             * {
                 margin: 0;

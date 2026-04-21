@@ -287,7 +287,7 @@ class Alma_Sitemap_Conflicts {
             return false;
         }
         
-        $path = parse_url($url, PHP_URL_PATH);
+        $path = wp_parse_url($url, PHP_URL_PATH);
         if (empty($path)) {
             $path = '/';
         }

@@ -273,7 +273,7 @@ class AlmaSEO_Woo_Schema {
             '@type' => 'Offer',
             'priceCurrency' => get_woocommerce_currency(),
             'url' => get_permalink($product->get_id()),
-            'priceValidUntil' => date('c', strtotime('+1 year'))
+            'priceValidUntil' => gmdate('c', strtotime('+1 year'))
         );
         
         // Price
@@ -375,7 +375,7 @@ class AlmaSEO_Woo_Schema {
                         '@type' => 'Person',
                         'name' => $comment->comment_author
                     ),
-                    'datePublished' => date('c', strtotime($comment->comment_date)),
+                    'datePublished' => gmdate('c', strtotime($comment->comment_date)),
                     'reviewBody' => wp_trim_words($comment->comment_content, 50)
                 );
             }

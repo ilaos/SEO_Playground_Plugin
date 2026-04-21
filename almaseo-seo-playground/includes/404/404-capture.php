@@ -89,11 +89,11 @@ class AlmaSEO_404_Capture {
         $request_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
         
         // Parse URL to get path
-        $parsed = parse_url($request_uri);
+        $parsed = wp_parse_url($request_uri);
         $path = isset($parsed['path']) ? $parsed['path'] : '/';
         
         // Remove site subdirectory if in subdirectory install
-        $site_url = parse_url(home_url());
+        $site_url = wp_parse_url(home_url());
         if (isset($site_url['path']) && $site_url['path'] !== '/') {
             $path = str_replace($site_url['path'], '', $path);
         }

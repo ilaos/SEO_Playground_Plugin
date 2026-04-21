@@ -99,7 +99,7 @@ class AlmaSEO_404_Model {
             
             // Parse referrer domain
             if ($item['referrer']) {
-                $parsed = parse_url($item['referrer']);
+                $parsed = wp_parse_url($item['referrer']);
                 $item['referrer_domain'] = isset($parsed['host']) ? $parsed['host'] : '';
             } else {
                 $item['referrer_domain'] = '';
@@ -248,7 +248,7 @@ class AlmaSEO_404_Model {
         
         // Calculate date ranges
         $today_start = current_time('Y-m-d') . ' 00:00:00';
-        $seven_days_ago = date('Y-m-d H:i:s', strtotime('-7 days', current_time('U')));
+        $seven_days_ago = gmdate('Y-m-d H:i:s', strtotime('-7 days', current_time('U')));
         
         // Get stats
         $stats = array();
@@ -295,7 +295,7 @@ class AlmaSEO_404_Model {
         global $wpdb;
         $table = $wpdb->prefix . 'almaseo_404_log';
         
-        $seven_days_ago = date('Y-m-d H:i:s', strtotime('-7 days', current_time('U')));
+        $seven_days_ago = gmdate('Y-m-d H:i:s', strtotime('-7 days', current_time('U')));
         
         // Get all referrers from last 7 days
         $referrers = $wpdb->get_col($wpdb->prepare(
@@ -309,7 +309,7 @@ class AlmaSEO_404_Model {
             // Count domains
             $domains = array();
             foreach ($referrers as $referrer) {
-                $parsed = parse_url($referrer);
+                $parsed = wp_parse_url($referrer);
                 if (isset($parsed['host'])) {
                     $domain = $parsed['host'];
                     if (!isset($domains[$domain])) {

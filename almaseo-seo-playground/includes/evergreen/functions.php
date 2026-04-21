@@ -145,7 +145,7 @@ function almaseo_eg_generate_mock_snapshots($date_range = '30') {
         
         $snapshots[] = array(
             'timestamp' => $timestamp,
-            'date' => date('Y-m-d', $timestamp),
+            'date' => gmdate('Y-m-d', $timestamp),
             'evergreen' => $base_evergreen + rand(-5, 5),
             'watch' => $base_watch + rand(-3, 3),
             'stale' => $base_stale + rand(-2, 2)
@@ -183,7 +183,7 @@ function almaseo_eg_format_relative_time($timestamp) {
         $days = floor($diff / 86400);
         return sprintf('%d day%s ago', $days, $days !== 1 ? 's' : '');
     } else {
-        return date('M j, Y', $timestamp);
+        return gmdate('M j, Y', $timestamp);
     }
 }
 }

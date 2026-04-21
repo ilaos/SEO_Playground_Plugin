@@ -60,7 +60,7 @@ class AlmaSEO_Image_SEO {
             if ( ! preg_match( '/src=["\']([^"\']+)["\']/i', $attrs, $src_match ) ) {
                 return $tag;
             }
-            $filename = basename( parse_url( $src_match[1], PHP_URL_PATH ) );
+            $filename = basename( wp_parse_url( $src_match[1], PHP_URL_PATH ) );
 
             // Alt attribute
             $has_alt = preg_match( '/alt=["\']([^"\']*?)["\']/i', $attrs, $alt_match );

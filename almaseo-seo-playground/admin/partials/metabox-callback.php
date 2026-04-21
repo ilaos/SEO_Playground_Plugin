@@ -917,7 +917,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         </div>
                         <div class="serp-url">
                             <?php
-                            $site_url = parse_url(get_site_url());
+                            $site_url = wp_parse_url(get_site_url());
                             $post_slug = $post->post_name ?: 'sample-post';
                             echo esc_html($site_url['host']) . ' › ' . esc_html($post_slug);
                             ?>
@@ -2910,7 +2910,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     } else {
                         echo '<div class="history-timeline">';
                         foreach ($metadata_history as $index => $entry) {
-                            $date = date('F j, Y g:i A', $entry['timestamp']);
+                            $date = wp_date('F j, Y g:i A', $entry['timestamp']);
                             ?>
                             <div class="history-entry" data-index="<?php echo esc_attr($index); ?>">
                                 <div class="history-date">

@@ -20,7 +20,7 @@ $top_referrer = AlmaSEO_404_Model::get_top_referrer();
 
 // Get initial logs
 $logs_data = AlmaSEO_404_Model::get_logs(array(
-    'page' => isset($_GET['paged']) ? absint($_GET['paged']) : 1,
+    'page' => isset($_GET['paged']) ? absint($_GET['paged']) : 1, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only pagination parameter
     'per_page' => 20
 ));
 
@@ -152,7 +152,7 @@ $logs_data = AlmaSEO_404_Model::get_logs(array(
                     <td class="column-referrer">
                         <?php if ($log['referrer']): ?>
                             <span title="<?php echo esc_attr($log['referrer']); ?>">
-                                <?php echo esc_html($log['referrer_domain'] ?: parse_url($log['referrer'], PHP_URL_HOST)); ?>
+                                <?php echo esc_html($log['referrer_domain'] ?: wp_parse_url($log['referrer'], PHP_URL_HOST)); ?>
                             </span>
                         <?php else: ?>
                             <span class="no-data">Direct</span>
