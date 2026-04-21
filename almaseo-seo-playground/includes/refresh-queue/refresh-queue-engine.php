@@ -300,6 +300,7 @@ class AlmaSEO_Refresh_Queue_Engine {
         $excluded_types = array( 'attachment', 'revision', 'nav_menu_item', 'wp_template', 'wp_template_part', 'wp_navigation' );
         $placeholders   = implode( ', ', array_fill( 0, count( $excluded_types ), '%s' ) );
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $total = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type NOT IN ({$placeholders})",
             $excluded_types
@@ -309,6 +310,7 @@ class AlmaSEO_Refresh_Queue_Engine {
         $scored     = 0;
 
         for ( $offset = 0; $offset < $total; $offset += $batch_size ) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $post_ids = $wpdb->get_col( $wpdb->prepare(
                 "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type NOT IN ({$placeholders}) ORDER BY ID LIMIT %d OFFSET %d",
                 array_merge( $excluded_types, array( $batch_size, $offset ) )

@@ -86,15 +86,17 @@ class AlmaSEO_GSC_Monitor_Model {
         }
 
         // Count.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $count_sql = "SELECT COUNT(*) FROM {$table} f
             LEFT JOIN {$wpdb->posts} p ON f.post_id = p.ID
             WHERE {$where_sql}";
 
         $total = $vals
-            ? (int) $wpdb->get_var( $wpdb->prepare( $count_sql, $vals ) )
-            : (int) $wpdb->get_var( $count_sql );
+            ? (int) $wpdb->get_var( $wpdb->prepare( $count_sql, $vals ) ) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
+            : (int) $wpdb->get_var( $count_sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
 
         // Fetch.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $select_sql = "SELECT f.* FROM {$table} f
             LEFT JOIN {$wpdb->posts} p ON f.post_id = p.ID
             WHERE {$where_sql}
@@ -102,6 +104,7 @@ class AlmaSEO_GSC_Monitor_Model {
             LIMIT %d OFFSET %d";
 
         $query_vals = array_merge( $vals, array( $per_page, $offset ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
         $items      = $wpdb->get_results( $wpdb->prepare( $select_sql, $query_vals ) );
 
         return array(
@@ -116,6 +119,7 @@ class AlmaSEO_GSC_Monitor_Model {
      */
     public static function get_finding( $id ) {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_row( $wpdb->prepare(
             "SELECT * FROM " . self::table() . " WHERE id = %d", $id
         ) );
@@ -126,6 +130,7 @@ class AlmaSEO_GSC_Monitor_Model {
      */
     public static function get_findings_for_post( $post_id ) {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_results( $wpdb->prepare(
             "SELECT * FROM " . self::table() . " WHERE post_id = %d ORDER BY last_seen DESC",
             $post_id
@@ -137,6 +142,7 @@ class AlmaSEO_GSC_Monitor_Model {
      */
     public static function find_existing( $url, $finding_type, $subtype ) {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_row( $wpdb->prepare(
             "SELECT * FROM " . self::table() . " WHERE url = %s AND finding_type = %s AND subtype = %s AND status = 'open' LIMIT 1",
             $url, $finding_type, $subtype
@@ -213,6 +219,7 @@ class AlmaSEO_GSC_Monitor_Model {
     public static function auto_dismiss_old( $days ) {
         global $wpdb;
         $cutoff = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->query( $wpdb->prepare(
             "UPDATE " . self::table() . " SET status = 'dismissed', resolved_at = %s WHERE status = 'open' AND last_seen < %s",
             current_time( 'mysql', true ),
@@ -247,10 +254,11 @@ class AlmaSEO_GSC_Monitor_Model {
         );
 
         // By status.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $status_sql = "SELECT status, COUNT(*) AS cnt FROM {$table} WHERE 1=1{$type_where} GROUP BY status";
         $status_rows = $vals
-            ? $wpdb->get_results( $wpdb->prepare( $status_sql, $vals ) )
-            : $wpdb->get_results( $status_sql );
+            ? $wpdb->get_results( $wpdb->prepare( $status_sql, $vals ) ) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
+            : $wpdb->get_results( $status_sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
 
         foreach ( $status_rows as $r ) {
             $stats['total'] += (int) $r->cnt;
@@ -260,10 +268,11 @@ class AlmaSEO_GSC_Monitor_Model {
         }
 
         // By severity (open only).
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $sev_sql = "SELECT severity, COUNT(*) AS cnt FROM {$table} WHERE status = 'open'{$type_where} GROUP BY severity";
         $sev_rows = $vals
-            ? $wpdb->get_results( $wpdb->prepare( $sev_sql, $vals ) )
-            : $wpdb->get_results( $sev_sql );
+            ? $wpdb->get_results( $wpdb->prepare( $sev_sql, $vals ) ) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
+            : $wpdb->get_results( $sev_sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
 
         foreach ( $sev_rows as $r ) {
             if ( isset( $stats[ $r->severity ] ) ) {

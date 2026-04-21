@@ -115,12 +115,12 @@ function almaseo_gsc_get_mock_data($url, $days, $offset) {
     srand($seed);
     
     // Generate realistic-looking data
-    $base_clicks = rand(50, 500);
-    $base_impressions = $base_clicks * rand(10, 30);
+    $base_clicks = wp_rand(50, 500);
+    $base_impressions = $base_clicks * wp_rand(10, 30);
     
     // Add some variation based on offset (older data tends to be different)
     if ($offset > 0) {
-        $variation = rand(80, 120) / 100;
+        $variation = wp_rand(80, 120) / 100;
         $base_clicks = intval($base_clicks * $variation);
         $base_impressions = intval($base_impressions * $variation);
     }
@@ -129,7 +129,7 @@ function almaseo_gsc_get_mock_data($url, $days, $offset) {
         'clicks' => $base_clicks,
         'impressions' => $base_impressions,
         'ctr' => round($base_clicks / max($base_impressions, 1), 4),
-        'position' => rand(5, 50) / 10
+        'position' => wp_rand(5, 50) / 10
     );
 }
 

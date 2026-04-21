@@ -91,8 +91,8 @@ class Alma_Provider_Tax {
             )
         ", ...$this->taxonomies);
         
-        $count = $wpdb->get_var($query);
-        
+        $count = $wpdb->get_var($query); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
+
         return (int) $count;
     }
     
@@ -112,6 +112,7 @@ class Alma_Provider_Tax {
         $tax_placeholder = implode(',', array_fill(0, count($this->taxonomies), '%s'));
         $query_args = array_merge($this->taxonomies, array($per_page, $offset));
         
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $terms = $wpdb->get_results($wpdb->prepare("
             SELECT t.term_id, t.slug, tt.taxonomy, tt.count
             FROM {$wpdb->terms} t
@@ -161,6 +162,7 @@ class Alma_Provider_Tax {
     private function get_term_last_modified($term_id, $taxonomy) {
         global $wpdb;
         
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $last_modified = $wpdb->get_var($wpdb->prepare("
             SELECT MAX(p.post_modified_gmt)
             FROM {$wpdb->posts} p
@@ -191,6 +193,7 @@ class Alma_Provider_Tax {
         $tax_placeholder = implode(',', array_fill(0, count($this->taxonomies), '%s'));
         $query_args = array_merge($this->taxonomies, array($per_page, $offset));
         
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $last_modified = $wpdb->get_var($wpdb->prepare("
             SELECT MAX(last_post_modified)
             FROM (
@@ -257,6 +260,7 @@ class Alma_Provider_Tax {
         $taxonomies = $this->get_enabled_taxonomies();
         $tax_sql = "'" . implode("','", array_map('esc_sql', $taxonomies)) . "'";
         
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $terms = $wpdb->get_results($wpdb->prepare("
             SELECT t.term_id, t.name, tt.taxonomy, tt.count
             FROM {$wpdb->terms} t
@@ -289,6 +293,7 @@ class Alma_Provider_Tax {
         
         // Get last modified from latest post in term
         global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $last_modified = $wpdb->get_var($wpdb->prepare("
             SELECT MAX(p.post_modified_gmt)
             FROM {$wpdb->posts} p

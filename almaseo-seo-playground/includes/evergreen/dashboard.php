@@ -62,11 +62,11 @@ function almaseo_eg_get_weekly_snapshots($weeks = 12) {
                 // Use demo data
                 $default_week = array(
                     'week_start' => gmdate('Y-m-d', strtotime('-' . (count($snapshots) + 1) . ' weeks')),
-                    'evergreen' => 20 + rand(-5, 5),
-                    'watch' => 8 + rand(-2, 2),
-                    'stale' => 4 + rand(-1, 1),
+                    'evergreen' => 20 + wp_rand(-5, 5),
+                    'watch' => 8 + wp_rand(-2, 2),
+                    'stale' => 4 + wp_rand(-1, 1),
                     'unanalyzed' => 0,
-                    'total' => 32 + rand(-5, 5)
+                    'total' => 32 + wp_rand(-5, 5)
                 );
             }
             array_unshift($snapshots, $default_week);
@@ -108,9 +108,9 @@ function almaseo_eg_rebuild_weekly_snapshots() {
             );
         } else {
             // Generate demo data to show how the chart works
-            $demo_evergreen = 25 + rand(-5, 5);
-            $demo_watch = 10 + rand(-3, 3);
-            $demo_stale = 5 + rand(-2, 2);
+            $demo_evergreen = 25 + wp_rand(-5, 5);
+            $demo_watch = 10 + wp_rand(-3, 3);
+            $demo_stale = 5 + wp_rand(-2, 2);
             
             $snapshots[] = array(
                 'week_start' => $week_start,
@@ -157,7 +157,7 @@ function almaseo_eg_render_dashboard() {
     
     // Show success notice if returning from analysis
     if (isset($_GET['eg_analyzed'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        $cnt = (int) wp_unslash($_GET['eg_analyzed']); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $cnt = absint(wp_unslash($_GET['eg_analyzed'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         echo '<div class="notice notice-success is-dismissible"><p>'
             /* translators: %d: number of posts processed */
             . sprintf(esc_html__('Evergreen analysis complete. Processed %d posts.', 'almaseo-seo-playground'), intval($cnt))
@@ -701,8 +701,8 @@ function almaseo_eg_get_dashboard_stats($post_type = 'all') {
         WHERE p.post_type IN ($post_type_sql)
         AND p.post_status = 'publish'
         GROUP BY status
-    ", ALMASEO_EG_META_STATUS));
-    
+    ", ALMASEO_EG_META_STATUS)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $post_type_sql built from whitelisted post types
+
     // Initialize stats
     $stats = array(
         'evergreen' => 0,
@@ -767,8 +767,8 @@ function almaseo_eg_get_dashboard_stats($post_type = 'all') {
                     WHERE p.post_type IN ($post_type_sql)
                     AND p.post_status = 'publish'
                     GROUP BY status
-                ", ALMASEO_EG_META_STATUS));
-                
+                ", ALMASEO_EG_META_STATUS)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $post_type_sql built from whitelisted post types
+
                 // Re-process results
                 $stats = array(
                     'evergreen' => 0,
@@ -1020,7 +1020,7 @@ function almaseo_eg_get_advanced_summary($post_type = 'all') {
         AND p.post_status = 'publish'
     ";
 
-    $results = $wpdb->get_results($wpdb->prepare($query, ...$post_types));
+    $results = $wpdb->get_results($wpdb->prepare($query, ...$post_types)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $query built with placeholders for post types
 
     // Initialize counters
     $segments = array(

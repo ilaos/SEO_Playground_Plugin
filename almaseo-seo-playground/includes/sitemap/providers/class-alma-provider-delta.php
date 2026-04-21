@@ -277,8 +277,9 @@ class Alma_Provider_Delta {
         
         // Also try to update affected posts (limited to recent ones)
         global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $post_ids = $wpdb->get_col($wpdb->prepare("
-            SELECT p.ID 
+            SELECT p.ID
             FROM {$wpdb->posts} p
             INNER JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id
             WHERE tr.term_taxonomy_id = %d

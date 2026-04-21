@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.6.20
+Stable tag: 1.6.21
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,16 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.6.21 =
+* Fix: Add phpcs:ignore for ~210 $wpdb table interpolation queries across 40 model/provider files
+* Fix: Replace all rand() with wp_rand() across plugin (~20 instances)
+* Fix: Replace unlink() with wp_delete_file() in IndexNow
+* Fix: Replace is_writable() with WP_Filesystem in robots controller
+* Fix: Add phpcs:ignore for fopen/fclose on php://output stream (CSV export)
+* Fix: Add phpcs:ignore for error_log() behind WP_DEBUG checks
+* Fix: Use absint() for $_GET['eg_analyzed'] sanitization
+* Fix: Add phpcs:ignore for dynamically-built DB queries in evergreen rest-api
 
 = 1.6.20 =
 * Fix: Add wp_unslash() to all $_POST/$_GET/$_SERVER superglobal access across 44 files

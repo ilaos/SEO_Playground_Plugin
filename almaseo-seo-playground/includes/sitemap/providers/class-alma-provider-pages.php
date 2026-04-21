@@ -41,6 +41,7 @@ class Alma_Provider_Pages {
 
         $exclude_where = $this->build_exclude_where();
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $count = $wpdb->get_var("
             SELECT COUNT(ID)
             FROM {$wpdb->posts} p
@@ -97,6 +98,7 @@ class Alma_Provider_Pages {
         $exclude_where = $this->build_exclude_where();
 
         // Query pages efficiently with exclusion filters
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $pages = $wpdb->get_results($wpdb->prepare("
             SELECT ID, post_modified_gmt, post_parent, menu_order
             FROM {$wpdb->posts} p
@@ -157,6 +159,7 @@ class Alma_Provider_Pages {
         $offset = ($page - 1) * $per_page;
         $exclude_where = $this->build_exclude_where();
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $last_modified = $wpdb->get_var($wpdb->prepare("
             SELECT MAX(post_modified_gmt)
             FROM (
@@ -228,6 +231,7 @@ class Alma_Provider_Pages {
 
         $exclude_where = $this->build_exclude_where();
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $pages = $wpdb->get_results($wpdb->prepare("
             SELECT ID, post_modified_gmt, post_date_gmt
             FROM {$wpdb->posts} p

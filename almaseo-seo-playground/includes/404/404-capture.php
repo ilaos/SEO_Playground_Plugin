@@ -183,11 +183,13 @@ class AlmaSEO_404_Capture {
         
         // Check if this path+query already exists
         if ($query === null || $query === '') {
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $existing = $wpdb->get_row($wpdb->prepare(
                 "SELECT id, hits FROM $table WHERE path = %s AND (query IS NULL OR query = '')",
                 $path
             ));
         } else {
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $existing = $wpdb->get_row($wpdb->prepare(
                 "SELECT id, hits FROM $table WHERE path = %s AND query = %s",
                 $path,

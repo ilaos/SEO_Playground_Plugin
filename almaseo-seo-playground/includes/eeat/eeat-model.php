@@ -95,15 +95,17 @@ class AlmaSEO_EEAT_Model {
         }
 
         // Count.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $count_sql = "SELECT COUNT(*) FROM {$table} f
             LEFT JOIN {$wpdb->posts} p ON f.post_id = p.ID
             WHERE {$where_sql}";
 
         $total = $vals
-            ? (int) $wpdb->get_var( $wpdb->prepare( $count_sql, $vals ) )
-            : (int) $wpdb->get_var( $count_sql );
+            ? (int) $wpdb->get_var( $wpdb->prepare( $count_sql, $vals ) ) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
+            : (int) $wpdb->get_var( $count_sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
 
         // Fetch.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $select_sql = "SELECT f.* FROM {$table} f
             LEFT JOIN {$wpdb->posts} p ON f.post_id = p.ID
             WHERE {$where_sql}
@@ -111,6 +113,7 @@ class AlmaSEO_EEAT_Model {
             LIMIT %d OFFSET %d";
 
         $query_vals = array_merge( $vals, array( $per_page, $offset ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
         $items      = $wpdb->get_results( $wpdb->prepare( $select_sql, $query_vals ) );
 
         return array(
@@ -125,6 +128,7 @@ class AlmaSEO_EEAT_Model {
      */
     public static function get_finding( $id ) {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_row( $wpdb->prepare(
             "SELECT * FROM " . self::table() . " WHERE id = %d", $id
         ) );
@@ -135,6 +139,7 @@ class AlmaSEO_EEAT_Model {
      */
     public static function get_findings_for_post( $post_id ) {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_results( $wpdb->prepare(
             "SELECT * FROM " . self::table() . " WHERE post_id = %d ORDER BY FIELD(severity, 'high', 'medium', 'low'), scanned_at DESC",
             $post_id
@@ -225,7 +230,7 @@ class AlmaSEO_EEAT_Model {
      */
     public static function clear_all() {
         global $wpdb;
-        return $wpdb->query( "TRUNCATE TABLE " . self::table() );
+        return $wpdb->query( "TRUNCATE TABLE " . self::table() ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
     }
 
     /**
@@ -233,7 +238,7 @@ class AlmaSEO_EEAT_Model {
      */
     public static function clear_open() {
         global $wpdb;
-        return $wpdb->query( "DELETE FROM " . self::table() . " WHERE status = 'open'" );
+        return $wpdb->query( "DELETE FROM " . self::table() . " WHERE status = 'open'" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
     }
 
     /**
@@ -246,6 +251,7 @@ class AlmaSEO_EEAT_Model {
      */
     public static function get_dismissed_keys() {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         $rows = $wpdb->get_results(
             "SELECT post_id, finding_type FROM " . self::table() . " WHERE status IN ('resolved', 'dismissed')"
         );
@@ -279,6 +285,7 @@ class AlmaSEO_EEAT_Model {
         );
 
         // By status.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $status_rows = $wpdb->get_results(
             "SELECT status, COUNT(*) AS cnt FROM {$table} GROUP BY status"
         );
@@ -290,6 +297,7 @@ class AlmaSEO_EEAT_Model {
         }
 
         // By severity (open only — these are actionable).
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $sev_rows = $wpdb->get_results(
             "SELECT severity, COUNT(*) AS cnt FROM {$table} WHERE status = 'open' GROUP BY severity"
         );
@@ -300,6 +308,7 @@ class AlmaSEO_EEAT_Model {
         }
 
         // By finding type.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $type_rows = $wpdb->get_results(
             "SELECT finding_type, COUNT(*) AS cnt FROM {$table} WHERE status = 'open' GROUP BY finding_type"
         );

@@ -28,6 +28,7 @@ class AlmaSEO_Redirects_Intelligence {
         $table = $wpdb->prefix . 'almaseo_redirects';
 
         // Get all enabled redirects.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $redirects = $wpdb->get_results(
             "SELECT id, source, target, status, hits FROM {$table} WHERE is_enabled = 1",
             ARRAY_A
@@ -145,6 +146,7 @@ class AlmaSEO_Redirects_Intelligence {
 
         if ( $traffic_before === null || $traffic_after === null ) {
             // Read existing values.
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $row = $wpdb->get_row( $wpdb->prepare(
                 "SELECT traffic_before, traffic_after FROM {$table} WHERE id = %d",
                 $id
@@ -190,6 +192,7 @@ class AlmaSEO_Redirects_Intelligence {
                 continue;
             }
 
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $row = $wpdb->get_row( $wpdb->prepare(
                 "SELECT id FROM {$table} WHERE source = %s LIMIT 1",
                 $source
@@ -220,6 +223,7 @@ class AlmaSEO_Redirects_Intelligence {
         global $wpdb;
         $table = $wpdb->prefix . 'almaseo_redirects';
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_results( $wpdb->prepare(
             "SELECT id, source, target, status, hits, traffic_before, traffic_after, recovery_pct
              FROM {$table}

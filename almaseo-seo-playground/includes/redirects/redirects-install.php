@@ -71,7 +71,7 @@ function almaseo_uninstall_redirects_table() {
     global $wpdb;
     
     $table_name = $wpdb->prefix . 'almaseo_redirects';
-    $wpdb->query("DROP TABLE IF EXISTS $table_name");
+    $wpdb->query("DROP TABLE IF EXISTS $table_name"); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
     
     delete_option('almaseo_redirects_db_version');
     delete_transient('almaseo_enabled_redirects');

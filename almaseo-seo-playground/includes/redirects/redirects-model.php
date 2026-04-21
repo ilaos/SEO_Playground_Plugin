@@ -62,10 +62,13 @@ class AlmaSEO_Redirects_Model {
         $where_clause = implode(' AND ', $where);
         
         // Get total count
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $count_query = "SELECT COUNT(*) FROM $table WHERE $where_clause";
         if (!empty($prepare_values)) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
             $count_query = $wpdb->prepare($count_query, $prepare_values);
         }
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
         $total = $wpdb->get_var($count_query);
         
         // Build main query
@@ -78,16 +81,19 @@ class AlmaSEO_Redirects_Model {
         $order_dir = in_array(strtoupper($args['order']), $allowed_order, true) ? strtoupper($args['order']) : 'DESC';
         $orderby = "$orderby_col $order_dir";
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $query = "SELECT * FROM $table WHERE $where_clause ORDER BY $orderby LIMIT %d OFFSET %d";
-        
+
         // Add pagination values to prepare array
         $prepare_values[] = intval($args['per_page']);
         $prepare_values[] = intval($offset);
-        
+
         if (!empty($prepare_values)) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
             $query = $wpdb->prepare($query, $prepare_values);
         }
-        
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
         $results = $wpdb->get_results($query, ARRAY_A);
         
         return array(
@@ -107,6 +113,7 @@ class AlmaSEO_Redirects_Model {
         global $wpdb;
         
         $table = self::get_table_name();
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $query = $wpdb->prepare("SELECT * FROM $table WHERE id = %d", $id);
         
         return $wpdb->get_row($query, ARRAY_A);
@@ -124,7 +131,7 @@ class AlmaSEO_Redirects_Model {
         $table = self::get_table_name();
         $source = self::normalize_path($source);
         
-        $query = $wpdb->prepare(
+        $query = $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             "SELECT * FROM $table WHERE source = %s AND is_enabled = 1",
             $source
         );
@@ -303,13 +310,13 @@ class AlmaSEO_Redirects_Model {
         
         $table = self::get_table_name();
         
-        $query = $wpdb->prepare(
+        $query = $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             "UPDATE $table SET hits = hits + 1, last_hit = %s WHERE id = %d",
             current_time('mysql'),
             $id
         );
         
-        return $wpdb->query($query) !== false;
+        return $wpdb->query($query) !== false; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
     }
     
     /**
@@ -321,8 +328,10 @@ class AlmaSEO_Redirects_Model {
         global $wpdb;
         
         $table = self::get_table_name();
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $query = "SELECT id, source, target, status FROM $table WHERE is_enabled = 1 LIMIT 5000";
-        
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- no user input, table name from $wpdb->prefix
         $results = $wpdb->get_results($query, ARRAY_A);
         
         // Index by source for quick lookup
@@ -348,19 +357,19 @@ class AlmaSEO_Redirects_Model {
         $source = self::normalize_path($source);
         
         if ($exclude_id) {
-            $query = $wpdb->prepare(
+            $query = $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
                 "SELECT COUNT(*) FROM $table WHERE source = %s AND id != %d",
                 $source,
                 $exclude_id
             );
         } else {
-            $query = $wpdb->prepare(
+            $query = $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
                 "SELECT COUNT(*) FROM $table WHERE source = %s",
                 $source
             );
         }
         
-        return $wpdb->get_var($query) > 0;
+        return $wpdb->get_var($query) > 0; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
     }
     
     /**

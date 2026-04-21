@@ -19,22 +19,23 @@ function almaseo_history_restore_version($post_id, $version_id) {
     $table_name = $wpdb->prefix . ALMASEO_HISTORY_TABLE;
     
     // Get the snapshot to restore
+    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
     $snapshot = $wpdb->get_row($wpdb->prepare(
         "SELECT * FROM $table_name WHERE id = %d AND post_id = %d",
         $version_id, $post_id
     ));
-    
+
     if (!$snapshot) {
         return false;
     }
-    
+
     // Decode snapshot data
     $fields = json_decode($snapshot->snapshot_json, true);
-    
+
     if (!$fields) {
         return false;
     }
-    
+
     // Set flag to prevent capture loop
     define('ALMASEO_RESTORING_HISTORY', true);
     
@@ -87,7 +88,8 @@ function almaseo_history_restore_version($post_id, $version_id) {
 function almaseo_history_get_snapshot($snapshot_id) {
     global $wpdb;
     $table_name = $wpdb->prefix . ALMASEO_HISTORY_TABLE;
-    
+
+    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
     return $wpdb->get_row($wpdb->prepare(
         "SELECT * FROM $table_name WHERE id = %d",
         $snapshot_id
@@ -100,7 +102,8 @@ function almaseo_history_get_snapshot($snapshot_id) {
 function almaseo_history_get_snapshot_by_version($post_id, $version) {
     global $wpdb;
     $table_name = $wpdb->prefix . ALMASEO_HISTORY_TABLE;
-    
+
+    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
     return $wpdb->get_row($wpdb->prepare(
         "SELECT * FROM $table_name WHERE post_id = %d AND version = %d",
         $post_id, $version
@@ -115,15 +118,16 @@ function almaseo_history_delete_snapshot($snapshot_id, $post_id) {
     $table_name = $wpdb->prefix . ALMASEO_HISTORY_TABLE;
     
     // Verify ownership
+    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
     $snapshot = $wpdb->get_row($wpdb->prepare(
         "SELECT * FROM $table_name WHERE id = %d AND post_id = %d",
         $snapshot_id, $post_id
     ));
-    
+
     if (!$snapshot) {
         return false;
     }
-    
+
     // Delete the snapshot
     $deleted = $wpdb->delete(
         $table_name,

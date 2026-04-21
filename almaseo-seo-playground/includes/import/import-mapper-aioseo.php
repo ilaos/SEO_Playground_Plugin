@@ -120,7 +120,7 @@ class AlmaSEO_Import_Mapper_AIOSEO {
         );
 
         // Check which columns actually exist (AIOSEO versions vary).
-        $actual_columns = $wpdb->get_col( "DESCRIBE `{$table}`", 0 );
+        $actual_columns = $wpdb->get_col( "DESCRIBE `{$table}`", 0 ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $select_columns = array_intersect( $columns, $actual_columns );
 
         if ( empty( $select_columns ) ) {
@@ -131,6 +131,7 @@ class AlmaSEO_Import_Mapper_AIOSEO {
             return '`' . $col . '`';
         }, $select_columns ) );
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_results( $wpdb->prepare(
             "SELECT {$select} FROM `{$table}`
              WHERE (title != '' AND title IS NOT NULL)

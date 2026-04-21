@@ -69,7 +69,7 @@ function almaseo_uninstall_404_table() {
     global $wpdb;
     
     $table_name = $wpdb->prefix . 'almaseo_404_log';
-    $wpdb->query("DROP TABLE IF EXISTS $table_name");
+    $wpdb->query("DROP TABLE IF EXISTS $table_name"); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
     
     delete_option('almaseo_404_db_version');
     delete_transient('almaseo_404_stats');

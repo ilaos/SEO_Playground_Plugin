@@ -28,7 +28,7 @@ class AlmaSEO_Import_Redirects_Mapper {
         // Rank Math redirects table.
         $rm_table  = $wpdb->prefix . 'rank_math_redirections';
         $rm_exists = (bool) $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $rm_table ) );
-        $rm_count  = $rm_exists ? (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$rm_table}`" ) : 0;
+        $rm_count  = $rm_exists ? (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$rm_table}`" ) : 0; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
 
         // Yoast Premium stores redirects in wp_options as a serialized array.
         $yoast_redirects = get_option( 'wpseo-premium-redirects-base', array() );
@@ -37,12 +37,12 @@ class AlmaSEO_Import_Redirects_Mapper {
         // AIOSEO redirects table (Pro feature).
         $aioseo_table  = $wpdb->prefix . 'aioseo_redirects';
         $aioseo_exists = (bool) $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $aioseo_table ) );
-        $aioseo_count  = $aioseo_exists ? (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$aioseo_table}`" ) : 0;
+        $aioseo_count  = $aioseo_exists ? (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$aioseo_table}`" ) : 0; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
 
         // Redirection plugin table.
         $redir_table  = $wpdb->prefix . 'redirection_items';
         $redir_exists = (bool) $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $redir_table ) );
-        $redir_count  = $redir_exists ? (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$redir_table}`" ) : 0;
+        $redir_count  = $redir_exists ? (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$redir_table}`" ) : 0; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
 
         return array(
             'rankmath'    => array( 'name' => 'Rank Math', 'available' => $rm_count > 0, 'plugin_active' => class_exists( 'RankMath' ), 'record_count' => $rm_count ),
@@ -106,6 +106,7 @@ class AlmaSEO_Import_Redirects_Mapper {
             }
 
             // Check for existing redirect with same source.
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $existing = $wpdb->get_var( $wpdb->prepare(
                 "SELECT id FROM `{$table}` WHERE source = %s LIMIT 1",
                 $source_url
@@ -170,6 +171,7 @@ class AlmaSEO_Import_Redirects_Mapper {
             return array();
         }
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $results = $wpdb->get_results( $wpdb->prepare(
             "SELECT sources, url_to, header_code FROM `{$table}`
              ORDER BY id ASC
@@ -233,6 +235,7 @@ class AlmaSEO_Import_Redirects_Mapper {
             return array();
         }
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $results = $wpdb->get_results( $wpdb->prepare(
             "SELECT url AS source, action_data AS target, action_code AS status
              FROM `{$table}`
@@ -261,6 +264,7 @@ class AlmaSEO_Import_Redirects_Mapper {
         // AIOSEO stores source_url (relative path) and target_url (full or relative).
         // The `type` column holds the HTTP status code (301, 302, etc.).
         // The `enabled` column indicates whether the redirect is active.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $results = $wpdb->get_results( $wpdb->prepare(
             "SELECT source_url, target_url, type
              FROM `{$table}`

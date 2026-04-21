@@ -423,6 +423,7 @@ class AlmaSEO_EEAT_Engine {
         $post_types   = ! empty( $settings['scan_post_types'] ) ? $settings['scan_post_types'] : array( 'post', 'page', 'product' );
         $placeholders = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $total = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type IN ({$placeholders})",
             $post_types
@@ -439,6 +440,7 @@ class AlmaSEO_EEAT_Engine {
         $findings_count = 0;
 
         for ( $batch_offset = 0; $batch_offset < $total; $batch_offset += $batch_size ) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $post_ids = $wpdb->get_col( $wpdb->prepare(
                 "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type IN ({$placeholders}) ORDER BY ID LIMIT %d OFFSET %d",
                 array_merge( $post_types, array( $batch_size, $batch_offset ) )

@@ -694,7 +694,7 @@ class AlmaSEO_Evergreen_REST_API {
         $prepare_values[] = $per_page;
         $prepare_values[] = $offset;
 
-        $results = $wpdb->get_results($wpdb->prepare($query, ...$prepare_values));
+        $results = $wpdb->get_results($wpdb->prepare($query, ...$prepare_values)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
 
         // Count total
         $count_query = "
@@ -708,7 +708,7 @@ class AlmaSEO_Evergreen_REST_API {
 
         // Remove limit/offset values for count
         $count_values = array_slice($prepare_values, 0, -2);
-        $total = (int) $wpdb->get_var($wpdb->prepare($count_query, ...$count_values));
+        $total = (int) $wpdb->get_var($wpdb->prepare($count_query, ...$count_values)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
 
         // Format results
         $posts = array();

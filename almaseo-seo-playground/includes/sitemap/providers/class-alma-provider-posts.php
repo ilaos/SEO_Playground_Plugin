@@ -42,6 +42,7 @@ class Alma_Provider_Posts {
         $exclude_joins = $this->build_exclude_joins();
         $exclude_where = $this->build_exclude_where();
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $count = $wpdb->get_var("
             SELECT COUNT(p.ID)
             FROM {$wpdb->posts} p
@@ -129,6 +130,7 @@ class Alma_Provider_Posts {
         $exclude_where = $this->build_exclude_where();
 
         // Query posts efficiently with exclusion filters
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $posts = $wpdb->get_results($wpdb->prepare("
             SELECT p.ID, p.post_modified_gmt, p.post_date_gmt
             FROM {$wpdb->posts} p
@@ -199,6 +201,7 @@ class Alma_Provider_Posts {
         $exclude_joins = $this->build_exclude_joins();
         $exclude_where = $this->build_exclude_where();
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $last_modified = $wpdb->get_var($wpdb->prepare("
             SELECT MAX(post_modified_gmt)
             FROM (
@@ -259,6 +262,7 @@ class Alma_Provider_Posts {
         $exclude_joins = $this->build_exclude_joins();
         $exclude_where = $this->build_exclude_where();
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $posts = $wpdb->get_results($wpdb->prepare("
             SELECT p.ID, p.post_modified_gmt, p.post_date_gmt
             FROM {$wpdb->posts} p

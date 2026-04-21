@@ -48,7 +48,7 @@ class Alma_Provider_Extra {
             return 0;
         }
         
-        return $wpdb->get_var("SELECT COUNT(*) FROM `{$wpdb->prefix}almaseo_additional_urls` WHERE active = 1");
+        return $wpdb->get_var("SELECT COUNT(*) FROM `{$wpdb->prefix}almaseo_additional_urls` WHERE active = 1"); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
     }
     
     /**
@@ -67,6 +67,7 @@ class Alma_Provider_Extra {
         $per_page = $this->settings['links_per_sitemap'];
         $offset = ($page_num - 1) * $per_page;
         
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $results = $wpdb->get_results($wpdb->prepare("
             SELECT url, priority, changefreq, lastmod
             FROM `{$wpdb->prefix}almaseo_additional_urls`
@@ -131,6 +132,7 @@ class Alma_Provider_Extra {
             return null;
         }
         
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $lastmod = $wpdb->get_var("
             SELECT MAX(GREATEST(created_at, COALESCE(updated_at, created_at)))
             FROM `{$wpdb->prefix}almaseo_additional_urls`
@@ -340,10 +342,13 @@ class Alma_Additional_URLs_Storage {
         
         // Build the query with proper escaping
         $table_name = self::get_table_name();
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $query = "SELECT * FROM `$table_name` $where_sql ORDER BY $orderby $order LIMIT %d OFFSET %d";
-        
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
         $sql = $wpdb->prepare($query, $args['limit'], $args['offset']);
-        
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
         return $wpdb->get_results($sql);
     }
     
@@ -354,6 +359,7 @@ class Alma_Additional_URLs_Storage {
         global $wpdb;
         
         $table_name = self::get_table_name();
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_row($wpdb->prepare(
             "SELECT * FROM `$table_name` WHERE id = %d",
             $id
@@ -449,6 +455,7 @@ class Alma_Additional_URLs_Storage {
         $where = $active_only ? 'WHERE active = 1' : '';
         $table_name = self::get_table_name();
         
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         return (int) $wpdb->get_var(
             "SELECT COUNT(*) FROM `$table_name` $where"
         );

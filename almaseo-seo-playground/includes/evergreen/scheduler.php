@@ -249,6 +249,7 @@ function almaseo_eg_generate_digest() {
 function almaseo_eg_get_stats() {
     global $wpdb;
     
+    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
     $counts = $wpdb->get_results($wpdb->prepare("
         SELECT meta_value as status, COUNT(*) as count
         FROM {$wpdb->postmeta} pm

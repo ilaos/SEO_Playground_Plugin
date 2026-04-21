@@ -77,10 +77,11 @@ function almaseo_history_get_last_snapshot($post_id) {
     global $wpdb;
     $table_name = $wpdb->prefix . ALMASEO_HISTORY_TABLE;
     
+    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
     return $wpdb->get_row($wpdb->prepare(
-        "SELECT * FROM $table_name 
-        WHERE post_id = %d 
-        ORDER BY version DESC 
+        "SELECT * FROM $table_name
+        WHERE post_id = %d
+        ORDER BY version DESC
         LIMIT 1",
         $post_id
     ));
@@ -93,10 +94,11 @@ function almaseo_history_get_snapshots($post_id, $limit = 20) {
     global $wpdb;
     $table_name = $wpdb->prefix . ALMASEO_HISTORY_TABLE;
     
+    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
     $snapshots = $wpdb->get_results($wpdb->prepare(
-        "SELECT * FROM $table_name 
-        WHERE post_id = %d 
-        ORDER BY version DESC 
+        "SELECT * FROM $table_name
+        WHERE post_id = %d
+        ORDER BY version DESC
         LIMIT %d",
         $post_id,
         $limit
@@ -180,6 +182,7 @@ function almaseo_history_enforce_cap($post_id) {
     $table_name = $wpdb->prefix . ALMASEO_HISTORY_TABLE;
     
     // Count current versions
+    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
     $count = $wpdb->get_var($wpdb->prepare(
         "SELECT COUNT(*) FROM $table_name WHERE post_id = %d",
         $post_id
@@ -189,10 +192,11 @@ function almaseo_history_enforce_cap($post_id) {
         // Delete oldest versions
         $to_delete = $count - $cap;
         
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $wpdb->query($wpdb->prepare(
-            "DELETE FROM $table_name 
-            WHERE post_id = %d 
-            ORDER BY version ASC 
+            "DELETE FROM $table_name
+            WHERE post_id = %d
+            ORDER BY version ASC
             LIMIT %d",
             $post_id,
             $to_delete
@@ -245,11 +249,13 @@ function almaseo_history_get_compare_data($post_id, $from_version, $to_version) 
     $table_name = $wpdb->prefix . ALMASEO_HISTORY_TABLE;
     
     // Get both snapshots
+    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
     $from = $wpdb->get_row($wpdb->prepare(
         "SELECT * FROM $table_name WHERE post_id = %d AND version = %d",
         $post_id, $from_version
     ));
     
+    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
     $to = $wpdb->get_row($wpdb->prepare(
         "SELECT * FROM $table_name WHERE post_id = %d AND version = %d",
         $post_id, $to_version

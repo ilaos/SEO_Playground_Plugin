@@ -30,10 +30,10 @@ class StubProvider implements KeywordProviderInterface {
             
             $results[] = [
                 'term' => $keyword,
-                'position' => rand(5, 20),
-                'volume' => round(rand(100, 10000) / 10) * 10, // Round to nearest 10
-                'kd' => rand(20, 80),
-                'cpc' => round(rand(50, 500) / 100, 2), // $0.50 to $5.00
+                'position' => wp_rand(5, 20),
+                'volume' => round(wp_rand(100, 10000) / 10) * 10, // Round to nearest 10
+                'kd' => wp_rand(20, 80),
+                'cpc' => round(wp_rand(50, 500) / 100, 2), // $0.50 to $5.00
                 'trend' => $this->generateTrendData(),
             ];
         }
@@ -49,10 +49,10 @@ class StubProvider implements KeywordProviderInterface {
      */
     private function generateTrendData(): array {
         $trend = [];
-        $base = rand(500, 2000);
+        $base = wp_rand(500, 2000);
         
         for ($i = 0; $i < 12; $i++) {
-            $variation = rand(-30, 30) / 100; // -30% to +30% variation
+            $variation = wp_rand(-30, 30) / 100; // -30% to +30% variation
             $trend[] = round($base * (1 + $variation));
         }
         

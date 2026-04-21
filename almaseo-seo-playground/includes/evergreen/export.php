@@ -49,7 +49,7 @@ function almaseo_eg_handle_csv_export() {
     echo "\xEF\xBB\xBF";
     
     // Open output stream
-    $output = fopen('php://output', 'w');
+    $output = fopen('php://output', 'w'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- writing CSV to php://output stream, not filesystem
     
     // Write headers
     fputcsv($output, array(
@@ -81,7 +81,7 @@ function almaseo_eg_handle_csv_export() {
         ));
     }
     
-    fclose($output);
+    fclose($output); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- closing php://output stream
     exit;
 }
 

@@ -49,8 +49,9 @@ class Alma_Provider_Video {
         global $wpdb;
         
         // Clear all video post caches
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $wpdb->query(
-            "DELETE FROM {$wpdb->options} 
+            "DELETE FROM {$wpdb->options}
              WHERE option_name LIKE '%almaseo_video_posts_%'"
         );
     }
@@ -80,6 +81,7 @@ class Alma_Provider_Video {
         
         if (false === $count) {
             // Count posts with potential videos
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $count = $wpdb->get_var("
                 SELECT COUNT(DISTINCT p.ID)
                 FROM {$wpdb->posts} p
@@ -126,7 +128,9 @@ class Alma_Provider_Video {
         
         if (false === $posts) {
             // Get posts with potential videos
-            $posts = $wpdb->get_results($wpdb->prepare("
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        $posts = $wpdb->get_results($wpdb->prepare("
                 SELECT DISTINCT p.ID, p.post_modified_gmt, p.post_content, p.post_title
                 FROM {$wpdb->posts} p
                 WHERE p.post_status = 'publish'
@@ -404,6 +408,7 @@ class Alma_Provider_Video {
         $videos = array();
         
         // Get video attachments
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $attachments = $wpdb->get_results($wpdb->prepare("
             SELECT ID, post_title, post_excerpt, post_mime_type, guid
             FROM {$wpdb->posts}
@@ -571,6 +576,7 @@ class Alma_Provider_Video {
         $per_page = $this->settings['links_per_sitemap'];
         $offset = ($page - 1) * $per_page;
         
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $last_modified = $wpdb->get_var($wpdb->prepare("
             SELECT MAX(post_modified_gmt)
             FROM (
@@ -612,6 +618,7 @@ class Alma_Provider_Video {
     public function get_items_seek($last_id = 0, $limit = 1000, $args = array()) {
         global $wpdb;
         
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $posts = $wpdb->get_results($wpdb->prepare("
             SELECT DISTINCT p.ID, p.post_modified_gmt, p.post_content, p.post_title
             FROM {$wpdb->posts} p

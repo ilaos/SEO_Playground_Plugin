@@ -37,6 +37,7 @@ class AlmaSEO_Import_Term_Mapper {
         }
 
         // Rank Math stores term meta in termmeta table.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $rm_count = (int) $wpdb->get_var(
             "SELECT COUNT(DISTINCT term_id) FROM {$wpdb->termmeta}
              WHERE meta_key IN ('rank_math_title', 'rank_math_description')
@@ -50,6 +51,7 @@ class AlmaSEO_Import_Term_Mapper {
             $wpdb->prepare( "SHOW TABLES LIKE %s", $aioseo_table )
         );
         if ( $table_exists ) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $aioseo_count = (int) $wpdb->get_var(
                 "SELECT COUNT(*) FROM `{$aioseo_table}` WHERE (title != '' AND title IS NOT NULL) OR (description != '' AND description IS NOT NULL)"
             );
@@ -269,6 +271,7 @@ class AlmaSEO_Import_Term_Mapper {
             return array();
         }
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $results = $wpdb->get_results( $wpdb->prepare(
             "SELECT term_id, title, description, canonical, robots_noindex,
                     og_title, og_description

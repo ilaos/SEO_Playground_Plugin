@@ -100,8 +100,8 @@ class AlmaSEO_Date_Hygiene_Model {
             WHERE {$where_sql}";
 
         $total = $vals
-            ? (int) $wpdb->get_var( $wpdb->prepare( $count_sql, $vals ) )
-            : (int) $wpdb->get_var( $count_sql );
+            ? (int) $wpdb->get_var( $wpdb->prepare( $count_sql, $vals ) ) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
+            : (int) $wpdb->get_var( $count_sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- no user input in query
 
         // Fetch.
         $select_sql = "SELECT f.* FROM {$table} f
@@ -111,7 +111,7 @@ class AlmaSEO_Date_Hygiene_Model {
             LIMIT %d OFFSET %d";
 
         $query_vals = array_merge( $vals, array( $per_page, $offset ) );
-        $items      = $wpdb->get_results( $wpdb->prepare( $select_sql, $query_vals ) );
+        $items      = $wpdb->get_results( $wpdb->prepare( $select_sql, $query_vals ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
 
         return array(
             'items' => $items ? $items : array(),
@@ -126,7 +126,7 @@ class AlmaSEO_Date_Hygiene_Model {
     public static function get_finding( $id ) {
         global $wpdb;
         return $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM " . self::table() . " WHERE id = %d", $id
+            "SELECT * FROM " . self::table() . " WHERE id = %d", $id // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         ) );
     }
 
@@ -136,7 +136,7 @@ class AlmaSEO_Date_Hygiene_Model {
     public static function get_findings_for_post( $post_id ) {
         global $wpdb;
         return $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM " . self::table() . " WHERE post_id = %d ORDER BY FIELD(severity, 'high', 'medium', 'low'), scanned_at DESC",
+            "SELECT * FROM " . self::table() . " WHERE post_id = %d ORDER BY FIELD(severity, 'high', 'medium', 'low'), scanned_at DESC", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
             $post_id
         ) );
     }
@@ -225,7 +225,7 @@ class AlmaSEO_Date_Hygiene_Model {
      */
     public static function clear_all() {
         global $wpdb;
-        return $wpdb->query( "TRUNCATE TABLE " . self::table() );
+        return $wpdb->query( "TRUNCATE TABLE " . self::table() ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
     }
 
     /**
@@ -233,7 +233,7 @@ class AlmaSEO_Date_Hygiene_Model {
      */
     public static function clear_open() {
         global $wpdb;
-        return $wpdb->query( "DELETE FROM " . self::table() . " WHERE status = 'open'" );
+        return $wpdb->query( "DELETE FROM " . self::table() . " WHERE status = 'open'" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
     }
 
     /**
@@ -249,7 +249,7 @@ class AlmaSEO_Date_Hygiene_Model {
     public static function get_dismissed_keys() {
         global $wpdb;
         $rows = $wpdb->get_results(
-            "SELECT post_id, finding_type, detected_value FROM " . self::table() . " WHERE status IN ('resolved', 'dismissed')"
+            "SELECT post_id, finding_type, detected_value FROM " . self::table() . " WHERE status IN ('resolved', 'dismissed')" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         );
         $keys = array();
         foreach ( $rows as $r ) {
@@ -282,7 +282,7 @@ class AlmaSEO_Date_Hygiene_Model {
 
         // By status.
         $status_rows = $wpdb->get_results(
-            "SELECT status, COUNT(*) AS cnt FROM {$table} GROUP BY status"
+            "SELECT status, COUNT(*) AS cnt FROM {$table} GROUP BY status" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         );
         foreach ( $status_rows as $r ) {
             $stats['total'] += (int) $r->cnt;
@@ -293,7 +293,7 @@ class AlmaSEO_Date_Hygiene_Model {
 
         // By severity (open only — these are actionable).
         $sev_rows = $wpdb->get_results(
-            "SELECT severity, COUNT(*) AS cnt FROM {$table} WHERE status = 'open' GROUP BY severity"
+            "SELECT severity, COUNT(*) AS cnt FROM {$table} WHERE status = 'open' GROUP BY severity" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         );
         foreach ( $sev_rows as $r ) {
             if ( isset( $stats[ $r->severity ] ) ) {
@@ -303,7 +303,7 @@ class AlmaSEO_Date_Hygiene_Model {
 
         // By finding type.
         $type_rows = $wpdb->get_results(
-            "SELECT finding_type, COUNT(*) AS cnt FROM {$table} WHERE status = 'open' GROUP BY finding_type"
+            "SELECT finding_type, COUNT(*) AS cnt FROM {$table} WHERE status = 'open' GROUP BY finding_type" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         );
         foreach ( $type_rows as $r ) {
             $stats['by_type'][ $r->finding_type ] = (int) $r->cnt;
@@ -321,7 +321,7 @@ class AlmaSEO_Date_Hygiene_Model {
         global $wpdb;
         $table = self::table();
 
-        $rows = $wpdb->get_results(
+        $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             "SELECT severity, COUNT(DISTINCT post_id) AS cnt
              FROM {$table}
              WHERE status = 'open'

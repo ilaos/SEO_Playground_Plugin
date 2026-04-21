@@ -79,6 +79,7 @@ class AlmaSEO_404_Intelligence {
         $day7   = gmdate( 'Y-m-d H:i:s', strtotime( '-7 days', strtotime( $now ) ) );
 
         // Get paths with 24h activity.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $recent = $wpdb->get_results( $wpdb->prepare(
             "SELECT path, SUM(hits) AS hits_24h
              FROM {$table}
@@ -96,6 +97,7 @@ class AlmaSEO_404_Intelligence {
 
         foreach ( $recent as $row ) {
             // Get 7-day total for this path.
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $total_7d = (int) $wpdb->get_var( $wpdb->prepare(
                 "SELECT SUM(hits) FROM {$table} WHERE path = %s AND last_seen >= %s AND is_ignored = 0",
                 $row->path, $day7
@@ -179,6 +181,7 @@ class AlmaSEO_404_Intelligence {
             $path = sanitize_text_field( $item['path'] );
 
             // Find the log entry by path.
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $row = $wpdb->get_row( $wpdb->prepare(
                 "SELECT id FROM {$table} WHERE path = %s ORDER BY last_seen DESC LIMIT 1",
                 $path
@@ -260,6 +263,7 @@ class AlmaSEO_404_Intelligence {
 
         $where = implode( ' OR ', $like_clauses );
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $posts = $wpdb->get_results( $wpdb->prepare(
             "SELECT ID, post_title, post_name FROM {$wpdb->posts}
              WHERE post_status = 'publish' AND post_type IN ('post', 'page') AND ({$where})
@@ -304,6 +308,7 @@ class AlmaSEO_404_Intelligence {
 
         $where = implode( ' OR ', $like_clauses );
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $posts = $wpdb->get_results( $wpdb->prepare(
             "SELECT ID, post_title, post_name FROM {$wpdb->posts}
              WHERE post_status = 'publish' AND post_type IN ('post', 'page') AND ({$where})

@@ -56,6 +56,7 @@ class Alma_Provider_Image {
         global $wpdb;
         
         // Count posts with potential images (featured or in content)
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $count = $wpdb->get_var("
             SELECT COUNT(DISTINCT p.ID)
             FROM {$wpdb->posts} p
@@ -87,6 +88,7 @@ class Alma_Provider_Image {
         $offset = ($page - 1) * $per_page;
         
         // Get posts with potential images
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $posts = $wpdb->get_results($wpdb->prepare("
             SELECT DISTINCT p.ID, p.post_modified_gmt, p.post_content, p.post_title
             FROM {$wpdb->posts} p
@@ -424,6 +426,7 @@ class Alma_Provider_Image {
         $per_page = $this->settings['links_per_sitemap'];
         $offset = ($page - 1) * $per_page;
         
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $last_modified = $wpdb->get_var($wpdb->prepare("
             SELECT MAX(post_modified_gmt)
             FROM (
@@ -459,6 +462,7 @@ class Alma_Provider_Image {
     public function get_items_seek($last_id = 0, $limit = 1000, $args = array()) {
         global $wpdb;
         
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $posts = $wpdb->get_results($wpdb->prepare("
             SELECT DISTINCT p.ID, p.post_modified_gmt, p.post_content, p.post_title
             FROM {$wpdb->posts} p

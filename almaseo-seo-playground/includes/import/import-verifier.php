@@ -36,6 +36,7 @@ class AlmaSEO_Import_Verifier {
         );
 
         // Get all published posts that have at least one AlmaSEO meta key.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $query = "SELECT DISTINCT p.ID, p.post_title
                   FROM {$wpdb->posts} p
                   INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
@@ -48,6 +49,7 @@ class AlmaSEO_Import_Verifier {
             $query .= $wpdb->prepare( " LIMIT %d", $limit );
         }
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
         $posts = $wpdb->get_results( $query );
 
         $title_map = array(); // Track titles for duplicate detection.

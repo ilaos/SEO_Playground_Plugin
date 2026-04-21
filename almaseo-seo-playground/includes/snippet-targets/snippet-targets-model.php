@@ -80,15 +80,17 @@ class AlmaSEO_Snippet_Targets_Model {
         $order = ( ! empty( $args['order'] ) && strtoupper( $args['order'] ) === 'ASC' ) ? 'ASC' : 'DESC';
 
         // Count.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $count_sql = "SELECT COUNT(*) FROM {$table} t
             LEFT JOIN {$wpdb->posts} p ON t.post_id = p.ID
             WHERE {$where_sql}";
 
         $total = $vals
-            ? (int) $wpdb->get_var( $wpdb->prepare( $count_sql, $vals ) )
-            : (int) $wpdb->get_var( $count_sql );
+            ? (int) $wpdb->get_var( $wpdb->prepare( $count_sql, $vals ) ) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
+            : (int) $wpdb->get_var( $count_sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
 
         // Fetch.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $select_sql = "SELECT t.* FROM {$table} t
             LEFT JOIN {$wpdb->posts} p ON t.post_id = p.ID
             WHERE {$where_sql}
@@ -96,6 +98,7 @@ class AlmaSEO_Snippet_Targets_Model {
             LIMIT %d OFFSET %d";
 
         $query_vals = array_merge( $vals, array( $per_page, $offset ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
         $items      = $wpdb->get_results( $wpdb->prepare( $select_sql, $query_vals ) );
 
         return array(
@@ -110,6 +113,7 @@ class AlmaSEO_Snippet_Targets_Model {
      */
     public static function get_target( $id ) {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_row( $wpdb->prepare(
             "SELECT * FROM " . self::table() . " WHERE id = %d", $id
         ) );
@@ -120,6 +124,7 @@ class AlmaSEO_Snippet_Targets_Model {
      */
     public static function get_targets_for_post( $post_id ) {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_results( $wpdb->prepare(
             "SELECT * FROM " . self::table() . " WHERE post_id = %d ORDER BY created_at DESC",
             $post_id
@@ -219,6 +224,7 @@ class AlmaSEO_Snippet_Targets_Model {
         );
 
         // By status.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $status_rows = $wpdb->get_results(
             "SELECT status, COUNT(*) AS cnt FROM {$table} GROUP BY status"
         );
@@ -230,6 +236,7 @@ class AlmaSEO_Snippet_Targets_Model {
         }
 
         // By format (non-rejected/expired only).
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $format_rows = $wpdb->get_results(
             "SELECT snippet_format, COUNT(*) AS cnt FROM {$table}
              WHERE status NOT IN ('rejected', 'expired')

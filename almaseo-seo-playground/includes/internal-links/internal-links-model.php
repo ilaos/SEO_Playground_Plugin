@@ -70,10 +70,13 @@ class AlmaSEO_Internal_Links_Model {
         $where_clause = implode( ' AND ', $where );
 
         // Get total count
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $count_query = "SELECT COUNT(*) FROM $table WHERE $where_clause";
         if ( ! empty( $prepare_values ) ) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
             $count_query = $wpdb->prepare( $count_query, $prepare_values );
         }
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
         $total = $wpdb->get_var( $count_query );
 
         // Build main query
@@ -86,15 +89,18 @@ class AlmaSEO_Internal_Links_Model {
         $order_dir       = in_array( strtoupper( $args['order'] ), $allowed_order, true ) ? strtoupper( $args['order'] ) : 'ASC';
         $orderby         = "$orderby_col $order_dir";
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $query = "SELECT * FROM $table WHERE $where_clause ORDER BY $orderby LIMIT %d OFFSET %d";
 
         $prepare_values[] = intval( $args['per_page'] );
         $prepare_values[] = intval( $offset );
 
         if ( ! empty( $prepare_values ) ) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
             $query = $wpdb->prepare( $query, $prepare_values );
         }
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
         $results = $wpdb->get_results( $query, ARRAY_A );
 
         return array(
@@ -114,6 +120,7 @@ class AlmaSEO_Internal_Links_Model {
         global $wpdb;
 
         $table = self::get_table_name();
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $query = $wpdb->prepare( "SELECT * FROM $table WHERE id = %d", $id );
 
         return $wpdb->get_row( $query, ARRAY_A );
@@ -137,7 +144,7 @@ class AlmaSEO_Internal_Links_Model {
         }
 
         $table   = self::get_table_name();
-        $results = $wpdb->get_results(
+        $results = $wpdb->get_results( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             "SELECT * FROM $table WHERE is_enabled = 1 ORDER BY priority ASC, id ASC LIMIT 500",
             ARRAY_A
         );
@@ -309,12 +316,12 @@ class AlmaSEO_Internal_Links_Model {
         global $wpdb;
 
         $table = self::get_table_name();
-        $query = $wpdb->prepare(
+        $query = $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             "UPDATE $table SET hits = hits + 1 WHERE id = %d",
             $id
         );
 
-        return $wpdb->query( $query ) !== false;
+        return $wpdb->query( $query ) !== false; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
     }
 
     /**
@@ -343,7 +350,7 @@ class AlmaSEO_Internal_Links_Model {
             );
         }
 
-        $stats = $wpdb->get_row(
+        $stats = $wpdb->get_row( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             "SELECT
                 COUNT(*)                       AS total_rules,
                 SUM( CASE WHEN is_enabled = 1 THEN 1 ELSE 0 END ) AS active_rules,
@@ -374,19 +381,19 @@ class AlmaSEO_Internal_Links_Model {
         $table = self::get_table_name();
 
         if ( $exclude_id ) {
-            $query = $wpdb->prepare(
+            $query = $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
                 "SELECT COUNT(*) FROM $table WHERE keyword = %s AND id != %d",
                 $keyword,
                 $exclude_id
             );
         } else {
-            $query = $wpdb->prepare(
+            $query = $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
                 "SELECT COUNT(*) FROM $table WHERE keyword = %s",
                 $keyword
             );
         }
 
-        return $wpdb->get_var( $query ) > 0;
+        return $wpdb->get_var( $query ) > 0; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
     }
 
     /**

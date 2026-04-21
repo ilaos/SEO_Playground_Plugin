@@ -102,7 +102,7 @@ class Alma_Provider_News {
             )";
         }
         
-        $count = $wpdb->get_var($wpdb->prepare($query, $window_date));
+        $count = $wpdb->get_var($wpdb->prepare($query, $window_date)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
         
         // Apply max_items limit
         return min((int) $count, $this->news_settings['max_items']);
@@ -161,8 +161,8 @@ class Alma_Provider_News {
         
         $query .= " ORDER BY p.post_date_gmt DESC LIMIT %d OFFSET %d";
         
-        $posts = $wpdb->get_results($wpdb->prepare($query, $window_date, $per_page, $offset));
-        
+        $posts = $wpdb->get_results($wpdb->prepare($query, $window_date, $per_page, $offset)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
+
         $urls = array();
         
         foreach ($posts as $post) {
@@ -289,7 +289,7 @@ class Alma_Provider_News {
             ) as subset
         ";
         
-        $last_modified = $wpdb->get_var($wpdb->prepare($query, $window_date, $per_page, $offset));
+        $last_modified = $wpdb->get_var($wpdb->prepare($query, $window_date, $per_page, $offset)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
         
         return $last_modified ? gmdate('c', strtotime($last_modified)) : null;
     }
@@ -336,7 +336,7 @@ class Alma_Provider_News {
         
         $query .= " ORDER BY p.ID ASC LIMIT %d";
         
-        $posts = $wpdb->get_results($wpdb->prepare($query, $window_date, $last_id, $limit));
+        $posts = $wpdb->get_results($wpdb->prepare($query, $window_date, $last_id, $limit)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
         
         // Apply max_items limit
         $total_so_far = isset($args['total_so_far']) ? $args['total_so_far'] : 0;

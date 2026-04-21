@@ -51,8 +51,8 @@ class DataForSEOProvider implements KeywordProviderInterface {
      */
     private function generateRealisticTrend(): array {
         $trend = [];
-        $base = rand(1000, 10000);
-        $seasonality = rand(0, 1); // Random seasonality pattern
+        $base = wp_rand(1000, 10000);
+        $seasonality = wp_rand(0, 1); // Random seasonality pattern
         
         for ($i = 0; $i < 12; $i++) {
             if ($seasonality) {
@@ -62,7 +62,7 @@ class DataForSEOProvider implements KeywordProviderInterface {
                 $seasonal_factor = 0;
             }
             
-            $random_variation = (rand(-10, 10) / 100);
+            $random_variation = (wp_rand(-10, 10) / 100);
             $value = $base * (1 + $seasonal_factor + $random_variation);
             $trend[] = round($value);
         }
@@ -87,7 +87,7 @@ class DataForSEOProvider implements KeywordProviderInterface {
         ];
         
         // Randomly select 0-3 features
-        $num_features = rand(0, 3);
+        $num_features = wp_rand(0, 3);
         $features = [];
         
         if ($num_features > 0) {

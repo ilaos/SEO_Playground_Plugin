@@ -146,9 +146,9 @@ function almaseo_eg_generate_mock_snapshots($date_range = '30') {
         $snapshots[] = array(
             'timestamp' => $timestamp,
             'date' => gmdate('Y-m-d', $timestamp),
-            'evergreen' => $base_evergreen + rand(-5, 5),
-            'watch' => $base_watch + rand(-3, 3),
-            'stale' => $base_stale + rand(-2, 2)
+            'evergreen' => $base_evergreen + wp_rand(-5, 5),
+            'watch' => $base_watch + wp_rand(-3, 3),
+            'stale' => $base_stale + wp_rand(-2, 2)
         );
     }
     

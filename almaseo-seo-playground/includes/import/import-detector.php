@@ -61,6 +61,7 @@ class AlmaSEO_Import_Detector {
     private static function detect_yoast() {
         global $wpdb;
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $count = (int) $wpdb->get_var(
             "SELECT COUNT(DISTINCT post_id) FROM {$wpdb->postmeta}
              WHERE meta_key IN ('_yoast_wpseo_title', '_yoast_wpseo_metadesc')
@@ -82,6 +83,7 @@ class AlmaSEO_Import_Detector {
     private static function detect_rankmath() {
         global $wpdb;
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $count = (int) $wpdb->get_var(
             "SELECT COUNT(DISTINCT post_id) FROM {$wpdb->postmeta}
              WHERE meta_key IN ('rank_math_title', 'rank_math_description')
@@ -109,6 +111,7 @@ class AlmaSEO_Import_Detector {
 
         $count = 0;
         if ( $table_exists ) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $count = (int) $wpdb->get_var(
                 "SELECT COUNT(*) FROM `{$table}` WHERE (title != '' AND title IS NOT NULL) OR (description != '' AND description IS NOT NULL)"
             );
@@ -158,6 +161,7 @@ class AlmaSEO_Import_Detector {
             foreach ( $subqueries as $other_key => $other_query ) {
                 if ( $src_key === $other_key ) continue;
 
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
                 $overlap_count = (int) $wpdb->get_var(
                     "SELECT COUNT(*) FROM ({$src_query}) AS src
                      INNER JOIN ({$other_query}) AS other ON src.post_id = other.post_id"

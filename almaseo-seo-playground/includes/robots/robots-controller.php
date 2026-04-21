@@ -174,14 +174,21 @@ class AlmaSEO_Robots_Controller {
      * Check if file is writable
      */
     public function is_file_writable() {
-        $file_path = $this->get_robots_file_path();
-        
-        if (file_exists($file_path)) {
-            return is_writable($file_path);
+        global $wp_filesystem;
+        if ( ! function_exists( 'WP_Filesystem' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
         }
-        
-        // Check if directory is writable for new file
-        return is_writable(ABSPATH);
+        WP_Filesystem();
+
+        $file_path = $this->get_robots_file_path();
+
+        if ( $wp_filesystem && $wp_filesystem->exists( $file_path ) ) {
+            return $wp_filesystem->is_writable( $file_path );
+        }
+        if ( $wp_filesystem ) {
+            return $wp_filesystem->is_writable( ABSPATH );
+        }
+        return false;
     }
     
     /**

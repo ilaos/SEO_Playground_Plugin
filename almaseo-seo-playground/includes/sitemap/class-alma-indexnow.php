@@ -273,7 +273,7 @@ class Alma_IndexNow {
         // Handle response
         if (is_wp_error($response)) {
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('IndexNow submission error: ' . $response->get_error_message());
+                error_log('IndexNow submission error: ' . $response->get_error_message()); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- intentional debug logging behind WP_DEBUG
             }
             
             return array(
@@ -313,7 +313,7 @@ class Alma_IndexNow {
         $this->update_health_status('error', 0, $status_code, $error_message);
         
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log(sprintf('IndexNow returned %d: %s', $status_code, $body));
+            error_log(sprintf('IndexNow returned %d: %s', $status_code, $body)); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- intentional debug logging behind WP_DEBUG
         }
         
         return array(
@@ -387,7 +387,7 @@ class Alma_IndexNow {
         $filename = sanitize_file_name($this->settings['key'] . '.txt');
         $filepath = ABSPATH . $filename;
         if (file_exists($filepath)) {
-            return unlink($filepath);
+            return wp_delete_file($filepath);
         }
 
         return true;

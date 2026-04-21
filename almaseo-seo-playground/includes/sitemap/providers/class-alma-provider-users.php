@@ -40,6 +40,7 @@ class Alma_Provider_Users {
         global $wpdb;
         
         // Only include users who have published posts
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $count = $wpdb->get_var("
             SELECT COUNT(DISTINCT u.ID)
             FROM {$wpdb->users} u
@@ -70,6 +71,7 @@ class Alma_Provider_Users {
         $offset = ($page - 1) * $per_page;
         
         // Query users with published posts
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $users = $wpdb->get_results($wpdb->prepare("
             SELECT DISTINCT u.ID, u.user_nicename, u.display_name,
                 (SELECT COUNT(*) FROM {$wpdb->posts} p 
@@ -138,6 +140,7 @@ class Alma_Provider_Users {
         $per_page = $this->settings['links_per_sitemap'];
         $offset = ($page - 1) * $per_page;
         
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $last_modified = $wpdb->get_var($wpdb->prepare("
             SELECT MAX(last_post_modified)
             FROM (

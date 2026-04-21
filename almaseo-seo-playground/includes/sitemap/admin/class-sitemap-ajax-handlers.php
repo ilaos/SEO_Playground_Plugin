@@ -607,6 +607,7 @@ class Alma_Sitemap_Ajax_Handlers {
         
         $cutoff = gmdate('Y-m-d H:i:s', strtotime("-{$retention_days} days"));
         
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $deleted = $wpdb->query($wpdb->prepare(
             "DELETE FROM `$table` WHERE detected_at < %s",
             $cutoff
@@ -653,6 +654,7 @@ class Alma_Sitemap_Ajax_Handlers {
         global $wpdb;
         
         // Count images
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $image_count = $wpdb->get_var("
             SELECT COUNT(DISTINCT p.ID)
             FROM {$wpdb->posts} p
@@ -660,8 +662,9 @@ class Alma_Sitemap_Ajax_Handlers {
             AND p.post_mime_type LIKE 'image/%'
             AND p.post_status = 'inherit'
         ");
-        
+
         // Count videos
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $video_count = $wpdb->get_var("
             SELECT COUNT(DISTINCT p.ID)
             FROM {$wpdb->posts} p
@@ -688,6 +691,7 @@ class Alma_Sitemap_Ajax_Handlers {
         
         // Check for missing alt text
         global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $missing_alt = $wpdb->get_var("
             SELECT COUNT(*)
             FROM {$wpdb->posts} p
@@ -844,6 +848,7 @@ class Alma_Sitemap_Ajax_Handlers {
         global $wpdb;
         $table = $wpdb->prefix . 'almaseo_health_log';
         
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $logs = $wpdb->get_results("
             SELECT * FROM `$table`
             ORDER BY created_at DESC
@@ -875,7 +880,7 @@ class Alma_Sitemap_Ajax_Handlers {
         global $wpdb;
         $table = $wpdb->prefix . 'almaseo_health_log';
         
-        $wpdb->query("TRUNCATE TABLE `$table`");
+        $wpdb->query("TRUNCATE TABLE `$table`"); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         
         wp_send_json_success(array(
             'message' => __('Logs cleared successfully', 'almaseo-seo-playground')

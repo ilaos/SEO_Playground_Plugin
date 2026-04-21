@@ -38,12 +38,13 @@ class AlmaSEO_Internal_Links_Orphan {
         $table = self::table();
 
         // Clear existing data.
-        $wpdb->query( "TRUNCATE TABLE {$table}" );
+        $wpdb->query( "TRUNCATE TABLE {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
 
         $post_types = apply_filters( 'almaseo_orphan_post_types', array( 'post', 'page' ) );
         $placeholders = implode( ',', array_fill( 0, count( $post_types ), '%s' ) );
 
         // Get all published posts.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $posts = $wpdb->get_results( $wpdb->prepare(
             "SELECT ID, post_title, post_name FROM {$wpdb->posts}
              WHERE post_status = 'publish' AND post_type IN ({$placeholders})
@@ -177,16 +178,18 @@ class AlmaSEO_Internal_Links_Orphan {
         $where_sql = implode( ' AND ', $where );
 
         // Count.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $count_sql = "SELECT COUNT(*) FROM {$table} o
             LEFT JOIN {$wpdb->posts} p ON o.post_id = p.ID
             WHERE {$where_sql}";
 
         $total = $vals
-            ? (int) $wpdb->get_var( $wpdb->prepare( $count_sql, $vals ) )
-            : (int) $wpdb->get_var( $count_sql );
+            ? (int) $wpdb->get_var( $wpdb->prepare( $count_sql, $vals ) ) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
+            : (int) $wpdb->get_var( $count_sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
 
         // Fetch.
         $orderby = 'o.inbound_count ASC, o.outbound_count DESC';
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $select_sql = "SELECT o.* FROM {$table} o
             LEFT JOIN {$wpdb->posts} p ON o.post_id = p.ID
             WHERE {$where_sql}
@@ -194,6 +197,7 @@ class AlmaSEO_Internal_Links_Orphan {
             LIMIT %d OFFSET %d";
 
         $query_vals = array_merge( $vals, array( $per_page, $offset ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
         $items = $wpdb->get_results( $wpdb->prepare( $select_sql, $query_vals ) );
 
         return array(
@@ -220,6 +224,7 @@ class AlmaSEO_Internal_Links_Orphan {
             'last_scan'      => get_option( 'almaseo_orphan_last_scan', '' ),
         );
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $rows = $wpdb->get_results(
             "SELECT status, COUNT(*) AS cnt FROM {$table} GROUP BY status"
         );
@@ -231,6 +236,7 @@ class AlmaSEO_Internal_Links_Orphan {
             }
         }
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $stats['hub_candidates'] = (int) $wpdb->get_var(
             "SELECT COUNT(*) FROM {$table} WHERE is_hub_candidate = 1 AND status != 'dismissed'"
         );
@@ -271,6 +277,7 @@ class AlmaSEO_Internal_Links_Orphan {
      */
     public static function get_orphan( $id ) {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_row( $wpdb->prepare(
             "SELECT * FROM " . self::table() . " WHERE id = %d",
             $id
@@ -282,6 +289,7 @@ class AlmaSEO_Internal_Links_Orphan {
      */
     public static function get_clusters() {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_col(
             "SELECT DISTINCT cluster_id FROM " . self::table() . " WHERE cluster_id != '' ORDER BY cluster_id ASC"
         );
@@ -326,6 +334,7 @@ class AlmaSEO_Internal_Links_Orphan {
             }
 
             // Upsert by post_id.
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $existing = $wpdb->get_var( $wpdb->prepare(
                 "SELECT id FROM {$table} WHERE post_id = %d",
                 $post_id

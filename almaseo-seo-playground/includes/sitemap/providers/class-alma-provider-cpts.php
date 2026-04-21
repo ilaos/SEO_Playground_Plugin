@@ -102,7 +102,7 @@ class Alma_Provider_CPTs {
             {$exclude_where}
         ", ...$this->post_types);
 
-        $count = $wpdb->get_var($query);
+        $count = $wpdb->get_var($query); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
 
         return (int) $count;
     }
@@ -183,6 +183,7 @@ class Alma_Provider_CPTs {
         // Prepare query with post types and pagination
         $query_args = array_merge($this->post_types, array($per_page, $offset));
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $posts = $wpdb->get_results($wpdb->prepare("
             SELECT p.ID, p.post_type, p.post_modified_gmt, p.post_date_gmt
             FROM {$wpdb->posts} p
@@ -249,6 +250,7 @@ class Alma_Provider_CPTs {
         $post_types_placeholder = implode(',', array_fill(0, count($this->post_types), '%s'));
         $query_args = array_merge($this->post_types, array($per_page, $offset));
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $last_modified = $wpdb->get_var($wpdb->prepare("
             SELECT MAX(post_modified_gmt)
             FROM (

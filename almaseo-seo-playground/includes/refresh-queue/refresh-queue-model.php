@@ -78,15 +78,17 @@ class AlmaSEO_Refresh_Queue_Model {
         $order = ( ! empty( $args['order'] ) && strtoupper( $args['order'] ) === 'ASC' ) ? 'ASC' : 'DESC';
 
         // Count.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $count_sql = "SELECT COUNT(*) FROM {$table} q
             LEFT JOIN {$wpdb->posts} p ON q.post_id = p.ID
             WHERE {$where_sql}";
 
         $total = $vals
-            ? (int) $wpdb->get_var( $wpdb->prepare( $count_sql, $vals ) )
-            : (int) $wpdb->get_var( $count_sql );
+            ? (int) $wpdb->get_var( $wpdb->prepare( $count_sql, $vals ) ) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
+            : (int) $wpdb->get_var( $count_sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
 
         // Fetch.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $select_sql = "SELECT q.* FROM {$table} q
             LEFT JOIN {$wpdb->posts} p ON q.post_id = p.ID
             WHERE {$where_sql}
@@ -94,6 +96,7 @@ class AlmaSEO_Refresh_Queue_Model {
             LIMIT %d OFFSET %d";
 
         $query_vals   = array_merge( $vals, array( $per_page, $offset ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
         $items        = $wpdb->get_results( $wpdb->prepare( $select_sql, $query_vals ) );
 
         return array(
@@ -108,6 +111,7 @@ class AlmaSEO_Refresh_Queue_Model {
      */
     public static function get_item( $id ) {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_row( $wpdb->prepare(
             "SELECT * FROM " . self::table() . " WHERE id = %d", $id
         ) );
@@ -118,6 +122,7 @@ class AlmaSEO_Refresh_Queue_Model {
      */
     public static function get_by_post_id( $post_id ) {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_row( $wpdb->prepare(
             "SELECT * FROM " . self::table() . " WHERE post_id = %d", $post_id
         ) );
@@ -128,6 +133,7 @@ class AlmaSEO_Refresh_Queue_Model {
      */
     public static function get_top( $limit = 10 ) {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_results( $wpdb->prepare(
             "SELECT * FROM " . self::table() . " WHERE status = 'queued' ORDER BY priority_score DESC LIMIT %d",
             $limit
@@ -227,7 +233,7 @@ class AlmaSEO_Refresh_Queue_Model {
      */
     public static function clear_queue() {
         global $wpdb;
-        return $wpdb->query( "TRUNCATE TABLE " . self::table() );
+        return $wpdb->query( "TRUNCATE TABLE " . self::table() ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
     }
 
     /**
@@ -236,6 +242,7 @@ class AlmaSEO_Refresh_Queue_Model {
     public static function prune_orphaned() {
         global $wpdb;
         $table = self::table();
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         return $wpdb->query(
             "DELETE q FROM {$table} q
              LEFT JOIN {$wpdb->posts} p ON q.post_id = p.ID
@@ -254,6 +261,7 @@ class AlmaSEO_Refresh_Queue_Model {
         global $wpdb;
         $table = self::table();
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $rows = $wpdb->get_results(
             "SELECT priority_tier, status, COUNT(*) AS cnt FROM {$table} GROUP BY priority_tier, status"
         );
