@@ -51,7 +51,7 @@ class AlmaSEO_CLI_Command {
         // Sitemap stats
         global $wpdb;
         $table = $wpdb->prefix . 'almaseo_sitemap_urls';
-        $total_urls = $wpdb->get_var("SELECT COUNT(*) FROM $table");
+        $total_urls = $wpdb->get_var("SELECT COUNT(*) FROM $table"); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         
         WP_CLI::log("\nSitemap Statistics:");
         WP_CLI::log("  Total URLs: $total_urls");
@@ -179,11 +179,8 @@ class AlmaSEO_Sitemaps_Command {
             // Show statistics
             global $wpdb;
             $table = $wpdb->prefix . 'almaseo_sitemap_urls';
-            $stats = $wpdb->get_results("
-                SELECT url_type, COUNT(*) as count 
-                FROM $table 
-                GROUP BY url_type
-            ");
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+            $stats = $wpdb->get_results("SELECT url_type, COUNT(*) as count FROM $table GROUP BY url_type");
             
             WP_CLI::log("\nSitemap Statistics:");
             foreach ($stats as $stat) {
@@ -328,9 +325,9 @@ class AlmaSEO_Sitemaps_Command {
         if (file_exists($sitemap_dir)) {
             $files = glob($sitemap_dir . '/*.{xml,gz}', GLOB_BRACE);
             $count = count($files);
-            
+
             foreach ($files as $file) {
-                unlink($file);
+                wp_delete_file($file);
             }
             
             WP_CLI::log("Deleted $count sitemap files");
@@ -340,7 +337,7 @@ class AlmaSEO_Sitemaps_Command {
         if ($all) {
             global $wpdb;
             $table = $wpdb->prefix . 'almaseo_sitemap_urls';
-            $wpdb->query("TRUNCATE TABLE $table");
+            $wpdb->query("TRUNCATE TABLE $table"); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             WP_CLI::log('Cleared sitemap database');
         }
         
@@ -454,7 +451,7 @@ class AlmaSEO_Cache_Command {
             if (file_exists($cache_dir)) {
                 $files = glob($cache_dir . '/*');
                 $count = count($files);
-                array_map('unlink', $files);
+                array_map('wp_delete_file', $files);
                 $cleared[] = "$count cache files";
             }
         }
@@ -463,8 +460,8 @@ class AlmaSEO_Cache_Command {
         if ($type === 'all' || $type === 'database') {
             global $wpdb;
             $table = $wpdb->prefix . 'almaseo_cache';
-            if ($wpdb->get_var("SHOW TABLES LIKE '$table'") == $table) {
-                $count = $wpdb->query("TRUNCATE TABLE $table");
+            if ($wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table)) == $table) {
+                $count = $wpdb->query("TRUNCATE TABLE $table"); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
                 $cleared[] = "database cache";
             }
         }
@@ -647,17 +644,15 @@ class AlmaSEO_IndexNow_Command {
         } elseif (isset($assoc_args['all'])) {
             global $wpdb;
             $table = $wpdb->prefix . 'almaseo_sitemap_urls';
-            $urls = $wpdb->get_col("SELECT url FROM $table");
+            $urls = $wpdb->get_col("SELECT url FROM $table"); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         } else {
             $hours = isset($assoc_args['recent']) ? intval($assoc_args['recent']) : 24;
             $since = gmdate('Y-m-d H:i:s', strtotime("-$hours hours"));
             
             global $wpdb;
             $table = $wpdb->prefix . 'almaseo_sitemap_urls';
-            $urls = $wpdb->get_col($wpdb->prepare(
-                "SELECT url FROM $table WHERE last_modified > %s",
-                $since
-            ));
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+            $urls = $wpdb->get_col($wpdb->prepare("SELECT url FROM $table WHERE last_modified > %s", $since));
         }
         
         if (empty($urls)) {
