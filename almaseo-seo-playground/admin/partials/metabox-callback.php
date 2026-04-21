@@ -188,7 +188,7 @@ function almaseo_render_llm_optimization_panel($post) {
     $is_pro = almaseo_feature_available('llm_optimization');
     $is_connected = seo_playground_is_alma_connected();
     ?>
-    <div class="almaseo-llm-panel" data-post-id="<?php echo esc_attr($post->ID); ?>" data-is-pro-llm="<?php echo $is_pro ? '1' : '0'; ?>">
+    <div class="almaseo-llm-panel" data-post-id="<?php echo esc_attr($post->ID); ?>" data-is-pro-llm="<?php echo esc_attr($is_pro ? '1' : '0'); ?>">
         <div class="almaseo-llm-header">
             <h2>AI Readiness Analysis</h2>
             <p>See how AI systems like ChatGPT, Gemini, and Google AI Overviews understand this page — and what to improve.</p>
@@ -252,8 +252,8 @@ function almaseo_render_llm_optimization_panel($post) {
                     <option value="technical">Technical</option>
                     <option value="creative">Creative</option>
                     <option value="academic">Academic</option>
-                    <option value="qa" <?php echo !$is_pro ? 'disabled' : ''; ?>>Q&A Format <?php echo !$is_pro ? '(Pro)' : ''; ?></option>
-                    <option value="ai_answer" <?php echo !$is_pro ? 'disabled' : ''; ?>>AI Answer <?php echo !$is_pro ? '(Pro)' : ''; ?></option>
+                    <option value="qa" <?php echo esc_attr(!$is_pro ? 'disabled' : ''); ?>>Q&A Format <?php echo esc_html(!$is_pro ? '(Pro)' : ''); ?></option>
+                    <option value="ai_answer" <?php echo esc_attr(!$is_pro ? 'disabled' : ''); ?>>AI Answer <?php echo esc_html(!$is_pro ? '(Pro)' : ''); ?></option>
                 </select>
             </div>
             <div class="almaseo-llm-summary-text almaseo-llm-loading">
@@ -532,7 +532,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                        placeholder="<?php esc_attr_e('Enter a clear, keyword-rich title (max 60 characters)', 'almaseo-seo-playground'); ?>"
                        class="almaseo-input" />
                 <div class="almaseo-char-count" data-field="title">
-                    <span id="title-count" class="<?php echo strlen($seo_title ?? '') <= 60 ? 'good' : (strlen($seo_title ?? '') <= 70 ? 'caution' : 'too-long'); ?>"><?php echo strlen($seo_title ?? ''); ?></span>/60
+                    <span id="title-count" class="<?php echo esc_attr(strlen($seo_title ?? '') <= 60 ? 'good' : (strlen($seo_title ?? '') <= 70 ? 'caution' : 'too-long')); ?>"><?php echo intval(strlen($seo_title ?? '')); ?></span>/60
                 </div>
                 <div class="almaseo-char-bar" data-field="title" aria-label="Title character usage">
                     <?php
@@ -2370,9 +2370,9 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             foreach ($schema_options as $option): ?>
                                 <option value="<?php echo esc_attr($option['value']); ?>" 
                                         <?php selected($current_schema, $option['value']); ?>
-                                        <?php echo $option['locked'] ? 'disabled aria-disabled="true" class="is-locked"' : ''; ?>
+                                        <?php echo esc_attr($option['locked'] ? 'disabled aria-disabled="true" class="is-locked"' : ''); ?>
                                         data-locked="<?php echo esc_attr($option['locked'] ? '1' : '0'); ?>">
-                                    <?php echo esc_html($option['label']); ?><?php echo $option['locked'] ? ' 🔒' : ''; ?>
+                                    <?php echo esc_html($option['label']); ?><?php echo esc_html($option['locked'] ? ' 🔒' : ''); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -2672,7 +2672,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             <select id="almaseo_twitter_card" 
                                     name="almaseo_twitter_card" 
                                     class="almaseo-select"
-                                    data-has-featured-image="<?php echo has_post_thumbnail($post->ID) ? 'true' : 'false'; ?>">
+                                    data-has-featured-image="<?php echo esc_attr(has_post_thumbnail($post->ID) ? 'true' : 'false'); ?>">
                                 <?php 
                                 $twitter_card = get_post_meta($post->ID, '_almaseo_twitter_card', true) ?: 'summary_large_image';
                                 ?>
@@ -3319,7 +3319,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
             <!-- Hidden fields for data -->
             <input type="hidden" id="almaseo-current-user" value="<?php echo esc_attr(wp_get_current_user()->display_name); ?>">
             <input type="hidden" id="almaseo_nonce" value="<?php echo esc_attr(wp_create_nonce('almaseo_nonce')); ?>">
-            <input type="hidden" id="almaseo-can-edit" value="<?php echo current_user_can('edit_posts') ? 'true' : 'false'; ?>">
+            <input type="hidden" id="almaseo-can-edit" value="<?php echo esc_attr(current_user_can('edit_posts') ? 'true' : 'false'); ?>">
         </div>
         <!-- End Notes & History Tab -->
         
@@ -3649,7 +3649,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
         
         <!-- Version Footer -->
         <div class="almaseo-version-footer" style="text-align: right; padding: 10px 20px; color: #999; font-size: 12px; border-top: 1px solid #e0e0e0; margin-top: 20px;">
-            AlmaSEO SEO Playground v<?php echo ALMASEO_PLUGIN_VERSION; ?>
+            AlmaSEO SEO Playground v<?php echo esc_html(ALMASEO_PLUGIN_VERSION); ?>
         </div>
     </div>
     <!-- End almaseo-seo-playground -->

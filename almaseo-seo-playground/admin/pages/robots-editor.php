@@ -92,10 +92,10 @@ if ($physical_exists) {
                     </div>
                 </label>
                 
-                <label class="mode-option <?php echo !$is_writable ? 'disabled' : ''; ?>">
+                <label class="mode-option <?php echo esc_attr(!$is_writable ? 'disabled' : ''); ?>">
                     <input type="radio" name="robots_mode" value="file" 
                            <?php checked($mode, 'file'); ?>
-                           <?php echo !$is_writable ? 'disabled' : ''; ?>>
+                           <?php echo esc_attr(!$is_writable ? 'disabled' : ''); ?>>
                     <div class="mode-content">
                         <strong><?php echo esc_html__('Physical File Mode', 'almaseo-seo-playground'); ?></strong>
                         <p><?php echo esc_html__('Write directly to robots.txt file in your site root. Requires write permissions.', 'almaseo-seo-playground'); ?></p>

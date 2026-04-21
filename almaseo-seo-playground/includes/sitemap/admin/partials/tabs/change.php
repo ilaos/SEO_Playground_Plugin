@@ -111,7 +111,7 @@ try {
         </div>
         
         <div class="almaseo-button-group">
-            <button type="button" class="button button-primary" id="force-ping" <?php echo empty($delta_stats['count']) ? 'disabled' : ''; ?>>
+            <button type="button" class="button button-primary" id="force-ping" <?php echo esc_attr(empty($delta_stats['count']) ? 'disabled' : ''); ?>>
                 <span class="dashicons dashicons-megaphone"></span>
                 <?php esc_html_e('Force Ping', 'almaseo-seo-playground'); ?>
             </button>
@@ -224,7 +224,7 @@ try {
                 <span class="dashicons dashicons-admin-network"></span>
                 <?php esc_html_e('Generate Key', 'almaseo-seo-playground'); ?>
             </button>
-            <button type="button" class="button" id="ping-all-indexnow" <?php echo !$indexnow_enabled ? 'disabled' : ''; ?>>
+            <button type="button" class="button" id="ping-all-indexnow" <?php echo esc_attr(!$indexnow_enabled ? 'disabled' : ''); ?>>
                 <span class="dashicons dashicons-megaphone"></span>
                 <?php esc_html_e('Ping All URLs', 'almaseo-seo-playground'); ?>
             </button>

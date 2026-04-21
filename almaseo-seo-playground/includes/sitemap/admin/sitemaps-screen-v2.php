@@ -155,11 +155,11 @@ class Alma_Sitemaps_Screen_V2 {
             <nav class="alma-tabs" role="tablist" aria-label="<?php esc_attr_e('Sitemaps tabs', 'almaseo-seo-playground'); ?>" data-tabs-container>
                 <?php foreach ($this->tabs as $tab_key => $tab): ?>
                     <button type="button"
-                            class="alma-tab <?php echo ($this->active_tab === $tab_key) ? 'active' : ''; ?>"
+                            class="alma-tab <?php echo esc_attr(($this->active_tab === $tab_key) ? 'active' : ''); ?>"
                             role="tab"
                             id="alma-tab-<?php echo esc_attr($tab_key); ?>"
                             data-tab="<?php echo esc_attr($tab_key); ?>"
-                            aria-selected="<?php echo ($this->active_tab === $tab_key) ? 'true' : 'false'; ?>"
+                            aria-selected="<?php echo esc_attr(($this->active_tab === $tab_key) ? 'true' : 'false'); ?>"
                             aria-controls="alma-panel-<?php echo esc_attr($tab_key); ?>">
                         <span class="dashicons <?php echo esc_attr($tab['icon']); ?>"></span>
                         <span class="tab-title"><?php echo esc_html($tab['title']); ?></span>
@@ -179,7 +179,7 @@ class Alma_Sitemaps_Screen_V2 {
                          role="tabpanel"
                          aria-labelledby="alma-tab-<?php echo esc_attr($tab_key); ?>"
                          data-tab="<?php echo esc_attr($tab_key); ?>"
-                         <?php echo !$is_active ? 'hidden' : ''; ?>>
+                         <?php echo esc_attr(!$is_active ? 'hidden' : ''); ?>>
                         <?php 
                         // Only load content for overview initially
                         if ($tab_key === 'overview') {

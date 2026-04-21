@@ -84,7 +84,7 @@ class AlmaSEO_Woo_Breadcrumbs {
             $current++;
             $is_last = ($current === $total);
             
-            echo '<li class="breadcrumb-item' . ($is_last ? ' active' : '') . '"';
+            echo '<li class="breadcrumb-item' . esc_attr($is_last ? ' active' : '') . '"';
             
             if ($is_last) {
                 echo ' aria-current="page"';

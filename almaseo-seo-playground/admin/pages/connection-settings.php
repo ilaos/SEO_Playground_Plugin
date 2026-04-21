@@ -197,8 +197,8 @@ function almaseo_connector_settings_page() {
         // Show connection status icons
         echo '<div class="detail-item">';
         echo '<strong>Status:</strong> ';
-        echo '<span style="margin-right: 10px;">Plugin ' . ($comprehensive_status['plugin_connected'] ? '✅' : '❌') . '</span>';
-        echo '<span>Dashboard ' . ($comprehensive_status['dashboard_connected'] ? '✅' : '❌') . '</span>';
+        echo '<span style="margin-right: 10px;">Plugin ' . esc_html($comprehensive_status['plugin_connected'] ? '✅' : '❌') . '</span>';
+        echo '<span>Dashboard ' . esc_html($comprehensive_status['dashboard_connected'] ? '✅' : '❌') . '</span>';
         echo '</div>';
 
         echo '<div class="detail-item">';
@@ -304,7 +304,7 @@ function almaseo_connector_settings_page() {
         }
 
         // Step 1: Generate Password
-        echo '<div class="setup-step ' . (!$app_password && !$generated_password ? 'active' : ($app_password || $generated_password ? 'completed' : '')) . '">';
+        echo '<div class="setup-step ' . esc_attr(!$app_password && !$generated_password ? 'active' : ($app_password || $generated_password ? 'completed' : '')) . '">';
         echo '<div class="step-header">';
         echo '<div class="step-number">1</div>';
         echo '<h3>Generate Connection Password</h3>';
@@ -1025,7 +1025,7 @@ function almaseo_connector_settings_page() {
     </style>';
 
     // Import Connection Details Section
-    echo '<div id="import-connection" class="almaseo-import-section" style="margin-top: 40px; padding: 20px; background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 5px; display: ' . ($comprehensive_status['plugin_connected'] ? 'none' : 'block') . ';">';
+    echo '<div id="import-connection" class="almaseo-import-section" style="margin-top: 40px; padding: 20px; background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 5px; display: ' . esc_attr($comprehensive_status['plugin_connected'] ? 'none' : 'block') . ';">';
     echo '<h3 style="margin-top: 0;">📥 Import Connection from Dashboard</h3>';
     echo '<p>If your site is already registered in the AlmaSEO Dashboard, you can import the connection details here.</p>';
 
@@ -1081,8 +1081,8 @@ function almaseo_connector_settings_page() {
         echo PHP_EOL . 'Stored Options:' . PHP_EOL;
         echo 'almaseo_dashboard_site_id: ' . esc_html(get_option('almaseo_dashboard_site_id', 'not set')) . PHP_EOL;
         echo 'almaseo_connection_type: ' . esc_html(get_option('almaseo_connection_type', 'not set')) . PHP_EOL;
-        echo 'almaseo_dashboard_synced: ' . (get_option('almaseo_dashboard_synced') ? 'true' : 'false') . PHP_EOL;
-        echo 'almaseo_dashboard_registered: ' . (get_option('almaseo_dashboard_registered') ? 'true' : 'false') . PHP_EOL;
+        echo 'almaseo_dashboard_synced: ' . esc_html(get_option('almaseo_dashboard_synced') ? 'true' : 'false') . PHP_EOL;
+        echo 'almaseo_dashboard_registered: ' . esc_html(get_option('almaseo_dashboard_registered') ? 'true' : 'false') . PHP_EOL;
         echo '</pre>';
         echo '</details>';
         echo '</div>';

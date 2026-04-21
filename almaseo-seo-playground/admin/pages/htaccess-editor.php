@@ -101,7 +101,7 @@ $backups   = get_option( AlmaSEO_Htaccess_Editor::BACKUP_OPTION, array() );
                           name="htaccess_content"
                           rows="25"
                           class="large-text code"
-                          <?php echo ( ! $writable && $exists ) ? 'readonly' : ''; ?>
+                          <?php echo esc_attr( ( ! $writable && $exists ) ? 'readonly' : '' ); ?>
                 ><?php echo esc_textarea( $content ); ?></textarea>
             </div>
 
@@ -119,7 +119,7 @@ $backups   = get_option( AlmaSEO_Htaccess_Editor::BACKUP_OPTION, array() );
                 <button type="button"
                         class="button button-primary"
                         id="htaccess-save"
-                        <?php echo ( ! $writable && $exists ) ? 'disabled' : ''; ?>>
+                        <?php echo esc_attr( ( ! $writable && $exists ) ? 'disabled' : '' ); ?>>
                     <?php esc_html_e( 'Save Changes', 'almaseo-seo-playground' ); ?>
                 </button>
                 <span class="spinner"></span>

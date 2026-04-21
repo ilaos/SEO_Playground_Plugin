@@ -1058,8 +1058,8 @@ class Alma_Sitemap_Ajax_Handlers {
                 // Load overview statistics
                 $stats = get_option('almaseo_sitemap_stats', ['files' => 0, 'urls' => 0]);
                 echo '<div class="stats-loaded">';
-                echo '<span>Files: ' . $stats['files'] . '</span>';
-                echo '<span>URLs: ' . $stats['urls'] . '</span>';
+                echo '<span>Files: ' . esc_html($stats['files']) . '</span>';
+                echo '<span>URLs: ' . esc_html($stats['urls']) . '</span>';
                 echo '</div>';
                 break;
                 

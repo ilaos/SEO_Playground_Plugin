@@ -122,7 +122,7 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
                     <button type="button" class="button-link copy-url-btn" 
                             data-url="<?php echo esc_attr($primary_url); ?>" 
                             title="<?php esc_attr_e('Copy URL', 'almaseo-seo-playground'); ?>"
-                            <?php echo !$enabled ? 'disabled aria-disabled="true"' : ''; ?>>
+                            <?php echo esc_attr(!$enabled ? 'disabled aria-disabled="true"' : ''); ?>>
                         <span class="dashicons dashicons-clipboard"></span>
                     </button>
                 </div>
@@ -311,8 +311,8 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
             </button>
             
             <?php if ($indexnow_key): ?>
-            <button type="button" class="button" id="ping-indexnow" 
-                    <?php echo !$enabled ? 'disabled aria-disabled="true"' : ''; ?> 
+            <button type="button" class="button" id="ping-indexnow"
+                    <?php echo esc_attr(!$enabled ? 'disabled aria-disabled="true"' : ''); ?>
                     title="<?php esc_attr_e('Instantly notify search engines of content changes', 'almaseo-seo-playground'); ?>">
                 <span class="dashicons dashicons-megaphone"></span>
                 <?php esc_html_e('IndexNow', 'almaseo-seo-playground'); ?>
@@ -325,14 +325,14 @@ $last_indexnow = get_option('almaseo_last_indexnow_time', 0);
             </button>
             <?php endif; ?>
             
-            <button type="button" class="button" id="clear-cache" 
-                    <?php echo !$enabled ? 'disabled aria-disabled="true"' : ''; ?>>
+            <button type="button" class="button" id="clear-cache"
+                    <?php echo esc_attr(!$enabled ? 'disabled aria-disabled="true"' : ''); ?>>
                 <span class="dashicons dashicons-trash"></span>
                 <?php esc_html_e('Clear Cache', 'almaseo-seo-playground'); ?>
             </button>
             
-            <button type="button" class="button" id="copy-all-urls" 
-                    <?php echo !$enabled ? 'disabled aria-disabled="true"' : ''; ?>>
+            <button type="button" class="button" id="copy-all-urls"
+                    <?php echo esc_attr(!$enabled ? 'disabled aria-disabled="true"' : ''); ?>>
                 <span class="dashicons dashicons-admin-page"></span>
                 <?php esc_html_e('Copy All URLs', 'almaseo-seo-playground'); ?>
             </button>

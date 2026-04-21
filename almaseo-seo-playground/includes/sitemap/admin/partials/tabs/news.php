@@ -93,7 +93,7 @@ try {
             </p>
         </div>
         
-        <div class="news-settings <?php echo !$news_enabled ? 'disabled' : ''; ?>">
+        <div class="news-settings <?php echo esc_attr(!$news_enabled ? 'disabled' : ''); ?>">
             <!-- Publisher Settings -->
             <div class="almaseo-form-section">
                 <h3><?php esc_html_e('Publisher Information', 'almaseo-seo-playground'); ?></h3>
@@ -248,7 +248,7 @@ try {
                             <?php esc_html_e('Manual Keywords', 'almaseo-seo-playground'); ?>
                         </label>
                     </div>
-                    <div id="news-manual-keywords-group" style="<?php echo ($settings['news']['keywords_source'] ?? 'tags') === 'manual' ? '' : 'display:none;'; ?>">
+                    <div id="news-manual-keywords-group" style="<?php echo esc_attr(($settings['news']['keywords_source'] ?? 'tags') === 'manual' ? '' : 'display:none;'); ?>">
                         <label for="news-manual-keywords"><?php esc_html_e('Manual Keywords:', 'almaseo-seo-playground'); ?></label>
                         <input type="text" id="news-manual-keywords" name="news[manual_keywords]" 
                                value="<?php echo esc_attr($settings['news']['manual_keywords'] ?? ''); ?>"

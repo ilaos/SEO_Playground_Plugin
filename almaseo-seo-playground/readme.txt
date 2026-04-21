@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.6.15
+Stable tag: 1.6.16
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,15 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.6.16 =
+* Fix: Escape 60 remaining unescaped output instances across 21 files
+* Fix: Wrap all ternary outputs in HTML attributes with esc_attr()
+* Fix: Wrap emoji outputs with esc_html()
+* Fix: Add esc_url() to remaining get_permalink/get_category_link/get_tag_link calls
+* Fix: Add wp_kses_post() for render_status_pill() HTML output
+* Fix: Replace json_encode() with wp_json_encode() in inline scripts
+* Fix: Add phpcs:ignore for intentional XML/HTML meta output
 
 = 1.6.15 =
 * Feat: "View version details" modal now shows full description, changelog, and FAQ

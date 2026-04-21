@@ -374,7 +374,7 @@ function almaseo_eg_handle_pdf_export() {
             // Simple chart rendering
             const canvas = document.getElementById('trend-chart');
             const ctx = canvas.getContext('2d');
-            const weeklyData = <?php echo json_encode($weekly_data); ?>;
+            const weeklyData = <?php echo wp_json_encode($weekly_data); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional JSON data for inline script context ?>;
             
             // Basic line chart implementation
             if (weeklyData.length > 0) {

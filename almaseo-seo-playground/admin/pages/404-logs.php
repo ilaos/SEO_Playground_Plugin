@@ -136,7 +136,7 @@ $logs_data = AlmaSEO_404_Model::get_logs(array(
                     </td>
                     <td class="column-query">
                         <?php if ($log['query']): ?>
-                            <code><?php echo esc_html(substr($log['query'], 0, 50)); ?><?php echo strlen($log['query']) > 50 ? '...' : ''; ?></code>
+                            <code><?php echo esc_html(substr($log['query'], 0, 50)); ?><?php echo esc_html(strlen($log['query']) > 50 ? '...' : ''); ?></code>
                         <?php else: ?>
                             <span class="no-data">—</span>
                         <?php endif; ?>

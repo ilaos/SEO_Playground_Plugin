@@ -277,7 +277,7 @@ class Alma_HTML_Sitemap {
         $html = '<ul>';
         foreach ($pages as $page) {
             $html .= '<li>';
-            $html .= '<a href="' . get_permalink($page) . '">';
+            $html .= '<a href="' . esc_url(get_permalink($page)) . '">';
             $html .= esc_html($page->post_title);
             $html .= '</a>';
             
@@ -323,7 +323,7 @@ class Alma_HTML_Sitemap {
                     echo '<h4>' . esc_html($post_type->label) . '</h4>';
                     echo '<ul>';
                     foreach ($posts as $post) {
-                        echo '<li><a href="' . get_permalink($post) . '">';
+                        echo '<li><a href="' . esc_url(get_permalink($post)) . '">';
                         echo esc_html($post->post_title);
                         echo '</a></li>';
                     }
@@ -356,9 +356,9 @@ class Alma_HTML_Sitemap {
                     echo '<h4>' . esc_html__('Categories', 'almaseo-seo-playground') . '</h4>';
                     echo '<ul>';
                     foreach ($categories as $cat) {
-                        echo '<li><a href="' . get_category_link($cat) . '">';
+                        echo '<li><a href="' . esc_url(get_category_link($cat)) . '">';
                         echo esc_html($cat->name);
-                        echo '</a> (' . $cat->count . ')</li>';
+                        echo '</a> (' . intval($cat->count) . ')</li>';
                     }
                     echo '</ul>';
                 }
@@ -375,7 +375,7 @@ class Alma_HTML_Sitemap {
                     echo '<h4>' . esc_html__('Tags', 'almaseo-seo-playground') . '</h4>';
                     echo '<ul class="almaseo-tag-list">';
                     foreach ($tags as $tag) {
-                        echo '<li><a href="' . get_tag_link($tag) . '">';
+                        echo '<li><a href="' . esc_url(get_tag_link($tag)) . '">';
                         echo esc_html($tag->name);
                         echo '</a></li>';
                     }

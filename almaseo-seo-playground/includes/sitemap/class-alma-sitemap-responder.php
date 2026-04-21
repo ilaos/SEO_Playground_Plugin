@@ -378,7 +378,7 @@ class Alma_Sitemap_Responder {
         $hreflang = new Alma_Hreflang($settings['hreflang']);
         
         $xml = $hreflang->build_hreflang_xml($url, $alternates);
-        echo $xml;
+        echo $xml; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional XML sitemap response
     }
     
     /**

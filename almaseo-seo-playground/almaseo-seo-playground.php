@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
-Version: 1.6.15
+Version: 1.6.16
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -50,7 +50,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
     }
     if ( $almaseo_seo_conflict ) {
         // Define only the bare minimum constants, then stop loading.
-        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.6.15' );
+        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.6.16' );
         if ( ! defined( 'ALMASEO_PATH' ) )           define( 'ALMASEO_PATH', plugin_dir_path( __FILE__ ) );
         if ( ! defined( 'ALMASEO_URL' ) )            define( 'ALMASEO_URL', plugin_dir_url( __FILE__ ) );
         if ( ! defined( 'ALMASEO_MAIN_FILE' ) )      define( 'ALMASEO_MAIN_FILE', __FILE__ );
@@ -62,7 +62,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
 if (!defined('ALMASEO_MAIN_FILE'))       define('ALMASEO_MAIN_FILE', __FILE__);
 if (!defined('ALMASEO_PATH'))            define('ALMASEO_PATH', plugin_dir_path(__FILE__));
 if (!defined('ALMASEO_URL'))             define('ALMASEO_URL', plugin_dir_url(__FILE__));
-if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.6.15');
+if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.6.16');
 if (!defined('ALMASEO_VERSION'))         define('ALMASEO_VERSION', '6.5.0');
 if (!defined('ALMASEO_API_NAMESPACE'))   define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
 if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
@@ -634,10 +634,13 @@ add_action( 'admin_notices', function () {
         </p>
         <p style="margin: 0 0 6px 0; color: #50575e;">
             <?php
-            printf(
-                /* translators: %s = plugin name(s) */
-                esc_html__( 'We detected %s running alongside AlmaSEO. Running two SEO plugins at the same time causes duplicate meta tags, schema conflicts, and sitemap issues.', 'almaseo-seo-playground' ),
-                $plugin_list
+            echo wp_kses(
+                sprintf(
+                    /* translators: %s = plugin name(s) */
+                    __( 'We detected %s running alongside AlmaSEO. Running two SEO plugins at the same time causes duplicate meta tags, schema conflicts, and sitemap issues.', 'almaseo-seo-playground' ),
+                    $plugin_list
+                ),
+                array( 'strong' => array() )
             );
             ?>
         </p>
@@ -759,7 +762,7 @@ if (!function_exists('almaseo_display_search_engine_warning')) {
     <div class="notice notice-error almaseo-search-engine-warning" style="position: relative; padding: 20px; border-left: 4px solid #dc3232; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.15);">
         <div style="display: flex; align-items: center;">
             <div style="margin-right: 15px;">
-                <img src="<?php echo plugin_dir_url(__FILE__); ?>almaseo-logo.png" alt="AlmaSEO" style="height: 40px; width: auto;">
+                <img src="<?php echo esc_url(plugin_dir_url(__FILE__) . 'almaseo-logo.png'); ?>" alt="AlmaSEO" style="height: 40px; width: auto;">
             </div>
             <div style="flex: 1;">
                 <h3 style="margin: 0 0 5px 0; color: #dc3232; font-size: 18px;">

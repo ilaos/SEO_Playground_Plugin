@@ -20,23 +20,17 @@ if (!defined('ABSPATH')) {
  */
 if (!function_exists('almaseo_render_help')) {
 function almaseo_render_help($text, $tooltip = '') {
-    // Sanitize and translate the main text
-    $help_text = esc_html($text);
-    
-    // Start the help paragraph
     echo '<p class="description almaseo-help">';
-    echo $help_text;
-    
-    // Add tooltip icon if tooltip text is provided
+    echo esc_html($text);
+
     if (!empty($tooltip)) {
-        $tooltip_text = esc_attr($tooltip);
         echo sprintf(
             ' <span class="dashicons dashicons-editor-help" aria-label="%s" title="%s" role="img"></span>',
-            $tooltip_text,
-            $tooltip_text
+            esc_attr($tooltip),
+            esc_attr($tooltip)
         );
     }
-    
+
     echo '</p>';
 }
 } // end function_exists guard: almaseo_render_help

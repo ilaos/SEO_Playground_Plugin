@@ -102,8 +102,8 @@ class AlmaSEO_Crawl_Optimization {
 
         if ( $should_disable ) {
             wp_die(
-                __( 'This feed has been disabled.', 'almaseo-seo-playground' ),
-                __( 'Feed Disabled', 'almaseo-seo-playground' ),
+                esc_html__( 'This feed has been disabled.', 'almaseo-seo-playground' ),
+                esc_html__( 'Feed Disabled', 'almaseo-seo-playground' ),
                 array( 'response' => 404 )
             );
         }

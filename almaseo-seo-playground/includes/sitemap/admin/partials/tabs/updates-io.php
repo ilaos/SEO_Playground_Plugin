@@ -64,7 +64,7 @@ try {
                 </div>
                 <?php if ($last_found): ?>
                 <div class="almaseo-stat">
-                    <div class="almaseo-stat-value <?php echo version_compare($last_found, ALMASEO_PLUGIN_VERSION, '>') ? 'almaseo-text-warning' : 'almaseo-text-success'; ?>">
+                    <div class="almaseo-stat-value <?php echo esc_attr(version_compare($last_found, ALMASEO_PLUGIN_VERSION, '>') ? 'almaseo-text-warning' : 'almaseo-text-success'); ?>">
                         <?php echo esc_html($last_found); ?>
                     </div>
                     <div class="almaseo-stat-label"><?php esc_html_e('Latest Version', 'almaseo-seo-playground'); ?></div>
@@ -410,7 +410,7 @@ try {
                     foreach ($checks as $check => $status) {
                         $label = ucwords(str_replace('_', ' ', $check));
                         echo '<div class="almaseo-check-item">';
-                        echo '<span class="dashicons dashicons-' . ($status ? 'yes-alt almaseo-text-success' : 'warning almaseo-text-warning') . '"></span>';
+                        echo '<span class="dashicons dashicons-' . esc_attr($status ? 'yes-alt almaseo-text-success' : 'warning almaseo-text-warning') . '"></span>';
                         echo '<strong>' . esc_html($label) . ':</strong> ';
                         echo $status ? esc_html__('Enabled', 'almaseo-seo-playground') : esc_html__('Disabled', 'almaseo-seo-playground');
                         echo '</div>';

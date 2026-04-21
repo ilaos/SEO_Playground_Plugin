@@ -48,8 +48,8 @@ if ( ! defined( 'ABSPATH' ) ) {
             5 => __( 'Done', 'almaseo-seo-playground' ),
         );
         foreach ( $steps as $num => $label ) : ?>
-            <div class="almaseo-wizard-step-indicator" data-step="<?php echo (int) $num; ?>">
-                <span class="almaseo-wizard-step-num"><?php echo (int) $num; ?></span>
+            <div class="almaseo-wizard-step-indicator" data-step="<?php echo esc_attr((int) $num); ?>">
+                <span class="almaseo-wizard-step-num"><?php echo intval($num); ?></span>
                 <span class="almaseo-wizard-step-label"><?php echo esc_html( $label ); ?></span>
             </div>
         <?php endforeach; ?>

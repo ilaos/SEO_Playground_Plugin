@@ -351,7 +351,7 @@ class AlmaSEO_Settings {
                             </td>
                         </tr>
                         
-                        <tr class="schema-sub-options" <?php echo !$exclusive_schema ? 'style="display:none;"' : ''; ?>>
+                        <tr class="schema-sub-options" <?php echo esc_attr(!$exclusive_schema ? 'style="display:none;"' : ''); ?>>
                             <th scope="row"><?php esc_html_e('Whitelist Options', 'almaseo-seo-playground'); ?></th>
                             <td>
                                 <fieldset>
@@ -374,7 +374,7 @@ class AlmaSEO_Settings {
                             </td>
                         </tr>
                         
-                        <tr class="schema-sub-options" <?php echo !$exclusive_schema ? 'style="display:none;"' : ''; ?>>
+                        <tr class="schema-sub-options" <?php echo esc_attr(!$exclusive_schema ? 'style="display:none;"' : ''); ?>>
                             <th scope="row"><?php esc_html_e('AMP Compatibility', 'almaseo-seo-playground'); ?></th>
                             <td>
                                 <label>
@@ -390,7 +390,7 @@ class AlmaSEO_Settings {
                             </td>
                         </tr>
                         
-                        <tr class="schema-sub-options" <?php echo !$exclusive_schema ? 'style="display:none;"' : ''; ?>>
+                        <tr class="schema-sub-options" <?php echo esc_attr(!$exclusive_schema ? 'style="display:none;"' : ''); ?>>
                             <th scope="row"><?php esc_html_e('Logging', 'almaseo-seo-playground'); ?></th>
                             <td>
                                 <label>
@@ -835,7 +835,7 @@ class AlmaSEO_Settings {
             </form>
             
             <!-- Preview Tool -->
-            <div class="almaseo-preview-section" <?php echo !$exclusive_schema ? 'style="display:none;"' : ''; ?>>
+            <div class="almaseo-preview-section" <?php echo esc_attr(!$exclusive_schema ? 'style="display:none;"' : ''); ?>>
                 <h2><?php esc_html_e('Schema Preview (Dry-run)', 'almaseo-seo-playground'); ?></h2>
                 <p class="description">
                     <?php esc_html_e('Test what schema blocks would be removed from a URL without actually modifying it.', 'almaseo-seo-playground'); ?>

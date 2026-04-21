@@ -415,7 +415,7 @@ function almaseo_eg_render_dashboard() {
                                 </div>
                             </td>
                             <td class="column-status">
-                                <?php echo almaseo_eg_render_status_pill($post_data['status']); ?>
+                                <?php echo wp_kses_post(almaseo_eg_render_status_pill($post_data['status'])); ?>
                             </td>
                             <td class="column-updated">
                                 <?php echo esc_html($post_data['days_ago']); ?> <?php esc_html_e('days ago', 'almaseo-seo-playground'); ?>
@@ -602,7 +602,7 @@ function almaseo_eg_render_dashboard() {
                                             </div>
                                         </td>
                                         <td>
-                                            <?php echo almaseo_eg_render_status_pill($item['risk_level']); ?>
+                                            <?php echo wp_kses_post(almaseo_eg_render_status_pill($item['risk_level'])); ?>
                                         </td>
                                     </tr>
                                     <?php endforeach; ?>

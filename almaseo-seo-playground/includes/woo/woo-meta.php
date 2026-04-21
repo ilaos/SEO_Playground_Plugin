@@ -444,7 +444,7 @@ class AlmaSEO_Woo_Meta {
                 $robots = array();
                 if ($noindex) $robots[] = 'noindex';
                 if ($nofollow) $robots[] = 'nofollow';
-                $meta_tags[] = '<meta name="robots" content="' . implode(',', $robots) . '" />';
+                $meta_tags[] = '<meta name="robots" content="' . esc_attr(implode(',', $robots)) . '" />';
             }
             
             // OpenGraph
@@ -477,8 +477,8 @@ class AlmaSEO_Woo_Meta {
             $product = wc_get_product($post->ID);
             if ($product) {
                 $meta_tags[] = '<meta property="og:type" content="product" />';
-                $meta_tags[] = '<meta property="product:price:amount" content="' . $product->get_price() . '" />';
-                $meta_tags[] = '<meta property="product:price:currency" content="' . get_woocommerce_currency() . '" />';
+                $meta_tags[] = '<meta property="product:price:amount" content="' . esc_attr($product->get_price()) . '" />';
+                $meta_tags[] = '<meta property="product:price:currency" content="' . esc_attr(get_woocommerce_currency()) . '" />';
                 
                 if ($product->is_in_stock()) {
                     $meta_tags[] = '<meta property="product:availability" content="in stock" />';
@@ -513,7 +513,7 @@ class AlmaSEO_Woo_Meta {
         // Output meta tags
         if (!empty($meta_tags)) {
             echo "\n<!-- AlmaSEO WooCommerce Meta -->\n";
-            echo implode("\n", $meta_tags) . "\n";
+            echo implode("\n", $meta_tags) . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional HTML meta tags output in wp_head, individual values escaped during construction
             echo "<!-- /AlmaSEO WooCommerce Meta -->\n";
         }
     }

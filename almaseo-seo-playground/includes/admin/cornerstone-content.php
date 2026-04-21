@@ -62,7 +62,7 @@ class AlmaSEO_Cornerstone_Content {
             echo '<span class="dashicons dashicons-star-empty" style="color: #ccc;" title="' . esc_attr__( 'Not Cornerstone', 'almaseo-seo-playground' ) . '"></span>';
         }
         // Hidden value for Quick Edit JS
-        echo '<span class="hidden almaseo-cornerstone-value" data-cornerstone="' . ( $is_cornerstone ? '1' : '0' ) . '"></span>';
+        echo '<span class="hidden almaseo-cornerstone-value" data-cornerstone="' . esc_attr( $is_cornerstone ? '1' : '0' ) . '"></span>';
     }
 
     /**

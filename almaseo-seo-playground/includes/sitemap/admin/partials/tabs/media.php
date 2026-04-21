@@ -102,7 +102,7 @@ try {
                 </label>
             </div>
             
-            <div class="almaseo-form-row image-settings <?php echo !$image_enabled ? 'disabled' : ''; ?>">
+            <div class="almaseo-form-row image-settings <?php echo esc_attr(!$image_enabled ? 'disabled' : ''); ?>">
                 <div class="almaseo-form-group">
                     <label for="media-image-max"><?php esc_html_e('Max Images per URL:', 'almaseo-seo-playground'); ?></label>
                     <input type="number" id="media-image-max" name="media[image][max_per_url]" 
@@ -186,7 +186,7 @@ try {
                 </label>
             </div>
             
-            <div class="almaseo-form-row video-settings <?php echo !$video_enabled ? 'disabled' : ''; ?>">
+            <div class="almaseo-form-row video-settings <?php echo esc_attr(!$video_enabled ? 'disabled' : ''); ?>">
                 <div class="almaseo-form-group">
                     <label for="media-video-max"><?php esc_html_e('Max Videos per URL:', 'almaseo-seo-playground'); ?></label>
                     <input type="number" id="media-video-max" name="media[video][max_per_url]" 

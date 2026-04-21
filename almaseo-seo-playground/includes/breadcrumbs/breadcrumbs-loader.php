@@ -115,7 +115,7 @@ class AlmaSEO_Breadcrumbs_Loader {
      * @param array $args Optional arguments
      */
     public function render_breadcrumbs($args = array()) {
-        echo AlmaSEO_Breadcrumbs_Renderer::render($args);
+        echo wp_kses_post(AlmaSEO_Breadcrumbs_Renderer::render($args));
     }
 
     /**

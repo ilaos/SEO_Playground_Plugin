@@ -49,9 +49,7 @@ class AlmaSEO_Analytics_Tracking {
             $config_params['anonymize_ip'] = true;
         }
 
-        $config_json = ! empty( $config_params )
-            ? wp_json_encode( $config_params )
-            : '{}';
+        $config_params_for_js = $config_params; // server-controlled array, no user input
 
         ?>
 <!-- AlmaSEO Google Analytics (GA4) -->
@@ -60,7 +58,7 @@ class AlmaSEO_Analytics_Tracking {
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
-gtag('config', '<?php echo esc_js( $mid ); ?>'<?php echo $config_json !== '{}' ? ', ' . $config_json : ''; ?>);
+gtag('config', '<?php echo esc_js( $mid ); ?>'<?php echo ! empty( $config_params_for_js ) ? ', ' . wp_json_encode( $config_params_for_js ) : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode of server-controlled array ?>);
 <?php if ( $settings['track_link_clicks'] ) : ?>
 document.addEventListener('click', function(e) {
     var link = e.target.closest('a');
