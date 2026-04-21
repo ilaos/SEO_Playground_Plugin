@@ -19,8 +19,8 @@ if (!defined('ABSPATH')) {
 function almaseo_eg_ajax_refresh() {
     check_ajax_referer('almaseo_eg_ajax', 'nonce');
     
-    $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
-    
+    $post_id = isset($_POST['post_id']) ? intval(wp_unslash($_POST['post_id'])) : 0;
+
     if (!$post_id || !current_user_can('edit_post', $post_id)) {
         wp_send_json_error('Unauthorized');
     }
@@ -234,10 +234,10 @@ function almaseo_eg_settings_page_content() {
     // Handle form submission
     if (isset($_POST['almaseo_eg_save_settings']) && check_admin_referer('almaseo_eg_settings')) {
         $settings = array(
-            'watch_days' => isset($_POST['watch_days']) ? intval($_POST['watch_days']) : 30,
-            'stale_days' => isset($_POST['stale_days']) ? intval($_POST['stale_days']) : 90,
-            'watch_traffic_drop' => isset($_POST['watch_traffic_drop']) ? floatval($_POST['watch_traffic_drop']) : 0.2,
-            'stale_traffic_drop' => isset($_POST['stale_traffic_drop']) ? floatval($_POST['stale_traffic_drop']) : 0.5,
+            'watch_days' => isset($_POST['watch_days']) ? intval(wp_unslash($_POST['watch_days'])) : 30,
+            'stale_days' => isset($_POST['stale_days']) ? intval(wp_unslash($_POST['stale_days'])) : 90,
+            'watch_traffic_drop' => isset($_POST['watch_traffic_drop']) ? floatval(wp_unslash($_POST['watch_traffic_drop'])) : 0.2,
+            'stale_traffic_drop' => isset($_POST['stale_traffic_drop']) ? floatval(wp_unslash($_POST['stale_traffic_drop'])) : 0.5,
             'enable_digest' => isset($_POST['enable_digest'])
         );
         

@@ -34,7 +34,7 @@ add_action('admin_menu', 'almaseo_eg_admin_menu', 12);
  * Handle redirect from old settings page
  */
 function almaseo_eg_handle_redirects() {
-    if (is_admin() && isset($_GET['page']) && $_GET['page'] === 'almaseo-evergreen-settings') {
+    if (is_admin() && isset($_GET['page']) && sanitize_text_field(wp_unslash($_GET['page'])) === 'almaseo-evergreen-settings') { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         wp_safe_redirect(admin_url('admin.php?page=almaseo-evergreen#settings'), 301);
         exit;
     }
@@ -65,13 +65,13 @@ function almaseo_eg_admin_page() {
  */
 function almaseo_save_panel_state() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'wp_rest')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'wp_rest')) {
         wp_die('Security check failed');
     }
-    
-    $user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : get_current_user_id();
-    $panel = isset($_POST['panel']) ? sanitize_key($_POST['panel']) : '';
-    $state = isset($_POST['state']) ? sanitize_key($_POST['state']) : 'open';
+
+    $user_id = isset($_POST['user_id']) ? intval(wp_unslash($_POST['user_id'])) : get_current_user_id();
+    $panel = isset($_POST['panel']) ? sanitize_key(wp_unslash($_POST['panel'])) : '';
+    $state = isset($_POST['state']) ? sanitize_key(wp_unslash($_POST['state'])) : 'open';
     
     if ($user_id && $panel) {
         update_user_meta($user_id, '_almaseo_sidebar_state_' . $panel, $state);
@@ -87,7 +87,7 @@ add_action('wp_ajax_almaseo_save_panel_state', 'almaseo_save_panel_state');
  */
 add_action('admin_enqueue_scripts', function ($hook) {
     // Handle both top-level and submenu slugs
-    $page = isset($_GET['page']) ? sanitize_key($_GET['page']) : '';
+    $page = isset($_GET['page']) ? sanitize_key(wp_unslash($_GET['page'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
     if ($page !== 'almaseo-evergreen') {
         return; // not our screen
     }

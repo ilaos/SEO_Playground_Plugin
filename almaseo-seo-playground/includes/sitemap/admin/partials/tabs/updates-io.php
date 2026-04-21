@@ -371,7 +371,7 @@ try {
                 </div>
                 <div class="almaseo-info-item">
                     <strong><?php esc_html_e('Server:', 'almaseo-seo-playground'); ?></strong>
-                    <?php echo esc_html(isset($_SERVER['SERVER_SOFTWARE']) ? $_SERVER['SERVER_SOFTWARE'] : 'Unknown'); ?>
+                    <?php echo esc_html(isset($_SERVER['SERVER_SOFTWARE']) ? sanitize_text_field(wp_unslash($_SERVER['SERVER_SOFTWARE'])) : 'Unknown'); ?>
                 </div>
             </div>
             

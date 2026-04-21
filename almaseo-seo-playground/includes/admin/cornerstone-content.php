@@ -90,7 +90,7 @@ class AlmaSEO_Cornerstone_Content {
     public static function filter_dropdown( $post_type ) {
         if ( ! in_array( $post_type, array( 'post', 'page' ), true ) ) return;
 
-        $selected = isset( $_GET['almaseo_cornerstone_filter'] ) ? sanitize_text_field( $_GET['almaseo_cornerstone_filter'] ) : '';
+        $selected = isset( $_GET['almaseo_cornerstone_filter'] ) ? sanitize_text_field( wp_unslash( $_GET['almaseo_cornerstone_filter'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         ?>
         <select name="almaseo_cornerstone_filter">
             <option value=""><?php esc_html_e( 'All Posts', 'almaseo-seo-playground' ); ?></option>
@@ -105,9 +105,9 @@ class AlmaSEO_Cornerstone_Content {
      */
     public static function filter_query( $query ) {
         if ( ! is_admin() || ! $query->is_main_query() ) return;
-        if ( empty( $_GET['almaseo_cornerstone_filter'] ) ) return;
+        if ( empty( $_GET['almaseo_cornerstone_filter'] ) ) return; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-        $filter = sanitize_text_field( $_GET['almaseo_cornerstone_filter'] );
+        $filter = sanitize_text_field( wp_unslash( $_GET['almaseo_cornerstone_filter'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
         if ( 'cornerstone' === $filter ) {
             $query->set( 'meta_query', array(
@@ -163,7 +163,7 @@ class AlmaSEO_Cornerstone_Content {
 
         // Only process for inline-edit action
         if ( ! isset( $_POST['_inline_edit'] ) ) return;
-        if ( ! wp_verify_nonce( $_POST['_inline_edit'], 'inlineeditnonce' ) ) return;
+        if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_inline_edit'] ) ), 'inlineeditnonce' ) ) return;
 
         if ( isset( $_POST['almaseo_is_cornerstone'] ) ) {
             update_post_meta( $post_id, self::META_KEY, 1 );

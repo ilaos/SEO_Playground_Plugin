@@ -182,7 +182,7 @@ function almaseo_eg_add_filter_dropdown() {
         return;
     }
     
-    $selected = isset($_GET['evergreen_filter']) ? sanitize_text_field($_GET['evergreen_filter']) : '';
+    $selected = isset($_GET['evergreen_filter']) ? sanitize_text_field(wp_unslash($_GET['evergreen_filter'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
     ?>
     <select name="evergreen_filter" id="evergreen_filter">
         <option value=""><?php esc_html_e('All Evergreen Status', 'almaseo-seo-playground'); ?></option>
@@ -214,7 +214,7 @@ function almaseo_eg_apply_filter($query) {
         return;
     }
     
-    $filter = sanitize_text_field($_GET['evergreen_filter']);
+    $filter = sanitize_text_field(wp_unslash($_GET['evergreen_filter'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
     
     switch ($filter) {
         case 'evergreen':

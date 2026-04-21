@@ -98,7 +98,7 @@ class AlmaSEO_Keyword_Suggestions_REST {
         }
 
         $query       = isset( $_GET['q'] ) ? sanitize_text_field( wp_unslash( $_GET['q'] ) ) : '';
-        $post_id     = isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : 0;
+        $post_id     = isset( $_GET['post_id'] ) ? absint( wp_unslash( $_GET['post_id'] ) ) : 0;
 
         if ( mb_strlen( $query ) < 2 ) {
             wp_send_json_success( array( 'keywords' => array() ) );

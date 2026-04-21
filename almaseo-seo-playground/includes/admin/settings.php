@@ -935,7 +935,7 @@ class AlmaSEO_Settings {
             wp_die();
         }
         
-        $url = isset($_POST['url']) ? esc_url_raw($_POST['url']) : '';
+        $url = isset($_POST['url']) ? esc_url_raw(wp_unslash($_POST['url'])) : '';
         
         if (empty($url)) {
             wp_send_json_error(array('message' => __('Invalid URL', 'almaseo-seo-playground')));

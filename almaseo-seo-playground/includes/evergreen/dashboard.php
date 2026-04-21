@@ -156,8 +156,8 @@ function almaseo_eg_render_dashboard() {
     }
     
     // Show success notice if returning from analysis
-    if (isset($_GET['eg_analyzed'])) {
-        $cnt = (int) $_GET['eg_analyzed'];
+    if (isset($_GET['eg_analyzed'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $cnt = (int) wp_unslash($_GET['eg_analyzed']); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         echo '<div class="notice notice-success is-dismissible"><p>'
             /* translators: %d: number of posts processed */
             . sprintf(esc_html__('Evergreen analysis complete. Processed %d posts.', 'almaseo-seo-playground'), intval($cnt))
@@ -182,10 +182,10 @@ function almaseo_eg_render_dashboard() {
     }
     
     // Get filters
-    $post_type = isset($_GET['post_type']) ? sanitize_key($_GET['post_type']) : 'all';
-    $date_range = isset($_GET['date_range']) ? intval($_GET['date_range']) : 12;
-    $status_filter = isset($_GET['status_filter']) ? sanitize_key($_GET['status_filter']) : 'all';
-    $paged = isset($_GET['paged']) ? max(1, intval($_GET['paged'])) : 1;
+    $post_type = isset($_GET['post_type']) ? sanitize_key(wp_unslash($_GET['post_type'])) : 'all'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+    $date_range = isset($_GET['date_range']) ? intval(wp_unslash($_GET['date_range'])) : 12; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+    $status_filter = isset($_GET['status_filter']) ? sanitize_key(wp_unslash($_GET['status_filter'])) : 'all'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+    $paged = isset($_GET['paged']) ? max(1, intval(wp_unslash($_GET['paged']))) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
     
     // Get data
     $stats = almaseo_eg_get_dashboard_stats($post_type);
@@ -922,12 +922,12 @@ add_action('almaseo_eg_weekly', 'almaseo_eg_update_weekly_snapshot');
 function almaseo_eg_ajax_quick_analyze() {
     check_ajax_referer('almaseo_eg_ajax', 'nonce');
     
-    $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+    $post_id = isset($_POST['post_id']) ? intval(wp_unslash($_POST['post_id'])) : 0;
 
     if (!$post_id || !current_user_can('edit_post', $post_id)) {
         wp_send_json_error(__('Permission denied', 'almaseo-seo-playground'));
     }
-    
+
     // Score the post
     $result = almaseo_score_evergreen($post_id);
     

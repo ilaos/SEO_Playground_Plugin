@@ -227,8 +227,8 @@ function almaseo_eg_meta_box_content($post) {
  */
 function almaseo_eg_save_meta_box($post_id) {
     // Check nonce
-    if (!isset($_POST['almaseo_eg_meta_box_nonce']) || 
-        !wp_verify_nonce($_POST['almaseo_eg_meta_box_nonce'], 'almaseo_eg_meta_box')) {
+    if (!isset($_POST['almaseo_eg_meta_box_nonce']) ||
+        !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['almaseo_eg_meta_box_nonce'])), 'almaseo_eg_meta_box')) {
         return;
     }
     
@@ -259,7 +259,7 @@ function almaseo_eg_save_meta_box($post_id) {
 function almaseo_eg_ajax_mark_refreshed() {
     check_ajax_referer('almaseo_eg_ajax', 'nonce');
 
-    $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+    $post_id = isset($_POST['post_id']) ? intval(wp_unslash($_POST['post_id'])) : 0;
 
     if (!$post_id || !current_user_can('edit_post', $post_id)) {
         wp_send_json_error(__('Permission denied', 'almaseo-seo-playground'));
@@ -280,7 +280,7 @@ function almaseo_eg_ajax_mark_refreshed() {
 function almaseo_eg_ajax_analyze_post() {
     check_ajax_referer('almaseo_eg_ajax', 'nonce');
 
-    $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+    $post_id = isset($_POST['post_id']) ? intval(wp_unslash($_POST['post_id'])) : 0;
 
     if (!$post_id || !current_user_can('edit_post', $post_id)) {
         wp_send_json_error(__('Permission denied', 'almaseo-seo-playground'));

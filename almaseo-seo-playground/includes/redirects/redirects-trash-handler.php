@@ -275,7 +275,7 @@ class AlmaSEO_Redirects_Trash_Handler {
 
         $source  = isset($_POST['source']) ? sanitize_text_field(wp_unslash($_POST['source'])) : '';
         $target  = isset($_POST['target']) ? esc_url_raw(wp_unslash($_POST['target'])) : '';
-        $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+        $post_id = isset($_POST['post_id']) ? intval(wp_unslash($_POST['post_id'])) : 0;
 
         if (empty($source) || empty($target)) {
             wp_send_json_error('Source and target are required.');

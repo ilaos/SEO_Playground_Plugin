@@ -76,7 +76,7 @@ class AlmaSEO_Redirects_Runtime {
      */
     private static function get_request_path() {
         // Get the request URI
-        $request_uri = $_SERVER['REQUEST_URI'];
+        $request_uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
         
         // Remove query string
         $path = strtok($request_uri, '?');

@@ -219,7 +219,7 @@ class AlmaSEO_Woo_Loader {
         $screen = get_current_screen();
         
         if (($screen && $screen->post_type === 'product') || 
-            (isset($_GET['taxonomy']) && in_array($_GET['taxonomy'], array('product_cat', 'product_tag')))) {
+            (isset($_GET['taxonomy']) && in_array(sanitize_text_field(wp_unslash($_GET['taxonomy'])), array('product_cat', 'product_tag')))) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             
             // Enqueue CSS
             wp_enqueue_style(

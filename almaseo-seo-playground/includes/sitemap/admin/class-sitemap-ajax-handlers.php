@@ -151,38 +151,42 @@ class Alma_Sitemap_Ajax_Handlers {
         // Get existing settings to preserve other fields
         $existing = get_option('almaseo_sitemap_settings', array());
         
+        // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- all values sanitized individually below
+        $post_data = wp_unslash( $_POST );
+        // phpcs:enable
+
         $settings = array(
-            'enabled' => !empty($_POST['enabled']),
-            'takeover' => !empty($_POST['takeover']),
+            'enabled' => !empty($post_data['enabled']),
+            'takeover' => !empty($post_data['takeover']),
             'include' => array(
-                'posts' => !empty($_POST['include']['posts']),
-                'pages' => !empty($_POST['include']['pages']),
-                'cpts' => !empty($_POST['include']['cpts']) ? 'all' : array(),
+                'posts' => !empty($post_data['include']['posts']),
+                'pages' => !empty($post_data['include']['pages']),
+                'cpts' => !empty($post_data['include']['cpts']) ? 'all' : array(),
                 'tax' => array(
-                    'category' => !empty($_POST['include']['tax']['category']),
-                    'post_tag' => !empty($_POST['include']['tax']['post_tag'])
+                    'category' => !empty($post_data['include']['tax']['category']),
+                    'post_tag' => !empty($post_data['include']['tax']['post_tag'])
                 ),
-                'users' => !empty($_POST['include']['users'])
+                'users' => !empty($post_data['include']['users'])
             ),
-            'links_per_sitemap' => absint($_POST['links_per_sitemap'] ?? 1000)
+            'links_per_sitemap' => absint($post_data['links_per_sitemap'] ?? 1000)
         );
-        
+
         // Performance settings
-        if (isset($_POST['perf'])) {
+        if (isset($post_data['perf'])) {
             $settings['perf'] = array(
-                'storage_mode' => sanitize_text_field($_POST['perf']['storage_mode'] ?? 'static'),
-                'gzip' => !empty($_POST['perf']['gzip'])
+                'storage_mode' => sanitize_text_field($post_data['perf']['storage_mode'] ?? 'static'),
+                'gzip' => !empty($post_data['perf']['gzip'])
             );
         } else {
             $settings['perf'] = $existing['perf'] ?? array('storage_mode' => 'static', 'gzip' => true);
         }
-        
+
         // Delta settings
-        if (isset($_POST['delta'])) {
+        if (isset($post_data['delta'])) {
             $settings['delta'] = array(
-                'enabled' => !empty($_POST['delta']['enabled']),
-                'max_urls' => absint($_POST['delta']['max_urls'] ?? 500),
-                'retention_days' => absint($_POST['delta']['retention_days'] ?? 14),
+                'enabled' => !empty($post_data['delta']['enabled']),
+                'max_urls' => absint($post_data['delta']['max_urls'] ?? 500),
+                'retention_days' => absint($post_data['delta']['retention_days'] ?? 14),
                 'min_ping_interval' => 900
             );
             
@@ -199,14 +203,14 @@ class Alma_Sitemap_Ajax_Handlers {
         }
         
         // Hreflang settings
-        if (isset($_POST['hreflang'])) {
+        if (isset($post_data['hreflang'])) {
             $settings['hreflang'] = array(
-                'enabled' => !empty($_POST['hreflang']['enabled']),
-                'source' => sanitize_text_field($_POST['hreflang']['source'] ?? 'auto'),
-                'default' => sanitize_text_field($_POST['hreflang']['default'] ?? ''),
-                'x_default_url' => esc_url_raw($_POST['hreflang']['x_default_url'] ?? ''),
-                'map' => $_POST['hreflang']['map'] ?? array(),
-                'locales' => $_POST['hreflang']['locales'] ?? array()
+                'enabled' => !empty($post_data['hreflang']['enabled']),
+                'source' => sanitize_text_field($post_data['hreflang']['source'] ?? 'auto'),
+                'default' => sanitize_text_field($post_data['hreflang']['default'] ?? ''),
+                'x_default_url' => esc_url_raw($post_data['hreflang']['x_default_url'] ?? ''),
+                'map' => $post_data['hreflang']['map'] ?? array(),
+                'locales' => $post_data['hreflang']['locales'] ?? array()
             );
         } else {
             $settings['hreflang'] = $existing['hreflang'] ?? array(
@@ -220,17 +224,17 @@ class Alma_Sitemap_Ajax_Handlers {
         }
         
         // Media settings
-        if (isset($_POST['media'])) {
+        if (isset($post_data['media'])) {
             $settings['media'] = array(
                 'image' => array(
-                    'enabled' => !empty($_POST['media']['image']['enabled']),
-                    'max_per_url' => absint($_POST['media']['image']['max_per_url'] ?? 20),
-                    'dedupe_cdn' => !empty($_POST['media']['image']['dedupe_cdn'])
+                    'enabled' => !empty($post_data['media']['image']['enabled']),
+                    'max_per_url' => absint($post_data['media']['image']['max_per_url'] ?? 20),
+                    'dedupe_cdn' => !empty($post_data['media']['image']['dedupe_cdn'])
                 ),
                 'video' => array(
-                    'enabled' => !empty($_POST['media']['video']['enabled']),
-                    'max_per_url' => absint($_POST['media']['video']['max_per_url'] ?? 10),
-                    'oembed_cache' => !empty($_POST['media']['video']['oembed_cache'])
+                    'enabled' => !empty($post_data['media']['video']['enabled']),
+                    'max_per_url' => absint($post_data['media']['video']['max_per_url'] ?? 10),
+                    'oembed_cache' => !empty($post_data['media']['video']['oembed_cache'])
                 )
             );
         } else {
@@ -249,18 +253,18 @@ class Alma_Sitemap_Ajax_Handlers {
         }
         
         // News settings
-        if (isset($_POST['news'])) {
+        if (isset($post_data['news'])) {
             $settings['news'] = array(
-                'enabled' => !empty($_POST['news']['enabled']),
-                'post_types' => isset($_POST['news']['post_types']) ? array_map('sanitize_text_field', $_POST['news']['post_types']) : array('post'),
-                'categories' => isset($_POST['news']['categories']) ? array_map('intval', $_POST['news']['categories']) : array(),
-                'publisher_name' => sanitize_text_field($_POST['news']['publisher_name'] ?? get_bloginfo('name')),
-                'language' => sanitize_text_field($_POST['news']['language'] ?? 'en'),
-                'genres' => isset($_POST['news']['genres']) ? array_map('sanitize_text_field', $_POST['news']['genres']) : array(),
-                'keywords_source' => sanitize_text_field($_POST['news']['keywords_source'] ?? 'tags'),
-                'manual_keywords' => sanitize_text_field($_POST['news']['manual_keywords'] ?? ''),
-                'max_items' => absint($_POST['news']['max_items'] ?? 1000),
-                'window_hours' => absint($_POST['news']['window_hours'] ?? 48)
+                'enabled' => !empty($post_data['news']['enabled']),
+                'post_types' => isset($post_data['news']['post_types']) ? array_map('sanitize_text_field', $post_data['news']['post_types']) : array('post'),
+                'categories' => isset($post_data['news']['categories']) ? array_map('intval', $post_data['news']['categories']) : array(),
+                'publisher_name' => sanitize_text_field($post_data['news']['publisher_name'] ?? get_bloginfo('name')),
+                'language' => sanitize_text_field($post_data['news']['language'] ?? 'en'),
+                'genres' => isset($post_data['news']['genres']) ? array_map('sanitize_text_field', $post_data['news']['genres']) : array(),
+                'keywords_source' => sanitize_text_field($post_data['news']['keywords_source'] ?? 'tags'),
+                'manual_keywords' => sanitize_text_field($post_data['news']['manual_keywords'] ?? ''),
+                'max_items' => absint($post_data['news']['max_items'] ?? 1000),
+                'window_hours' => absint($post_data['news']['window_hours'] ?? 48)
             );
         } else {
             $settings['news'] = $existing['news'] ?? array(
@@ -316,10 +320,10 @@ class Alma_Sitemap_Ajax_Handlers {
     public static function handle_add_url() {
         self::verify_ajax_nonce();
         
-        $url = sanitize_url($_POST['url'] ?? '');
-        $priority = floatval($_POST['priority'] ?? 0.5);
-        $changefreq = sanitize_text_field($_POST['changefreq'] ?? 'weekly');
-        $lastmod = sanitize_text_field($_POST['lastmod'] ?? '');
+        $url = sanitize_url(wp_unslash($_POST['url'] ?? ''));
+        $priority = floatval(wp_unslash($_POST['priority'] ?? 0.5));
+        $changefreq = sanitize_text_field(wp_unslash($_POST['changefreq'] ?? 'weekly'));
+        $lastmod = sanitize_text_field(wp_unslash($_POST['lastmod'] ?? ''));
         
         // Validate URL
         if (empty($url) || !filter_var($url, FILTER_VALIDATE_URL)) {
@@ -884,7 +888,7 @@ class Alma_Sitemap_Ajax_Handlers {
     public static function handle_toggle_sitemaps() {
         self::verify_ajax_nonce();
         
-        $enabled = isset($_POST['enabled']) ? (bool)$_POST['enabled'] : false;
+        $enabled = isset($_POST['enabled']) ? (bool) wp_unslash($_POST['enabled']) : false;
         
         $settings = get_option('almaseo_sitemap_settings', []);
         $settings['enabled'] = $enabled;
@@ -989,7 +993,7 @@ class Alma_Sitemap_Ajax_Handlers {
     public static function handle_load_tab_v2() {
         self::verify_ajax_nonce();
         
-        $tab = isset($_POST['tab']) ? sanitize_key($_POST['tab']) : '';
+        $tab = isset($_POST['tab']) ? sanitize_key(wp_unslash($_POST['tab'])) : '';
         
         if (empty($tab)) {
             wp_send_json_error(['message' => __('Invalid tab', 'almaseo-seo-playground')]);
@@ -1044,7 +1048,7 @@ class Alma_Sitemap_Ajax_Handlers {
     public static function handle_lazy_load() {
         self::verify_ajax_nonce();
         
-        $section = isset($_POST['section']) ? sanitize_key($_POST['section']) : '';
+        $section = isset($_POST['section']) ? sanitize_key(wp_unslash($_POST['section'])) : '';
         
         if (empty($section)) {
             wp_send_json_error(['message' => __('Invalid section', 'almaseo-seo-playground')]);
@@ -1102,7 +1106,7 @@ class Alma_Sitemap_Ajax_Handlers {
     public static function handle_create_snapshot() {
         self::verify_ajax_nonce();
         
-        $name = sanitize_text_field($_POST['name'] ?? '');
+        $name = sanitize_text_field(wp_unslash($_POST['name'] ?? ''));
         
         if (empty($name)) {
             $name = 'Snapshot ' . gmdate('Y-m-d H:i:s');
@@ -1138,8 +1142,8 @@ class Alma_Sitemap_Ajax_Handlers {
     public static function handle_compare_snapshots() {
         self::verify_ajax_nonce();
         
-        $snapshot1 = intval($_POST['snapshot1'] ?? 0);
-        $snapshot2 = intval($_POST['snapshot2'] ?? 0);
+        $snapshot1 = intval(wp_unslash($_POST['snapshot1'] ?? 0));
+        $snapshot2 = intval(wp_unslash($_POST['snapshot2'] ?? 0));
         
         $snapshots = get_option('almaseo_sitemap_snapshots', []);
         

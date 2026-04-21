@@ -416,9 +416,9 @@ class Autofill_Generator {
 function almaseo_ajax_autofill_field() {
     check_ajax_referer( 'almaseo_nonce', 'nonce' );
 
-    $post_id = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : 0;
-    $field   = isset( $_POST['field'] ) ? sanitize_text_field( $_POST['field'] ) : '';
-    $mode    = isset( $_POST['mode'] ) ? sanitize_text_field( $_POST['mode'] ) : 'auto';
+    $post_id = isset( $_POST['post_id'] ) ? intval( wp_unslash( $_POST['post_id'] ) ) : 0;
+    $field   = isset( $_POST['field'] ) ? sanitize_text_field( wp_unslash( $_POST['field'] ) ) : '';
+    $mode    = isset( $_POST['mode'] ) ? sanitize_text_field( wp_unslash( $_POST['mode'] ) ) : 'auto';
 
     if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
         wp_send_json_error( array( 'message' => 'Invalid post or insufficient permissions.' ) );

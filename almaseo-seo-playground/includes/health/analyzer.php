@@ -726,7 +726,7 @@ function almaseo_parse_html_content($html) {
     }
     
     // Get plain text
-    $result['text'] = trim(strip_tags($html));
+    $result['text'] = trim(wp_strip_all_tags($html));
     
     return $result;
 }

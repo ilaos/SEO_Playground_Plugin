@@ -164,8 +164,7 @@ class AlmaSEO_Htaccess_Editor {
             wp_send_json_error( array( 'message' => __( 'This server does not appear to be running Apache.', 'almaseo-seo-playground' ) ) );
         }
 
-        $content = isset( $_POST['content'] ) ? wp_unslash( $_POST['content'] ) : '';
-        $content = $this->sanitize_htaccess( $content );
+        $content = isset( $_POST['content'] ) ? $this->sanitize_htaccess( wp_unslash( $_POST['content'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized by sanitize_htaccess()
 
         $file_path = $this->get_file_path();
 
@@ -203,7 +202,7 @@ class AlmaSEO_Htaccess_Editor {
             wp_send_json_error( array( 'message' => __( 'Permission denied.', 'almaseo-seo-playground' ) ) );
         }
 
-        $index   = isset( $_POST['backup_index'] ) ? absint( $_POST['backup_index'] ) : -1;
+        $index   = isset( $_POST['backup_index'] ) ? absint( wp_unslash( $_POST['backup_index'] ) ) : -1;
         $backups = get_option( self::BACKUP_OPTION, array() );
 
         if ( ! isset( $backups[ $index ] ) ) {
@@ -261,11 +260,20 @@ class AlmaSEO_Htaccess_Editor {
      * @return bool
      */
     public function is_writable() {
-        $path = $this->get_file_path();
-        if ( file_exists( $path ) ) {
-            return is_writable( $path );
+        global $wp_filesystem;
+        if ( ! function_exists( 'WP_Filesystem' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
         }
-        return is_writable( ABSPATH );
+        WP_Filesystem();
+
+        $path = $this->get_file_path();
+        if ( $wp_filesystem && $wp_filesystem->exists( $path ) ) {
+            return $wp_filesystem->is_writable( $path );
+        }
+        if ( $wp_filesystem ) {
+            return $wp_filesystem->is_writable( ABSPATH );
+        }
+        return false;
     }
 
     /**

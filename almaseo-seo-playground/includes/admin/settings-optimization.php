@@ -13,33 +13,33 @@ if (isset($_POST['almaseo_save_optimization_settings'])) {
     
     // Update provider setting
     if (isset($_POST['almaseo_keyword_provider'])) {
-        update_option('almaseo_keyword_provider', sanitize_text_field($_POST['almaseo_keyword_provider']));
+        update_option('almaseo_keyword_provider', sanitize_text_field(wp_unslash($_POST['almaseo_keyword_provider'])));
     }
-    
+
     // Update country and language settings
     if (isset($_POST['almaseo_target_country'])) {
-        update_option('almaseo_target_country', sanitize_text_field($_POST['almaseo_target_country']));
+        update_option('almaseo_target_country', sanitize_text_field(wp_unslash($_POST['almaseo_target_country'])));
     }
-    
+
     if (isset($_POST['almaseo_target_language'])) {
-        update_option('almaseo_target_language', sanitize_text_field($_POST['almaseo_target_language']));
+        update_option('almaseo_target_language', sanitize_text_field(wp_unslash($_POST['almaseo_target_language'])));
     }
-    
+
     // Update GSC credentials if provided
-    if ($_POST['almaseo_keyword_provider'] === 'gsc') {
+    if (sanitize_text_field(wp_unslash($_POST['almaseo_keyword_provider'])) === 'gsc') {
         if (isset($_POST['almaseo_gsc_site_url'])) {
-            update_option('almaseo_gsc_site_url', esc_url_raw($_POST['almaseo_gsc_site_url']));
+            update_option('almaseo_gsc_site_url', esc_url_raw(wp_unslash($_POST['almaseo_gsc_site_url'])));
         }
         // Note: OAuth credentials would be handled separately
     }
-    
+
     // Update DataForSEO credentials if provided
-    if ($_POST['almaseo_keyword_provider'] === 'dataforseo') {
+    if (sanitize_text_field(wp_unslash($_POST['almaseo_keyword_provider'])) === 'dataforseo') {
         if (isset($_POST['almaseo_dataforseo_login'])) {
-            update_option('almaseo_dataforseo_login', sanitize_text_field($_POST['almaseo_dataforseo_login']));
+            update_option('almaseo_dataforseo_login', sanitize_text_field(wp_unslash($_POST['almaseo_dataforseo_login'])));
         }
         if (isset($_POST['almaseo_dataforseo_password'])) {
-            update_option('almaseo_dataforseo_password', sanitize_text_field($_POST['almaseo_dataforseo_password']));
+            update_option('almaseo_dataforseo_password', sanitize_text_field(wp_unslash($_POST['almaseo_dataforseo_password'])));
         }
     }
     

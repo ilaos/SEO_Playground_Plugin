@@ -32,9 +32,9 @@ function almaseo_eg_handle_csv_export() {
     }
     
     // Get filters from request
-    $post_type = isset($_GET['post_type']) ? sanitize_key($_GET['post_type']) : 'all';
-    $status_filter = isset($_GET['status_filter']) ? sanitize_key($_GET['status_filter']) : 'all';
-    
+    $post_type = isset($_GET['post_type']) ? sanitize_key(wp_unslash($_GET['post_type'])) : 'all';
+    $status_filter = isset($_GET['status_filter']) ? sanitize_key(wp_unslash($_GET['status_filter'])) : 'all';
+
     // Get all posts (no pagination for export)
     $posts_data = almaseo_eg_get_export_data($post_type, $status_filter);
     
@@ -97,9 +97,9 @@ function almaseo_eg_handle_pdf_export() {
     }
     
     // Get filters
-    $post_type = isset($_GET['post_type']) ? sanitize_key($_GET['post_type']) : 'all';
-    $status_filter = isset($_GET['status_filter']) ? sanitize_key($_GET['status_filter']) : 'all';
-    $date_range = isset($_GET['date_range']) ? intval($_GET['date_range']) : 12;
+    $post_type = isset($_GET['post_type']) ? sanitize_key(wp_unslash($_GET['post_type'])) : 'all';
+    $status_filter = isset($_GET['status_filter']) ? sanitize_key(wp_unslash($_GET['status_filter'])) : 'all';
+    $date_range = isset($_GET['date_range']) ? intval(wp_unslash($_GET['date_range'])) : 12;
     
     // Get data
     $stats = almaseo_eg_get_dashboard_stats($post_type);

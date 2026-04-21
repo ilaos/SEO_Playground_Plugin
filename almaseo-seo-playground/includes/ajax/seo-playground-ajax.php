@@ -20,7 +20,7 @@ add_action('wp_ajax_seo_playground_check_connection', 'seo_playground_ajax_check
 if (!function_exists('seo_playground_ajax_check_connection')) {
 function seo_playground_ajax_check_connection() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'seo_playground_nonce')) {
         wp_send_json_error(array('message' => 'Invalid security token'));
         return;
     }
@@ -44,7 +44,7 @@ function seo_playground_ajax_check_connection() {
 if (!function_exists('seo_playground_ajax_reoptimize_check')) {
 function seo_playground_ajax_reoptimize_check() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'seo_playground_nonce')) {
         wp_send_json_error(array('message' => 'Invalid security token'));
         return;
     }
@@ -68,9 +68,9 @@ function seo_playground_ajax_reoptimize_check() {
     
     // Get post data
     $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
-    $title = isset($_POST['title']) ? sanitize_text_field($_POST['title']) : '';
-    $content = isset($_POST['content']) ? sanitize_textarea_field($_POST['content']) : '';
-    $site_url = isset($_POST['site_url']) ? esc_url_raw($_POST['site_url']) : '';
+    $title = isset($_POST['title']) ? sanitize_text_field(wp_unslash($_POST['title'])) : '';
+    $content = isset($_POST['content']) ? sanitize_textarea_field(wp_unslash($_POST['content'])) : '';
+    $site_url = isset($_POST['site_url']) ? esc_url_raw(wp_unslash($_POST['site_url'])) : '';
     
     // Validate required data
     if (!$post_id || !$title || !$content || !$site_url) {
@@ -133,7 +133,7 @@ add_action('wp_ajax_seo_playground_reoptimize_check', 'seo_playground_ajax_reopt
 if (!function_exists('seo_playground_ajax_rewrite')) {
 function seo_playground_ajax_rewrite() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'seo_playground_nonce')) {
         wp_send_json_error(array('message' => 'Invalid security token'));
         return;
     }
@@ -178,10 +178,10 @@ function seo_playground_ajax_rewrite() {
     }
     
     // Get rewrite data
-    $input = isset($_POST['input']) ? sanitize_textarea_field($_POST['input']) : '';
-    $type = isset($_POST['type']) ? sanitize_text_field($_POST['type']) : '';
+    $input = isset($_POST['input']) ? sanitize_textarea_field(wp_unslash($_POST['input'])) : '';
+    $type = isset($_POST['type']) ? sanitize_text_field(wp_unslash($_POST['type'])) : '';
     $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
-    $site_url = isset($_POST['site_url']) ? esc_url_raw($_POST['site_url']) : '';
+    $site_url = isset($_POST['site_url']) ? esc_url_raw(wp_unslash($_POST['site_url'])) : '';
     
     // Validate required data
     if (empty($input) || empty($type) || !$post_id || !$site_url) {
@@ -264,7 +264,7 @@ add_action('wp_ajax_seo_playground_rewrite', 'seo_playground_ajax_rewrite');
 if (!function_exists('seo_playground_ajax_generate_brief')) {
 function seo_playground_ajax_generate_brief() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'seo_playground_nonce')) {
         wp_send_json_error(array('message' => 'Invalid security token'));
         return;
     }
@@ -287,10 +287,10 @@ function seo_playground_ajax_generate_brief() {
     }
     
     // Get brief data
-    $title = isset($_POST['title']) ? sanitize_text_field($_POST['title']) : '';
-    $keywords = isset($_POST['keywords']) ? sanitize_text_field($_POST['keywords']) : '';
+    $title = isset($_POST['title']) ? sanitize_text_field(wp_unslash($_POST['title'])) : '';
+    $keywords = isset($_POST['keywords']) ? sanitize_text_field(wp_unslash($_POST['keywords'])) : '';
     $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
-    $site_url = isset($_POST['site_url']) ? esc_url_raw($_POST['site_url']) : '';
+    $site_url = isset($_POST['site_url']) ? esc_url_raw(wp_unslash($_POST['site_url'])) : '';
     
     // Validate required data
     if (empty($title) || !$post_id || !$site_url) {
@@ -353,7 +353,7 @@ add_action('wp_ajax_seo_playground_generate_brief', 'seo_playground_ajax_generat
 if (!function_exists('seo_playground_ajax_generate_faqs')) {
 function seo_playground_ajax_generate_faqs() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'seo_playground_nonce')) {
         wp_send_json_error(array('message' => 'Invalid security token'));
         return;
     }
@@ -376,10 +376,10 @@ function seo_playground_ajax_generate_faqs() {
     }
     
     // Get FAQ data with null safety
-    $title = isset($_POST['title']) ? sanitize_text_field($_POST['title']) : '';
-    $content = isset($_POST['content']) ? sanitize_textarea_field($_POST['content']) : '';
+    $title = isset($_POST['title']) ? sanitize_text_field(wp_unslash($_POST['title'])) : '';
+    $content = isset($_POST['content']) ? sanitize_textarea_field(wp_unslash($_POST['content'])) : '';
     $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
-    $site_url = isset($_POST['site_url']) ? esc_url_raw($_POST['site_url']) : '';
+    $site_url = isset($_POST['site_url']) ? esc_url_raw(wp_unslash($_POST['site_url'])) : '';
     
     // Validate required data
     if (empty($title) || empty($content) || !$post_id || !$site_url) {
@@ -388,7 +388,7 @@ function seo_playground_ajax_generate_faqs() {
     }
     
     // Validate content length (minimum 100 words) with null safety
-    $content_text = !empty($content) ? strip_tags($content) : '';
+    $content_text = !empty($content) ? wp_strip_all_tags($content) : '';
     $word_count = str_word_count($content_text);
     if ($word_count < 100) {
         wp_send_json_error(array('message' => 'Content must be at least 100 words to generate meaningful FAQs'));
@@ -451,7 +451,7 @@ add_action('wp_ajax_seo_playground_post_insight', 'seo_playground_ajax_post_insi
 if (!function_exists('seo_playground_ajax_post_insight')) {
 function seo_playground_ajax_post_insight() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'seo_playground_nonce')) {
         wp_send_json_error(array('message' => 'Invalid security token'));
         return;
     }
@@ -475,10 +475,10 @@ function seo_playground_ajax_post_insight() {
     }
     
     // Get post data
-    $title = isset($_POST['title']) ? sanitize_text_field($_POST['title']) : '';
-    $keywords = isset($_POST['keywords']) ? sanitize_text_field($_POST['keywords']) : '';
-    $content = isset($_POST['content']) ? sanitize_textarea_field($_POST['content']) : '';
-    $site_url = isset($_POST['site_url']) ? esc_url_raw($_POST['site_url']) : '';
+    $title = isset($_POST['title']) ? sanitize_text_field(wp_unslash($_POST['title'])) : '';
+    $keywords = isset($_POST['keywords']) ? sanitize_text_field(wp_unslash($_POST['keywords'])) : '';
+    $content = isset($_POST['content']) ? sanitize_textarea_field(wp_unslash($_POST['content'])) : '';
+    $site_url = isset($_POST['site_url']) ? esc_url_raw(wp_unslash($_POST['site_url'])) : '';
 
     // Validate required data
     if (!$title || !$content || !$site_url) {
@@ -552,7 +552,7 @@ add_action('wp_ajax_seo_playground_get_post_insight', 'seo_playground_ajax_get_p
 if (!function_exists('seo_playground_ajax_get_post_insight')) {
 function seo_playground_ajax_get_post_insight() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'seo_playground_nonce')) {
         wp_send_json_error(array('message' => 'Invalid security token'));
         return;
     }
@@ -601,7 +601,7 @@ add_action('wp_ajax_seo_playground_keyword_intelligence', 'seo_playground_ajax_k
 if (!function_exists('seo_playground_ajax_keyword_intelligence')) {
 function seo_playground_ajax_keyword_intelligence() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'seo_playground_nonce')) {
         wp_send_json_error(array('message' => 'Invalid security token'));
         return;
     }
@@ -625,8 +625,8 @@ function seo_playground_ajax_keyword_intelligence() {
     }
     
     // Get post data
-    $keyword = isset($_POST['keyword']) ? sanitize_text_field($_POST['keyword']) : '';
-    $site_url = isset($_POST['site_url']) ? esc_url_raw($_POST['site_url']) : '';
+    $keyword = isset($_POST['keyword']) ? sanitize_text_field(wp_unslash($_POST['keyword'])) : '';
+    $site_url = isset($_POST['site_url']) ? esc_url_raw(wp_unslash($_POST['site_url'])) : '';
 
     // Validate required data
     if (!$keyword || !$site_url) {
@@ -712,7 +712,7 @@ add_action('wp_ajax_seo_playground_get_keyword_intelligence', 'seo_playground_aj
 if (!function_exists('seo_playground_ajax_get_keyword_intelligence')) {
 function seo_playground_ajax_get_keyword_intelligence() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'seo_playground_nonce')) {
         wp_send_json_error(array('message' => 'Invalid security token'));
         return;
     }
@@ -770,7 +770,7 @@ function seo_playground_ajax_get_keyword_intelligence() {
 if (!function_exists('seo_playground_ajax_get_snippets')) {
 function seo_playground_ajax_get_snippets() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'seo_playground_nonce')) {
         wp_send_json_error(array('message' => 'Invalid security token'));
         return;
     }
@@ -819,7 +819,7 @@ add_action('wp_ajax_seo_playground_get_snippets', 'seo_playground_ajax_get_snipp
 if (!function_exists('seo_playground_ajax_save_snippet')) {
 function seo_playground_ajax_save_snippet() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'seo_playground_nonce')) {
         wp_send_json_error(array('message' => 'Invalid security token'));
         return;
     }
@@ -849,9 +849,9 @@ function seo_playground_ajax_save_snippet() {
     }
     
     // Get and validate snippet data
-    $title = isset($_POST['title']) ? sanitize_text_field($_POST['title']) : '';
-    $content = isset($_POST['content']) ? sanitize_textarea_field($_POST['content']) : '';
-    $snippet_id = isset($_POST['snippet_id']) ? sanitize_text_field($_POST['snippet_id']) : ''; // Empty for new, existing ID for edit
+    $title = isset($_POST['title']) ? sanitize_text_field(wp_unslash($_POST['title'])) : '';
+    $content = isset($_POST['content']) ? sanitize_textarea_field(wp_unslash($_POST['content'])) : '';
+    $snippet_id = isset($_POST['snippet_id']) ? sanitize_text_field(wp_unslash($_POST['snippet_id'])) : ''; // Empty for new, existing ID for edit
     
     if (empty($title) || empty($content)) {
         wp_send_json_error(array('message' => 'Title and content are required'));
@@ -919,7 +919,7 @@ add_action('wp_ajax_seo_playground_save_snippet', 'seo_playground_ajax_save_snip
 if (!function_exists('seo_playground_ajax_delete_snippet')) {
 function seo_playground_ajax_delete_snippet() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'seo_playground_nonce')) {
         wp_send_json_error(array('message' => 'Invalid security token'));
         return;
     }
@@ -949,7 +949,7 @@ function seo_playground_ajax_delete_snippet() {
     }
     
     // Get snippet ID to delete
-    $snippet_id = isset($_POST['snippet_id']) ? sanitize_text_field($_POST['snippet_id']) : '';
+    $snippet_id = isset($_POST['snippet_id']) ? sanitize_text_field(wp_unslash($_POST['snippet_id'])) : '';
     
     if (empty($snippet_id)) {
         wp_send_json_error(array('message' => 'Snippet ID is required'));
@@ -1006,7 +1006,7 @@ add_action('wp_ajax_seo_playground_get_gsc_keywords', 'seo_playground_ajax_get_g
 if (!function_exists('seo_playground_ajax_get_gsc_keywords')) {
 function seo_playground_ajax_get_gsc_keywords() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'seo_playground_nonce')) {
         wp_send_json_error(array('message' => 'Invalid security token'));
         return;
     }
@@ -1030,8 +1030,8 @@ function seo_playground_ajax_get_gsc_keywords() {
     }
     
     // Get post data
-    $permalink = isset($_POST['permalink']) ? esc_url_raw($_POST['permalink']) : '';
-    $site_url = isset($_POST['site_url']) ? esc_url_raw($_POST['site_url']) : '';
+    $permalink = isset($_POST['permalink']) ? esc_url_raw(wp_unslash($_POST['permalink'])) : '';
+    $site_url = isset($_POST['site_url']) ? esc_url_raw(wp_unslash($_POST['site_url'])) : '';
 
     // Validate required data
     if (!$permalink || !$site_url) {
@@ -1117,7 +1117,7 @@ add_action('wp_ajax_seo_playground_refresh_gsc_keywords', 'seo_playground_ajax_r
 if (!function_exists('seo_playground_ajax_refresh_gsc_keywords')) {
 function seo_playground_ajax_refresh_gsc_keywords() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'seo_playground_nonce')) {
         wp_send_json_error(array('message' => 'Invalid security token'));
         return;
     }
@@ -1159,7 +1159,7 @@ add_action('wp_ajax_seo_playground_get_schema_analysis', 'seo_playground_ajax_ge
 if (!function_exists('seo_playground_ajax_get_schema_analysis')) {
 function seo_playground_ajax_get_schema_analysis() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'seo_playground_nonce')) {
         wp_send_json_error(array('message' => 'Invalid security token'));
         return;
     }
@@ -1184,10 +1184,10 @@ function seo_playground_ajax_get_schema_analysis() {
         wp_send_json_error(array('message' => 'Insufficient permissions'));
         return;
     }
-    $site_url = isset($_POST['site_url']) ? esc_url_raw($_POST['site_url']) : '';
-    $title = isset($_POST['title']) ? sanitize_text_field($_POST['title']) : '';
-    $content = isset($_POST['content']) ? sanitize_textarea_field($_POST['content']) : '';
-    $schema_type = isset($_POST['schema_type']) ? sanitize_text_field($_POST['schema_type']) : '';
+    $site_url = isset($_POST['site_url']) ? esc_url_raw(wp_unslash($_POST['site_url'])) : '';
+    $title = isset($_POST['title']) ? sanitize_text_field(wp_unslash($_POST['title'])) : '';
+    $content = isset($_POST['content']) ? sanitize_textarea_field(wp_unslash($_POST['content'])) : '';
+    $schema_type = isset($_POST['schema_type']) ? sanitize_text_field(wp_unslash($_POST['schema_type'])) : '';
     
     // Validate required data
     if (!$post_id || !$site_url || !$schema_type || $schema_type === 'None') {
@@ -1275,7 +1275,7 @@ add_action('wp_ajax_seo_playground_refresh_schema_analysis', 'seo_playground_aja
 if (!function_exists('seo_playground_ajax_refresh_schema_analysis')) {
 function seo_playground_ajax_refresh_schema_analysis() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'seo_playground_nonce')) {
         wp_send_json_error(array('message' => 'Invalid security token'));
         return;
     }
@@ -1300,7 +1300,7 @@ function seo_playground_ajax_refresh_schema_analysis() {
     
     // Get post ID and schema type
     $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
-    $schema_type = isset($_POST['schema_type']) ? sanitize_text_field($_POST['schema_type']) : '';
+    $schema_type = isset($_POST['schema_type']) ? sanitize_text_field(wp_unslash($_POST['schema_type'])) : '';
     
     if (!$post_id || !$schema_type || $schema_type === 'None') {
         wp_send_json_error(array('message' => 'Invalid post ID or schema type'));
@@ -1319,7 +1319,7 @@ add_action('wp_ajax_seo_playground_get_meta_health', 'seo_playground_ajax_get_me
 if (!function_exists('seo_playground_ajax_get_meta_health')) {
 function seo_playground_ajax_get_meta_health() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'seo_playground_nonce')) {
         wp_send_json_error(array('message' => 'Invalid security token'));
         return;
     }
@@ -1344,10 +1344,10 @@ function seo_playground_ajax_get_meta_health() {
         wp_send_json_error(array('message' => 'Insufficient permissions'));
         return;
     }
-    $site_url = isset($_POST['site_url']) ? esc_url_raw($_POST['site_url']) : '';
-    $title = isset($_POST['title']) ? sanitize_text_field($_POST['title']) : '';
-    $description = isset($_POST['description']) ? sanitize_textarea_field($_POST['description']) : '';
-    $focus_keyword = isset($_POST['focus_keyword']) ? sanitize_text_field($_POST['focus_keyword']) : '';
+    $site_url = isset($_POST['site_url']) ? esc_url_raw(wp_unslash($_POST['site_url'])) : '';
+    $title = isset($_POST['title']) ? sanitize_text_field(wp_unslash($_POST['title'])) : '';
+    $description = isset($_POST['description']) ? sanitize_textarea_field(wp_unslash($_POST['description'])) : '';
+    $focus_keyword = isset($_POST['focus_keyword']) ? sanitize_text_field(wp_unslash($_POST['focus_keyword'])) : '';
     
     // Validate required data
     if (!$post_id || !$site_url || !$title || !$description) {
@@ -1446,7 +1446,7 @@ add_action('wp_ajax_seo_playground_refresh_meta_health', 'seo_playground_ajax_re
 if (!function_exists('seo_playground_ajax_refresh_meta_health')) {
 function seo_playground_ajax_refresh_meta_health() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'seo_playground_nonce')) {
         wp_send_json_error(array('message' => 'Invalid security token'));
         return;
     }
@@ -1471,9 +1471,9 @@ function seo_playground_ajax_refresh_meta_health() {
     
     // Get post ID and metadata
     $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
-    $title = isset($_POST['title']) ? sanitize_text_field($_POST['title']) : '';
-    $description = isset($_POST['description']) ? sanitize_textarea_field($_POST['description']) : '';
-    $focus_keyword = isset($_POST['focus_keyword']) ? sanitize_text_field($_POST['focus_keyword']) : '';
+    $title = isset($_POST['title']) ? sanitize_text_field(wp_unslash($_POST['title'])) : '';
+    $description = isset($_POST['description']) ? sanitize_textarea_field(wp_unslash($_POST['description'])) : '';
+    $focus_keyword = isset($_POST['focus_keyword']) ? sanitize_text_field(wp_unslash($_POST['focus_keyword'])) : '';
     
     if (!$post_id || !$title || !$description) {
         wp_send_json_error(array('message' => 'Invalid post ID or missing metadata'));
@@ -1492,7 +1492,7 @@ add_action('wp_ajax_seo_playground_mark_as_reoptimized', 'seo_playground_ajax_ma
 if (!function_exists('seo_playground_ajax_mark_as_reoptimized')) {
 function seo_playground_ajax_mark_as_reoptimized() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'seo_playground_nonce')) {
         wp_send_json_error(array('message' => 'Invalid security token'));
         return;
     }
@@ -1535,14 +1535,14 @@ add_action('wp_ajax_seo_playground_save_note', 'seo_playground_ajax_save_note');
 if (!function_exists('seo_playground_ajax_save_note')) {
 function seo_playground_ajax_save_note() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'seo_playground_nonce')) {
         wp_send_json_error(array('message' => 'Invalid security token'));
         return;
     }
 
     // Get post ID and check per-post capability
     $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
-    $note_content = isset($_POST['note_content']) ? sanitize_textarea_field($_POST['note_content']) : '';
+    $note_content = isset($_POST['note_content']) ? sanitize_textarea_field(wp_unslash($_POST['note_content'])) : '';
 
     if (!$post_id || !current_user_can('edit_post', $post_id)) {
         wp_send_json_error(array('message' => 'Insufficient permissions'));
@@ -1570,7 +1570,7 @@ add_action('wp_ajax_seo_playground_get_note', 'seo_playground_ajax_get_note');
 if (!function_exists('seo_playground_ajax_get_note')) {
 function seo_playground_ajax_get_note() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'seo_playground_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'seo_playground_nonce')) {
         wp_send_json_error(array('message' => 'Invalid security token'));
         return;
     }
@@ -1603,7 +1603,7 @@ add_action('wp_ajax_almaseo_fetch_gsc_page_data', 'almaseo_ajax_fetch_gsc_page_d
 if (!function_exists('almaseo_ajax_fetch_gsc_page_data')) {
 function almaseo_ajax_fetch_gsc_page_data() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'almaseo_gsc_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'almaseo_gsc_nonce')) {
         wp_send_json_error(array('message' => 'Invalid security token'));
         return;
     }
@@ -1620,7 +1620,7 @@ function almaseo_ajax_fetch_gsc_page_data() {
     }
 
     // Get parameters
-    $page_url = isset($_POST['page_url']) ? esc_url_raw($_POST['page_url']) : '';
+    $page_url = isset($_POST['page_url']) ? esc_url_raw(wp_unslash($_POST['page_url'])) : '';
     $days = isset($_POST['days']) ? intval($_POST['days']) : 28;
 
     if (empty($page_url)) {

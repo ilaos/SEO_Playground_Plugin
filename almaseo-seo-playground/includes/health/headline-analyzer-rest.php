@@ -101,7 +101,7 @@ class AlmaSEO_Headline_Analyzer_REST {
         }
 
         $headline = isset( $_POST['headline'] ) ? sanitize_text_field( wp_unslash( $_POST['headline'] ) ) : '';
-        $post_id  = isset( $_POST['post_id'] ) ? absint( $_POST['post_id'] ) : 0;
+        $post_id  = isset( $_POST['post_id'] ) ? absint( wp_unslash( $_POST['post_id'] ) ) : 0;
 
         if ( empty( $headline ) ) {
             wp_send_json_error( array( 'message' => 'No headline provided.' ) );

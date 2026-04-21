@@ -140,7 +140,7 @@ class AlmaSEO_LLMS_Txt_Controller {
         }
 
         $content = isset( $_POST['content'] ) ? sanitize_textarea_field( wp_unslash( $_POST['content'] ) ) : '';
-        $mode    = isset( $_POST['mode'] ) ? sanitize_key( $_POST['mode'] ) : 'virtual';
+        $mode    = isset( $_POST['mode'] ) ? sanitize_key( wp_unslash( $_POST['mode'] ) ) : 'virtual';
 
         if ( ! in_array( $mode, array( 'virtual', 'file', 'disabled' ), true ) ) {
             $mode = 'virtual';

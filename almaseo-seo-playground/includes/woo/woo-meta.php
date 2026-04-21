@@ -225,8 +225,8 @@ class AlmaSEO_Woo_Meta {
      */
     public function save_product_meta($post_id, $post, $update) {
         // Check nonce
-        if (!isset($_POST['almaseo_woo_meta_nonce']) || 
-            !wp_verify_nonce($_POST['almaseo_woo_meta_nonce'], 'almaseo_woo_meta_nonce')) {
+        if (!isset($_POST['almaseo_woo_meta_nonce']) ||
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['almaseo_woo_meta_nonce'])), 'almaseo_woo_meta_nonce')) {
             return;
         }
         
@@ -253,9 +253,9 @@ class AlmaSEO_Woo_Meta {
         
         foreach ($text_fields as $field) {
             if (isset($_POST[$field])) {
-                $value = sanitize_text_field($_POST[$field]);
+                $value = sanitize_text_field(wp_unslash($_POST[$field]));
                 if ($field === 'almaseo_woo_og_image') {
-                    $value = esc_url_raw($value);
+                    $value = esc_url_raw(wp_unslash($_POST[$field]));
                 }
                 update_post_meta($post_id, '_' . $field, $value);
             }
@@ -372,9 +372,9 @@ class AlmaSEO_Woo_Meta {
         
         foreach ($fields as $field) {
             if (isset($_POST[$field])) {
-                $value = sanitize_text_field($_POST[$field]);
+                $value = sanitize_text_field(wp_unslash($_POST[$field]));
                 if ($field === 'almaseo_woo_term_og_image') {
-                    $value = esc_url_raw($value);
+                    $value = esc_url_raw(wp_unslash($_POST[$field]));
                 }
                 update_term_meta($term_id, '_' . $field, $value);
             }

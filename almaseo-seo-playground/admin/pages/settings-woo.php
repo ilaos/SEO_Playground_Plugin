@@ -15,8 +15,8 @@ if (!defined('ABSPATH')) {
 $settings = AlmaSEO_Woo_Loader::get_settings();
 
 // Handle form submission
-if (isset($_POST['almaseo_woo_settings_nonce']) && 
-    wp_verify_nonce($_POST['almaseo_woo_settings_nonce'], 'save_almaseo_woo_settings')) {
+if (isset($_POST['almaseo_woo_settings_nonce']) &&
+    wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['almaseo_woo_settings_nonce'])), 'save_almaseo_woo_settings')) {
     
     // Save settings
     $new_settings = array();
@@ -38,10 +38,10 @@ if (isset($_POST['almaseo_woo_settings_nonce']) &&
 
     // Save priority settings (optional)
     if (isset($_POST['wc_product_priority'])) {
-        update_option('almaseo_wc_product_priority', floatval($_POST['wc_product_priority']));
+        update_option('almaseo_wc_product_priority', floatval(wp_unslash($_POST['wc_product_priority'])));
     }
     if (isset($_POST['wc_category_priority'])) {
-        update_option('almaseo_wc_category_priority', floatval($_POST['wc_category_priority']));
+        update_option('almaseo_wc_category_priority', floatval(wp_unslash($_POST['wc_category_priority'])));
     }
     
     foreach ($boolean_fields as $field) {
@@ -61,7 +61,7 @@ if (isset($_POST['almaseo_woo_settings_nonce']) &&
     
     foreach ($text_fields as $field) {
         if (isset($_POST[$field])) {
-            $new_settings[$field] = sanitize_text_field($_POST[$field]);
+            $new_settings[$field] = sanitize_text_field(wp_unslash($_POST[$field]));
         }
     }
     

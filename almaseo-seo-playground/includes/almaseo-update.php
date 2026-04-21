@@ -264,7 +264,7 @@ class AlmaSEO_Update_Manager {
             wp_send_json_error('Insufficient permissions');
         }
         
-        $channel = sanitize_text_field($_POST['channel'] ?? 'stable');
+        $channel = sanitize_text_field(wp_unslash($_POST['channel'] ?? 'stable'));
         
         if ($this->set_channel($channel)) {
             // Trigger background check with new channel

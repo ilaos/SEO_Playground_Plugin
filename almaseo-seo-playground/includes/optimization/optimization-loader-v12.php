@@ -490,7 +490,7 @@ class AlmaSEO_Optimization_V12 {
         $suggestions = [];
         
         // Extract main keywords from content
-        $content_text = strip_tags($content);
+        $content_text = wp_strip_all_tags($content);
         $main_keywords = $this->extract_enhanced_keywords($title . ' ' . $content_text);
         
         // Generate variations and related terms
@@ -521,12 +521,12 @@ class AlmaSEO_Optimization_V12 {
         // Extract from H1-H3 tags
         preg_match_all('/<h[1-3][^>]*>(.*?)<\/h[1-3]>/i', $content, $heading_matches);
         foreach ($heading_matches[1] as $heading) {
-            $heading_keywords = $this->extract_keywords_from_text(strip_tags($heading));
+            $heading_keywords = $this->extract_keywords_from_text(wp_strip_all_tags($heading));
             $title_keywords = array_merge($title_keywords, $heading_keywords);
         }
         
         // Extract frequent nouns and bigrams from body
-        $body_text = strip_tags($content);
+        $body_text = wp_strip_all_tags($content);
         $body_keywords = $this->extract_frequent_terms($body_text);
         
         // Combine and deduplicate

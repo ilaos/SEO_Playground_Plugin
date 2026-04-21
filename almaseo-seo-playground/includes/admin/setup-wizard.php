@@ -36,7 +36,7 @@ class AlmaSEO_Setup_Wizard {
      */
     public static function maybe_render_standalone() {
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        if ( ! isset( $_GET['page'] ) || $_GET['page'] !== self::SLUG ) {
+        if ( ! isset( $_GET['page'] ) || sanitize_text_field( wp_unslash( $_GET['page'] ) ) !== self::SLUG ) {
             return;
         }
         if ( ! current_user_can( 'manage_options' ) ) {

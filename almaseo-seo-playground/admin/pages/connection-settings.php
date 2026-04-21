@@ -47,7 +47,7 @@ function almaseo_connector_settings_page() {
 
     // Handle manual password saving with improved validation
     if (isset($_POST['save_manual_password']) && check_admin_referer('almaseo_manual_password')) {
-        $manual_password = isset($_POST['manual_app_password']) ? sanitize_text_field($_POST['manual_app_password']) : '';
+        $manual_password = isset($_POST['manual_app_password']) ? sanitize_text_field(wp_unslash($_POST['manual_app_password'])) : '';
         $cleaned_password = str_replace(' ', '', $manual_password);
 
         if (strlen($cleaned_password) >= 20 && preg_match('/^[A-Za-z0-9]+$/', $cleaned_password)) {

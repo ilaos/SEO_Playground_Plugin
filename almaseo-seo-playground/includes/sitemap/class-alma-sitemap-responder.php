@@ -92,7 +92,7 @@ class Alma_Sitemap_Responder {
         }
         
         // Check if gzip version requested
-        $request_uri = $_SERVER['REQUEST_URI'];
+        $request_uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
         $wants_gzip = (strpos($request_uri, '.xml.gz') !== false);
         
         // Try gzip first if requested and enabled
@@ -109,7 +109,7 @@ class Alma_Sitemap_Responder {
         $filepath = $storage_path . $filename;
         if (file_exists($filepath)) {
             // Check if client accepts gzip and we have a gzip version
-            $accept_encoding = isset($_SERVER['HTTP_ACCEPT_ENCODING']) ? $_SERVER['HTTP_ACCEPT_ENCODING'] : '';
+            $accept_encoding = isset($_SERVER['HTTP_ACCEPT_ENCODING']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_ACCEPT_ENCODING'])) : '';
             if (strpos($accept_encoding, 'gzip') !== false && 
                 $this->manager->is_gzip_enabled() && 
                 file_exists($filepath . '.gz')) {

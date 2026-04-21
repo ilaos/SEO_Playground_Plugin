@@ -20,7 +20,7 @@ $top_referrer = AlmaSEO_404_Model::get_top_referrer();
 
 // Get initial logs
 $logs_data = AlmaSEO_404_Model::get_logs(array(
-    'page' => isset($_GET['paged']) ? absint($_GET['paged']) : 1, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only pagination parameter
+    'page' => isset($_GET['paged']) ? absint(wp_unslash($_GET['paged'])) : 1, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only pagination parameter
     'per_page' => 20
 ));
 

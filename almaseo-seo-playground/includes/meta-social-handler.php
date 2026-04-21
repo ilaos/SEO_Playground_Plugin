@@ -411,7 +411,7 @@ class AlmaSEO_Meta_Social_Handler {
      */
     public function save_meta_fields($post_id) {
         // Check nonce
-        if (!isset($_POST['almaseo_meta_nonce']) || !wp_verify_nonce($_POST['almaseo_meta_nonce'], 'almaseo_save_meta')) {
+        if (!isset($_POST['almaseo_meta_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['almaseo_meta_nonce'])), 'almaseo_save_meta')) {
             return;
         }
         
@@ -427,7 +427,7 @@ class AlmaSEO_Meta_Social_Handler {
         
         // Save meta robots with proper mutual exclusivity
         // Index/NoIndex pair - exactly one must be active
-        if (isset($_POST['almaseo_robots_noindex']) && $_POST['almaseo_robots_noindex']) {
+        if (isset($_POST['almaseo_robots_noindex']) && wp_unslash($_POST['almaseo_robots_noindex'])) {
             update_post_meta($post_id, '_almaseo_robots_index', 'noindex');
         } else {
             // Default to index if noindex is not checked
@@ -435,7 +435,7 @@ class AlmaSEO_Meta_Social_Handler {
         }
         
         // Follow/NoFollow pair - exactly one must be active
-        if (isset($_POST['almaseo_robots_nofollow']) && $_POST['almaseo_robots_nofollow']) {
+        if (isset($_POST['almaseo_robots_nofollow']) && wp_unslash($_POST['almaseo_robots_nofollow'])) {
             update_post_meta($post_id, '_almaseo_robots_follow', 'nofollow');
         } else {
             // Default to follow if nofollow is not checked
@@ -449,7 +449,7 @@ class AlmaSEO_Meta_Social_Handler {
             $meta_key = '_almaseo_robots_' . $directive;
             
             if (isset($_POST[$key])) {
-                update_post_meta($post_id, $meta_key, $_POST[$key] ? '' : 'no' . $directive);
+                update_post_meta($post_id, $meta_key, wp_unslash($_POST[$key]) ? '' : 'no' . $directive);
             } else {
                 update_post_meta($post_id, $meta_key, 'no' . $directive);
             }
@@ -457,7 +457,7 @@ class AlmaSEO_Meta_Social_Handler {
         
         // Save canonical URL (non-blocking - save exactly what user entered)
         if (isset($_POST['almaseo_canonical_url'])) {
-            $canonical = sanitize_text_field($_POST['almaseo_canonical_url']);
+            $canonical = sanitize_text_field(wp_unslash($_POST['almaseo_canonical_url']));
             // Save exactly what the user entered, even if not absolute or cross-domain
             update_post_meta($post_id, '_almaseo_canonical_url', $canonical);
         }
@@ -474,7 +474,7 @@ class AlmaSEO_Meta_Social_Handler {
         
         foreach ($social_fields as $field) {
             if (isset($_POST[$field])) {
-                $value = (string) ( $_POST[$field] ?? '' );
+                $value = (string) ( wp_unslash( $_POST[$field] ) ?? '' );
 
                 // Special handling for images
                 if (strpos($field, '_image') !== false) {

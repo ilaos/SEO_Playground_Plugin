@@ -10,7 +10,7 @@ if (!function_exists('almaseo_save_seo_playground_meta')) {
 function almaseo_save_seo_playground_meta($post_id) {
     // Check if nonce is valid
     if (!isset($_POST['almaseo_seo_playground_nonce']) ||
-        !wp_verify_nonce($_POST['almaseo_seo_playground_nonce'], 'almaseo_seo_playground_nonce')) {
+        !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['almaseo_seo_playground_nonce'])), 'almaseo_seo_playground_nonce')) {
         return;
     }
 
@@ -46,9 +46,9 @@ function almaseo_save_seo_playground_meta($post_id) {
     }
 
     // Get new values using dedicated sanitizers from security.php
-    $new_title = isset($_POST['almaseo_seo_title']) ? almaseo_sanitize_seo_title($_POST['almaseo_seo_title']) : '';
-    $new_description = isset($_POST['almaseo_seo_description']) ? almaseo_sanitize_meta_description($_POST['almaseo_seo_description']) : '';
-    $new_keyword = isset($_POST['almaseo_focus_keyword']) ? sanitize_text_field($_POST['almaseo_focus_keyword']) : '';
+    $new_title = isset($_POST['almaseo_seo_title']) ? almaseo_sanitize_seo_title(wp_unslash($_POST['almaseo_seo_title'])) : '';
+    $new_description = isset($_POST['almaseo_seo_description']) ? almaseo_sanitize_meta_description(wp_unslash($_POST['almaseo_seo_description'])) : '';
+    $new_keyword = isset($_POST['almaseo_focus_keyword']) ? sanitize_text_field(wp_unslash($_POST['almaseo_focus_keyword'])) : '';
 
     // Track metadata changes in history
     $has_changes = false;
@@ -95,7 +95,7 @@ function almaseo_save_seo_playground_meta($post_id) {
 
     // Save sticky notes
     if (isset($_POST['almaseo_seo_notes'])) {
-        update_post_meta($post_id, '_seo_playground_notes', almaseo_sanitize_notes($_POST['almaseo_seo_notes']));
+        update_post_meta($post_id, '_seo_playground_notes', almaseo_sanitize_notes(wp_unslash($_POST['almaseo_seo_notes'])));
     }
 
     // Cornerstone Content
@@ -124,19 +124,19 @@ function almaseo_save_seo_playground_meta($post_id) {
 
     // Canonical URL
     if (isset($_POST['almaseo_canonical_url'])) {
-        update_post_meta($post_id, '_almaseo_canonical_url', esc_url_raw($_POST['almaseo_canonical_url']));
+        update_post_meta($post_id, '_almaseo_canonical_url', esc_url_raw(wp_unslash($_POST['almaseo_canonical_url'])));
     }
 
     // Schema Type
     if (isset($_POST['almaseo_schema_type'])) {
-        $schema_type = almaseo_sanitize_schema_type($_POST['almaseo_schema_type']);
+        $schema_type = almaseo_sanitize_schema_type(wp_unslash($_POST['almaseo_schema_type']));
         update_post_meta($post_id, '_almaseo_schema_type', $schema_type);
         update_post_meta($post_id, '_seo_playground_schema_type', $schema_type); // Legacy
     }
 
     // Advanced Schema - Primary Type (Pro)
     if (isset($_POST['almaseo_schema_primary_type'])) {
-        update_post_meta($post_id, '_almaseo_schema_primary_type', sanitize_text_field($_POST['almaseo_schema_primary_type']));
+        update_post_meta($post_id, '_almaseo_schema_primary_type', sanitize_text_field(wp_unslash($_POST['almaseo_schema_primary_type'])));
     }
 
     // Advanced Schema - FAQPage toggle (Pro)
@@ -162,12 +162,12 @@ function almaseo_save_seo_playground_meta($post_id) {
 
     // Article Author (for Article schema)
     if (isset($_POST['almaseo_article_author'])) {
-        update_post_meta($post_id, '_almaseo_article_author', sanitize_text_field($_POST['almaseo_article_author']));
+        update_post_meta($post_id, '_almaseo_article_author', sanitize_text_field(wp_unslash($_POST['almaseo_article_author'])));
     }
 
     // LocalBusiness fields (v8.5.0)
     if (isset($_POST['almaseo_lb_subtype'])) {
-        $lb_subtype = sanitize_text_field($_POST['almaseo_lb_subtype']);
+        $lb_subtype = sanitize_text_field(wp_unslash($_POST['almaseo_lb_subtype']));
         if (function_exists('almaseo_sanitize_localbusiness_type')) {
             $lb_subtype = almaseo_sanitize_localbusiness_type($lb_subtype);
         }
@@ -186,26 +186,27 @@ function almaseo_save_seo_playground_meta($post_id) {
     );
     foreach ($lb_text_fields as $post_key => $meta_key) {
         if (isset($_POST[$post_key])) {
-            update_post_meta($post_id, $meta_key, sanitize_text_field($_POST[$post_key]));
+            update_post_meta($post_id, $meta_key, sanitize_text_field(wp_unslash($_POST[$post_key])));
         }
     }
     if (isset($_POST['almaseo_lb_email'])) {
-        update_post_meta($post_id, '_almaseo_lb_email', sanitize_email($_POST['almaseo_lb_email']));
+        update_post_meta($post_id, '_almaseo_lb_email', sanitize_email(wp_unslash($_POST['almaseo_lb_email'])));
     }
     if (isset($_POST['almaseo_lb_lat'])) {
-        update_post_meta($post_id, '_almaseo_lb_lat', sanitize_text_field($_POST['almaseo_lb_lat']));
+        update_post_meta($post_id, '_almaseo_lb_lat', sanitize_text_field(wp_unslash($_POST['almaseo_lb_lat'])));
     }
     if (isset($_POST['almaseo_lb_lng'])) {
-        update_post_meta($post_id, '_almaseo_lb_lng', sanitize_text_field($_POST['almaseo_lb_lng']));
+        update_post_meta($post_id, '_almaseo_lb_lng', sanitize_text_field(wp_unslash($_POST['almaseo_lb_lng'])));
     }
     if (isset($_POST['almaseo_lb_hours']) && is_array($_POST['almaseo_lb_hours'])) {
         $hours = array();
         $valid_days = array('monday','tuesday','wednesday','thursday','friday','saturday','sunday');
         foreach ($valid_days as $day) {
             if (isset($_POST['almaseo_lb_hours'][$day])) {
+                $lb_hours_raw = wp_unslash($_POST['almaseo_lb_hours']);
                 $hours[$day] = array(
-                    'open'  => sanitize_text_field($_POST['almaseo_lb_hours'][$day]['open'] ?? ''),
-                    'close' => sanitize_text_field($_POST['almaseo_lb_hours'][$day]['close'] ?? ''),
+                    'open'  => sanitize_text_field($lb_hours_raw[$day]['open'] ?? ''),
+                    'close' => sanitize_text_field($lb_hours_raw[$day]['close'] ?? ''),
                 );
             }
         }
@@ -214,24 +215,24 @@ function almaseo_save_seo_playground_meta($post_id) {
 
     // Open Graph metadata
     if (isset($_POST['almaseo_og_title'])) {
-        update_post_meta($post_id, '_almaseo_og_title', sanitize_text_field($_POST['almaseo_og_title']));
+        update_post_meta($post_id, '_almaseo_og_title', sanitize_text_field(wp_unslash($_POST['almaseo_og_title'])));
     }
     if (isset($_POST['almaseo_og_description'])) {
-        update_post_meta($post_id, '_almaseo_og_description', sanitize_textarea_field($_POST['almaseo_og_description']));
+        update_post_meta($post_id, '_almaseo_og_description', sanitize_textarea_field(wp_unslash($_POST['almaseo_og_description'])));
     }
     if (isset($_POST['almaseo_og_image'])) {
-        update_post_meta($post_id, '_almaseo_og_image', esc_url_raw($_POST['almaseo_og_image']));
+        update_post_meta($post_id, '_almaseo_og_image', esc_url_raw(wp_unslash($_POST['almaseo_og_image'])));
     }
 
     // Twitter Card metadata
     if (isset($_POST['almaseo_twitter_card'])) {
-        update_post_meta($post_id, '_almaseo_twitter_card', sanitize_text_field($_POST['almaseo_twitter_card']));
+        update_post_meta($post_id, '_almaseo_twitter_card', sanitize_text_field(wp_unslash($_POST['almaseo_twitter_card'])));
     }
     if (isset($_POST['almaseo_twitter_title'])) {
-        update_post_meta($post_id, '_almaseo_twitter_title', sanitize_text_field($_POST['almaseo_twitter_title']));
+        update_post_meta($post_id, '_almaseo_twitter_title', sanitize_text_field(wp_unslash($_POST['almaseo_twitter_title'])));
     }
     if (isset($_POST['almaseo_twitter_description'])) {
-        update_post_meta($post_id, '_almaseo_twitter_description', sanitize_textarea_field($_POST['almaseo_twitter_description']));
+        update_post_meta($post_id, '_almaseo_twitter_description', sanitize_textarea_field(wp_unslash($_POST['almaseo_twitter_description'])));
     }
 
     // Save update reminder settings
@@ -246,7 +247,7 @@ function almaseo_save_seo_playground_meta($post_id) {
         }
 
         if (isset($_POST['almaseo_update_reminder_days'])) {
-            $reminder_days = intval($_POST['almaseo_update_reminder_days']);
+            $reminder_days = intval(wp_unslash($_POST['almaseo_update_reminder_days']));
             if ($reminder_days > 0 && $reminder_days <= 365) {
                 update_post_meta($post_id, '_almaseo_update_reminder_days', $reminder_days);
 

@@ -63,7 +63,7 @@ class Alma_Sitemaps_Screen_V2 {
      * Handle tab request
      */
     private function handle_tab_request() {
-        $requested_tab = isset($_GET['tab']) ? sanitize_key($_GET['tab']) : 'overview';
+        $requested_tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : 'overview'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         
         if (isset($this->tabs[$requested_tab])) {
             $this->active_tab = $requested_tab;

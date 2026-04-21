@@ -268,7 +268,7 @@ class AlmaSEO_WC_Metabox {
     public static function save_metabox($post_id, $post) {
         // Verify nonce
         if (!isset($_POST['almaseo_wc_seo_nonce']) ||
-            !wp_verify_nonce($_POST['almaseo_wc_seo_nonce'], 'almaseo_wc_seo_metabox')) {
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['almaseo_wc_seo_nonce'])), 'almaseo_wc_seo_metabox')) {
             return;
         }
 
@@ -287,7 +287,7 @@ class AlmaSEO_WC_Metabox {
             update_post_meta(
                 $post_id,
                 '_almaseo_wc_seo_title',
-                sanitize_text_field($_POST['almaseo_wc_seo_title'])
+                sanitize_text_field(wp_unslash($_POST['almaseo_wc_seo_title']))
             );
         }
 
@@ -296,7 +296,7 @@ class AlmaSEO_WC_Metabox {
             update_post_meta(
                 $post_id,
                 '_almaseo_wc_meta_description',
-                sanitize_textarea_field($_POST['almaseo_wc_meta_description'])
+                sanitize_textarea_field(wp_unslash($_POST['almaseo_wc_meta_description']))
             );
         }
 
@@ -305,7 +305,7 @@ class AlmaSEO_WC_Metabox {
             update_post_meta(
                 $post_id,
                 '_almaseo_wc_focus_keyword',
-                sanitize_text_field($_POST['almaseo_wc_focus_keyword'])
+                sanitize_text_field(wp_unslash($_POST['almaseo_wc_focus_keyword']))
             );
         }
 
@@ -318,7 +318,7 @@ class AlmaSEO_WC_Metabox {
 
         // Save Canonical URL
         if (isset($_POST['almaseo_wc_canonical'])) {
-            $canonical = esc_url_raw($_POST['almaseo_wc_canonical']);
+            $canonical = esc_url_raw(wp_unslash($_POST['almaseo_wc_canonical']));
             if (!empty($canonical)) {
                 update_post_meta($post_id, '_almaseo_wc_canonical', $canonical);
             } else {

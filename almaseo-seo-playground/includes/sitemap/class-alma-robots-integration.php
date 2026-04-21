@@ -104,7 +104,7 @@ class Alma_Robots_Integration {
             'https://search.google.com'
         );
         
-        $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
+        $origin = isset($_SERVER['HTTP_ORIGIN']) ? esc_url_raw(wp_unslash($_SERVER['HTTP_ORIGIN'])) : '';
         if (in_array($origin, $allowed_origins)) {
             header('Access-Control-Allow-Origin: ' . $origin);
         }
@@ -146,7 +146,7 @@ class Alma_Robots_Integration {
         $robots = ob_get_clean();
         
         // Strip HTML if any
-        $robots = strip_tags($robots);
+        $robots = wp_strip_all_tags($robots);
         
         return $robots;
     }

@@ -204,28 +204,28 @@ function almaseo_schema_meta_box_content($post) {
 if (!function_exists('almaseo_save_schema_meta')) {
 function almaseo_save_schema_meta($post_id) {
     // Check nonce
-    if (!isset($_POST['almaseo_schema_nonce']) || 
-        !wp_verify_nonce($_POST['almaseo_schema_nonce'], 'almaseo_schema_meta')) {
+    if (!isset($_POST['almaseo_schema_nonce']) ||
+        !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['almaseo_schema_nonce'])), 'almaseo_schema_meta')) {
         return;
     }
-    
+
     // Check autosave
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
         return;
     }
-    
+
     // Check permissions
     if (!current_user_can('edit_post', $post_id)) {
         return;
     }
-    
+
     // Save enabled state
     $enabled = isset($_POST['almaseo_schema_enabled']) ? 'enabled' : 'disabled';
     update_post_meta($post_id, '_almaseo_schema_enabled', $enabled);
-    
+
     // Save schema type
     if (isset($_POST['almaseo_schema_type'])) {
-        update_post_meta($post_id, '_almaseo_schema_type', sanitize_text_field($_POST['almaseo_schema_type']));
+        update_post_meta($post_id, '_almaseo_schema_type', sanitize_text_field(wp_unslash($_POST['almaseo_schema_type'])));
     }
 }
 } // end function_exists guard: almaseo_save_schema_meta

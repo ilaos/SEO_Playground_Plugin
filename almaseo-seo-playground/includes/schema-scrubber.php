@@ -111,9 +111,9 @@ class AlmaSEO_Schema_Scrubber {
             $is_amp = true;
         } elseif (function_exists('ampforwp_is_amp_endpoint') && ampforwp_is_amp_endpoint()) {
             $is_amp = true;
-        } elseif (isset($_GET['amp']) || isset($_GET['amphtml'])) {
+        } elseif (isset($_GET['amp']) || isset($_GET['amphtml'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             $is_amp = true;
-        } elseif (preg_match('/\/amp\/?$/', $_SERVER['REQUEST_URI'])) {
+        } elseif (isset($_SERVER['REQUEST_URI']) && preg_match('/\/amp\/?$/', sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])))) {
             $is_amp = true;
         }
         

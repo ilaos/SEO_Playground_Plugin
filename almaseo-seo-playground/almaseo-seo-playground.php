@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
-Version: 1.6.19
+Version: 1.6.20
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -33,7 +33,7 @@ define( 'ALMASEO_PLAYGROUND_LOADED', true );
 // Detect REST requests early — REST_REQUEST constant isn't defined until parse_request,
 // which is after plugins load. Check the URL instead.
 $almaseo_is_rest = ( defined( 'REST_REQUEST' ) && REST_REQUEST )
-    || ( isset( $_SERVER['REQUEST_URI'] ) && ( strpos( $_SERVER['REQUEST_URI'], '/wp-json/' ) !== false || strpos( $_SERVER['REQUEST_URI'], '?rest_route=' ) !== false ) );
+    || ( isset( $_SERVER['REQUEST_URI'] ) && ( strpos( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/wp-json/' ) !== false || strpos( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '?rest_route=' ) !== false ) );
 
 if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_rest && ! ( defined( 'WP_CLI' ) && WP_CLI ) ) {
     $almaseo_active_plugins = (array) get_option( 'active_plugins', array() );
@@ -50,7 +50,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
     }
     if ( $almaseo_seo_conflict ) {
         // Define only the bare minimum constants, then stop loading.
-        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.6.19' );
+        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.6.20' );
         if ( ! defined( 'ALMASEO_PATH' ) )           define( 'ALMASEO_PATH', plugin_dir_path( __FILE__ ) );
         if ( ! defined( 'ALMASEO_URL' ) )            define( 'ALMASEO_URL', plugin_dir_url( __FILE__ ) );
         if ( ! defined( 'ALMASEO_MAIN_FILE' ) )      define( 'ALMASEO_MAIN_FILE', __FILE__ );
@@ -62,7 +62,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
 if (!defined('ALMASEO_MAIN_FILE'))       define('ALMASEO_MAIN_FILE', __FILE__);
 if (!defined('ALMASEO_PATH'))            define('ALMASEO_PATH', plugin_dir_path(__FILE__));
 if (!defined('ALMASEO_URL'))             define('ALMASEO_URL', plugin_dir_url(__FILE__));
-if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.6.17');
+if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.6.20');
 if (!defined('ALMASEO_VERSION'))         define('ALMASEO_VERSION', '6.5.0');
 if (!defined('ALMASEO_API_NAMESPACE'))   define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
 if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
@@ -145,7 +145,7 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/schema/schema-advanced-out
 }
 
 // Skip loading heavy features during activation to prevent memory issues
-$is_activating = isset($_GET['action']) && sanitize_key($_GET['action']) === 'activate';
+$is_activating = isset($_GET['action']) && sanitize_key(wp_unslash($_GET['action'])) === 'activate'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 // Include Evergreen feature (using minimal safe loader to prevent crashes)
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/evergreen/evergreen-loader-minimal-safe.php')) {
@@ -827,7 +827,7 @@ if (!function_exists('almaseo_ajax_dismiss_search_warning')) {
     check_ajax_referer('almaseo_dismiss_warning', 'nonce');
     
     $user_id = get_current_user_id();
-    $type = isset($_POST['type']) ? sanitize_key($_POST['type']) : 'temp';
+    $type = isset($_POST['type']) ? sanitize_key(wp_unslash($_POST['type'])) : 'temp';
 
     if ($type === 'permanent') {
         update_user_meta($user_id, 'almaseo_dismiss_search_warning_permanent', true);
@@ -892,7 +892,7 @@ if (!function_exists('almaseo_ajax_dismiss_content_reminder')) {
         wp_die();
     }
 
-    $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+    $post_id = isset($_POST['post_id']) ? intval(wp_unslash($_POST['post_id'])) : 0;
     if ($post_id) {
         $reminders = get_option('almaseo_content_reminders', array());
         unset($reminders[$post_id]);
@@ -913,7 +913,7 @@ if (!function_exists('almaseo_ajax_cancel_reminder')) {
         wp_send_json_error('Insufficient permissions');
     }
 
-    $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+    $post_id = isset($_POST['post_id']) ? intval(wp_unslash($_POST['post_id'])) : 0;
     if (!$post_id) {
         wp_send_json_error('Invalid post ID');
     }
@@ -953,7 +953,7 @@ if (!function_exists('almaseo_add_cors_headers')) {
             );
             $allowed_origins = apply_filters('almaseo_cors_allowed_origins', $allowed_origins);
 
-            $origin = isset($_SERVER['HTTP_ORIGIN']) ? esc_url_raw($_SERVER['HTTP_ORIGIN']) : '';
+            $origin = isset($_SERVER['HTTP_ORIGIN']) ? esc_url_raw(wp_unslash($_SERVER['HTTP_ORIGIN'])) : '';
 
             if (in_array($origin, $allowed_origins, true)) {
                 header('Access-Control-Allow-Origin: ' . $origin);

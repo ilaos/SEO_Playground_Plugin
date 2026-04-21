@@ -66,11 +66,11 @@ class AlmaSEO_404_Model {
         $where_clause = implode(' AND ', $where);
         
         // Get total count
-        $count_query = "SELECT COUNT(*) FROM $table WHERE $where_clause";
+        $count_query = "SELECT COUNT(*) FROM {$table} WHERE {$where_clause}"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is from $wpdb->prefix, $where_clause uses placeholders
         if (!empty($prepare_args)) {
-            $count_query = $wpdb->prepare($count_query, $prepare_args);
+            $count_query = $wpdb->prepare($count_query, $prepare_args); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
         }
-        $total = $wpdb->get_var($count_query);
+        $total = $wpdb->get_var($count_query); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above when args present
         
         // Build main query
         $orderby = in_array($args['orderby'], ['path', 'hits', 'first_seen', 'last_seen']) ? $args['orderby'] : 'last_seen';
@@ -78,15 +78,15 @@ class AlmaSEO_404_Model {
         
         $offset = ($args['page'] - 1) * $args['per_page'];
         
-        $query = "SELECT * FROM $table WHERE $where_clause ORDER BY $orderby $order LIMIT %d OFFSET %d";
+        $query = "SELECT * FROM {$table} WHERE {$where_clause} ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from $wpdb->prefix, $orderby/$order are whitelisted values
         $prepare_args[] = $args['per_page'];
         $prepare_args[] = $offset;
-        
+
         if (!empty($prepare_args)) {
-            $query = $wpdb->prepare($query, $prepare_args);
+            $query = $wpdb->prepare($query, $prepare_args); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
         }
-        
-        $items = $wpdb->get_results($query, ARRAY_A);
+
+        $items = $wpdb->get_results($query, ARRAY_A); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
         
         // Process items
         foreach ($items as &$item) {
@@ -128,7 +128,7 @@ class AlmaSEO_404_Model {
         
         $table = $wpdb->prefix . 'almaseo_404_log';
         $log = $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM $table WHERE id = %d",
+            "SELECT * FROM {$table} WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is from $wpdb->prefix
             $id
         ), ARRAY_A);
         
@@ -194,11 +194,11 @@ class AlmaSEO_404_Model {
         $ids_placeholder = implode(',', array_fill(0, count($ids), '%d'));
         
         $query = $wpdb->prepare(
-            "UPDATE $table SET is_ignored = %d WHERE id IN ($ids_placeholder)",
+            "UPDATE {$table} SET is_ignored = %d WHERE id IN ({$ids_placeholder})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from $wpdb->prefix, $ids_placeholder is array_fill of %d
             array_merge(array($ignored ? 1 : 0), $ids)
         );
-        
-        $result = $wpdb->query($query);
+
+        $result = $wpdb->query($query); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
         
         // Clear cache
         delete_transient('almaseo_404_stats');
@@ -220,11 +220,11 @@ class AlmaSEO_404_Model {
         $ids_placeholder = implode(',', array_fill(0, count($ids), '%d'));
         
         $query = $wpdb->prepare(
-            "DELETE FROM $table WHERE id IN ($ids_placeholder)",
+            "DELETE FROM {$table} WHERE id IN ({$ids_placeholder})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from $wpdb->prefix, $ids_placeholder is array_fill of %d
             $ids
         );
-        
-        $result = $wpdb->query($query);
+
+        $result = $wpdb->query($query); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
         
         // Clear cache
         delete_transient('almaseo_404_stats');
@@ -255,25 +255,25 @@ class AlmaSEO_404_Model {
         
         // Total 404s last 7 days (not ignored)
         $stats['total_7d'] = $wpdb->get_var($wpdb->prepare(
-            "SELECT SUM(hits) FROM $table WHERE last_seen >= %s AND is_ignored = 0",
+            "SELECT SUM(hits) FROM {$table} WHERE last_seen >= %s AND is_ignored = 0", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             $seven_days_ago
         )) ?: 0;
         
         // Unique paths last 7 days (not ignored)
         $stats['unique_7d'] = $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(DISTINCT path) FROM $table WHERE last_seen >= %s AND is_ignored = 0",
+            "SELECT COUNT(DISTINCT path) FROM {$table} WHERE last_seen >= %s AND is_ignored = 0", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             $seven_days_ago
         )) ?: 0;
         
         // Today's 404s (not ignored)
         $stats['today'] = $wpdb->get_var($wpdb->prepare(
-            "SELECT SUM(hits) FROM $table WHERE last_seen >= %s AND is_ignored = 0",
+            "SELECT SUM(hits) FROM {$table} WHERE last_seen >= %s AND is_ignored = 0", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             $today_start
         )) ?: 0;
         
         // Total ignored
         $stats['ignored'] = $wpdb->get_var(
-            "SELECT COUNT(*) FROM $table WHERE is_ignored = 1"
+            "SELECT COUNT(*) FROM {$table} WHERE is_ignored = 1" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         ) ?: 0;
         
         // Cache for 1 hour
@@ -299,7 +299,7 @@ class AlmaSEO_404_Model {
         
         // Get all referrers from last 7 days
         $referrers = $wpdb->get_col($wpdb->prepare(
-            "SELECT referrer FROM $table WHERE last_seen >= %s AND is_ignored = 0 AND referrer IS NOT NULL AND referrer != ''",
+            "SELECT referrer FROM {$table} WHERE last_seen >= %s AND is_ignored = 0 AND referrer IS NOT NULL AND referrer != ''", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             $seven_days_ago
         ));
         

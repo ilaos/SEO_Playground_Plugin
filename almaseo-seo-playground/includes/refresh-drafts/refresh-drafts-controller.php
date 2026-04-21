@@ -60,7 +60,7 @@ class AlmaSEO_Refresh_Drafts_Controller {
             return;
         }
 
-        $review_id = isset( $_GET['review'] ) ? absint( $_GET['review'] ) : 0;
+        $review_id = isset( $_GET['review'] ) ? absint( wp_unslash( $_GET['review'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
         if ( $review_id ) {
             if ( class_exists( 'AlmaSEO_Refresh_Draft_Model' ) ) {

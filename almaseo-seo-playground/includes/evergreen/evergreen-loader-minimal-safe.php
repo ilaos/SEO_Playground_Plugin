@@ -19,7 +19,7 @@ if (defined('WP_SANDBOX_SCRAPING') && WP_SANDBOX_SCRAPING) {
     return;
 }
 
-if (isset($_GET['action']) && $_GET['action'] === 'activate') {
+if (isset($_GET['action']) && sanitize_key(wp_unslash($_GET['action'])) === 'activate') { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
     return;
 }
 

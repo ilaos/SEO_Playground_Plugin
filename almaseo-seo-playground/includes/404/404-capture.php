@@ -74,8 +74,8 @@ class AlmaSEO_404_Capture {
         }
         
         // Get additional data
-        $referrer = isset($_SERVER['HTTP_REFERER']) ? sanitize_text_field($_SERVER['HTTP_REFERER']) : null;
-        $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? substr(sanitize_text_field($_SERVER['HTTP_USER_AGENT']), 0, 512) : null;
+        $referrer = isset($_SERVER['HTTP_REFERER']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_REFERER'])) : null;
+        $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? substr(sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])), 0, 512) : null;
         $ip = self::get_client_ip();
         
         // Log the 404
@@ -86,7 +86,7 @@ class AlmaSEO_404_Capture {
      * Get request path
      */
     private static function get_request_path() {
-        $request_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+        $request_uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
         
         // Parse URL to get path
         $parsed = wp_parse_url($request_uri);
@@ -112,8 +112,8 @@ class AlmaSEO_404_Capture {
         if (empty($_SERVER['QUERY_STRING'])) {
             return null;
         }
-        
-        $query = sanitize_text_field($_SERVER['QUERY_STRING']);
+
+        $query = sanitize_text_field(wp_unslash($_SERVER['QUERY_STRING']));
         
         // Limit to 255 characters
         if (strlen($query) > 255) {
@@ -159,7 +159,7 @@ class AlmaSEO_404_Capture {
         }
         
         // Use REMOTE_ADDR as the trusted source; proxy headers can be spoofed
-        $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
+        $ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '';
         
         // Validate and pack IP
         if ($ip) {

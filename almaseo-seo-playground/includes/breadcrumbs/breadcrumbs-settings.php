@@ -55,7 +55,7 @@ class AlmaSEO_Breadcrumbs_Settings {
         // Match the settings page hook — WordPress generates it as {parent}_page_{slug}
         // but sanitization can vary, so also check the query string as a fallback.
         $is_settings_page = (strpos($hook, 'almaseo-settings') !== false)
-            || (isset($_GET['page']) && $_GET['page'] === 'almaseo-settings');
+            || (isset($_GET['page']) && sanitize_text_field(wp_unslash($_GET['page'])) === 'almaseo-settings'); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         if (!$is_settings_page) {
             return;
         }

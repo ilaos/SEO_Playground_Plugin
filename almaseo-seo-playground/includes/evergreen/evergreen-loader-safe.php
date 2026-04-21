@@ -61,7 +61,7 @@ class AlmaSEO_Evergreen_Loader_Safe {
         }
         
         // Don't load if doing activation
-        if (isset($_GET['action']) && $_GET['action'] === 'activate') {
+        if (isset($_GET['action']) && sanitize_key(wp_unslash($_GET['action'])) === 'activate') { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             return false;
         }
         
@@ -137,7 +137,7 @@ class AlmaSEO_Evergreen_Loader_Safe {
         }
         
         // Check if on our settings page
-        $is_evergreen_page = isset($_GET['page']) && strpos($_GET['page'], 'almaseo-evergreen') !== false;
+        $is_evergreen_page = isset($_GET['page']) && strpos(sanitize_text_field(wp_unslash($_GET['page'])), 'almaseo-evergreen') !== false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         
         // Load scoring for post pages
         if (in_array($pagenow, array('post.php', 'post-new.php')) || $is_evergreen_page) {
@@ -177,7 +177,7 @@ class AlmaSEO_Evergreen_Loader_Safe {
             if (file_exists(dirname(__FILE__) . '/admin.php')) {
                 require_once dirname(__FILE__) . '/admin.php';
             }
-            if (isset($_GET['page']) && $_GET['page'] === 'almaseo-evergreen-dashboard') {
+            if (isset($_GET['page']) && sanitize_text_field(wp_unslash($_GET['page'])) === 'almaseo-evergreen-dashboard') { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
                 if (file_exists(dirname(__FILE__) . '/dashboard.php')) {
                     require_once dirname(__FILE__) . '/dashboard.php';
                 }

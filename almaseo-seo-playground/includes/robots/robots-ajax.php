@@ -16,20 +16,20 @@ if (!defined('ABSPATH')) {
 add_action('wp_ajax_almaseo_robots_save', 'almaseo_ajax_robots_save');
 function almaseo_ajax_robots_save() {
     // Check nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'almaseo_robots_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'almaseo_robots_nonce')) {
         wp_send_json_error(array('message' => __('Security check failed.', 'almaseo-seo-playground')));
     }
-    
+
     // Check permissions
     if (!current_user_can('manage_options')) {
         wp_send_json_error(array('message' => __('Insufficient permissions.', 'almaseo-seo-playground')));
     }
-    
+
     $controller = AlmaSEO_Robots_Controller::get_instance();
-    
+
     // Get and sanitize input
-    $content = isset($_POST['content']) ? $controller->sanitize_robots_content($_POST['content']) : '';
-    $mode = isset($_POST['mode']) ? $controller->sanitize_robots_mode($_POST['mode']) : 'virtual';
+    $content = isset($_POST['content']) ? $controller->sanitize_robots_content(wp_unslash($_POST['content'])) : '';
+    $mode = isset($_POST['mode']) ? $controller->sanitize_robots_mode(wp_unslash($_POST['mode'])) : 'virtual';
     
     // Save mode
     update_option('almaseo_robots_mode', $mode);
@@ -85,17 +85,17 @@ function almaseo_ajax_robots_save() {
 add_action('wp_ajax_almaseo_robots_test', 'almaseo_ajax_robots_test');
 function almaseo_ajax_robots_test() {
     // Check nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'almaseo_robots_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'almaseo_robots_nonce')) {
         wp_send_json_error(array('message' => __('Security check failed.', 'almaseo-seo-playground')));
     }
-    
+
     // Check permissions
     if (!current_user_can('manage_options')) {
         wp_send_json_error(array('message' => __('Insufficient permissions.', 'almaseo-seo-playground')));
     }
-    
+
     $controller = AlmaSEO_Robots_Controller::get_instance();
-    
+
     // Get current output
     $output = $controller->get_current_output();
     
@@ -136,18 +136,18 @@ function almaseo_ajax_robots_test() {
 add_action('wp_ajax_almaseo_robots_get_default', 'almaseo_ajax_robots_get_default');
 function almaseo_ajax_robots_get_default() {
     // Check nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'almaseo_robots_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'almaseo_robots_nonce')) {
         wp_send_json_error(array('message' => __('Security check failed.', 'almaseo-seo-playground')));
     }
-    
+
     // Check permissions
     if (!current_user_can('manage_options')) {
         wp_send_json_error(array('message' => __('Insufficient permissions.', 'almaseo-seo-playground')));
     }
-    
+
     $controller = AlmaSEO_Robots_Controller::get_instance();
-    
-    $type = isset($_POST['type']) ? sanitize_text_field($_POST['type']) : 'almaseo';
+
+    $type = isset($_POST['type']) ? sanitize_text_field(wp_unslash($_POST['type'])) : 'almaseo';
     
     if ($type === 'wordpress') {
         $content = $controller->get_wp_default();
@@ -166,17 +166,17 @@ function almaseo_ajax_robots_get_default() {
 add_action('wp_ajax_almaseo_robots_check_status', 'almaseo_ajax_robots_check_status');
 function almaseo_ajax_robots_check_status() {
     // Check nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'almaseo_robots_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'almaseo_robots_nonce')) {
         wp_send_json_error(array('message' => __('Security check failed.', 'almaseo-seo-playground')));
     }
-    
+
     // Check permissions
     if (!current_user_can('manage_options')) {
         wp_send_json_error(array('message' => __('Insufficient permissions.', 'almaseo-seo-playground')));
     }
-    
+
     $controller = AlmaSEO_Robots_Controller::get_instance();
-    
+
     $status = array(
         'physical_exists' => $controller->physical_file_exists(),
         'is_writable' => $controller->is_file_writable(),
