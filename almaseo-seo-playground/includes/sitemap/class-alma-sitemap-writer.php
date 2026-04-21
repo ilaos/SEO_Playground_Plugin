@@ -647,7 +647,7 @@ class Alma_Sitemap_Writer {
         
         // Log completion
         if (defined('WP_CLI') && WP_CLI) {
-            \WP_CLI::success(sprintf(
+            \WP_CLI::success(sprintf( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- WP_CLI outputs to terminal, not HTML
                 'Generated %s sitemap: %d URLs in %.2fs',
                 $name,
                 $total_urls,

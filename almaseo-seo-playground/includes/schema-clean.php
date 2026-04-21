@@ -116,7 +116,7 @@ function almaseo_output_schema_jsonld() {
     // Output schema with proper markers for exclusive mode
     echo "<!-- AlmaSEO Schema -->\n";
     echo '<script type="application/ld+json" id="almaseo-jsonld" data-almaseo="1">' . "\n";
-    echo wp_json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    echo wp_json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional JSON-LD output
     echo "\n</script>\n";
     echo "<!-- /AlmaSEO Schema -->\n";
 }

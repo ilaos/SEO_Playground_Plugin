@@ -192,12 +192,15 @@ function almaseo_eg_admin_notices() {
             <li>
                 <?php
                 $state_emoji = $change['new_state'] === ALMASEO_EG_STATUS_STALE ? '🔴' : '🟡';
-                printf(
-                    /* translators: %1$s: status emoji, %2$s: post title, %3$s: new state label */
-                    __('%1$s "%2$s" is now %3$s', 'almaseo-seo-playground'),
-                    $state_emoji,
-                    esc_html($change['post_title']),
-                    '<strong>' . almaseo_eg_get_state_label($change['new_state']) . '</strong>'
+                echo wp_kses(
+                    sprintf(
+                        /* translators: %1$s: status emoji, %2$s: post title, %3$s: new state label */
+                        __('%1$s "%2$s" is now %3$s', 'almaseo-seo-playground'),
+                        esc_html($state_emoji),
+                        esc_html($change['post_title']),
+                        '<strong>' . esc_html(almaseo_eg_get_state_label($change['new_state'])) . '</strong>'
+                    ),
+                    array( 'strong' => array() )
                 );
                 ?>
                 <a href="<?php echo esc_url(get_edit_post_link($change['post_id'])); ?>" style="margin-left: 5px;">
@@ -249,7 +252,7 @@ function almaseo_eg_settings_page_content() {
         
         echo '<div class="notice notice-success"><p>';
         /* translators: %d: number of posts refreshed */
-        printf(esc_html__('Refreshed %d posts successfully!', 'almaseo-seo-playground'), $result['processed']);
+        printf(esc_html__('Refreshed %d posts successfully!', 'almaseo-seo-playground'), intval($result['processed']));
         echo '</p></div>';
     }
     

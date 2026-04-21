@@ -85,7 +85,7 @@ class AlmaSEO_Woo_Schema {
         
         if ($schema) {
             echo "\n<!-- AlmaSEO WooCommerce Product Schema -->\n";
-            echo '<script type="application/ld+json">' . wp_json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>';
+            echo '<script type="application/ld+json">' . wp_json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional JSON-LD output
             echo "\n<!-- /AlmaSEO WooCommerce Product Schema -->\n";
         }
     }
@@ -520,7 +520,7 @@ class AlmaSEO_Woo_Schema {
         }
         
         echo '<script type="application/ld+json" class="almaseo-woo-loop-schema">';
-        echo wp_json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        echo wp_json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional JSON-LD output
         echo '</script>';
     }
 }

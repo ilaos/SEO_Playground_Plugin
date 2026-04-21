@@ -10,6 +10,8 @@ if (!defined('WP_CLI')) {
     return;
 }
 
+// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- WP_CLI outputs to terminal, not HTML
+
 /**
  * Manage AlmaSEO schema functionality.
  */
@@ -88,7 +90,7 @@ class AlmaSEO_Schema_CLI_Command {
         // Display details based on format
         switch ($format) {
             case 'json':
-                WP_CLI::log(json_encode($result, JSON_PRETTY_PRINT));
+                WP_CLI::log(wp_json_encode($result, JSON_PRETTY_PRINT));
                 break;
                 
             case 'csv':
@@ -235,22 +237,22 @@ class AlmaSEO_Schema_CLI_Command {
         
         // Kept blocks
         foreach ($result['kept_blocks'] as $block) {
-            echo sprintf(
+            echo esc_html(sprintf(
                 "Kept,%s,%s,%s\n",
                 $this->csv_escape($block['type']),
                 $this->csv_escape($block['reason']),
                 $this->csv_escape(substr($block['snippet'], 0, 100))
-            );
+            ));
         }
         
         // Removed blocks
         foreach ($result['removed_blocks'] as $block) {
-            echo sprintf(
+            echo esc_html(sprintf(
                 "Removed,%s,%s,%s\n",
                 $this->csv_escape($block['type']),
                 $this->csv_escape($block['source']),
                 $this->csv_escape(substr($block['snippet'], 0, 100))
-            );
+            ));
         }
     }
     
@@ -308,3 +310,5 @@ class AlmaSEO_Schema_CLI_Command {
 
 // Register the command
 WP_CLI::add_command('almaseo schema', 'AlmaSEO_Schema_CLI_Command');
+
+// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped

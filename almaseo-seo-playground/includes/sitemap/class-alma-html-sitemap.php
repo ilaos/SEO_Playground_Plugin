@@ -54,7 +54,7 @@ class Alma_HTML_Sitemap {
         <div class="almaseo-html-sitemap almaseo-columns-<?php echo esc_attr($atts['columns']); ?>">
             <?php
             foreach ($types as $type) {
-                echo self::render_section($type, $atts, $settings);
+                echo self::render_section($type, $atts, $settings); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML escaped in render method
             }
             ?>
         </div>
@@ -71,33 +71,33 @@ class Alma_HTML_Sitemap {
         switch ($type) {
             case 'posts':
                 if (!empty($settings['include']['posts'])) {
-                    echo self::render_posts_section($atts);
+                    echo self::render_posts_section($atts); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML escaped in render method
                 }
                 break;
                 
             case 'pages':
                 if (!empty($settings['include']['pages'])) {
-                    echo self::render_pages_section($atts);
+                    echo self::render_pages_section($atts); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML escaped in render method
                 }
                 break;
                 
             case 'cpts':
                 if ($settings['include']['cpts'] === 'all' || !empty($settings['include']['cpts'])) {
-                    echo self::render_cpts_section($atts);
+                    echo self::render_cpts_section($atts); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML escaped in render method
                 }
                 break;
                 
             case 'tax':
             case 'taxonomies':
                 if (!empty($settings['include']['tax'])) {
-                    echo self::render_taxonomies_section($atts, $settings);
+                    echo self::render_taxonomies_section($atts, $settings); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML escaped in render method
                 }
                 break;
                 
             case 'users':
             case 'authors':
                 if (!empty($settings['include']['users'])) {
-                    echo self::render_users_section($atts);
+                    echo self::render_users_section($atts); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML escaped in render method
                 }
                 break;
         }
@@ -214,7 +214,7 @@ class Alma_HTML_Sitemap {
         ?>
         <div class="almaseo-sitemap-section">
             <h3><?php esc_html_e('Pages', 'almaseo-seo-playground'); ?></h3>
-            <?php echo self::render_page_tree($pages); ?>
+            <?php echo self::render_page_tree($pages); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML escaped in render method ?>
         </div>
         <?php
         return ob_get_clean();

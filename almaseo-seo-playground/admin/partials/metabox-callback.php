@@ -577,9 +577,9 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 </div>
                 <script>
                 (function() {
-                    var powerWords = <?php echo wp_json_encode( AlmaSEO_Headline_Analyzer::get_word_lists()['power'] ); ?>;
-                    var emotionalWords = <?php echo wp_json_encode( AlmaSEO_Headline_Analyzer::get_word_lists()['emotional'] ); ?>;
-                    var commonWords = <?php echo wp_json_encode( AlmaSEO_Headline_Analyzer::get_word_lists()['common'] ); ?>;
+                    var powerWords = <?php echo wp_json_encode( AlmaSEO_Headline_Analyzer::get_word_lists()['power'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional JSON output ?>;
+                    var emotionalWords = <?php echo wp_json_encode( AlmaSEO_Headline_Analyzer::get_word_lists()['emotional'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional JSON output ?>;
+                    var commonWords = <?php echo wp_json_encode( AlmaSEO_Headline_Analyzer::get_word_lists()['common'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional JSON output ?>;
 
                     var $input = document.getElementById('almaseo_seo_title');
                     var $wrap  = document.getElementById('almaseo-headline-analyzer');
@@ -2823,9 +2823,9 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         var twDesc  = document.getElementById('tw-preview-desc');
                         var twWrap  = document.getElementById('twitter-preview-container');
 
-                        var postTitle = <?php echo wp_json_encode( get_the_title( $post->ID ) ); ?>;
-                        var postExcerpt = <?php echo wp_json_encode( wp_trim_words( $post->post_content, 25 ) ); ?>;
-                        var featuredImage = <?php echo wp_json_encode( get_the_post_thumbnail_url( $post->ID, 'large' ) ?: '' ); ?>;
+                        var postTitle = <?php echo wp_json_encode( get_the_title( $post->ID ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional JSON output ?>;
+                        var postExcerpt = <?php echo wp_json_encode( wp_trim_words( $post->post_content, 25 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional JSON output ?>;
+                        var featuredImage = <?php echo wp_json_encode( get_the_post_thumbnail_url( $post->ID, 'large' ) ?: '' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional JSON output ?>;
 
                         function getVal(el) { return el ? el.value.trim() : ''; }
 

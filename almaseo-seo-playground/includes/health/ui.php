@@ -156,7 +156,7 @@ function almaseo_health_meta_box_callback($post) {
                     <span class="signal-label">
                         <?php echo esc_html($label); ?>
                         <?php /* translators: %d: weight value in points */ ?>
-                        <span class="signal-weight" title="<?php printf(esc_attr__('Worth %d points out of 100', 'almaseo-seo-playground'), $weight); ?>">(<?php echo esc_html($weight); ?> pts)</span>
+                        <span class="signal-weight" title="<?php printf(esc_attr__('Worth %d points out of 100', 'almaseo-seo-playground'), intval($weight)); ?>">(<?php echo esc_html($weight); ?> pts)</span>
                     </span>
                     <?php if (!$result['pass']): ?>
                     <button type="button" class="signal-fix-btn" data-signal="<?php echo esc_attr($signal); ?>">
@@ -306,8 +306,8 @@ function almaseo_health_meta_box_callback($post) {
                     <?php printf(
                         /* translators: %1$d: number of checks passed, %2$d: total number of checks */
                         esc_html__( '%1$d of %2$d checks pass. Recalculate to refresh after editing.', 'almaseo-seo-playground' ),
-                        $readability_data['pass_count'],
-                        $readability_data['total_checks']
+                        intval($readability_data['pass_count']),
+                        intval($readability_data['total_checks'])
                     ); ?>
                 </p>
             </div>

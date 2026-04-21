@@ -8,6 +8,8 @@ if (!defined('WP_CLI') || !WP_CLI) {
     return;
 }
 
+// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- WP_CLI outputs to terminal, not HTML
+
 // Include deployment tools
 require_once plugin_dir_path(__FILE__) . '../deployment/preflight-checklist.php';
 require_once plugin_dir_path(__FILE__) . '../deployment/automated-tests.php';
@@ -734,3 +736,5 @@ if (class_exists('\\AlmaSEO\\Deployment\\PreflightChecker')) {
 if (class_exists('\\AlmaSEO\\Testing\\AutomatedTester')) {
     WP_CLI::add_command('almaseo test', 'AlmaSEO_Test_Command');
 }
+
+// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped

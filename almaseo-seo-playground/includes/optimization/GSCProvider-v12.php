@@ -105,14 +105,14 @@ class GSCProvider implements KeywordProviderInterface {
         ]);
         
         if (is_wp_error($response)) {
-            throw new \Exception('GSC API request failed: ' . $response->get_error_message());
+            throw new \Exception('GSC API request failed: ' . esc_html($response->get_error_message()));
         }
         
         $body = wp_remote_retrieve_body($response);
         $data = json_decode($body, true);
         
         if (isset($data['error'])) {
-            throw new \Exception('GSC API error: ' . ($data['error']['message'] ?? 'Unknown error'));
+            throw new \Exception('GSC API error: ' . esc_html($data['error']['message'] ?? 'Unknown error'));
         }
         
         return $data['rows'] ?? [];

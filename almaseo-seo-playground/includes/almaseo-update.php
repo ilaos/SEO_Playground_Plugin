@@ -337,7 +337,7 @@ class AlmaSEO_Update_Manager {
                     $('#almaseo-update-notice').on('click', '.notice-dismiss', function() {
                         $.post(ajaxurl, {
                             action: 'almaseo_dismiss_update_notice',
-                            _ajax_nonce: <?php echo wp_json_encode(wp_create_nonce('almaseo_dismiss')); ?>
+                            _ajax_nonce: <?php echo wp_json_encode(wp_create_nonce('almaseo_dismiss')); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional JSON output ?>
                         });
                     });
                     
@@ -347,7 +347,7 @@ class AlmaSEO_Update_Manager {
                         
                         $.post(ajaxurl, {
                             action: 'almaseo_check_updates_now',
-                            nonce: <?php echo wp_json_encode(wp_create_nonce('almaseo_updates')); ?>
+                            nonce: <?php echo wp_json_encode(wp_create_nonce('almaseo_updates')); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional JSON output ?>
                         }, function(response) {
                             if (response.success) {
                                 if (response.data.found) {

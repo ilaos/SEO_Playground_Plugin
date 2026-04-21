@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.6.16
+Stable tag: 1.6.17
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,14 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.6.17 =
+* Fix: Add phpcs:ignore for 15 wp_json_encode() calls in JSON-LD and inline script contexts
+* Fix: Add phpcs:ignore for 7 HTML sitemap render methods (content escaped internally)
+* Fix: Add phpcs:disable for WP_CLI output in 3 CLI files (terminal context, not HTML)
+* Fix: Wrap sitemaps-screen tab fallback output in wp_kses_post()
+* Fix: Escape $cnt, paginate_links, $weight, readability counts, WP_CLI exception messages
+* Fix: Replace json_encode with wp_json_encode in schema CLI command
 
 = 1.6.16 =
 * Fix: Escape 60 remaining unescaped output instances across 21 files

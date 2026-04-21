@@ -154,7 +154,7 @@ try {
                     </div>
                     <p><?php
                     /* translators: %1$d: number of URLs checked so far, %2$d: total URLs to check */
-                    printf(esc_html__('Scanning: %1$d/%2$d URLs checked', 'almaseo-seo-playground'), $scan_status['checked'], $scan_status['total']); ?></p>
+                    printf(esc_html__('Scanning: %1$d/%2$d URLs checked', 'almaseo-seo-playground'), intval($scan_status['checked']), intval($scan_status['total'])); ?></p>
                 </div>
             <?php else : ?>
                 <div class="almaseo-scan-results">

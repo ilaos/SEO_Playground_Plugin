@@ -182,7 +182,7 @@ function almaseo_render_meta_tags() {
         }
 
         echo '<script type="application/ld+json">' . "\n";
-        echo wp_json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n";
+        echo wp_json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional JSON-LD output
         echo '</script>' . "\n";
     }
 }

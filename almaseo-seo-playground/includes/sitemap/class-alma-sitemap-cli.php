@@ -12,6 +12,8 @@ if (!defined('WP_CLI')) {
     return;
 }
 
+// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- WP_CLI outputs to terminal, not HTML
+
 class Alma_Sitemap_CLI {
     
     /**
@@ -484,3 +486,5 @@ class Alma_Sitemap_CLI {
 
 // Register commands
 WP_CLI::add_command('almaseo sitemaps', 'Alma_Sitemap_CLI');
+
+// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped

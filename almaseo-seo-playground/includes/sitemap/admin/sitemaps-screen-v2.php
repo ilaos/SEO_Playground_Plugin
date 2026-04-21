@@ -222,7 +222,7 @@ class Alma_Sitemaps_Screen_V2 {
             include $partial_file;
         } else {
             /* translators: %s: name of the missing tab */
-            echo '<div class="alma-empty">' . sprintf(__('Tab content not found: %s', 'almaseo-seo-playground'), esc_html($tab_key)) . '</div>';
+            echo wp_kses_post('<div class="alma-empty">' . sprintf(__('Tab content not found: %s', 'almaseo-seo-playground'), esc_html($tab_key)) . '</div>');
         }
     }
     

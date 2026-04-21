@@ -74,12 +74,12 @@ function almaseo_history_render_card($post) {
             <h4><?php esc_html_e('Version History', 'almaseo-seo-playground'); ?></h4>
             <p class="description">
                 <?php 
-                printf(
+                echo esc_html(sprintf(
                     /* translators: %1$d: number of versions, %2$s: plural "s" or empty */
                     __('Showing %1$d version%2$s. Click "Compare" to see differences or "Restore" to revert changes.', 'almaseo-seo-playground'),
                     count($snapshots),
                     count($snapshots) > 1 ? 's' : ''
-                );
+                ));
                 ?>
             </p>
         </div>

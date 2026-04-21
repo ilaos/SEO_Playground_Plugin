@@ -160,7 +160,7 @@ function almaseo_eg_render_dashboard() {
         $cnt = (int) $_GET['eg_analyzed'];
         echo '<div class="notice notice-success is-dismissible"><p>'
             /* translators: %d: number of posts processed */
-            . sprintf(esc_html__('Evergreen analysis complete. Processed %d posts.', 'almaseo-seo-playground'), $cnt)
+            . sprintf(esc_html__('Evergreen analysis complete. Processed %d posts.', 'almaseo-seo-playground'), intval($cnt))
             . '</p></div>';
     }
     
@@ -457,14 +457,14 @@ function almaseo_eg_render_dashboard() {
             <div class="tablenav bottom">
                 <div class="tablenav-pages">
                     <?php
-                    echo paginate_links(array(
+                    echo wp_kses_post(paginate_links(array(
                         'base' => add_query_arg('paged', '%#%'),
                         'format' => '',
                         'prev_text' => __('&laquo;', 'almaseo-seo-playground'),
                         'next_text' => __('&raquo;', 'almaseo-seo-playground'),
                         'total' => $at_risk_posts['total_pages'],
                         'current' => $paged
-                    ));
+                    )));
                     ?>
                 </div>
             </div>
