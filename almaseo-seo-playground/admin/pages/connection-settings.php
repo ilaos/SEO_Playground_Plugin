@@ -3,7 +3,8 @@
  * AlmaSEO Connection Settings Page
  *
  * Renders the connection/settings page for linking the site to AlmaSEO Dashboard.
- * Handles password generation, manual import, connection testing, and disconnection.
+ * Handles password generation with REST verification, JWT fallback for restricted hosts,
+ * manual import, connection testing, and disconnection.
  *
  * @package AlmaSEO
  * @since 6.5.0
@@ -13,7 +14,6 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-// Settings page HTML - Completely redesigned for smooth UX
 if (!function_exists('almaseo_connector_settings_page')) {
 function almaseo_connector_settings_page() {
     if (!current_user_can('manage_options')) return;
@@ -24,60 +24,32 @@ function almaseo_connector_settings_page() {
     $comprehensive_status = almaseo_get_comprehensive_connection_status();
     $app_password = get_option('almaseo_app_password', '');
 
-    // Check for dashboard sync success
-    if ($sync_success = get_transient('almaseo_dashboard_sync_success')) {
-        echo '<div class="notice notice-success is-dismissible">';
-        echo '<p><strong>✅ Site Automatically Connected!</strong></p>';
-        echo '<p>Your site was found in the AlmaSEO Dashboard (Site ID: ' . esc_html($sync_success['site_id']) . ').</p>';
-        echo '<p>Using existing Application Password: ' . esc_html($sync_success['password_name']) . ' for user: ' . esc_html($sync_success['username']) . '</p>';
-        echo '</div>';
-        delete_transient('almaseo_dashboard_sync_success');
-    }
-
-    // Check if password import is needed
-    if ($needs_import = get_transient('almaseo_needs_password_import')) {
-        echo '<div class="notice notice-warning">';
-        echo '<p><strong>🔑 Password Import Required</strong></p>';
-        echo '<p>Your site is registered in AlmaSEO Dashboard (Site ID: ' . esc_html($needs_import['site_id']) . ') but the Application Password needs to be imported.</p>';
-        echo '<p><a href="#import-connection" class="button button-primary">Import Connection Details</a></p>';
-        echo '</div>';
-    }
-
-    // Handle import connection
-    if (isset($_POST['import_connection']) && check_admin_referer('almaseo_import_connection')) {
-        $import_site_id = isset($_POST['import_site_id']) ? sanitize_text_field($_POST['import_site_id']) : '';
-        $import_app_password = isset($_POST['import_app_password']) ? sanitize_text_field($_POST['import_app_password']) : '';
-        $import_username = isset($_POST['import_username']) ? sanitize_text_field($_POST['import_username']) : '';
-
-        $import_result = almaseo_import_connection_details($import_site_id, $import_app_password, $import_username);
-
-        if ($import_result['success']) {
-            echo '<div class="notice notice-success is-dismissible">';
-            echo '<p><strong>✅ Connection Imported Successfully!</strong></p>';
-            echo '<p>Site ID: ' . esc_html($import_result['site_id']) . ' | Username: ' . esc_html($import_result['username']) . '</p>';
-            echo '<p>All AlmaSEO SEO Playground features are now unlocked!</p>';
-            echo '</div>';
-
-            // Refresh connection status
-            $connection_status = almaseo_get_connection_status();
-            $comprehensive_status = almaseo_get_comprehensive_connection_status();
-            $app_password = get_option('almaseo_app_password', '');
-        } else {
-            echo '<div class="notice notice-error is-dismissible">';
-            echo '<p><strong>❌ Import Failed</strong></p>';
-            echo '<p>' . esc_html($import_result['message']) . '</p>';
-            echo '</div>';
+    // Validate stored password — check if a real WP Application Password still exists
+    $stale_password = false;
+    if ($app_password && !isset($_POST['generate_password']) && !isset($_POST['save_manual_password'])) {
+        if (class_exists('WP_Application_Passwords')) {
+            $wp_app_passwords = WP_Application_Passwords::get_user_application_passwords($current_user->ID);
+            $has_almaseo_wp_password = false;
+            foreach ($wp_app_passwords as $wp_app) {
+                if (strpos($wp_app['name'], 'AlmaSEO') === 0) {
+                    $has_almaseo_wp_password = true;
+                    break;
+                }
+            }
+            if (!$has_almaseo_wp_password) {
+                $stale_password = true;
+                delete_option('almaseo_app_password');
+                $app_password = '';
+                $connection_status = array('connected' => false, 'connected_user' => null, 'connected_date' => null, 'site_url' => get_site_url());
+            }
         }
     }
 
     // Handle manual password saving with improved validation
     if (isset($_POST['save_manual_password']) && check_admin_referer('almaseo_manual_password')) {
         $manual_password = isset($_POST['manual_app_password']) ? sanitize_text_field($_POST['manual_app_password']) : '';
+        $cleaned_password = str_replace(' ', '', $manual_password);
 
-        // Clean up password (remove spaces that WordPress adds)
-        $cleaned_password = str_replace(' ', '', $manual_password ?? '');
-
-        // Validate password format
         if (strlen($cleaned_password) >= 20 && preg_match('/^[A-Za-z0-9]+$/', $cleaned_password)) {
             update_option('almaseo_app_password', $cleaned_password);
             update_option('almaseo_connected_user', $username);
@@ -85,16 +57,9 @@ function almaseo_connector_settings_page() {
             $app_password = $cleaned_password;
 
             echo '<div class="notice notice-success almaseo-success-notice" style="padding: 15px; border-left: 4px solid #46b450;">';
-            echo '<h3 style="margin-top: 0;">🎉 Perfect! Connection Password Saved Successfully</h3>';
-            echo '<p>Great job! Your WordPress plugin is now configured and ready to connect.</p>';
-            echo '<p><strong>Next step:</strong> Test the connection using the button below to verify everything is working.</p>';
+            echo '<h3 style="margin-top: 0;">Connection Password Saved Successfully</h3>';
+            echo '<p>Your WordPress plugin is now configured and ready to connect.</p>';
             echo '</div>';
-
-            // Auto-scroll to test button
-            echo '<script>setTimeout(function() {
-                var testBtn = document.getElementById("almaseo-test-connection");
-                if (testBtn) testBtn.scrollIntoView({behavior: "smooth", block: "center"});
-            }, 500);</script>';
         } else {
             echo '<div class="notice notice-error" style="padding: 15px; border-left: 4px solid #dc3232;">';
             echo '<p><strong>Invalid Application Password</strong></p>';
@@ -102,31 +67,79 @@ function almaseo_connector_settings_page() {
             echo '</div>';
         }
     }
+
     $generated_password = '';
     $generation_error = '';
 
+    // Handle password generation with REST verification
     if (isset($_POST['generate_password']) && check_admin_referer('almaseo_generate_password')) {
         $app_passwords_check = almaseo_check_app_passwords_available();
         if (is_wp_error($app_passwords_check)) {
-            $generation_error = $app_passwords_check->get_error_message();
-        } else if (function_exists('wp_generate_application_password')) {
-            // First clean up any existing AlmaSEO passwords to ensure only one exists
+            $generation_error = 'wp_version';
+        } else {
             almaseo_cleanup_old_passwords($current_user->ID);
-
             $label = 'AlmaSEO Connection ' . wp_date('Y-m-d H:i:s');
-            list($new_password, $item) = wp_generate_application_password($current_user->ID, $label);
 
-            if ($new_password) {
-                $generated_password = $new_password;
-                update_option('almaseo_app_password', $new_password);
-                update_option('almaseo_connected_user', $username);
-                update_option('almaseo_connected_date', current_time('mysql'));
-                echo '<div class="notice notice-success almaseo-success-notice">';
-                echo '<h3>🎉 Excellent! Connection Password Generated Successfully</h3>';
-                echo '<p>Perfect! Your WordPress plugin is now configured and ready to connect.</p>';
-                echo '</div>';
+            // Try the helper function first, fall back to class method
+            $gen_result = null;
+            if (function_exists('wp_generate_application_password')) {
+                $gen_result = wp_generate_application_password($current_user->ID, $label);
+            }
+            if (!$gen_result || is_wp_error($gen_result)) {
+                if (class_exists('WP_Application_Passwords')) {
+                    $gen_result = WP_Application_Passwords::create_new_application_password(
+                        $current_user->ID,
+                        array('name' => $label)
+                    );
+                }
+            }
+
+            if (is_wp_error($gen_result)) {
+                $generation_error = 'hosting_blocked';
+            } elseif (!empty($gen_result) && is_array($gen_result)) {
+                $new_password = is_string($gen_result[0]) ? $gen_result[0] : null;
+                if ($new_password) {
+                    // Verify the password actually works via REST API
+                    // Some hosts allow creation but block the Authorization header
+                    $test_url = rest_url('wp/v2/users/me');
+                    $test_response = wp_remote_get($test_url, array(
+                        'headers' => array(
+                            'Authorization' => 'Basic ' . base64_encode($username . ':' . $new_password),
+                        ),
+                        'timeout' => 10,
+                        'sslverify' => false,
+                    ));
+                    $test_code = wp_remote_retrieve_response_code($test_response);
+
+                    if ($test_code === 200) {
+                        // Password works — full success
+                        $generated_password = $new_password;
+                        update_option('almaseo_app_password', $new_password);
+                        update_option('almaseo_connected_user', $username);
+                        update_option('almaseo_connected_date', current_time('mysql'));
+                        echo '<div class="notice notice-success almaseo-success-notice">';
+                        echo '<h3>Connection Password Generated Successfully</h3>';
+                        echo '<p>Your WordPress plugin is now configured and ready to connect.</p>';
+                        echo '</div>';
+                    } else {
+                        // Password was created but REST API auth is blocked by hosting
+                        // Clean up the unusable password
+                        if (class_exists('WP_Application_Passwords')) {
+                            $app_passwords_list = WP_Application_Passwords::get_user_application_passwords($current_user->ID);
+                            foreach ($app_passwords_list as $ap) {
+                                if ($ap['name'] === $label) {
+                                    WP_Application_Passwords::delete_application_password($current_user->ID, $ap['uuid']);
+                                    break;
+                                }
+                            }
+                        }
+                        $generation_error = 'hosting_blocked';
+                    }
+                } else {
+                    $generation_error = 'hosting_blocked';
+                }
             } else {
-                $generation_error = 'Failed to generate Application Password. Please try again.';
+                $generation_error = 'hosting_blocked';
             }
         }
     }
@@ -141,16 +154,13 @@ function almaseo_connector_settings_page() {
 
     echo '<div class="almaseo-container">';
 
-    // Header with prominent logo
+    // Header
     $logo_url = plugins_url('almaseo-logo.png', ALMASEO_PLUGIN_FILE);
     echo '<div class="almaseo-header">';
     echo '<div class="header-content">';
     echo '<div class="header-text">';
     echo '<h1>SEO Playground by AlmaSEO - Connection Settings</h1>';
     echo '<p>Connect your WordPress site to AlmaSEO AI for automated content creation and deeper LLM optimization analysis</p>';
-    echo '<p style="color: rgba(255,255,255,0.9); font-size: 13px; margin: 8px 0 0;">';
-    esc_html_e('Connect to AlmaSEO Dashboard to unlock AI tools, deeper LLM optimization analysis (more accurate summaries, entities, and trust signals), and enhanced data sources. Core features work without it.', 'almaseo-seo-playground');
-    echo '</p>';
     echo '</div>';
     echo '<div class="header-logo">';
     echo '<img src="' . esc_url($logo_url) . '" alt="AlmaSEO Assistant" class="almaseo-character">';
@@ -158,8 +168,18 @@ function almaseo_connector_settings_page() {
     echo '</div>';
     echo '</div>';
 
+    // Show stale password warning
+    if ($stale_password) {
+        echo '<div class="notice notice-warning" style="margin:16px 0;padding:12px 16px;border-left:4px solid #dba617;background:#fff8e1;">';
+        echo '<h3 style="margin:0 0 8px">Connection Password Expired</h3>';
+        echo '<p style="margin:0 0 8px">The previously stored Application Password no longer exists in WordPress. ';
+        echo 'This can happen if it was deleted from your <strong>Users &rarr; Profile</strong> page or during a plugin reinstall.</p>';
+        echo '<p style="margin:0"><strong>Please generate a new password below</strong>, then update it in your AlmaSEO dashboard site settings.</p>';
+        echo '</div>';
+    }
+
     if ($connection_status['connected'] && $app_password) {
-        // Connected State
+        // === CONNECTED STATE ===
         echo '<div class="almaseo-connected-state">';
         echo '<div class="status-badge connected">';
         echo '<i class="dashicons dashicons-yes-alt"></i>';
@@ -171,7 +191,6 @@ function almaseo_connector_settings_page() {
         echo '<strong>Site:</strong> ' . esc_html(get_bloginfo('name'));
         echo '</div>';
 
-        // Show Site ID if available
         if ($comprehensive_status['site_id']) {
             echo '<div class="detail-item">';
             echo '<strong>Site ID:</strong> <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">' . esc_html($comprehensive_status['site_id']) . '</code>';
@@ -182,36 +201,26 @@ function almaseo_connector_settings_page() {
         echo '<strong>Connected User:</strong> ' . esc_html($username ?: 'Unknown');
         echo '</div>';
 
-        // Show connection type
         $connection_type_display = array(
-            'dashboard_initiated' => '🌐 Dashboard',
-            'plugin_initiated' => '🔌 Plugin',
-            'imported' => '📥 Imported',
-            'unknown' => '❓ Unknown'
+            'dashboard_initiated' => 'Dashboard',
+            'plugin_initiated' => 'Plugin',
+            'imported' => 'Imported',
+            'unknown' => 'Unknown'
         );
         $conn_type = $comprehensive_status['connection_type'];
         echo '<div class="detail-item">';
         echo '<strong>Connection Type:</strong> ' . esc_html($connection_type_display[$conn_type] ?? $connection_type_display['unknown']);
         echo '</div>';
 
-        // Show connection status icons
         echo '<div class="detail-item">';
         echo '<strong>Status:</strong> ';
-        echo '<span style="margin-right: 10px;">Plugin ' . esc_html($comprehensive_status['plugin_connected'] ? '✅' : '❌') . '</span>';
-        echo '<span>Dashboard ' . esc_html($comprehensive_status['dashboard_connected'] ? '✅' : '❌') . '</span>';
+        echo '<span style="margin-right: 10px;">Plugin ' . ($comprehensive_status['plugin_connected'] ? '&#10003;' : '&#10007;') . '</span>';
+        echo '<span>Dashboard ' . ($comprehensive_status['dashboard_connected'] ? '&#10003;' : '&#10007;') . '</span>';
         echo '</div>';
 
         echo '<div class="detail-item">';
         echo '<strong>Connected:</strong> ' . esc_html($connection_status['connected_date'] ?? 'Unknown');
         echo '</div>';
-
-        // Show detected passwords if any
-        if (isset($comprehensive_status['detected_passwords']) && $comprehensive_status['detected_passwords'] > 0) {
-            echo '<div class="detail-item" style="background: #fff3cd; padding: 5px; border-radius: 3px; margin-top: 5px;">';
-            echo '<strong>⚠️ Note:</strong> Found ' . intval($comprehensive_status['detected_passwords']) . ' AlmaSEO password(s) for users: ' . esc_html(implode(', ', $comprehensive_status['detected_users']));
-            echo '</div>';
-        }
-
         echo '</div>';
 
         echo '<div class="connected-actions" style="margin-top: 20px; padding: 15px; background: #f0f8ff; border-radius: 4px;">';
@@ -232,109 +241,132 @@ function almaseo_connector_settings_page() {
 
         echo '</div>';
 
-        // Schema Settings Section (always shown)
-        echo '</div>'; // Close connected state div
-    } // Close if connected
-
-    if (!$connection_status['connected'] || !$app_password) {
-        // Setup Wizard State
+    } else {
+        // === SETUP WIZARD STATE ===
         echo '<div class="almaseo-setup-wizard">';
 
         if ($generation_error) {
-            echo '<div class="notice notice-error"><p>' . esc_html($generation_error ?: 'An error occurred') . '</p></div>';
+            if ($generation_error === 'hosting_blocked') {
+                // ===== HOSTING/WAF BLOCKED — JWT IS THE PRIMARY PATH =====
+                echo '<div style="background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:20px;margin:20px 30px 0;">';
+                echo '<h3 style="margin:0 0 8px;color:#856404;">Your hosting provider is blocking Application Passwords</h3>';
+                echo '<p style="margin:0 0 16px;color:#664d03;">This is a known issue with some hosting providers (GoDaddy, SiteGround, Bluehost, and others). ';
+                echo 'Their server firewall blocks the WordPress feature used for standard authentication. <strong>This is not a problem with your site or WordPress version.</strong></p>';
+                echo '</div>';
 
-            // Add fallback instructions for hosting limitations
-            if (strpos($generation_error ?? '', 'not available') !== false) {
-                echo '<div class="almaseo-fallback-instructions">';
-                echo '<h4>🔧 Alternative Setup Method</h4>';
-                echo '<p>Your hosting provider may have disabled automatic Application Password generation. No problem! You can create one manually:</p>';
+                // JWT — Recommended solution
+                $jwt_token = almaseo_create_jwt($username);
+                echo '<div style="background:#f0f7ff;border:2px solid #2271b1;border-radius:8px;padding:20px;margin:20px 30px;">';
+                echo '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">';
+                echo '<span style="background:#2271b1;color:#fff;font-weight:700;font-size:13px;padding:2px 10px;border-radius:4px;">RECOMMENDED</span>';
+                echo '<h3 style="margin:0;color:#1d4ed8;">Use JWT Token Instead</h3>';
+                echo '</div>';
+                echo '<p style="margin:0 0 12px;color:#374151;">The JWT Token is a secure alternative that bypasses hosting restrictions entirely. Copy the token below and paste it into your AlmaSEO dashboard when connecting this site.</p>';
 
-                echo '<div class="manual-steps-container">';
-                echo '<div class="manual-steps">';
-                echo '<div class="step-instruction">';
-                echo '<div class="step-number-small">1</div>';
-                echo '<div class="step-content">';
-                echo '<strong>Open WordPress Users Page</strong>';
-                echo '<p>Click the button below to open Users → Your Profile in a new tab:</p>';
-                echo '<a href="' . esc_url(admin_url('profile.php')) . '" target="_blank" class="button button-secondary">';
-                echo '<i class="dashicons dashicons-admin-users"></i> Open Your Profile';
-                echo '</a>';
+                echo '<div style="background:#fff;border:1px solid #c5d9ed;border-radius:6px;padding:14px;margin-bottom:12px;">';
+
+                echo '<div style="margin-bottom:8px;">';
+                echo '<label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px;">Your JWT Token:</label>';
+                echo '<div style="display:flex;gap:8px;">';
+                echo '<input type="text" readonly value="' . esc_attr($jwt_token) . '" class="connection-detail-input" style="flex:1;font-family:monospace;font-size:11px;padding:8px;border:1px solid #d1d5db;border-radius:4px;">';
+                echo '<button type="button" class="button button-primary copy-btn" data-copy="' . esc_attr($jwt_token) . '" style="white-space:nowrap;">Copy Token</button>';
                 echo '</div>';
                 echo '</div>';
 
-                echo '<div class="step-instruction">';
-                echo '<div class="step-number-small">2</div>';
-                echo '<div class="step-content">';
-                echo '<strong>Create Application Password</strong>';
-                echo '<p>In the new tab, scroll down to <strong>"Application Passwords"</strong> section and:</p>';
-                echo '<ul>';
+                echo '<div style="margin-bottom:8px;">';
+                echo '<label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px;">Site URL:</label>';
+                echo '<div style="display:flex;gap:8px;">';
+                echo '<input type="text" readonly value="' . esc_attr(get_site_url()) . '" class="connection-detail-input" style="flex:1;padding:8px;border:1px solid #d1d5db;border-radius:4px;">';
+                echo '<button type="button" class="button copy-btn" data-copy="' . esc_attr(get_site_url()) . '">Copy</button>';
+                echo '</div>';
+                echo '</div>';
+
+                echo '<div>';
+                echo '<label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px;">Username:</label>';
+                echo '<div style="display:flex;gap:8px;">';
+                echo '<input type="text" readonly value="' . esc_attr($username) . '" class="connection-detail-input" style="flex:1;padding:8px;border:1px solid #d1d5db;border-radius:4px;">';
+                echo '<button type="button" class="button copy-btn" data-copy="' . esc_attr($username) . '">Copy</button>';
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+
+                echo '<div style="background:#ecfdf5;border:1px solid #a7f3d0;border-radius:6px;padding:12px;">';
+                echo '<p style="margin:0;font-size:13px;color:#065f46;"><strong>How to connect:</strong></p>';
+                echo '<ol style="margin:6px 0 0;padding-left:20px;font-size:13px;color:#065f46;line-height:1.8;">';
+                echo '<li>Go to your <strong>AlmaSEO dashboard</strong> at <code>api.almaseo.com</code></li>';
+                echo '<li>Add your site or go to its <strong>WordPress Settings</strong></li>';
+                echo '<li>Paste the <strong>JWT Token</strong> in the JWT Token field</li>';
+                echo '<li>Click <strong>Save</strong></li>';
+                echo '</ol>';
+                echo '</div>';
+                echo '</div>';
+
+                // Manual Application Password — secondary option in collapsible
+                echo '<details style="margin:0 30px 20px;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">';
+                echo '<summary style="padding:14px 16px;cursor:pointer;font-weight:600;color:#6b7280;background:#f9fafb;">Other option: Manual Application Password <span style="font-weight:400;font-size:12px;color:#9ca3af;">(may also fail on this host)</span></summary>';
+                echo '<div style="padding:16px;border-top:1px solid #e5e7eb;">';
+                echo '<div style="background:#fef3c7;border:1px solid #f59e0b;border-radius:6px;padding:10px 14px;margin-bottom:12px;">';
+                echo '<p style="margin:0;font-size:13px;color:#92400e;"><strong>Note:</strong> If your hosting blocks automatic Application Passwords, ';
+                echo 'creating one manually through Users &rarr; Profile will likely fail for the same reason. ';
+                echo 'We recommend using the JWT Token above instead.</p>';
+                echo '</div>';
+                echo '<ol style="font-size:13px;line-height:1.8;margin:0 0 12px;padding-left:20px;">';
+                echo '<li>Go to <a href="' . esc_url(admin_url('profile.php')) . '" target="_blank">Users &rarr; Your Profile</a></li>';
+                echo '<li>Scroll down to "Application Passwords"</li>';
                 echo '<li>Enter <code>AlmaSEO Connection</code> as the name</li>';
-                echo '<li>Click <strong>"Add New Application Password"</strong></li>';
-                echo '<li>Copy the generated password (it looks like: <code>abcd efgh ijkl mnop</code>)</li>';
-                echo '</ul>';
-                echo '</div>';
-                echo '</div>';
-
-                echo '<div class="step-instruction">';
-                echo '<div class="step-number-small">3</div>';
-                echo '<div class="step-content">';
-                echo '<strong>Return and Paste Below</strong>';
-                echo '<p>Come back to this tab and paste your password in the form below:</p>';
-                echo '</div>';
-                echo '</div>';
-                echo '</div>';
-                echo '</div>';
-
-                echo '<div class="manual-password-section">';
-                echo '<h5><i class="dashicons dashicons-admin-network"></i> Paste Your Application Password Here:</h5>';
+                echo '<li>Click "Add New Application Password"</li>';
+                echo '<li>If it works, copy the password and paste it below</li>';
+                echo '</ol>';
                 echo '<form method="post">';
                 wp_nonce_field('almaseo_manual_password');
-                echo '<div class="password-input-group">';
-                echo '<input type="text" name="manual_app_password" placeholder="Paste your Application Password here (e.g., abcd efgh ijkl mnop)" class="connection-detail-input" style="width: 100%; margin: 10px 0;">';
-                echo '<button type="submit" name="save_manual_password" class="button button-primary button-large">Save Connection Password</button>';
+                echo '<div style="display:flex;gap:8px;">';
+                echo '<input type="text" name="manual_app_password" placeholder="Paste Application Password here (e.g., abcd efgh ijkl mnop)" class="connection-detail-input" style="flex:1;padding:8px;border:1px solid #d1d5db;border-radius:4px;">';
+                echo '<button type="submit" name="save_manual_password" class="button button-primary">Save Password</button>';
                 echo '</div>';
                 echo '</form>';
-                echo '<div class="help-note">';
-                echo '<i class="dashicons dashicons-info"></i>';
-                echo '<small>The password will be 16 characters with spaces (like: abcd efgh ijkl mnop). Paste the entire thing including spaces.</small>';
                 echo '</div>';
-                echo '</div>';
-                echo '</div>';
+                echo '</details>';
+
+            } elseif ($generation_error === 'wp_version') {
+                echo '<div class="notice notice-error" style="margin:20px 30px;"><p>';
+                echo '<strong>WordPress 5.6 or higher is required.</strong> ';
+                echo 'Application Passwords are a feature introduced in WordPress 5.6. ';
+                echo 'Please update your WordPress installation to use this feature.';
+                echo '</p></div>';
             }
         }
 
-        // Step 1: Generate Password
-        echo '<div class="setup-step ' . esc_attr(!$app_password && !$generated_password ? 'active' : ($app_password || $generated_password ? 'completed' : '')) . '">';
-        echo '<div class="step-header">';
-        echo '<div class="step-number">1</div>';
-        echo '<h3>Generate Connection Password</h3>';
-        echo '</div>';
+        // Step 1: Generate Password (only show if no hosting_blocked error)
+        if ($generation_error !== 'hosting_blocked') {
+            echo '<div class="setup-step ' . esc_attr(!$app_password && !$generated_password ? 'active' : ($app_password || $generated_password ? 'completed' : '')) . '">';
+            echo '<div class="step-header">';
+            echo '<div class="step-number">1</div>';
+            echo '<h3>Generate Connection Password</h3>';
+            echo '</div>';
 
-        if (!$app_password && !$generated_password) {
-            // Only show the generate button if we haven't already tried and failed
-            if (empty($generation_error)) {
-                echo '<p>Create a secure Application Password for AlmaSEO to connect to your site.</p>';
-                echo '<form method="post">';
-                wp_nonce_field('almaseo_generate_password');
-                echo '<button type="submit" name="generate_password" class="button button-primary button-large">Generate Password Now</button>';
-                echo '</form>';
+            if (!$app_password && !$generated_password) {
+                if (empty($generation_error)) {
+                    echo '<p>Create a secure Application Password for AlmaSEO to connect to your site.</p>';
+                    echo '<form method="post">';
+                    wp_nonce_field('almaseo_generate_password');
+                    echo '<button type="submit" name="generate_password" class="button button-primary button-large">Generate Password Now</button>';
+                    echo '</form>';
+                } else {
+                    echo '<div class="step-completed error">';
+                    echo '<i class="dashicons dashicons-warning"></i>';
+                    echo '<span>Automatic generation not available on your hosting</span>';
+                    echo '</div>';
+                }
             } else {
-                // If generation failed, don't show the button again
-                echo '<div class="step-completed error">';
-                echo '<i class="dashicons dashicons-warning"></i>';
-                echo '<span>Automatic generation not available on your hosting</span>';
+                echo '<div class="step-completed">';
+                echo '<i class="dashicons dashicons-yes-alt"></i>';
+                echo '<span>Password generated successfully!</span>';
                 echo '</div>';
-                echo '<p>Please use the manual method below instead.</p>';
             }
-        } else {
-            echo '<div class="step-completed">';
-            echo '<i class="dashicons dashicons-yes-alt"></i>';
-            echo '<span>Password generated successfully!</span>';
             echo '</div>';
         }
-        echo '</div>';
 
-        // Step 2: Copy Details (only show if password exists)
+        // Step 2: Copy Details (only show if password exists and auth works)
         if ($app_password || $generated_password) {
             $display_password = $generated_password ?: $app_password;
 
@@ -371,6 +403,21 @@ function almaseo_connector_settings_page() {
             echo '</div>';
             echo '</div>';
 
+            // JWT Token section
+            $jwt_token = almaseo_create_jwt($username);
+            echo '<div class="detail-row">';
+            echo '<label>JWT Token <span style="font-size:11px;color:#666;font-weight:normal">(Alternative Auth)</span>:</label>';
+            echo '<div class="detail-value">';
+            echo '<input type="text" readonly value="' . esc_attr($jwt_token) . '" class="connection-detail-input" style="font-size:11px;">';
+            echo '<button type="button" class="copy-btn" data-copy="' . esc_attr($jwt_token) . '">Copy</button>';
+            echo '</div>';
+            echo '</div>';
+
+            echo '<div style="background:#f0f7ff;border:1px solid #c5d9ed;border-radius:4px;padding:10px 14px;margin:8px 0 0;">';
+            echo '<p style="margin:0;font-size:12px;color:#2271b1;"><strong>Hosting blocking Application Passwords?</strong> Use the JWT Token above instead. ';
+            echo 'Paste it in the <em>JWT Token</em> field on the AlmaSEO dashboard site settings. This bypasses REST API restrictions that some hosts impose.</p>';
+            echo '</div>';
+
             echo '<div class="copy-all-section">';
             echo '<button type="button" class="button button-primary copy-all-btn">Copy All Details</button>';
             echo '<span class="copy-feedback"></span>';
@@ -378,23 +425,49 @@ function almaseo_connector_settings_page() {
             echo '</div>';
             echo '</div>';
 
-            echo '<div class="final-success-section">';
-            echo '<div class="success-celebration">';
-            echo '<div class="success-icon">✅</div>';
-            echo '<h3>Plugin Configuration Complete!</h3>';
-            echo '<p>Now return to your AlmaSEO onboarding to continue the setup process.</p>';
-            echo '</div>';
+            // Verify the password actually works
+            $test_password = $generated_password ?: $app_password;
+            $auth_works = false;
+            if ($test_password && $username) {
+                $test_url = rest_url('wp/v2/users/me');
+                $test_response = wp_remote_get($test_url, array(
+                    'headers' => array(
+                        'Authorization' => 'Basic ' . base64_encode($username . ':' . $test_password),
+                    ),
+                    'timeout' => 10,
+                    'sslverify' => false,
+                ));
+                if (!is_wp_error($test_response) && wp_remote_retrieve_response_code($test_response) === 200) {
+                    $auth_works = true;
+                }
+            }
+
+            if ($auth_works) {
+                echo '<div class="final-success-section">';
+                echo '<div class="success-celebration">';
+                echo '<div class="success-icon">&#10003;</div>';
+                echo '<h3>Plugin Configuration Complete!</h3>';
+                echo '<p>Connection verified &mdash; your Application Password is working correctly.</p>';
+                echo '</div>';
+            } else {
+                echo '<div class="final-success-section" style="border-color:#b45309;background:#fffbeb;">';
+                echo '<div class="success-celebration">';
+                echo '<div class="success-icon">&#9888;</div>';
+                echo '<h3 style="color:#b45309">Connection Not Verified</h3>';
+                echo '<p style="color:#92400e;">The Application Password could not be verified via REST API. Your hosting may be blocking Authorization headers.</p>';
+                echo '<p style="color:#92400e;"><strong>Use the JWT Token above instead</strong> &mdash; paste it in the JWT Token field on the AlmaSEO dashboard.</p>';
+                echo '</div>';
+            }
 
             echo '<div class="next-steps-container">';
-            echo '<h4>📋 Next Step:</h4>';
+            echo '<h4>Next Step:</h4>';
 
             echo '<div class="next-step-item onboarding-return">';
-            echo '<div class="next-step-number">→</div>';
+            echo '<div class="next-step-number">&rarr;</div>';
             echo '<div class="next-step-content">';
             echo '<strong>Return to AlmaSEO Onboarding</strong>';
             echo '<p>Go back to your AlmaSEO setup tab in your browser and click <strong>"Plugin Installed"</strong> to continue.</p>';
             echo '<div class="onboarding-reminder">';
-            echo '<div class="reminder-icon">💡</div>';
             echo '<div class="reminder-text">';
             echo '<p><strong>Can\'t find the AlmaSEO tab?</strong> Look for the browser tab where you started adding your site. It should show the 3-step setup process with "Install Plugin" highlighted.</p>';
             echo '</div>';
@@ -402,15 +475,7 @@ function almaseo_connector_settings_page() {
             echo '</div>';
             echo '</div>';
             echo '</div>';
-
-            // Simple connection details for reference
-            echo '<div class="setup-step completed reference-step">';
-            echo '<div class="step-header">';
-            echo '<div class="step-number">✓</div>';
-            echo '<h3>Your Connection Details (For Reference)</h3>';
-            echo '</div>';
-
-            echo '<p>These details are now stored securely. The onboarding process will use them automatically:</p>';
+            echo '</div>'; // end final-success-section
         }
 
         echo '</div>'; // End setup wizard
@@ -423,6 +488,7 @@ function almaseo_connector_settings_page() {
     echo '<h4>Troubleshooting</h4>';
     echo '<ul>';
     echo '<li><strong>Password generation fails:</strong> Ensure you\'re using WordPress 5.6 or higher</li>';
+    echo '<li><strong>Hosting blocks Application Passwords:</strong> Use the JWT Token method instead</li>';
     echo '<li><strong>Connection issues:</strong> Verify your site is accessible from the internet</li>';
     echo '<li><strong>Permission errors:</strong> Make sure you have administrator privileges</li>';
     echo '<li><strong>Still having problems?</strong> Contact <a href="mailto:support@almaseo.com">support@almaseo.com</a></li>';
@@ -432,7 +498,28 @@ function almaseo_connector_settings_page() {
 
     echo '</div>'; // End container
 
-    // Add styles and scripts (keeping the existing CSS from the original)
+    // Diagnostic Mode Section (only visible when WP_DEBUG is true)
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        echo '<div class="almaseo-diagnostic-section" style="margin-top: 40px; padding: 20px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 5px; max-width: 800px;">';
+        echo '<h3 style="margin-top: 0;">Diagnostic Mode (Debug)</h3>';
+        echo '<details>';
+        echo '<summary style="cursor: pointer; font-weight: bold;">Connection Debug Information</summary>';
+        echo '<pre style="background: white; padding: 15px; border-radius: 3px; overflow-x: auto; margin-top: 10px;">';
+        echo 'Comprehensive Status:' . PHP_EOL;
+        echo esc_html(print_r($comprehensive_status, true));
+        echo PHP_EOL . 'Basic Connection Status:' . PHP_EOL;
+        echo esc_html(print_r($connection_status, true));
+        echo PHP_EOL . 'Stored Options:' . PHP_EOL;
+        echo 'almaseo_dashboard_site_id: ' . esc_html(get_option('almaseo_dashboard_site_id', 'not set')) . PHP_EOL;
+        echo 'almaseo_connection_type: ' . esc_html(get_option('almaseo_connection_type', 'not set')) . PHP_EOL;
+        echo 'almaseo_dashboard_synced: ' . esc_html(get_option('almaseo_dashboard_synced') ? 'true' : 'false') . PHP_EOL;
+        echo 'almaseo_dashboard_registered: ' . esc_html(get_option('almaseo_dashboard_registered') ? 'true' : 'false') . PHP_EOL;
+        echo '</pre>';
+        echo '</details>';
+        echo '</div>';
+    }
+
+    // Styles
     echo '<style>
     .almaseo-container {
         max-width: 800px;
@@ -457,9 +544,7 @@ function almaseo_connector_settings_page() {
         gap: 30px;
     }
 
-    .header-text {
-        flex: 1;
-    }
+    .header-text { flex: 1; }
 
     .almaseo-header h1 {
         margin: 0 0 20px 0;
@@ -477,9 +562,7 @@ function almaseo_connector_settings_page() {
         padding-top: 5px;
     }
 
-    .header-logo {
-        flex-shrink: 0;
-    }
+    .header-logo { flex-shrink: 0; }
 
     .almaseo-character {
         width: 240px;
@@ -491,9 +574,7 @@ function almaseo_connector_settings_page() {
         filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2));
     }
 
-    .almaseo-character:hover {
-        transform: scale(1.05) rotate(2deg);
-    }
+    .almaseo-character:hover { transform: scale(1.05) rotate(2deg); }
 
     .almaseo-connected-state {
         background: #f0f8f0;
@@ -514,10 +595,7 @@ function almaseo_connector_settings_page() {
         margin-bottom: 20px;
     }
 
-    .status-badge.connected {
-        background: #4CAF50;
-        color: white;
-    }
+    .status-badge.connected { background: #4CAF50; color: white; }
 
     .connection-details {
         background: white;
@@ -533,18 +611,7 @@ function almaseo_connector_settings_page() {
         border-bottom: 1px solid #eee;
     }
 
-    .detail-item:last-child {
-        border-bottom: none;
-    }
-
-    .connected-actions {
-        margin: 20px 0;
-    }
-
-    .connection-test-result {
-        margin-left: 15px;
-        font-weight: 600;
-    }
+    .detail-item:last-child { border-bottom: none; }
 
     .disconnect-form {
         margin-top: 20px;
@@ -565,17 +632,9 @@ function almaseo_connector_settings_page() {
         position: relative;
     }
 
-    .setup-step:last-child {
-        border-bottom: none;
-    }
-
-    .setup-step.active {
-        background: #fafafa;
-    }
-
-    .setup-step.completed {
-        background: #f0f8f0;
-    }
+    .setup-step:last-child { border-bottom: none; }
+    .setup-step.active { background: #fafafa; }
+    .setup-step.completed { background: #f0f8f0; }
 
     .step-header {
         display: flex;
@@ -597,9 +656,7 @@ function almaseo_connector_settings_page() {
         font-size: 18px;
     }
 
-    .setup-step:not(.active):not(.completed) .step-number {
-        background: #ccc;
-    }
+    .setup-step:not(.active):not(.completed) .step-number { background: #ccc; }
 
     .step-header h3 {
         margin: 0;
@@ -637,9 +694,7 @@ function almaseo_connector_settings_page() {
         margin-bottom: 15px;
     }
 
-    .detail-row:last-child {
-        margin-bottom: 0;
-    }
+    .detail-row:last-child { margin-bottom: 0; }
 
     .detail-row label {
         width: 150px;
@@ -673,9 +728,7 @@ function almaseo_connector_settings_page() {
         font-weight: 600;
     }
 
-    .copy-btn:hover {
-        background: #45a049;
-    }
+    .copy-btn:hover { background: #45a049; }
 
     .copy-all-section {
         text-align: center;
@@ -688,35 +741,6 @@ function almaseo_connector_settings_page() {
         margin-left: 15px;
         font-weight: 600;
         color: #4CAF50;
-    }
-
-    .almaseo-instructions {
-        background: #e8f4fd;
-        border-left: 4px solid #2196F3;
-        padding: 20px;
-        margin: 15px 0;
-        border-radius: 0 6px 6px 0;
-    }
-
-    .almaseo-instructions ol {
-        margin: 0;
-        padding-left: 20px;
-    }
-
-    .almaseo-instructions li {
-        margin-bottom: 8px;
-        line-height: 1.5;
-    }
-
-    .final-action {
-        text-align: center;
-        margin-top: 20px;
-    }
-
-    .final-action .button-large {
-        padding: 15px 30px;
-        font-size: 16px;
-        height: auto;
     }
 
     .almaseo-help-section {
@@ -733,124 +757,8 @@ function almaseo_connector_settings_page() {
         text-align: left;
     }
 
-    .help-content h4 {
-        margin-top: 0;
-        color: #333;
-    }
-
-    .help-content ul {
-        margin: 0;
-    }
-
-    .almaseo-fallback-instructions {
-        background: #e8f4fd;
-        border: 1px solid #2196F3;
-        border-radius: 8px;
-        padding: 25px;
-        margin: 20px 0;
-    }
-
-    .almaseo-fallback-instructions h4 {
-        color: #1976D2;
-        margin-top: 0;
-    }
-
-    .almaseo-fallback-instructions ol {
-        padding-left: 20px;
-    }
-
-    .almaseo-fallback-instructions li {
-        margin-bottom: 8px;
-        line-height: 1.5;
-    }
-
-    .manual-password-section {
-        background: white;
-        padding: 20px;
-        border-radius: 6px;
-        margin-top: 20px;
-        border: 1px solid #ddd;
-    }
-
-    .manual-password-section h5 {
-        margin-top: 0;
-        color: #333;
-    }
-
-    .manual-steps-container {
-        margin: 20px 0;
-    }
-
-    .manual-steps {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        margin-bottom: 25px;
-    }
-
-    .step-instruction {
-        display: flex;
-        align-items: flex-start;
-        gap: 15px;
-        padding: 15px;
-        background: rgba(255, 255, 255, 0.7);
-        border-radius: 8px;
-        border-left: 4px solid #2196F3;
-    }
-
-    .step-number-small {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        background: #2196F3;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        flex-shrink: 0;
-        margin-top: 5px;
-    }
-
-    .step-content {
-        flex: 1;
-    }
-
-    .step-content strong {
-        color: #1976D2;
-        font-size: 16px;
-    }
-
-    .step-content p {
-        margin: 5px 0 10px 0;
-    }
-
-    .step-content ul {
-        margin: 0;
-        padding-left: 20px;
-    }
-
-    .step-content li {
-        margin-bottom: 5px;
-    }
-
-    .password-input-group {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .help-note {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-top: 10px;
-        padding: 10px;
-        background: #fff3cd;
-        border: 1px solid #ffeaa7;
-        border-radius: 4px;
-        color: #856404;
-    }
+    .help-content h4 { margin-top: 0; color: #333; }
+    .help-content ul { margin: 0; }
 
     .almaseo-success-notice {
         background: linear-gradient(135deg, #d4edda, #c3e6cb) !important;
@@ -904,9 +812,7 @@ function almaseo_connector_settings_page() {
         margin: 0;
     }
 
-    .next-steps-container {
-        margin-top: 20px;
-    }
+    .next-steps-container { margin-top: 20px; }
 
     .next-steps-container h4 {
         color: #155724;
@@ -939,9 +845,7 @@ function almaseo_connector_settings_page() {
         margin-top: 5px;
     }
 
-    .next-step-content {
-        flex: 1;
-    }
+    .next-step-content { flex: 1; }
 
     .next-step-content strong {
         color: #155724;
@@ -951,54 +855,6 @@ function almaseo_connector_settings_page() {
     .next-step-content p {
         margin: 5px 0 10px 0;
         color: #155724;
-    }
-
-    .next-step-btn {
-        margin-top: 10px;
-    }
-
-    .connection-preview {
-        background: white;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        padding: 15px;
-        margin-top: 10px;
-    }
-
-    .preview-item {
-        margin-bottom: 8px;
-        font-family: monospace;
-        font-size: 14px;
-        color: #333;
-    }
-
-    .preview-item:last-child {
-        margin-bottom: 0;
-    }
-
-    .final-step {
-        background: #f0f8f0;
-        border: 2px solid #28a745;
-    }
-
-    @media (max-width: 768px) {
-        .step-instruction {
-            flex-direction: column;
-            text-align: center;
-        }
-
-        .step-number-small {
-            margin: 0 auto 10px auto;
-        }
-
-        .next-step-item {
-            flex-direction: column;
-            text-align: center;
-        }
-
-        .next-step-number {
-            margin: 0 auto 10px auto;
-        }
     }
 
     @media (max-width: 768px) {
@@ -1021,143 +877,43 @@ function almaseo_connector_settings_page() {
             width: auto;
             margin-bottom: 5px;
         }
+
+        .next-step-item {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .next-step-number {
+            margin: 0 auto 10px auto;
+        }
     }
     </style>';
 
-    // Import Connection Details Section
-    echo '<div id="import-connection" class="almaseo-import-section" style="margin-top: 40px; padding: 20px; background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 5px; display: ' . esc_attr($comprehensive_status['plugin_connected'] ? 'none' : 'block') . ';">';
-    echo '<h3 style="margin-top: 0;">📥 Import Connection from Dashboard</h3>';
-    echo '<p>If your site is already registered in the AlmaSEO Dashboard, you can import the connection details here.</p>';
-
-    echo '<form method="post" id="import-connection-form">';
-    wp_nonce_field('almaseo_import_connection');
-
-    echo '<table class="form-table">';
-    echo '<tr>';
-    echo '<th scope="row"><label for="import_site_id">Site ID</label></th>';
-    echo '<td>';
-    echo '<input type="text" id="import_site_id" name="import_site_id" value="' . esc_attr($comprehensive_status['site_id']) . '" class="regular-text" placeholder="e.g., 2049" />';
-    echo '<p class="description">The Site ID from your AlmaSEO Dashboard</p>';
-    echo '</td>';
-    echo '</tr>';
-
-    echo '<tr>';
-    echo '<th scope="row"><label for="import_app_password">Application Password</label></th>';
-    echo '<td>';
-    echo '<input type="text" id="import_app_password" name="import_app_password" class="regular-text" placeholder="xxxx xxxx xxxx xxxx xxxx xxxx" />';
-    echo '<p class="description">The Application Password (with or without spaces)</p>';
-    echo '</td>';
-    echo '</tr>';
-
-    echo '<tr>';
-    echo '<th scope="row"><label for="import_username">WordPress Username (Optional)</label></th>';
-    echo '<td>';
-    echo '<input type="text" id="import_username" name="import_username" value="' . esc_attr($username) . '" class="regular-text" />';
-    echo '<p class="description">Leave blank to auto-detect</p>';
-    echo '</td>';
-    echo '</tr>';
-    echo '</table>';
-
-    echo '<p class="submit">';
-    echo '<button type="submit" name="import_connection" class="button button-primary">Import Connection</button>';
-    echo '<button type="button" id="check-dashboard" class="button button-secondary" style="margin-left: 10px;">Check Dashboard Registration</button>';
-    echo '</p>';
-    echo '</form>';
-
-    echo '<div id="import-result" style="margin-top: 15px; display: none;"></div>';
-    echo '</div>';
-
-    // Diagnostic Mode Section (only visible when WP_DEBUG is true)
-    if (defined('WP_DEBUG') && WP_DEBUG) {
-        echo '<div class="almaseo-diagnostic-section" style="margin-top: 40px; padding: 20px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 5px;">';
-        echo '<h3 style="margin-top: 0;">🔧 Diagnostic Mode (Debug)</h3>';
-        echo '<details>';
-        echo '<summary style="cursor: pointer; font-weight: bold;">Connection Debug Information</summary>';
-        echo '<pre style="background: white; padding: 15px; border-radius: 3px; overflow-x: auto; margin-top: 10px;">';
-        echo 'Comprehensive Status:' . PHP_EOL;
-        echo esc_html(print_r($comprehensive_status, true));
-        echo PHP_EOL . 'Basic Connection Status:' . PHP_EOL;
-        echo esc_html(print_r($connection_status, true));
-        echo PHP_EOL . 'Stored Options:' . PHP_EOL;
-        echo 'almaseo_dashboard_site_id: ' . esc_html(get_option('almaseo_dashboard_site_id', 'not set')) . PHP_EOL;
-        echo 'almaseo_connection_type: ' . esc_html(get_option('almaseo_connection_type', 'not set')) . PHP_EOL;
-        echo 'almaseo_dashboard_synced: ' . esc_html(get_option('almaseo_dashboard_synced') ? 'true' : 'false') . PHP_EOL;
-        echo 'almaseo_dashboard_registered: ' . esc_html(get_option('almaseo_dashboard_registered') ? 'true' : 'false') . PHP_EOL;
-        echo '</pre>';
-        echo '</details>';
-        echo '</div>';
-    }
-
+    // JavaScript
     echo '<script>
     jQuery(document).ready(function($) {
-        // Handle import connection form
-        $("#import-connection-form").on("submit", function(e) {
-            e.preventDefault();
-
-            const siteId = $("#import_site_id").val();
-            const appPassword = $("#import_app_password").val();
-            const username = $("#import_username").val();
-
-            if (!siteId || !appPassword) {
-                $("#import-result").html("<div class=\"notice notice-error\"><p>Please provide both Site ID and Application Password.</p></div>").show();
-                return;
-            }
-
-            // Show loading
-            $("#import-result").html("<div class=\"notice notice-info\"><p>Importing connection details...</p></div>").show();
-
-            // Submit form
-            this.submit();
-        });
-
-        // Check dashboard registration
-        $("#check-dashboard").on("click", function() {
-            const btn = $(this);
-            btn.prop("disabled", true).text("Checking...");
-
-            $.post(ajaxurl, {
-                action: "almaseo_check_dashboard",
-                nonce: "' . esc_js(wp_create_nonce('almaseo_nonce')) . '"
-            }, function(response) {
-                if (response.success) {
-                    let message = response.data.registered ?
-                        "✅ Site found in dashboard (Site ID: " + response.data.site_id + ")" :
-                        "❌ Site not found in dashboard";
-                    $("#import-result").html("<div class=\"notice notice-info\"><p>" + message + "</p></div>").show();
-
-                    if (response.data.site_id) {
-                        $("#import_site_id").val(response.data.site_id);
-                    }
-                } else {
-                    $("#import-result").html("<div class=\"notice notice-error\"><p>Check failed: " + response.data.message + "</p></div>").show();
-                }
-            }).always(function() {
-                btn.prop("disabled", false).text("Check Dashboard Registration");
-            });
-        });
-
         // Copy functionality
         $(".copy-btn").on("click", function() {
-            const btn = $(this);
-            const text = btn.data("copy");
+            var btn = $(this);
+            var text = btn.data("copy");
             navigator.clipboard.writeText(text).then(function() {
-                const originalText = btn.text();
+                var originalText = btn.text();
                 btn.text("Copied!");
-                setTimeout(() => btn.text(originalText), 2000);
+                setTimeout(function() { btn.text(originalText); }, 2000);
             });
         });
 
         // Copy all details
         $(".copy-all-btn").on("click", function() {
-            const siteUrl = $(".connection-detail-input").eq(0).val();
-            const username = $(".connection-detail-input").eq(1).val();
-            const password = $(".connection-detail-input").eq(2).val();
+            var siteUrl = $(".connection-detail-input").eq(0).val();
+            var username = $(".connection-detail-input").eq(1).val();
+            var password = $(".connection-detail-input").eq(2).val();
 
-            const allDetails = `Site URL: ${siteUrl}\nUsername: ${username}\nApplication Password: ${password}`;
+            var allDetails = "Site URL: " + siteUrl + "\nUsername: " + username + "\nApplication Password: " + password;
 
             navigator.clipboard.writeText(allDetails).then(function() {
                 $(".copy-feedback").text("All details copied to clipboard!").show();
-                setTimeout(() => $(".copy-feedback").fadeOut(), 3000);
+                setTimeout(function() { $(".copy-feedback").fadeOut(); }, 3000);
             });
         });
 
@@ -1168,8 +924,8 @@ function almaseo_connector_settings_page() {
 
         // Test connection
         $(".test-connection-btn").on("click", function() {
-            const btn = $(this);
-            const result = $(".connection-test-result");
+            var btn = $(this);
+            var result = $(".connection-test-result");
 
             btn.prop("disabled", true).text("Testing...");
             result.empty();
@@ -1178,14 +934,14 @@ function almaseo_connector_settings_page() {
                 action: "almaseo_test_connection"
             }).done(function(response) {
                 if (response.success) {
-                    result.html("<span style=\"color: #4CAF50;\">✓ Connection successful</span>");
+                    result.html("<span style=\"color: #4CAF50;\">Connection successful</span>");
                 } else {
-                    result.html("<span style=\"color: #e74c3c;\">✗ " + (response.data.message || "Connection failed") + "</span>");
+                    result.html("<span style=\"color: #e74c3c;\">" + (response.data.message || "Connection failed") + "</span>");
                 }
             }).fail(function() {
-                result.html("<span style=\"color: #e74c3c;\">✗ Connection test failed</span>");
+                result.html("<span style=\"color: #e74c3c;\">Connection test failed</span>");
             }).always(function() {
-                btn.prop("disabled", false).text("Test Connection");
+                btn.prop("disabled", false).text("Test Connection to AlmaSEO API");
             });
         });
     });

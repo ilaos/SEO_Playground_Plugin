@@ -959,7 +959,7 @@ if (!function_exists('almaseo_add_cors_headers')) {
                 header('Access-Control-Allow-Origin: ' . $origin);
                 header('Access-Control-Allow-Credentials: true');
                 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-                header('Access-Control-Allow-Headers: Authorization, Content-Type, X-WP-Nonce');
+                header('Access-Control-Allow-Headers: Authorization, Content-Type, X-WP-Nonce, X-AlmaSEO-Token');
 
                 // Handle preflight OPTIONS requests
                 if ($request->get_method() === 'OPTIONS') {
@@ -1048,6 +1048,19 @@ add_action('rest_api_init', function () {
             return array('success' => true, 'message' => 'JWT secret regenerated. All previous tokens are now invalid.');
         },
         'permission_callback' => 'almaseo_api_auth_check',
+    ));
+
+    // AUTO-CONNECT endpoint for onboarding - requires connection secret
+    register_rest_route(ALMASEO_API_NAMESPACE, '/auto-connect', array(
+        'methods'  => array('GET', 'POST', 'OPTIONS'),
+        'callback' => 'almaseo_auto_connect',
+        'permission_callback' => '__return_true',
+        'args' => array(
+            'secret' => array(
+                'required' => true,
+                'type'     => 'string',
+            ),
+        ),
     ));
 });
 
@@ -1306,6 +1319,40 @@ if (!function_exists('almaseo_api_auth_check')) {
     }
 }
 
+// AUTO-CONNECT function for onboarding — requires connection secret
+if (!function_exists('almaseo_auto_connect')) {
+    function almaseo_auto_connect($request) {
+        // Handle OPTIONS preflight request
+        if ($request->get_method() === 'OPTIONS') {
+            return new WP_REST_Response(null, 200);
+        }
+
+        // Validate connection secret
+        $secret = almaseo_get_secret();
+        $provided_secret = $request->get_param('secret');
+        if (!$secret || !$provided_secret || !hash_equals($secret, $provided_secret)) {
+            return new WP_Error('invalid_secret', 'Invalid or missing secret key.', array('status' => 403));
+        }
+
+        $app_password = get_option('almaseo_app_password');
+        $username = get_option('almaseo_connected_user');
+
+        if (!$app_password || !$username) {
+            return new WP_Error('no_app_password', 'No Application Password or username has been set in the plugin settings.', array('status' => 400));
+        }
+
+        // Generate JWT token as alternative auth method
+        $jwt_token = almaseo_create_jwt($username);
+
+        return rest_ensure_response(array(
+            'success' => true,
+            'username' => $username,
+            'application_password' => $app_password,
+            'jwt_token' => $jwt_token,
+        ));
+    }
+}
+
 // Verify connection endpoint callback
 if (!function_exists('almaseo_verify_connection')) {
     function almaseo_verify_connection($request) {
@@ -1449,6 +1496,8 @@ if (!function_exists('almaseo_generate_secret_on_activation')) {
             $secret = wp_generate_password(32, true, true);
             add_option('almaseo_secret', $secret);
         }
+        // Also generate JWT secret on activation
+        almaseo_get_jwt_secret();
     }
 }
 register_activation_hook(__FILE__, 'almaseo_generate_secret_on_activation');
