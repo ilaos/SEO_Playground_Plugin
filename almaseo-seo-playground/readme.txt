@@ -94,6 +94,9 @@ Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a 
 
 == Changelog ==
 
+= 1.7.0 =
+* Fix: Accept any authenticated admin/editor for API metadata updates (previously required AlmaSEO-generated app password, blocking sites with manually-created credentials)
+
 = 1.6.21 =
 * Fix: Add phpcs:ignore for ~210 $wpdb table interpolation queries across 40 model/provider files
 * Fix: Replace all rand() with wp_rand() across plugin (~20 instances)
