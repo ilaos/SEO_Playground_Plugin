@@ -139,7 +139,7 @@ class AlmaSEO_Import_REST {
                 'source'    => array(
                     'required'          => true,
                     'validate_callback' => function ( $val ) {
-                        return in_array( $val, array( 'rankmath', 'yoast', 'redirection' ), true );
+                        return in_array( $val, array( 'rankmath', 'yoast', 'aioseo', 'redirection' ), true );
                     },
                 ),
                 'offset'    => array( 'default' => 0, 'validate_callback' => function ( $val ) { return is_numeric( $val ); } ),
