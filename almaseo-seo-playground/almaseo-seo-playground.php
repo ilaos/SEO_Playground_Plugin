@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
-Version: 1.7.0
+Version: 1.7.1
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -50,7 +50,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
     }
     if ( $almaseo_seo_conflict ) {
         // Define only the bare minimum constants, then stop loading.
-        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.7.0' );
+        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.7.1' );
         if ( ! defined( 'ALMASEO_PATH' ) )           define( 'ALMASEO_PATH', plugin_dir_path( __FILE__ ) );
         if ( ! defined( 'ALMASEO_URL' ) )            define( 'ALMASEO_URL', plugin_dir_url( __FILE__ ) );
         if ( ! defined( 'ALMASEO_MAIN_FILE' ) )      define( 'ALMASEO_MAIN_FILE', __FILE__ );
@@ -1070,8 +1070,8 @@ if (!function_exists('almaseo_permission_check')) {
         // Get the AlmaSEO secret (wp-config.php overrides DB)
         $secret = almaseo_get_secret();
 
-        // Verify secret
-        $provided_secret = $request->get_param('secret');
+        // Verify secret (cast to string for PHP 8 compat — get_param can return null)
+        $provided_secret = (string) $request->get_param('secret');
         if ( ! hash_equals( $secret, $provided_secret ) ) {
             return new WP_Error('invalid_secret', 'Invalid secret key.', array('status' => 403));
         }
@@ -1244,6 +1244,47 @@ if (!function_exists('almaseo_is_our_password')) {
     function almaseo_is_our_password($name) {
         return strpos($name, 'AlmaSEO AI') === 0 || strpos($name, 'AlmaSEO Connection') === 0;
     }
+}
+
+// Hook JWT authentication into WordPress core so that standard WP REST API
+// endpoints (wp/v2/posts, wp/v2/media, etc.) recognise AlmaSEO JWT tokens.
+// Without this, only the custom almaseo/v1/* routes accept JWT auth, and sites
+// behind strict firewalls (e.g. GoDaddy) that block Basic Auth on standard
+// endpoints cannot publish posts.
+if (!function_exists('almaseo_jwt_determine_current_user')) {
+    function almaseo_jwt_determine_current_user($user_id) {
+        // If a user is already authenticated, don't override
+        if ($user_id) {
+            return $user_id;
+        }
+
+        // Only act on REST API requests
+        if (!defined('REST_REQUEST') || !REST_REQUEST) {
+            return $user_id;
+        }
+
+        // Check for JWT token in custom header
+        $jwt_token = isset($_SERVER['HTTP_X_ALMASEO_TOKEN']) ? $_SERVER['HTTP_X_ALMASEO_TOKEN'] : '';
+        if (empty($jwt_token)) {
+            return $user_id;
+        }
+
+        // Validate the JWT and get the username
+        $result = almaseo_validate_jwt($jwt_token);
+        if (is_wp_error($result)) {
+            return $user_id;
+        }
+
+        // $result is the username — look up the WP user and set them as current
+        $user = get_user_by('login', $result);
+        if ($user && user_can($user, 'edit_posts')) {
+            wp_set_current_user($user->ID);
+            return $user->ID;
+        }
+
+        return $user_id;
+    }
+    add_filter('determine_current_user', 'almaseo_jwt_determine_current_user', 30);
 }
 
 // API Authentication check for AlmaSEO backend
