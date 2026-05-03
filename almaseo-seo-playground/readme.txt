@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.7.2
+Stable tag: 1.7.3
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,13 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.7.3 =
+* Feature: Add MusicGroup, Person, Organization, Product, Event, and Recipe schema types to the Schema & Meta tab
+* Feature: Add inline save reminder above typed schema panels
+* Fix: Stop self-unhook bug that was suppressing front-end JSON-LD output
+* Fix: Disable duplicate "Schema Settings" sidebar panels (replaced by the unified Schema & Meta tab)
+* Fix: Sync ALMASEO_PLUGIN_VERSION constant with plugin header (was reporting 1.6.21)
 
 = 1.7.2 =
 * Fix: Add 'aioseo' to allowed sources in redirect import batch endpoint — was returning 400 "Invalid parameter(s): source" when importing AIOSEO redirects
