@@ -62,7 +62,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
 if (!defined('ALMASEO_MAIN_FILE'))       define('ALMASEO_MAIN_FILE', __FILE__);
 if (!defined('ALMASEO_PATH'))            define('ALMASEO_PATH', plugin_dir_path(__FILE__));
 if (!defined('ALMASEO_URL'))             define('ALMASEO_URL', plugin_dir_url(__FILE__));
-if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.6.21');
+if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.7.2');
 if (!defined('ALMASEO_VERSION'))         define('ALMASEO_VERSION', '6.5.0');
 if (!defined('ALMASEO_API_NAMESPACE'))   define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
 if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
