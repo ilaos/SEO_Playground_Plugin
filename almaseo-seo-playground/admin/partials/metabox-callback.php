@@ -2448,6 +2448,13 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             $disable_advanced = get_post_meta($post->ID, '_almaseo_schema_disable', true);
                             ?>
 
+                            <!-- Save reminder — fields below are post meta, not a separate
+                                 settings page; users sometimes miss that they need to click
+                                 WordPress's Update button for changes to persist. -->
+                            <p style="margin: 0 0 12px 0; padding: 8px 10px; background: #fffbe6; border: 1px solid #f5d76e; border-radius: 4px; font-size: 12px; color: #5c4a00; line-height: 1.4;">
+                                💾 <?php esc_html_e('Changes here save when you click', 'almaseo-seo-playground'); ?> <strong><?php esc_html_e('Update', 'almaseo-seo-playground'); ?></strong> <?php esc_html_e('at the top of the page.', 'almaseo-seo-playground'); ?>
+                            </p>
+
                             <!-- Primary Schema Type dropdown removed: the merged Schema Type
                                  dropdown at the top of this tab is now the single source of
                                  truth, and the save handler syncs the value to both meta keys
