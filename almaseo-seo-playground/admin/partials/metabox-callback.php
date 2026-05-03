@@ -2371,6 +2371,11 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 array('value' => 'HowTo',         'label' => 'HowTo',                        'locked' => !$advanced_unlocked),
                                 array('value' => 'LocalBusiness', 'label' => 'LocalBusiness',                'locked' => !$advanced_unlocked),
                                 array('value' => 'MusicGroup',    'label' => 'MusicGroup (Band/Artist)',     'locked' => !$advanced_unlocked),
+                                array('value' => 'Person',        'label' => 'Person (Author/Profile)',      'locked' => !$advanced_unlocked),
+                                array('value' => 'Organization',  'label' => 'Organization (Company/NGO)',   'locked' => !$advanced_unlocked),
+                                array('value' => 'Product',       'label' => 'Product (E-commerce)',         'locked' => !$advanced_unlocked),
+                                array('value' => 'Event',         'label' => 'Event (Concert/Conference)',   'locked' => !$advanced_unlocked),
+                                array('value' => 'Recipe',        'label' => 'Recipe (Food/Cooking)',        'locked' => !$advanced_unlocked),
                             );
                             
                             foreach ($schema_options as $option): ?>
@@ -2615,14 +2620,494 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 </div>
                             </div>
 
+                            <!-- Person Fields (shown when Person selected) -->
+                            <?php
+                            $person_job_title    = get_post_meta($post->ID, '_almaseo_person_job_title', true);
+                            $person_works_for    = get_post_meta($post->ID, '_almaseo_person_works_for', true);
+                            $person_email        = get_post_meta($post->ID, '_almaseo_person_email', true);
+                            $person_telephone    = get_post_meta($post->ID, '_almaseo_person_telephone', true);
+                            $person_image        = get_post_meta($post->ID, '_almaseo_person_image', true);
+                            $person_given_name   = get_post_meta($post->ID, '_almaseo_person_given_name', true);
+                            $person_family_name  = get_post_meta($post->ID, '_almaseo_person_family_name', true);
+                            $person_birth_date   = get_post_meta($post->ID, '_almaseo_person_birth_date', true);
+                            $person_knows_about  = get_post_meta($post->ID, '_almaseo_person_knows_about', true);
+                            $person_same_as      = get_post_meta($post->ID, '_almaseo_person_same_as', true);
+                            $show_person = ( $primary_type === 'Person' || $current_schema === 'Person' );
+                            ?>
+                            <div id="almaseo-person-fields" style="<?php echo esc_attr(($show_person ? '' : 'display:none; ') . 'margin-top: 15px; padding: 15px; background: #f9fafb; border: 1px solid #e2e4e7; border-radius: 6px;'); ?>">
+                                <h4 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 600; color: #1d2327;">👤 <?php esc_html_e('Person Profile Details', 'almaseo-seo-playground'); ?></h4>
+
+                                <div style="margin-bottom: 14px; padding: 10px 12px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 12px; color: #475569; line-height: 1.5;">
+                                    <?php esc_html_e('Use these fields when the page represents a person — author profile, public figure, team member, speaker, etc. The post title becomes the person\'s name and the URL is their canonical profile URL.', 'almaseo-seo-playground'); ?>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <div>
+                                        <label for="almaseo_person_given_name" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Given Name (First)', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_person_given_name" name="almaseo_person_given_name" value="<?php echo esc_attr($person_given_name); ?>" placeholder="Jane" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                    <div>
+                                        <label for="almaseo_person_family_name" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Family Name (Last)', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_person_family_name" name="almaseo_person_family_name" value="<?php echo esc_attr($person_family_name); ?>" placeholder="Smith" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <div>
+                                        <label for="almaseo_person_job_title" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Job Title', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_person_job_title" name="almaseo_person_job_title" value="<?php echo esc_attr($person_job_title); ?>" placeholder="Senior Engineer" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                    <div>
+                                        <label for="almaseo_person_works_for" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Works For (Organization)', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_person_works_for" name="almaseo_person_works_for" value="<?php echo esc_attr($person_works_for); ?>" placeholder="Acme Corporation" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <div>
+                                        <label for="almaseo_person_email" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Email', 'almaseo-seo-playground'); ?></label>
+                                        <input type="email" id="almaseo_person_email" name="almaseo_person_email" value="<?php echo esc_attr($person_email); ?>" placeholder="jane@example.com" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                    <div>
+                                        <label for="almaseo_person_telephone" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Telephone', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_person_telephone" name="almaseo_person_telephone" value="<?php echo esc_attr($person_telephone); ?>" placeholder="+1-555-0100" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                </div>
+
+                                <div style="margin-bottom: 10px;">
+                                    <label for="almaseo_person_birth_date" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Birth Date', 'almaseo-seo-playground'); ?></label>
+                                    <input type="text" id="almaseo_person_birth_date" name="almaseo_person_birth_date" value="<?php echo esc_attr($person_birth_date); ?>" placeholder="1985 or 1985-04-15" class="almaseo-input" style="width: 100%;" />
+                                    <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('Year only or full ISO 8601 date (YYYY-MM-DD).', 'almaseo-seo-playground'); ?></p>
+                                </div>
+
+                                <div style="margin-bottom: 10px;">
+                                    <label for="almaseo_person_image" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Image URL', 'almaseo-seo-playground'); ?></label>
+                                    <input type="url" id="almaseo_person_image" name="almaseo_person_image" value="<?php echo esc_attr($person_image); ?>" placeholder="https://example.com/headshot.jpg" class="almaseo-input" style="width: 100%;" />
+                                    <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('Optional. Falls back to featured image if blank.', 'almaseo-seo-playground'); ?></p>
+                                </div>
+
+                                <div style="margin-bottom: 10px;">
+                                    <label for="almaseo_person_knows_about" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Knows About (Expertise)', 'almaseo-seo-playground'); ?></label>
+                                    <input type="text" id="almaseo_person_knows_about" name="almaseo_person_knows_about" value="<?php echo esc_attr($person_knows_about); ?>" placeholder="<?php esc_attr_e('Machine Learning, Distributed Systems, Rust', 'almaseo-seo-playground'); ?>" class="almaseo-input" style="width: 100%;" />
+                                    <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('Comma-separated list of areas of expertise or interest.', 'almaseo-seo-playground'); ?></p>
+                                </div>
+
+                                <div style="margin-bottom: 0;">
+                                    <label for="almaseo_person_same_as" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Same As (External Profiles)', 'almaseo-seo-playground'); ?></label>
+                                    <textarea id="almaseo_person_same_as" name="almaseo_person_same_as" rows="3" class="almaseo-input" style="width: 100%; font-family: monospace; font-size: 12px;" placeholder="https://www.linkedin.com/in/...&#10;https://twitter.com/...&#10;https://github.com/..."><?php echo esc_textarea($person_same_as); ?></textarea>
+                                    <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('One URL per line. LinkedIn, Twitter, GitHub, Wikipedia, etc.', 'almaseo-seo-playground'); ?></p>
+                                </div>
+                            </div>
+
+                            <!-- Organization Fields (shown when Organization selected) -->
+                            <?php
+                            $org_legal_name    = get_post_meta($post->ID, '_almaseo_org_legal_name', true);
+                            $org_founding_date = get_post_meta($post->ID, '_almaseo_org_founding_date', true);
+                            $org_founder       = get_post_meta($post->ID, '_almaseo_org_founder', true);
+                            $org_employees     = get_post_meta($post->ID, '_almaseo_org_employees', true);
+                            $org_industry      = get_post_meta($post->ID, '_almaseo_org_industry', true);
+                            $org_email         = get_post_meta($post->ID, '_almaseo_org_email', true);
+                            $org_telephone     = get_post_meta($post->ID, '_almaseo_org_telephone', true);
+                            $org_logo          = get_post_meta($post->ID, '_almaseo_org_logo', true);
+                            $org_same_as       = get_post_meta($post->ID, '_almaseo_org_same_as', true);
+                            $show_org = ( $primary_type === 'Organization' || $current_schema === 'Organization' );
+                            ?>
+                            <div id="almaseo-organization-fields" style="<?php echo esc_attr(($show_org ? '' : 'display:none; ') . 'margin-top: 15px; padding: 15px; background: #f9fafb; border: 1px solid #e2e4e7; border-radius: 6px;'); ?>">
+                                <h4 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 600; color: #1d2327;">🏢 <?php esc_html_e('Organization Details', 'almaseo-seo-playground'); ?></h4>
+
+                                <div style="margin-bottom: 14px; padding: 10px 12px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 12px; color: #475569; line-height: 1.5;">
+                                    <?php esc_html_e('Use these fields when the page represents a company, non-profit, school, or any non-physical organization. For brick-and-mortar businesses with a physical location, use LocalBusiness instead. The post title becomes the organization\'s name.', 'almaseo-seo-playground'); ?>
+                                </div>
+
+                                <div style="margin-bottom: 10px;">
+                                    <label for="almaseo_org_legal_name" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Legal Name', 'almaseo-seo-playground'); ?></label>
+                                    <input type="text" id="almaseo_org_legal_name" name="almaseo_org_legal_name" value="<?php echo esc_attr($org_legal_name); ?>" placeholder="Acme Corporation, Inc." class="almaseo-input" style="width: 100%;" />
+                                    <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('Official registered legal entity name (often differs from brand name).', 'almaseo-seo-playground'); ?></p>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <div>
+                                        <label for="almaseo_org_founding_date" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Founding Date', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_org_founding_date" name="almaseo_org_founding_date" value="<?php echo esc_attr($org_founding_date); ?>" placeholder="1998 or 1998-09-04" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                    <div>
+                                        <label for="almaseo_org_founder" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Founder', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_org_founder" name="almaseo_org_founder" value="<?php echo esc_attr($org_founder); ?>" placeholder="Jane Smith" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <div>
+                                        <label for="almaseo_org_employees" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Number of Employees', 'almaseo-seo-playground'); ?></label>
+                                        <input type="number" min="0" id="almaseo_org_employees" name="almaseo_org_employees" value="<?php echo esc_attr($org_employees); ?>" placeholder="250" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                    <div>
+                                        <label for="almaseo_org_industry" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Industry', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_org_industry" name="almaseo_org_industry" value="<?php echo esc_attr($org_industry); ?>" placeholder="Software, Healthcare, Education" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <div>
+                                        <label for="almaseo_org_email" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Email', 'almaseo-seo-playground'); ?></label>
+                                        <input type="email" id="almaseo_org_email" name="almaseo_org_email" value="<?php echo esc_attr($org_email); ?>" placeholder="contact@example.com" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                    <div>
+                                        <label for="almaseo_org_telephone" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Telephone', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_org_telephone" name="almaseo_org_telephone" value="<?php echo esc_attr($org_telephone); ?>" placeholder="+1-555-0100" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                </div>
+
+                                <div style="margin-bottom: 10px;">
+                                    <label for="almaseo_org_logo" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Logo URL', 'almaseo-seo-playground'); ?></label>
+                                    <input type="url" id="almaseo_org_logo" name="almaseo_org_logo" value="<?php echo esc_attr($org_logo); ?>" placeholder="https://example.com/logo.png" class="almaseo-input" style="width: 100%;" />
+                                    <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('Used as both logo (ImageObject) and image. Falls back to featured image.', 'almaseo-seo-playground'); ?></p>
+                                </div>
+
+                                <div style="margin-bottom: 0;">
+                                    <label for="almaseo_org_same_as" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Same As (External Profiles)', 'almaseo-seo-playground'); ?></label>
+                                    <textarea id="almaseo_org_same_as" name="almaseo_org_same_as" rows="3" class="almaseo-input" style="width: 100%; font-family: monospace; font-size: 12px;" placeholder="https://www.linkedin.com/company/...&#10;https://twitter.com/...&#10;https://www.crunchbase.com/organization/..."><?php echo esc_textarea($org_same_as); ?></textarea>
+                                    <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('One URL per line. LinkedIn, Twitter, Crunchbase, Wikipedia, etc.', 'almaseo-seo-playground'); ?></p>
+                                </div>
+                            </div>
+
+                            <!-- Product Fields (shown when Product selected) -->
+                            <?php
+                            $product_brand        = get_post_meta($post->ID, '_almaseo_product_brand', true);
+                            $product_sku          = get_post_meta($post->ID, '_almaseo_product_sku', true);
+                            $product_gtin         = get_post_meta($post->ID, '_almaseo_product_gtin', true);
+                            $product_mpn          = get_post_meta($post->ID, '_almaseo_product_mpn', true);
+                            $product_price        = get_post_meta($post->ID, '_almaseo_product_price', true);
+                            $product_currency     = get_post_meta($post->ID, '_almaseo_product_currency', true) ?: 'USD';
+                            $product_availability = get_post_meta($post->ID, '_almaseo_product_availability', true) ?: 'InStock';
+                            $product_condition    = get_post_meta($post->ID, '_almaseo_product_condition', true) ?: 'NewCondition';
+                            $product_image        = get_post_meta($post->ID, '_almaseo_product_image', true);
+                            $product_rating_value = get_post_meta($post->ID, '_almaseo_product_rating_value', true);
+                            $product_review_count = get_post_meta($post->ID, '_almaseo_product_review_count', true);
+                            $show_product = ( $primary_type === 'Product' || $current_schema === 'Product' );
+                            $availability_opts = array(
+                                'InStock'             => __('In Stock', 'almaseo-seo-playground'),
+                                'OutOfStock'          => __('Out of Stock', 'almaseo-seo-playground'),
+                                'PreOrder'            => __('Pre-Order', 'almaseo-seo-playground'),
+                                'BackOrder'           => __('Back-Order', 'almaseo-seo-playground'),
+                                'Discontinued'        => __('Discontinued', 'almaseo-seo-playground'),
+                                'LimitedAvailability' => __('Limited Availability', 'almaseo-seo-playground'),
+                                'SoldOut'             => __('Sold Out', 'almaseo-seo-playground'),
+                            );
+                            $condition_opts = array(
+                                'NewCondition'         => __('New', 'almaseo-seo-playground'),
+                                'UsedCondition'        => __('Used', 'almaseo-seo-playground'),
+                                'RefurbishedCondition' => __('Refurbished', 'almaseo-seo-playground'),
+                                'DamagedCondition'     => __('Damaged', 'almaseo-seo-playground'),
+                            );
+                            ?>
+                            <div id="almaseo-product-fields" style="<?php echo esc_attr(($show_product ? '' : 'display:none; ') . 'margin-top: 15px; padding: 15px; background: #f9fafb; border: 1px solid #e2e4e7; border-radius: 6px;'); ?>">
+                                <h4 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 600; color: #1d2327;">🛍️ <?php esc_html_e('Product Details', 'almaseo-seo-playground'); ?></h4>
+
+                                <div style="margin-bottom: 14px; padding: 10px 12px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 12px; color: #475569; line-height: 1.5;">
+                                    <?php esc_html_e('Use these fields when the page represents a sellable product. Google requires at least price, priceCurrency, and availability for the rich result. If WooCommerce is active, its product schema runs separately — only fill in here for non-WC products.', 'almaseo-seo-playground'); ?>
+                                </div>
+
+                                <h5 style="margin: 14px 0 6px 0; font-size: 12px; font-weight: 600; color: #475569;">🏷️ <?php esc_html_e('Identifiers', 'almaseo-seo-playground'); ?></h5>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <div>
+                                        <label for="almaseo_product_brand" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Brand', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_product_brand" name="almaseo_product_brand" value="<?php echo esc_attr($product_brand); ?>" placeholder="Acme" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                    <div>
+                                        <label for="almaseo_product_sku" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('SKU', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_product_sku" name="almaseo_product_sku" value="<?php echo esc_attr($product_sku); ?>" placeholder="ACM-WIDGET-001" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <div>
+                                        <label for="almaseo_product_gtin" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('GTIN / UPC / EAN', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_product_gtin" name="almaseo_product_gtin" value="<?php echo esc_attr($product_gtin); ?>" placeholder="0123456789012" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                    <div>
+                                        <label for="almaseo_product_mpn" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('MPN (Mfr Part #)', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_product_mpn" name="almaseo_product_mpn" value="<?php echo esc_attr($product_mpn); ?>" placeholder="WIDGET-2024" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                </div>
+
+                                <h5 style="margin: 14px 0 6px 0; font-size: 12px; font-weight: 600; color: #475569;">💰 <?php esc_html_e('Offer', 'almaseo-seo-playground'); ?></h5>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <div>
+                                        <label for="almaseo_product_price" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Price', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_product_price" name="almaseo_product_price" value="<?php echo esc_attr($product_price); ?>" placeholder="29.99" class="almaseo-input" style="width: 100%;" />
+                                        <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('Numeric value, no currency symbol.', 'almaseo-seo-playground'); ?></p>
+                                    </div>
+                                    <div>
+                                        <label for="almaseo_product_currency" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Currency', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_product_currency" name="almaseo_product_currency" value="<?php echo esc_attr($product_currency); ?>" placeholder="USD" maxlength="3" class="almaseo-input" style="width: 100%; text-transform: uppercase;" />
+                                        <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('3-letter ISO 4217 code (USD, EUR, GBP…).', 'almaseo-seo-playground'); ?></p>
+                                    </div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <div>
+                                        <label for="almaseo_product_availability" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Availability', 'almaseo-seo-playground'); ?></label>
+                                        <select id="almaseo_product_availability" name="almaseo_product_availability" class="almaseo-select" style="width: 100%;">
+                                            <?php foreach ($availability_opts as $val => $lbl): ?>
+                                                <option value="<?php echo esc_attr($val); ?>" <?php selected($product_availability, $val); ?>><?php echo esc_html($lbl); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="almaseo_product_condition" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Item Condition', 'almaseo-seo-playground'); ?></label>
+                                        <select id="almaseo_product_condition" name="almaseo_product_condition" class="almaseo-select" style="width: 100%;">
+                                            <?php foreach ($condition_opts as $val => $lbl): ?>
+                                                <option value="<?php echo esc_attr($val); ?>" <?php selected($product_condition, $val); ?>><?php echo esc_html($lbl); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <h5 style="margin: 14px 0 6px 0; font-size: 12px; font-weight: 600; color: #475569;">⭐ <?php esc_html_e('Reviews', 'almaseo-seo-playground'); ?></h5>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <div>
+                                        <label for="almaseo_product_rating_value" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Average Rating', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_product_rating_value" name="almaseo_product_rating_value" value="<?php echo esc_attr($product_rating_value); ?>" placeholder="4.5" class="almaseo-input" style="width: 100%;" />
+                                        <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('Out of 5. Decimals allowed.', 'almaseo-seo-playground'); ?></p>
+                                    </div>
+                                    <div>
+                                        <label for="almaseo_product_review_count" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Number of Reviews', 'almaseo-seo-playground'); ?></label>
+                                        <input type="number" min="0" id="almaseo_product_review_count" name="almaseo_product_review_count" value="<?php echo esc_attr($product_review_count); ?>" placeholder="124" class="almaseo-input" style="width: 100%;" />
+                                        <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('Both rating + count must be set for the AggregateRating to emit.', 'almaseo-seo-playground'); ?></p>
+                                    </div>
+                                </div>
+
+                                <h5 style="margin: 14px 0 6px 0; font-size: 12px; font-weight: 600; color: #475569;">🖼️ <?php esc_html_e('Image', 'almaseo-seo-playground'); ?></h5>
+                                <div style="margin-bottom: 0;">
+                                    <label for="almaseo_product_image" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Image URL', 'almaseo-seo-playground'); ?></label>
+                                    <input type="url" id="almaseo_product_image" name="almaseo_product_image" value="<?php echo esc_attr($product_image); ?>" placeholder="https://example.com/product.jpg" class="almaseo-input" style="width: 100%;" />
+                                    <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('Optional. Falls back to featured image if blank. Required by Google for the Product rich result.', 'almaseo-seo-playground'); ?></p>
+                                </div>
+                            </div>
+
+                            <!-- Event Fields (shown when Event selected) -->
+                            <?php
+                            $event_start_date       = get_post_meta($post->ID, '_almaseo_event_start_date', true);
+                            $event_end_date         = get_post_meta($post->ID, '_almaseo_event_end_date', true);
+                            $event_location_name    = get_post_meta($post->ID, '_almaseo_event_location_name', true);
+                            $event_location_address = get_post_meta($post->ID, '_almaseo_event_location_address', true);
+                            $event_location_url     = get_post_meta($post->ID, '_almaseo_event_location_url', true);
+                            $event_performer        = get_post_meta($post->ID, '_almaseo_event_performer', true);
+                            $event_organizer        = get_post_meta($post->ID, '_almaseo_event_organizer', true);
+                            $event_status           = get_post_meta($post->ID, '_almaseo_event_status', true) ?: 'EventScheduled';
+                            $event_attendance_mode  = get_post_meta($post->ID, '_almaseo_event_attendance_mode', true) ?: 'OfflineEventAttendanceMode';
+                            $event_ticket_price     = get_post_meta($post->ID, '_almaseo_event_ticket_price', true);
+                            $event_ticket_currency  = get_post_meta($post->ID, '_almaseo_event_ticket_currency', true) ?: 'USD';
+                            $event_ticket_url       = get_post_meta($post->ID, '_almaseo_event_ticket_url', true);
+                            $event_image            = get_post_meta($post->ID, '_almaseo_event_image', true);
+                            $show_event = ( $primary_type === 'Event' || $current_schema === 'Event' );
+                            $event_status_opts = array(
+                                'EventScheduled'   => __('Scheduled', 'almaseo-seo-playground'),
+                                'EventCancelled'   => __('Cancelled', 'almaseo-seo-playground'),
+                                'EventPostponed'   => __('Postponed', 'almaseo-seo-playground'),
+                                'EventRescheduled' => __('Rescheduled', 'almaseo-seo-playground'),
+                                'EventMovedOnline' => __('Moved Online', 'almaseo-seo-playground'),
+                            );
+                            $attendance_opts = array(
+                                'OfflineEventAttendanceMode' => __('In-person only', 'almaseo-seo-playground'),
+                                'OnlineEventAttendanceMode'  => __('Online only', 'almaseo-seo-playground'),
+                                'MixedEventAttendanceMode'   => __('Hybrid (in-person + online)', 'almaseo-seo-playground'),
+                            );
+                            ?>
+                            <div id="almaseo-event-fields" style="<?php echo esc_attr(($show_event ? '' : 'display:none; ') . 'margin-top: 15px; padding: 15px; background: #f9fafb; border: 1px solid #e2e4e7; border-radius: 6px;'); ?>">
+                                <h4 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 600; color: #1d2327;">📅 <?php esc_html_e('Event Details', 'almaseo-seo-playground'); ?></h4>
+
+                                <div style="margin-bottom: 14px; padding: 10px 12px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 12px; color: #475569; line-height: 1.5;">
+                                    <?php esc_html_e('Use these fields when the page represents a concert, conference, webinar, festival, etc. Google requires startDate + a location (physical address or URL for online events) for the rich result. The post title becomes the event name.', 'almaseo-seo-playground'); ?>
+                                </div>
+
+                                <h5 style="margin: 14px 0 6px 0; font-size: 12px; font-weight: 600; color: #475569;">⏰ <?php esc_html_e('When', 'almaseo-seo-playground'); ?></h5>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <div>
+                                        <label for="almaseo_event_start_date" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Start Date / Time', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_event_start_date" name="almaseo_event_start_date" value="<?php echo esc_attr($event_start_date); ?>" placeholder="2026-08-15T19:30:00-04:00" class="almaseo-input" style="width: 100%;" />
+                                        <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('ISO 8601 format. Date or date+time+timezone.', 'almaseo-seo-playground'); ?></p>
+                                    </div>
+                                    <div>
+                                        <label for="almaseo_event_end_date" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('End Date / Time', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_event_end_date" name="almaseo_event_end_date" value="<?php echo esc_attr($event_end_date); ?>" placeholder="2026-08-15T22:30:00-04:00" class="almaseo-input" style="width: 100%;" />
+                                        <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('Optional but strongly recommended.', 'almaseo-seo-playground'); ?></p>
+                                    </div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <div>
+                                        <label for="almaseo_event_status" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Event Status', 'almaseo-seo-playground'); ?></label>
+                                        <select id="almaseo_event_status" name="almaseo_event_status" class="almaseo-select" style="width: 100%;">
+                                            <?php foreach ($event_status_opts as $val => $lbl): ?>
+                                                <option value="<?php echo esc_attr($val); ?>" <?php selected($event_status, $val); ?>><?php echo esc_html($lbl); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="almaseo_event_attendance_mode" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Attendance Mode', 'almaseo-seo-playground'); ?></label>
+                                        <select id="almaseo_event_attendance_mode" name="almaseo_event_attendance_mode" class="almaseo-select" style="width: 100%;">
+                                            <?php foreach ($attendance_opts as $val => $lbl): ?>
+                                                <option value="<?php echo esc_attr($val); ?>" <?php selected($event_attendance_mode, $val); ?>><?php echo esc_html($lbl); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <h5 style="margin: 14px 0 6px 0; font-size: 12px; font-weight: 600; color: #475569;">📍 <?php esc_html_e('Where', 'almaseo-seo-playground'); ?></h5>
+                                <div style="margin-bottom: 10px;">
+                                    <label for="almaseo_event_location_name" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Venue / Location Name', 'almaseo-seo-playground'); ?></label>
+                                    <input type="text" id="almaseo_event_location_name" name="almaseo_event_location_name" value="<?php echo esc_attr($event_location_name); ?>" placeholder="Madison Square Garden" class="almaseo-input" style="width: 100%;" />
+                                </div>
+                                <div style="margin-bottom: 10px;">
+                                    <label for="almaseo_event_location_address" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Physical Address', 'almaseo-seo-playground'); ?></label>
+                                    <input type="text" id="almaseo_event_location_address" name="almaseo_event_location_address" value="<?php echo esc_attr($event_location_address); ?>" placeholder="4 Pennsylvania Plaza, New York, NY 10001" class="almaseo-input" style="width: 100%;" />
+                                    <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('For in-person events. Leave blank for online-only.', 'almaseo-seo-playground'); ?></p>
+                                </div>
+                                <div style="margin-bottom: 10px;">
+                                    <label for="almaseo_event_location_url" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Online URL (VirtualLocation)', 'almaseo-seo-playground'); ?></label>
+                                    <input type="url" id="almaseo_event_location_url" name="almaseo_event_location_url" value="<?php echo esc_attr($event_location_url); ?>" placeholder="https://example.com/livestream" class="almaseo-input" style="width: 100%;" />
+                                    <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('For online or hybrid events. Required when Attendance Mode is Online or Hybrid.', 'almaseo-seo-playground'); ?></p>
+                                </div>
+
+                                <h5 style="margin: 14px 0 6px 0; font-size: 12px; font-weight: 600; color: #475569;">🎤 <?php esc_html_e('People', 'almaseo-seo-playground'); ?></h5>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <div>
+                                        <label for="almaseo_event_performer" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Performer / Speaker', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_event_performer" name="almaseo_event_performer" value="<?php echo esc_attr($event_performer); ?>" placeholder="Coldplay" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                    <div>
+                                        <label for="almaseo_event_organizer" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Organizer', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_event_organizer" name="almaseo_event_organizer" value="<?php echo esc_attr($event_organizer); ?>" placeholder="Live Nation" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                </div>
+
+                                <h5 style="margin: 14px 0 6px 0; font-size: 12px; font-weight: 600; color: #475569;">🎟️ <?php esc_html_e('Tickets', 'almaseo-seo-playground'); ?></h5>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 10px; margin-bottom: 10px;">
+                                    <div>
+                                        <label for="almaseo_event_ticket_price" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Price', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_event_ticket_price" name="almaseo_event_ticket_price" value="<?php echo esc_attr($event_ticket_price); ?>" placeholder="49.50" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                    <div>
+                                        <label for="almaseo_event_ticket_currency" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Currency', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_event_ticket_currency" name="almaseo_event_ticket_currency" value="<?php echo esc_attr($event_ticket_currency); ?>" placeholder="USD" maxlength="3" class="almaseo-input" style="width: 100%; text-transform: uppercase;" />
+                                    </div>
+                                    <div>
+                                        <label for="almaseo_event_ticket_url" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Ticket URL', 'almaseo-seo-playground'); ?></label>
+                                        <input type="url" id="almaseo_event_ticket_url" name="almaseo_event_ticket_url" value="<?php echo esc_attr($event_ticket_url); ?>" placeholder="https://tickets.example.com/..." class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                </div>
+
+                                <h5 style="margin: 14px 0 6px 0; font-size: 12px; font-weight: 600; color: #475569;">🖼️ <?php esc_html_e('Image', 'almaseo-seo-playground'); ?></h5>
+                                <div style="margin-bottom: 0;">
+                                    <label for="almaseo_event_image" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Image URL', 'almaseo-seo-playground'); ?></label>
+                                    <input type="url" id="almaseo_event_image" name="almaseo_event_image" value="<?php echo esc_attr($event_image); ?>" placeholder="https://example.com/event.jpg" class="almaseo-input" style="width: 100%;" />
+                                    <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('Optional. Falls back to featured image. Required by Google for the Event rich result.', 'almaseo-seo-playground'); ?></p>
+                                </div>
+                            </div>
+
+                            <!-- Recipe Fields (shown when Recipe selected) -->
+                            <?php
+                            $recipe_cuisine       = get_post_meta($post->ID, '_almaseo_recipe_cuisine', true);
+                            $recipe_category      = get_post_meta($post->ID, '_almaseo_recipe_category', true);
+                            $recipe_prep_minutes  = get_post_meta($post->ID, '_almaseo_recipe_prep_minutes', true);
+                            $recipe_cook_minutes  = get_post_meta($post->ID, '_almaseo_recipe_cook_minutes', true);
+                            $recipe_yield         = get_post_meta($post->ID, '_almaseo_recipe_yield', true);
+                            $recipe_ingredients   = get_post_meta($post->ID, '_almaseo_recipe_ingredients', true);
+                            $recipe_instructions  = get_post_meta($post->ID, '_almaseo_recipe_instructions', true);
+                            $recipe_calories      = get_post_meta($post->ID, '_almaseo_recipe_calories', true);
+                            $recipe_rating_value  = get_post_meta($post->ID, '_almaseo_recipe_rating_value', true);
+                            $recipe_review_count  = get_post_meta($post->ID, '_almaseo_recipe_review_count', true);
+                            $recipe_image         = get_post_meta($post->ID, '_almaseo_recipe_image', true);
+                            $recipe_keywords      = get_post_meta($post->ID, '_almaseo_recipe_keywords', true);
+                            $show_recipe = ( $primary_type === 'Recipe' || $current_schema === 'Recipe' );
+                            ?>
+                            <div id="almaseo-recipe-fields" style="<?php echo esc_attr(($show_recipe ? '' : 'display:none; ') . 'margin-top: 15px; padding: 15px; background: #f9fafb; border: 1px solid #e2e4e7; border-radius: 6px;'); ?>">
+                                <h4 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 600; color: #1d2327;">🍳 <?php esc_html_e('Recipe Details', 'almaseo-seo-playground'); ?></h4>
+
+                                <div style="margin-bottom: 14px; padding: 10px 12px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 12px; color: #475569; line-height: 1.5;">
+                                    <?php esc_html_e('Use these fields when the page is a cooking recipe. Google requires name, image, and either ingredients OR instructions for the rich result. Author defaults to the post author. The post title becomes the recipe name.', 'almaseo-seo-playground'); ?>
+                                </div>
+
+                                <h5 style="margin: 14px 0 6px 0; font-size: 12px; font-weight: 600; color: #475569;">🏷️ <?php esc_html_e('Classification', 'almaseo-seo-playground'); ?></h5>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <div>
+                                        <label for="almaseo_recipe_cuisine" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Cuisine', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_recipe_cuisine" name="almaseo_recipe_cuisine" value="<?php echo esc_attr($recipe_cuisine); ?>" placeholder="Italian" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                    <div>
+                                        <label for="almaseo_recipe_category" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Category', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_recipe_category" name="almaseo_recipe_category" value="<?php echo esc_attr($recipe_category); ?>" placeholder="Dinner, Dessert, Appetizer" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                </div>
+
+                                <h5 style="margin: 14px 0 6px 0; font-size: 12px; font-weight: 600; color: #475569;">⏱️ <?php esc_html_e('Times & Yield', 'almaseo-seo-playground'); ?></h5>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <div>
+                                        <label for="almaseo_recipe_prep_minutes" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Prep Time (min)', 'almaseo-seo-playground'); ?></label>
+                                        <input type="number" min="0" id="almaseo_recipe_prep_minutes" name="almaseo_recipe_prep_minutes" value="<?php echo esc_attr($recipe_prep_minutes); ?>" placeholder="15" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                    <div>
+                                        <label for="almaseo_recipe_cook_minutes" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Cook Time (min)', 'almaseo-seo-playground'); ?></label>
+                                        <input type="number" min="0" id="almaseo_recipe_cook_minutes" name="almaseo_recipe_cook_minutes" value="<?php echo esc_attr($recipe_cook_minutes); ?>" placeholder="30" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                    <div>
+                                        <label for="almaseo_recipe_yield" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Yield / Servings', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_recipe_yield" name="almaseo_recipe_yield" value="<?php echo esc_attr($recipe_yield); ?>" placeholder="4 servings" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                </div>
+
+                                <h5 style="margin: 14px 0 6px 0; font-size: 12px; font-weight: 600; color: #475569;">📝 <?php esc_html_e('Recipe Content', 'almaseo-seo-playground'); ?></h5>
+                                <div style="margin-bottom: 10px;">
+                                    <label for="almaseo_recipe_ingredients" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Ingredients', 'almaseo-seo-playground'); ?></label>
+                                    <textarea id="almaseo_recipe_ingredients" name="almaseo_recipe_ingredients" rows="6" class="almaseo-input" style="width: 100%; font-family: monospace; font-size: 12px;" placeholder="2 cups all-purpose flour&#10;1 tsp salt&#10;3 large eggs&#10;1/2 cup milk"><?php echo esc_textarea($recipe_ingredients); ?></textarea>
+                                    <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('One ingredient per line.', 'almaseo-seo-playground'); ?></p>
+                                </div>
+                                <div style="margin-bottom: 10px;">
+                                    <label for="almaseo_recipe_instructions" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Instructions', 'almaseo-seo-playground'); ?></label>
+                                    <textarea id="almaseo_recipe_instructions" name="almaseo_recipe_instructions" rows="6" class="almaseo-input" style="width: 100%; font-family: monospace; font-size: 12px;" placeholder="Preheat oven to 350°F.&#10;Whisk together dry ingredients in a large bowl.&#10;Add eggs and milk; mix until smooth.&#10;Pour into greased pan; bake 30 minutes."><?php echo esc_textarea($recipe_instructions); ?></textarea>
+                                    <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('One step per line. Each becomes a HowToStep node.', 'almaseo-seo-playground'); ?></p>
+                                </div>
+
+                                <h5 style="margin: 14px 0 6px 0; font-size: 12px; font-weight: 600; color: #475569;">🥗 <?php esc_html_e('Nutrition & Reviews', 'almaseo-seo-playground'); ?></h5>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <div>
+                                        <label for="almaseo_recipe_calories" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Calories (per serving)', 'almaseo-seo-playground'); ?></label>
+                                        <input type="number" min="0" id="almaseo_recipe_calories" name="almaseo_recipe_calories" value="<?php echo esc_attr($recipe_calories); ?>" placeholder="320" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                    <div>
+                                        <label for="almaseo_recipe_rating_value" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Avg Rating', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_recipe_rating_value" name="almaseo_recipe_rating_value" value="<?php echo esc_attr($recipe_rating_value); ?>" placeholder="4.7" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                    <div>
+                                        <label for="almaseo_recipe_review_count" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('# Reviews', 'almaseo-seo-playground'); ?></label>
+                                        <input type="number" min="0" id="almaseo_recipe_review_count" name="almaseo_recipe_review_count" value="<?php echo esc_attr($recipe_review_count); ?>" placeholder="89" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                </div>
+
+                                <h5 style="margin: 14px 0 6px 0; font-size: 12px; font-weight: 600; color: #475569;">🖼️ <?php esc_html_e('Image & Keywords', 'almaseo-seo-playground'); ?></h5>
+                                <div style="margin-bottom: 10px;">
+                                    <label for="almaseo_recipe_image" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Image URL', 'almaseo-seo-playground'); ?></label>
+                                    <input type="url" id="almaseo_recipe_image" name="almaseo_recipe_image" value="<?php echo esc_attr($recipe_image); ?>" placeholder="https://example.com/dish.jpg" class="almaseo-input" style="width: 100%;" />
+                                    <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('Required by Google. Falls back to featured image.', 'almaseo-seo-playground'); ?></p>
+                                </div>
+                                <div style="margin-bottom: 0;">
+                                    <label for="almaseo_recipe_keywords" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Keywords', 'almaseo-seo-playground'); ?></label>
+                                    <input type="text" id="almaseo_recipe_keywords" name="almaseo_recipe_keywords" value="<?php echo esc_attr($recipe_keywords); ?>" placeholder="<?php esc_attr_e('weeknight, vegetarian, quick', 'almaseo-seo-playground'); ?>" class="almaseo-input" style="width: 100%;" />
+                                    <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('Comma-separated.', 'almaseo-seo-playground'); ?></p>
+                                </div>
+                            </div>
+
                             <!-- Generic typed-panel show/hide based on selected schema type.
-                                 Add new entries here as we ship more typed panels (Person,
-                                 Organization, Recipe, Event, Product…). Uses event delegation
-                                 so the handler survives Gutenberg metabox re-renders. -->
+                                 Add new entries here as we ship more typed panels. Uses event
+                                 delegation so the handler survives Gutenberg metabox re-renders. -->
                             <script>
                             (function(){
                                 var typePanelMap = {
-                                    'MusicGroup': 'almaseo-musicgroup-fields'
+                                    'MusicGroup':   'almaseo-musicgroup-fields',
+                                    'Person':       'almaseo-person-fields',
+                                    'Organization': 'almaseo-organization-fields',
+                                    'Product':      'almaseo-product-fields',
+                                    'Event':        'almaseo-event-fields',
+                                    'Recipe':       'almaseo-recipe-fields'
                                     // LocalBusiness has its own legacy handler in schema-meta-tab.js
                                 };
 

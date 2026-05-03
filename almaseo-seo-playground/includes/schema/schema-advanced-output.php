@@ -154,6 +154,16 @@ function almaseo_build_primary_schema_node($post, $settings) {
             return almaseo_build_localbusiness_node($post);
         case 'MusicGroup':
             return almaseo_build_musicgroup_node($post);
+        case 'Person':
+            return almaseo_build_person_node($post);
+        case 'Organization':
+            return almaseo_build_organization_node($post);
+        case 'Product':
+            return almaseo_build_product_node($post);
+        case 'Event':
+            return almaseo_build_event_node($post);
+        case 'Recipe':
+            return almaseo_build_recipe_node($post);
         case 'Article':
         case 'BlogPosting':
         case 'NewsArticle':
@@ -636,3 +646,506 @@ function almaseo_build_musicgroup_node($post) {
     return $node;
 }
 } // end function_exists guard: almaseo_build_musicgroup_node
+
+/**
+ * Build a Person node for author profiles, public figures, team members.
+ *
+ * knowsAbout is comma-separated. sameAs textarea is one URL per line.
+ * Image falls back to the post's featured image if no override is set.
+ *
+ * @param WP_Post $post
+ * @return array Person node
+ */
+if (!function_exists('almaseo_build_person_node')) {
+function almaseo_build_person_node($post) {
+    $node = array(
+        '@type' => 'Person',
+        '@id'   => get_permalink($post->ID) . '#person',
+        'name'  => get_the_title($post->ID),
+        'url'   => get_permalink($post->ID),
+    );
+
+    // Simple scalar fields
+    $given_name  = get_post_meta($post->ID, '_almaseo_person_given_name', true);
+    $family_name = get_post_meta($post->ID, '_almaseo_person_family_name', true);
+    $job_title   = get_post_meta($post->ID, '_almaseo_person_job_title', true);
+    $email       = get_post_meta($post->ID, '_almaseo_person_email', true);
+    $telephone   = get_post_meta($post->ID, '_almaseo_person_telephone', true);
+    $birth_date  = get_post_meta($post->ID, '_almaseo_person_birth_date', true);
+    if ($given_name)  $node['givenName']  = $given_name;
+    if ($family_name) $node['familyName'] = $family_name;
+    if ($job_title)   $node['jobTitle']   = $job_title;
+    if ($email)       $node['email']      = $email;
+    if ($telephone)   $node['telephone']  = $telephone;
+    if ($birth_date)  $node['birthDate']  = $birth_date;
+
+    // worksFor — Organization node
+    $works_for = get_post_meta($post->ID, '_almaseo_person_works_for', true);
+    if ($works_for) {
+        $node['worksFor'] = array(
+            '@type' => 'Organization',
+            'name'  => $works_for,
+        );
+    }
+
+    // knowsAbout — comma-separated string → string (one) or array (multiple)
+    $knows_raw = get_post_meta($post->ID, '_almaseo_person_knows_about', true);
+    if ($knows_raw) {
+        $knows = array_values(array_filter(array_map('trim', explode(',', $knows_raw))));
+        if (!empty($knows)) {
+            $node['knowsAbout'] = count($knows) === 1 ? $knows[0] : $knows;
+        }
+    }
+
+    // Image — explicit Person image, then fall back to featured image
+    $image_url = get_post_meta($post->ID, '_almaseo_person_image', true);
+    if (!$image_url && has_post_thumbnail($post->ID)) {
+        $image_url = get_the_post_thumbnail_url($post->ID, 'large');
+    }
+    if ($image_url) {
+        $node['image'] = $image_url;
+    }
+
+    // sameAs — one URL per line, validated and deduped
+    $same_as_raw = get_post_meta($post->ID, '_almaseo_person_same_as', true);
+    if ($same_as_raw) {
+        $urls = array();
+        $lines = preg_split('/\r\n|\r|\n/', $same_as_raw);
+        foreach ($lines as $line) {
+            $url = esc_url_raw(trim($line));
+            if ($url !== '' && !in_array($url, $urls, true)) {
+                $urls[] = $url;
+            }
+        }
+        if (!empty($urls)) {
+            $node['sameAs'] = $urls;
+        }
+    }
+
+    // Description fallback to post excerpt or trimmed content
+    $description = has_excerpt($post) ? get_the_excerpt($post) : wp_trim_words($post->post_content, 30);
+    if ($description) {
+        $node['description'] = $description;
+    }
+
+    return $node;
+}
+} // end function_exists guard: almaseo_build_person_node
+
+/**
+ * Build an Organization node for companies, NGOs, schools, non-physical orgs.
+ *
+ * For brick-and-mortar businesses, use LocalBusiness instead. Logo is emitted
+ * as both an ImageObject (logo property) and as a flat image string.
+ *
+ * @param WP_Post $post
+ * @return array Organization node
+ */
+if (!function_exists('almaseo_build_organization_node')) {
+function almaseo_build_organization_node($post) {
+    $node = array(
+        '@type' => 'Organization',
+        '@id'   => get_permalink($post->ID) . '#organization',
+        'name'  => get_the_title($post->ID),
+        'url'   => get_permalink($post->ID),
+    );
+
+    // Simple scalar fields
+    $legal_name    = get_post_meta($post->ID, '_almaseo_org_legal_name', true);
+    $founding_date = get_post_meta($post->ID, '_almaseo_org_founding_date', true);
+    $industry      = get_post_meta($post->ID, '_almaseo_org_industry', true);
+    $email         = get_post_meta($post->ID, '_almaseo_org_email', true);
+    $telephone     = get_post_meta($post->ID, '_almaseo_org_telephone', true);
+    $employees     = get_post_meta($post->ID, '_almaseo_org_employees', true);
+    if ($legal_name)    $node['legalName']        = $legal_name;
+    if ($founding_date) $node['foundingDate']     = $founding_date;
+    if ($industry)      $node['industry']         = $industry;
+    if ($email)         $node['email']            = $email;
+    if ($telephone)     $node['telephone']        = $telephone;
+    if ($employees !== '' && $employees !== false) {
+        $node['numberOfEmployees'] = (int) $employees;
+    }
+
+    // Founder — Person node
+    $founder = get_post_meta($post->ID, '_almaseo_org_founder', true);
+    if ($founder) {
+        $node['founder'] = array(
+            '@type' => 'Person',
+            'name'  => $founder,
+        );
+    }
+
+    // Logo — ImageObject + flat image fallback (Google likes both)
+    $logo_url = get_post_meta($post->ID, '_almaseo_org_logo', true);
+    if (!$logo_url && has_post_thumbnail($post->ID)) {
+        $logo_url = get_the_post_thumbnail_url($post->ID, 'large');
+    }
+    if ($logo_url) {
+        $node['logo'] = array(
+            '@type' => 'ImageObject',
+            'url'   => $logo_url,
+        );
+        $node['image'] = $logo_url;
+    }
+
+    // sameAs — one URL per line, validated and deduped
+    $same_as_raw = get_post_meta($post->ID, '_almaseo_org_same_as', true);
+    if ($same_as_raw) {
+        $urls = array();
+        $lines = preg_split('/\r\n|\r|\n/', $same_as_raw);
+        foreach ($lines as $line) {
+            $url = esc_url_raw(trim($line));
+            if ($url !== '' && !in_array($url, $urls, true)) {
+                $urls[] = $url;
+            }
+        }
+        if (!empty($urls)) {
+            $node['sameAs'] = $urls;
+        }
+    }
+
+    // Description fallback to post excerpt or trimmed content
+    $description = has_excerpt($post) ? get_the_excerpt($post) : wp_trim_words($post->post_content, 30);
+    if ($description) {
+        $node['description'] = $description;
+    }
+
+    return $node;
+}
+} // end function_exists guard: almaseo_build_organization_node
+
+/**
+ * Build a Product node for e-commerce items.
+ *
+ * Emits an Offer node when price + currency are set. Emits an AggregateRating
+ * node only when BOTH ratingValue and reviewCount are set (schema.org rejects
+ * incomplete ratings). Image falls back to the post's featured image.
+ *
+ * @param WP_Post $post
+ * @return array Product node
+ */
+if (!function_exists('almaseo_build_product_node')) {
+function almaseo_build_product_node($post) {
+    $node = array(
+        '@type' => 'Product',
+        '@id'   => get_permalink($post->ID) . '#product',
+        'name'  => get_the_title($post->ID),
+        'url'   => get_permalink($post->ID),
+    );
+
+    // Identifiers
+    $sku  = get_post_meta($post->ID, '_almaseo_product_sku', true);
+    $gtin = get_post_meta($post->ID, '_almaseo_product_gtin', true);
+    $mpn  = get_post_meta($post->ID, '_almaseo_product_mpn', true);
+    if ($sku)  $node['sku']  = $sku;
+    if ($gtin) $node['gtin'] = $gtin;
+    if ($mpn)  $node['mpn']  = $mpn;
+
+    // Brand — Brand node
+    $brand = get_post_meta($post->ID, '_almaseo_product_brand', true);
+    if ($brand) {
+        $node['brand'] = array(
+            '@type' => 'Brand',
+            'name'  => $brand,
+        );
+    }
+
+    // Image — explicit image first, then featured-image fallback
+    $image_url = get_post_meta($post->ID, '_almaseo_product_image', true);
+    if (!$image_url && has_post_thumbnail($post->ID)) {
+        $image_url = get_the_post_thumbnail_url($post->ID, 'large');
+    }
+    if ($image_url) {
+        $node['image'] = $image_url;
+    }
+
+    // Offer — only emit if we have a price (Google requires price + currency for the rich result)
+    $price        = get_post_meta($post->ID, '_almaseo_product_price', true);
+    $currency     = get_post_meta($post->ID, '_almaseo_product_currency', true);
+    $availability = get_post_meta($post->ID, '_almaseo_product_availability', true);
+    $condition    = get_post_meta($post->ID, '_almaseo_product_condition', true);
+    if ($price !== '' && $price !== false) {
+        $offer = array(
+            '@type' => 'Offer',
+            'price' => (string) $price,
+            'url'   => get_permalink($post->ID),
+        );
+        if ($currency) {
+            $offer['priceCurrency'] = $currency;
+        }
+        if ($availability) {
+            $offer['availability'] = 'https://schema.org/' . $availability;
+        }
+        if ($condition) {
+            $offer['itemCondition'] = 'https://schema.org/' . $condition;
+        }
+        $node['offers'] = $offer;
+    }
+
+    // AggregateRating — both ratingValue AND reviewCount required by Google
+    $rating_value = get_post_meta($post->ID, '_almaseo_product_rating_value', true);
+    $review_count = get_post_meta($post->ID, '_almaseo_product_review_count', true);
+    if ($rating_value !== '' && $rating_value !== false && $review_count !== '' && $review_count !== false) {
+        $node['aggregateRating'] = array(
+            '@type'       => 'AggregateRating',
+            'ratingValue' => (string) $rating_value,
+            'reviewCount' => (int) $review_count,
+        );
+    }
+
+    // Description fallback to post excerpt or trimmed content
+    $description = has_excerpt($post) ? get_the_excerpt($post) : wp_trim_words($post->post_content, 30);
+    if ($description) {
+        $node['description'] = $description;
+    }
+
+    return $node;
+}
+} // end function_exists guard: almaseo_build_product_node
+
+/**
+ * Build an Event node for concerts, conferences, webinars, festivals.
+ *
+ * Location resolves to a Place node when a physical address is set, OR a
+ * VirtualLocation when only a URL is set, OR a hybrid pair (array of both)
+ * when the attendance mode is MixedEventAttendanceMode and both are present.
+ * Offer is only emitted when a price is set; AttendanceMode and EventStatus
+ * use full schema.org URI form per Google's spec.
+ *
+ * @param WP_Post $post
+ * @return array Event node
+ */
+if (!function_exists('almaseo_build_event_node')) {
+function almaseo_build_event_node($post) {
+    $node = array(
+        '@type' => 'Event',
+        '@id'   => get_permalink($post->ID) . '#event',
+        'name'  => get_the_title($post->ID),
+        'url'   => get_permalink($post->ID),
+    );
+
+    // Dates
+    $start_date = get_post_meta($post->ID, '_almaseo_event_start_date', true);
+    $end_date   = get_post_meta($post->ID, '_almaseo_event_end_date', true);
+    if ($start_date) $node['startDate'] = $start_date;
+    if ($end_date)   $node['endDate']   = $end_date;
+
+    // Status + Attendance Mode (full URI form per Google's Event spec)
+    $status     = get_post_meta($post->ID, '_almaseo_event_status', true);
+    $attendance = get_post_meta($post->ID, '_almaseo_event_attendance_mode', true);
+    if ($status)     $node['eventStatus']         = 'https://schema.org/' . $status;
+    if ($attendance) $node['eventAttendanceMode'] = 'https://schema.org/' . $attendance;
+
+    // Location — Place (physical) and/or VirtualLocation (online)
+    $loc_name    = get_post_meta($post->ID, '_almaseo_event_location_name', true);
+    $loc_address = get_post_meta($post->ID, '_almaseo_event_location_address', true);
+    $loc_url     = get_post_meta($post->ID, '_almaseo_event_location_url', true);
+    $physical = null;
+    $virtual  = null;
+    if ($loc_name || $loc_address) {
+        $physical = array(
+            '@type' => 'Place',
+            'name'  => $loc_name ?: get_the_title($post->ID),
+        );
+        if ($loc_address) {
+            $physical['address'] = $loc_address;
+        }
+    }
+    if ($loc_url) {
+        $virtual = array(
+            '@type' => 'VirtualLocation',
+            'url'   => $loc_url,
+        );
+    }
+    if ($physical && $virtual) {
+        $node['location'] = array($physical, $virtual);
+    } elseif ($physical) {
+        $node['location'] = $physical;
+    } elseif ($virtual) {
+        $node['location'] = $virtual;
+    }
+
+    // Performer + Organizer
+    $performer = get_post_meta($post->ID, '_almaseo_event_performer', true);
+    if ($performer) {
+        $node['performer'] = array(
+            '@type' => 'PerformingGroup',
+            'name'  => $performer,
+        );
+    }
+    $organizer = get_post_meta($post->ID, '_almaseo_event_organizer', true);
+    if ($organizer) {
+        $node['organizer'] = array(
+            '@type' => 'Organization',
+            'name'  => $organizer,
+        );
+    }
+
+    // Offer (tickets) — only emit when price is set
+    $price        = get_post_meta($post->ID, '_almaseo_event_ticket_price', true);
+    $currency     = get_post_meta($post->ID, '_almaseo_event_ticket_currency', true);
+    $ticket_url   = get_post_meta($post->ID, '_almaseo_event_ticket_url', true);
+    if ($price !== '' && $price !== false) {
+        $offer = array(
+            '@type'         => 'Offer',
+            'price'         => (string) $price,
+            'availability'  => 'https://schema.org/InStock',
+        );
+        if ($currency)   $offer['priceCurrency'] = $currency;
+        if ($ticket_url) $offer['url']           = $ticket_url;
+        $node['offers'] = $offer;
+    }
+
+    // Image — explicit, then featured-image fallback
+    $image_url = get_post_meta($post->ID, '_almaseo_event_image', true);
+    if (!$image_url && has_post_thumbnail($post->ID)) {
+        $image_url = get_the_post_thumbnail_url($post->ID, 'large');
+    }
+    if ($image_url) {
+        $node['image'] = $image_url;
+    }
+
+    // Description fallback to post excerpt or trimmed content
+    $description = has_excerpt($post) ? get_the_excerpt($post) : wp_trim_words($post->post_content, 30);
+    if ($description) {
+        $node['description'] = $description;
+    }
+
+    return $node;
+}
+} // end function_exists guard: almaseo_build_event_node
+
+/**
+ * Build a Recipe node for cooking/food posts.
+ *
+ * Times are stored in raw minutes and converted to ISO 8601 duration here
+ * (e.g. 45 → "PT45M") because Google requires ISO 8601 for prepTime/cookTime
+ * but raw minutes is much friendlier in the editor. Author defaults to the
+ * post author. AggregateRating only emits when both ratingValue and
+ * reviewCount are set.
+ *
+ * @param WP_Post $post
+ * @return array Recipe node
+ */
+if (!function_exists('almaseo_build_recipe_node')) {
+function almaseo_build_recipe_node($post) {
+    $node = array(
+        '@type' => 'Recipe',
+        '@id'   => get_permalink($post->ID) . '#recipe',
+        'name'  => get_the_title($post->ID),
+        'url'   => get_permalink($post->ID),
+    );
+
+    // Author — default to the post author so the Recipe rich result has a name
+    $author_id = (int) $post->post_author;
+    if ($author_id) {
+        $node['author'] = array(
+            '@type' => 'Person',
+            'name'  => get_the_author_meta('display_name', $author_id),
+        );
+    }
+
+    // datePublished — ISO 8601, from the post itself
+    $node['datePublished'] = mysql2date('c', $post->post_date_gmt, false);
+
+    // Classification
+    $cuisine  = get_post_meta($post->ID, '_almaseo_recipe_cuisine', true);
+    $category = get_post_meta($post->ID, '_almaseo_recipe_category', true);
+    if ($cuisine)  $node['recipeCuisine']  = $cuisine;
+    if ($category) $node['recipeCategory'] = $category;
+
+    // Yield + times — convert minutes to ISO 8601 duration ("PT45M")
+    $yield = get_post_meta($post->ID, '_almaseo_recipe_yield', true);
+    if ($yield) $node['recipeYield'] = $yield;
+
+    $prep_min = get_post_meta($post->ID, '_almaseo_recipe_prep_minutes', true);
+    $cook_min = get_post_meta($post->ID, '_almaseo_recipe_cook_minutes', true);
+    if ($prep_min !== '' && $prep_min !== false && (int) $prep_min > 0) {
+        $node['prepTime'] = 'PT' . (int) $prep_min . 'M';
+    }
+    if ($cook_min !== '' && $cook_min !== false && (int) $cook_min > 0) {
+        $node['cookTime'] = 'PT' . (int) $cook_min . 'M';
+    }
+    if (isset($node['prepTime']) && isset($node['cookTime'])) {
+        $node['totalTime'] = 'PT' . ((int) $prep_min + (int) $cook_min) . 'M';
+    }
+
+    // Ingredients — one per line → array of strings
+    $ingredients_raw = get_post_meta($post->ID, '_almaseo_recipe_ingredients', true);
+    if ($ingredients_raw) {
+        $items = array();
+        $lines = preg_split('/\r\n|\r|\n/', $ingredients_raw);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line !== '') {
+                $items[] = $line;
+            }
+        }
+        if (!empty($items)) {
+            $node['recipeIngredient'] = $items;
+        }
+    }
+
+    // Instructions — one step per line → HowToStep nodes
+    $instructions_raw = get_post_meta($post->ID, '_almaseo_recipe_instructions', true);
+    if ($instructions_raw) {
+        $steps = array();
+        $lines = preg_split('/\r\n|\r|\n/', $instructions_raw);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line !== '') {
+                $steps[] = array(
+                    '@type' => 'HowToStep',
+                    'text'  => $line,
+                );
+            }
+        }
+        if (!empty($steps)) {
+            $node['recipeInstructions'] = $steps;
+        }
+    }
+
+    // Nutrition — calories per serving
+    $calories = get_post_meta($post->ID, '_almaseo_recipe_calories', true);
+    if ($calories !== '' && $calories !== false && (int) $calories > 0) {
+        $node['nutrition'] = array(
+            '@type'    => 'NutritionInformation',
+            'calories' => (int) $calories . ' calories',
+        );
+    }
+
+    // AggregateRating — both fields required
+    $rating_value = get_post_meta($post->ID, '_almaseo_recipe_rating_value', true);
+    $review_count = get_post_meta($post->ID, '_almaseo_recipe_review_count', true);
+    if ($rating_value !== '' && $rating_value !== false && $review_count !== '' && $review_count !== false) {
+        $node['aggregateRating'] = array(
+            '@type'       => 'AggregateRating',
+            'ratingValue' => (string) $rating_value,
+            'reviewCount' => (int) $review_count,
+        );
+    }
+
+    // Image — explicit, then featured-image fallback
+    $image_url = get_post_meta($post->ID, '_almaseo_recipe_image', true);
+    if (!$image_url && has_post_thumbnail($post->ID)) {
+        $image_url = get_the_post_thumbnail_url($post->ID, 'large');
+    }
+    if ($image_url) {
+        $node['image'] = $image_url;
+    }
+
+    // Keywords — comma-separated string passes through as-is per Google's spec
+    $keywords = get_post_meta($post->ID, '_almaseo_recipe_keywords', true);
+    if ($keywords) {
+        $node['keywords'] = $keywords;
+    }
+
+    // Description fallback to post excerpt or trimmed content
+    $description = has_excerpt($post) ? get_the_excerpt($post) : wp_trim_words($post->post_content, 30);
+    if ($description) {
+        $node['description'] = $description;
+    }
+
+    return $node;
+}
+} // end function_exists guard: almaseo_build_recipe_node

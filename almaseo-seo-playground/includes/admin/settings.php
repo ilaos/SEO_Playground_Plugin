@@ -197,7 +197,7 @@ class AlmaSEO_Settings {
         // Default schema by post type
         $sanitized['default_schema_by_post_type'] = array();
         if (isset($input['default_schema_by_post_type']) && is_array($input['default_schema_by_post_type'])) {
-            $valid_types = array('', 'Article', 'BlogPosting', 'NewsArticle', 'FAQPage', 'HowTo', 'Service', 'LocalBusiness', 'MusicGroup');
+            $valid_types = array('', 'Article', 'BlogPosting', 'NewsArticle', 'FAQPage', 'HowTo', 'Service', 'LocalBusiness', 'MusicGroup', 'Person', 'Organization', 'Product', 'Event', 'Recipe');
             foreach ($input['default_schema_by_post_type'] as $post_type => $schema_type) {
                 if (in_array($schema_type, $valid_types, true)) {
                     $sanitized['default_schema_by_post_type'][sanitize_key($post_type)] = $schema_type;
@@ -542,6 +542,11 @@ class AlmaSEO_Settings {
                                                 <option value="Service" <?php selected($current, 'Service'); ?>>Service</option>
                                                 <option value="LocalBusiness" <?php selected($current, 'LocalBusiness'); ?>>LocalBusiness</option>
                                                 <option value="MusicGroup" <?php selected($current, 'MusicGroup'); ?>>MusicGroup</option>
+                                                <option value="Person" <?php selected($current, 'Person'); ?>>Person</option>
+                                                <option value="Organization" <?php selected($current, 'Organization'); ?>>Organization</option>
+                                                <option value="Product" <?php selected($current, 'Product'); ?>>Product</option>
+                                                <option value="Event" <?php selected($current, 'Event'); ?>>Event</option>
+                                                <option value="Recipe" <?php selected($current, 'Recipe'); ?>>Recipe</option>
                                             </select>
                                         </p>
                                     <?php endforeach; ?>

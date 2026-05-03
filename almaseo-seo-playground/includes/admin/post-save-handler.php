@@ -239,6 +239,181 @@ function almaseo_save_seo_playground_meta($post_id) {
         update_post_meta($post_id, '_almaseo_mg_same_as', sanitize_textarea_field(wp_unslash($_POST['almaseo_mg_same_as'])));
     }
 
+    // Person fields — author/profile/public-figure schema
+    $person_text_fields = array(
+        'almaseo_person_job_title'    => '_almaseo_person_job_title',
+        'almaseo_person_works_for'    => '_almaseo_person_works_for',
+        'almaseo_person_telephone'    => '_almaseo_person_telephone',
+        'almaseo_person_given_name'   => '_almaseo_person_given_name',
+        'almaseo_person_family_name'  => '_almaseo_person_family_name',
+        'almaseo_person_birth_date'   => '_almaseo_person_birth_date',
+        'almaseo_person_knows_about'  => '_almaseo_person_knows_about',
+    );
+    foreach ($person_text_fields as $post_key => $meta_key) {
+        if (isset($_POST[$post_key])) {
+            update_post_meta($post_id, $meta_key, sanitize_text_field(wp_unslash($_POST[$post_key])));
+        }
+    }
+    if (isset($_POST['almaseo_person_email'])) {
+        update_post_meta($post_id, '_almaseo_person_email', sanitize_email(wp_unslash($_POST['almaseo_person_email'])));
+    }
+    if (isset($_POST['almaseo_person_image'])) {
+        update_post_meta($post_id, '_almaseo_person_image', esc_url_raw(wp_unslash($_POST['almaseo_person_image'])));
+    }
+    if (isset($_POST['almaseo_person_same_as'])) {
+        update_post_meta($post_id, '_almaseo_person_same_as', sanitize_textarea_field(wp_unslash($_POST['almaseo_person_same_as'])));
+    }
+
+    // Organization fields — company/NGO/non-physical-org schema
+    $org_text_fields = array(
+        'almaseo_org_legal_name'    => '_almaseo_org_legal_name',
+        'almaseo_org_founding_date' => '_almaseo_org_founding_date',
+        'almaseo_org_founder'       => '_almaseo_org_founder',
+        'almaseo_org_industry'      => '_almaseo_org_industry',
+        'almaseo_org_telephone'     => '_almaseo_org_telephone',
+    );
+    foreach ($org_text_fields as $post_key => $meta_key) {
+        if (isset($_POST[$post_key])) {
+            update_post_meta($post_id, $meta_key, sanitize_text_field(wp_unslash($_POST[$post_key])));
+        }
+    }
+    if (isset($_POST['almaseo_org_employees'])) {
+        $employees_raw = wp_unslash($_POST['almaseo_org_employees']);
+        update_post_meta($post_id, '_almaseo_org_employees', $employees_raw === '' ? '' : absint($employees_raw));
+    }
+    if (isset($_POST['almaseo_org_email'])) {
+        update_post_meta($post_id, '_almaseo_org_email', sanitize_email(wp_unslash($_POST['almaseo_org_email'])));
+    }
+    if (isset($_POST['almaseo_org_logo'])) {
+        update_post_meta($post_id, '_almaseo_org_logo', esc_url_raw(wp_unslash($_POST['almaseo_org_logo'])));
+    }
+    if (isset($_POST['almaseo_org_same_as'])) {
+        update_post_meta($post_id, '_almaseo_org_same_as', sanitize_textarea_field(wp_unslash($_POST['almaseo_org_same_as'])));
+    }
+
+    // Product fields — e-commerce schema
+    $product_text_fields = array(
+        'almaseo_product_brand'        => '_almaseo_product_brand',
+        'almaseo_product_sku'          => '_almaseo_product_sku',
+        'almaseo_product_gtin'         => '_almaseo_product_gtin',
+        'almaseo_product_mpn'          => '_almaseo_product_mpn',
+        'almaseo_product_price'        => '_almaseo_product_price',
+        'almaseo_product_rating_value' => '_almaseo_product_rating_value',
+    );
+    foreach ($product_text_fields as $post_key => $meta_key) {
+        if (isset($_POST[$post_key])) {
+            update_post_meta($post_id, $meta_key, sanitize_text_field(wp_unslash($_POST[$post_key])));
+        }
+    }
+    if (isset($_POST['almaseo_product_currency'])) {
+        $currency = strtoupper(sanitize_text_field(wp_unslash($_POST['almaseo_product_currency'])));
+        // ISO 4217 is 3 letters; trim to that length to be safe
+        update_post_meta($post_id, '_almaseo_product_currency', substr($currency, 0, 3));
+    }
+    // Whitelist for availability — schema.org expects an exact ItemAvailability value
+    $availability_whitelist = array('InStock', 'OutOfStock', 'PreOrder', 'BackOrder', 'Discontinued', 'LimitedAvailability', 'SoldOut');
+    if (isset($_POST['almaseo_product_availability'])) {
+        $val = sanitize_text_field(wp_unslash($_POST['almaseo_product_availability']));
+        if (in_array($val, $availability_whitelist, true)) {
+            update_post_meta($post_id, '_almaseo_product_availability', $val);
+        }
+    }
+    // Whitelist for condition — schema.org expects an exact OfferItemCondition value
+    $condition_whitelist = array('NewCondition', 'UsedCondition', 'RefurbishedCondition', 'DamagedCondition');
+    if (isset($_POST['almaseo_product_condition'])) {
+        $val = sanitize_text_field(wp_unslash($_POST['almaseo_product_condition']));
+        if (in_array($val, $condition_whitelist, true)) {
+            update_post_meta($post_id, '_almaseo_product_condition', $val);
+        }
+    }
+    if (isset($_POST['almaseo_product_review_count'])) {
+        $count_raw = wp_unslash($_POST['almaseo_product_review_count']);
+        update_post_meta($post_id, '_almaseo_product_review_count', $count_raw === '' ? '' : absint($count_raw));
+    }
+    if (isset($_POST['almaseo_product_image'])) {
+        update_post_meta($post_id, '_almaseo_product_image', esc_url_raw(wp_unslash($_POST['almaseo_product_image'])));
+    }
+
+    // Event fields — concert/conference/webinar schema
+    $event_text_fields = array(
+        'almaseo_event_start_date'       => '_almaseo_event_start_date',
+        'almaseo_event_end_date'         => '_almaseo_event_end_date',
+        'almaseo_event_location_name'    => '_almaseo_event_location_name',
+        'almaseo_event_location_address' => '_almaseo_event_location_address',
+        'almaseo_event_performer'        => '_almaseo_event_performer',
+        'almaseo_event_organizer'        => '_almaseo_event_organizer',
+        'almaseo_event_ticket_price'     => '_almaseo_event_ticket_price',
+    );
+    foreach ($event_text_fields as $post_key => $meta_key) {
+        if (isset($_POST[$post_key])) {
+            update_post_meta($post_id, $meta_key, sanitize_text_field(wp_unslash($_POST[$post_key])));
+        }
+    }
+    if (isset($_POST['almaseo_event_ticket_currency'])) {
+        $currency = strtoupper(sanitize_text_field(wp_unslash($_POST['almaseo_event_ticket_currency'])));
+        update_post_meta($post_id, '_almaseo_event_ticket_currency', substr($currency, 0, 3));
+    }
+    // Whitelist event status — schema.org expects an exact EventStatusType value
+    $event_status_whitelist = array('EventScheduled', 'EventCancelled', 'EventPostponed', 'EventRescheduled', 'EventMovedOnline');
+    if (isset($_POST['almaseo_event_status'])) {
+        $val = sanitize_text_field(wp_unslash($_POST['almaseo_event_status']));
+        if (in_array($val, $event_status_whitelist, true)) {
+            update_post_meta($post_id, '_almaseo_event_status', $val);
+        }
+    }
+    // Whitelist attendance mode
+    $attendance_whitelist = array('OfflineEventAttendanceMode', 'OnlineEventAttendanceMode', 'MixedEventAttendanceMode');
+    if (isset($_POST['almaseo_event_attendance_mode'])) {
+        $val = sanitize_text_field(wp_unslash($_POST['almaseo_event_attendance_mode']));
+        if (in_array($val, $attendance_whitelist, true)) {
+            update_post_meta($post_id, '_almaseo_event_attendance_mode', $val);
+        }
+    }
+    if (isset($_POST['almaseo_event_location_url'])) {
+        update_post_meta($post_id, '_almaseo_event_location_url', esc_url_raw(wp_unslash($_POST['almaseo_event_location_url'])));
+    }
+    if (isset($_POST['almaseo_event_ticket_url'])) {
+        update_post_meta($post_id, '_almaseo_event_ticket_url', esc_url_raw(wp_unslash($_POST['almaseo_event_ticket_url'])));
+    }
+    if (isset($_POST['almaseo_event_image'])) {
+        update_post_meta($post_id, '_almaseo_event_image', esc_url_raw(wp_unslash($_POST['almaseo_event_image'])));
+    }
+
+    // Recipe fields — food/cooking schema
+    $recipe_text_fields = array(
+        'almaseo_recipe_cuisine'      => '_almaseo_recipe_cuisine',
+        'almaseo_recipe_category'     => '_almaseo_recipe_category',
+        'almaseo_recipe_yield'        => '_almaseo_recipe_yield',
+        'almaseo_recipe_rating_value' => '_almaseo_recipe_rating_value',
+        'almaseo_recipe_keywords'     => '_almaseo_recipe_keywords',
+    );
+    foreach ($recipe_text_fields as $post_key => $meta_key) {
+        if (isset($_POST[$post_key])) {
+            update_post_meta($post_id, $meta_key, sanitize_text_field(wp_unslash($_POST[$post_key])));
+        }
+    }
+    $recipe_int_fields = array(
+        'almaseo_recipe_prep_minutes' => '_almaseo_recipe_prep_minutes',
+        'almaseo_recipe_cook_minutes' => '_almaseo_recipe_cook_minutes',
+        'almaseo_recipe_calories'     => '_almaseo_recipe_calories',
+        'almaseo_recipe_review_count' => '_almaseo_recipe_review_count',
+    );
+    foreach ($recipe_int_fields as $post_key => $meta_key) {
+        if (isset($_POST[$post_key])) {
+            $raw = wp_unslash($_POST[$post_key]);
+            update_post_meta($post_id, $meta_key, $raw === '' ? '' : absint($raw));
+        }
+    }
+    if (isset($_POST['almaseo_recipe_ingredients'])) {
+        update_post_meta($post_id, '_almaseo_recipe_ingredients', sanitize_textarea_field(wp_unslash($_POST['almaseo_recipe_ingredients'])));
+    }
+    if (isset($_POST['almaseo_recipe_instructions'])) {
+        update_post_meta($post_id, '_almaseo_recipe_instructions', sanitize_textarea_field(wp_unslash($_POST['almaseo_recipe_instructions'])));
+    }
+    if (isset($_POST['almaseo_recipe_image'])) {
+        update_post_meta($post_id, '_almaseo_recipe_image', esc_url_raw(wp_unslash($_POST['almaseo_recipe_image'])));
+    }
+
     // Open Graph metadata
     if (isset($_POST['almaseo_og_title'])) {
         update_post_meta($post_id, '_almaseo_og_title', sanitize_text_field(wp_unslash($_POST['almaseo_og_title'])));
