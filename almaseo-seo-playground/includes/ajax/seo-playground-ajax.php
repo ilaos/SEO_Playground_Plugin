@@ -1696,3 +1696,86 @@ function almaseo_ajax_fetch_gsc_page_data() {
     wp_send_json_success($data);
 }
 } // end function_exists guard: almaseo_ajax_fetch_gsc_page_data
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Schema JSON-LD Preview — backend-rendered preview using the same builders
+ * the frontend uses, so the editor preview matches what's actually emitted
+ * (or would be emitted if the global Advanced Schema gate were on).
+ *
+ * Returns the would-be JSON-LD plus diagnostics about each gate, so when a
+ * type doesn't show up on the frontend the editor can tell the user *why*.
+ * ──────────────────────────────────────────────────────────────────────── */
+add_action('wp_ajax_almaseo_get_schema_preview', 'almaseo_ajax_get_schema_preview');
+if (!function_exists('almaseo_ajax_get_schema_preview')) {
+function almaseo_ajax_get_schema_preview() {
+    $post_id = isset($_POST['post_id']) ? absint(wp_unslash($_POST['post_id'])) : 0;
+    if (!$post_id || !current_user_can('edit_post', $post_id)) {
+        wp_send_json_error(array('message' => 'Insufficient permissions'));
+    }
+
+    $post = get_post($post_id);
+    if (!$post instanceof WP_Post) {
+        wp_send_json_error(array('message' => 'Post not found'));
+    }
+
+    $settings = get_option('almaseo_schema_advanced_settings', array(
+        'enabled'              => false,
+        'site_represents'      => 'organization',
+        'site_name'            => '',
+        'site_logo_url'        => '',
+        'site_social_profiles' => array(),
+    ));
+    $diag = array(
+        'feature_available'   => function_exists('almaseo_feature_available') ? (bool) almaseo_feature_available('schema_advanced') : false,
+        'global_enabled'      => !empty($settings['enabled']),
+        'per_post_disable'    => (bool) get_post_meta($post_id, '_almaseo_schema_disable', true),
+        'meta_schema_type'    => (string) get_post_meta($post_id, '_almaseo_schema_type', true),
+        'meta_schema_primary' => (string) get_post_meta($post_id, '_almaseo_schema_primary_type', true),
+    );
+
+    $type = function_exists('almaseo_determine_schema_type')
+        ? almaseo_determine_schema_type($post, $settings)
+        : ($diag['meta_schema_primary'] ?: ($diag['meta_schema_type'] ?: 'Article'));
+    $diag['resolved_type'] = $type;
+
+    $graph = array();
+    if (function_exists('almaseo_build_knowledge_graph_node')) {
+        $kg = almaseo_build_knowledge_graph_node($settings);
+        if ($kg) {
+            $graph[] = $kg;
+        }
+    }
+    if (function_exists('almaseo_build_primary_schema_node')) {
+        $primary = almaseo_build_primary_schema_node($post, $settings);
+        if ($primary) {
+            $graph[] = $primary;
+        }
+    }
+
+    $data = array(
+        '@context' => 'https://schema.org',
+        '@graph'   => $graph,
+    );
+
+    $blockers = array();
+    if (!$diag['feature_available']) {
+        $blockers[] = 'Schema (Advanced) is gated to Pro — almaseo_feature_available("schema_advanced") returned false.';
+    }
+    if (!$diag['global_enabled']) {
+        $blockers[] = 'Global "Advanced Schema → Enabled" toggle is OFF (option almaseo_schema_advanced_settings.enabled).';
+    }
+    if ($diag['per_post_disable']) {
+        $blockers[] = 'Per-post override _almaseo_schema_disable is set on this post.';
+    }
+    if (empty($graph)) {
+        $blockers[] = 'No nodes were built (knowledge graph + primary node both empty).';
+    }
+
+    wp_send_json_success(array(
+        'json'              => wp_json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
+        'type'              => $type,
+        'diagnostics'       => $diag,
+        'frontend_blockers' => $blockers,
+    ));
+}
+} // end function_exists guard: almaseo_ajax_get_schema_preview

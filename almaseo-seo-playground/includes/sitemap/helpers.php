@@ -10,9 +10,16 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Bail if already loaded — Windows directory junctions can resolve the same
+// physical file via two different paths (junction path + canonical path),
+// causing this file to be required twice and triggering a fatal redeclare.
+if (function_exists('almaseo_get_index_url')) {
+    return;
+}
+
 /**
  * Get sitemap index URL configuration
- * 
+ *
  * @return array {
  *     @type string $primary  The primary URL to use (respects takeover)
  *     @type string $direct   The direct AlmaSEO sitemap URL

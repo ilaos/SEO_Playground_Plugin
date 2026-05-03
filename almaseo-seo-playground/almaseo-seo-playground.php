@@ -2514,6 +2514,12 @@ add_action('init', function() {
         if (isset($wp_filter['wp_head'])) {
             foreach ($wp_filter['wp_head'] as $priority => $hooks) {
                 foreach ($hooks as $key => $hook) {
+                    // Skip our own AlmaSEO hooks — the schema-name match is greedy
+                    // and would otherwise unhook almaseo_output_advanced_schema and
+                    // almaseo_output_schema_jsonld, killing our front-end output.
+                    if (is_string($key) && strpos($key, 'almaseo_') === 0) {
+                        continue;
+                    }
                     // Remove any hooks that might output schema
                     if (strpos($key, 'schema') !== false || strpos($key, 'json_ld') !== false || strpos($key, 'structured_data') !== false) {
                         remove_action('wp_head', $key, $priority);

@@ -152,6 +152,8 @@ function almaseo_build_primary_schema_node($post, $settings) {
             return almaseo_build_service_node($post);
         case 'LocalBusiness':
             return almaseo_build_localbusiness_node($post);
+        case 'MusicGroup':
+            return almaseo_build_musicgroup_node($post);
         case 'Article':
         case 'BlogPosting':
         case 'NewsArticle':
@@ -529,3 +531,108 @@ function almaseo_build_localbusiness_node($post) {
     return $node;
 }
 } // end function_exists guard: almaseo_build_localbusiness_node
+
+/**
+ * Build a MusicGroup node for bands, musicians, and music ensembles.
+ *
+ * Members textarea is parsed as one entry per line in "Name | Role" format.
+ * Genre is comma-separated. sameAs textarea is one URL per line.
+ *
+ * @param WP_Post $post
+ * @return array MusicGroup node
+ */
+if (!function_exists('almaseo_build_musicgroup_node')) {
+function almaseo_build_musicgroup_node($post) {
+    $node = array(
+        '@type' => 'MusicGroup',
+        '@id'   => get_permalink($post->ID) . '#musicgroup',
+        'name'  => get_the_title($post->ID),
+        'url'   => get_permalink($post->ID),
+    );
+
+    // Genre — comma-separated string → string (one) or array (multiple)
+    $genre_raw = get_post_meta($post->ID, '_almaseo_mg_genre', true);
+    if ($genre_raw) {
+        $genres = array_values(array_filter(array_map('trim', explode(',', $genre_raw))));
+        if (!empty($genres)) {
+            $node['genre'] = count($genres) === 1 ? $genres[0] : $genres;
+        }
+    }
+
+    // Founding date and location
+    $founding_date = get_post_meta($post->ID, '_almaseo_mg_founding_date', true);
+    if ($founding_date) {
+        $node['foundingDate'] = $founding_date;
+    }
+    $founding_location = get_post_meta($post->ID, '_almaseo_mg_founding_location', true);
+    if ($founding_location) {
+        $node['foundingLocation'] = array(
+            '@type' => 'Place',
+            'name'  => $founding_location,
+        );
+    }
+
+    // Members — "Name | Role" per line, becomes Person nodes with roleName
+    $members_raw = get_post_meta($post->ID, '_almaseo_mg_members', true);
+    if ($members_raw) {
+        $member_nodes = array();
+        $lines = preg_split('/\r\n|\r|\n/', $members_raw);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === '') {
+                continue;
+            }
+            $parts = array_map('trim', explode('|', $line, 2));
+            $name  = $parts[0] ?? '';
+            $role  = $parts[1] ?? '';
+            if ($name === '') {
+                continue;
+            }
+            $person = array(
+                '@type' => 'Person',
+                'name'  => $name,
+            );
+            if ($role !== '') {
+                $person['roleName'] = $role;
+            }
+            $member_nodes[] = $person;
+        }
+        if (!empty($member_nodes)) {
+            $node['member'] = $member_nodes;
+        }
+    }
+
+    // Image — explicit MusicGroup image, then fall back to featured image
+    $image_url = get_post_meta($post->ID, '_almaseo_mg_image', true);
+    if (!$image_url && has_post_thumbnail($post->ID)) {
+        $image_url = get_the_post_thumbnail_url($post->ID, 'large');
+    }
+    if ($image_url) {
+        $node['image'] = $image_url;
+    }
+
+    // sameAs — one URL per line, validated and deduped
+    $same_as_raw = get_post_meta($post->ID, '_almaseo_mg_same_as', true);
+    if ($same_as_raw) {
+        $urls = array();
+        $lines = preg_split('/\r\n|\r|\n/', $same_as_raw);
+        foreach ($lines as $line) {
+            $url = esc_url_raw(trim($line));
+            if ($url !== '' && !in_array($url, $urls, true)) {
+                $urls[] = $url;
+            }
+        }
+        if (!empty($urls)) {
+            $node['sameAs'] = $urls;
+        }
+    }
+
+    // Description fallback to post excerpt or trimmed content
+    $description = has_excerpt($post) ? get_the_excerpt($post) : wp_trim_words($post->post_content, 30);
+    if ($description) {
+        $node['description'] = $description;
+    }
+
+    return $node;
+}
+} // end function_exists guard: almaseo_build_musicgroup_node

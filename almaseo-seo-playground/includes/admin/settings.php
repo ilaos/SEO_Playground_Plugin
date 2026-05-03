@@ -197,7 +197,7 @@ class AlmaSEO_Settings {
         // Default schema by post type
         $sanitized['default_schema_by_post_type'] = array();
         if (isset($input['default_schema_by_post_type']) && is_array($input['default_schema_by_post_type'])) {
-            $valid_types = array('', 'Article', 'BlogPosting', 'NewsArticle', 'FAQPage', 'HowTo', 'Service', 'LocalBusiness');
+            $valid_types = array('', 'Article', 'BlogPosting', 'NewsArticle', 'FAQPage', 'HowTo', 'Service', 'LocalBusiness', 'MusicGroup');
             foreach ($input['default_schema_by_post_type'] as $post_type => $schema_type) {
                 if (in_array($schema_type, $valid_types, true)) {
                     $sanitized['default_schema_by_post_type'][sanitize_key($post_type)] = $schema_type;
@@ -541,6 +541,7 @@ class AlmaSEO_Settings {
                                                 <option value="HowTo" <?php selected($current, 'HowTo'); ?>>HowTo</option>
                                                 <option value="Service" <?php selected($current, 'Service'); ?>>Service</option>
                                                 <option value="LocalBusiness" <?php selected($current, 'LocalBusiness'); ?>>LocalBusiness</option>
+                                                <option value="MusicGroup" <?php selected($current, 'MusicGroup'); ?>>MusicGroup</option>
                                             </select>
                                         </p>
                                     <?php endforeach; ?>

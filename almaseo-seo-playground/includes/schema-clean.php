@@ -150,7 +150,11 @@ function almaseo_add_schema_meta_box() {
     );
 }
 } // end function_exists guard: almaseo_add_schema_meta_box
-add_action('add_meta_boxes', 'almaseo_add_schema_meta_box');
+// Legacy "Schema Settings" sidebar metabox disabled — its <select id="almaseo_schema_type">
+// duplicated the ID used by the unified Schema & Meta tab in metabox-callback.php, which
+// broke typed-panel show/hide JS (getElementById returned the legacy dropdown's stale
+// value, hiding LocalBusiness/MusicGroup panels). The new tab provides type + enable.
+// add_action('add_meta_boxes', 'almaseo_add_schema_meta_box');
 
 /**
  * Schema meta box content

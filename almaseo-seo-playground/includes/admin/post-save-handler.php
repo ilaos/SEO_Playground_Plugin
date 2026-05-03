@@ -127,16 +127,22 @@ function almaseo_save_seo_playground_meta($post_id) {
         update_post_meta($post_id, '_almaseo_canonical_url', esc_url_raw(wp_unslash($_POST['almaseo_canonical_url'])));
     }
 
-    // Schema Type
+    // Schema Type — single merged dropdown writes to BOTH legacy + advanced meta
+    // keys so all consumers (meta-tags-renderer, schema-advanced-output, refresh-queue,
+    // eeat-engine, schema-clean, llm-rest, etc.) read a consistent value regardless
+    // of which key they query.
     if (isset($_POST['almaseo_schema_type'])) {
         $schema_type = almaseo_sanitize_schema_type(wp_unslash($_POST['almaseo_schema_type']));
         update_post_meta($post_id, '_almaseo_schema_type', $schema_type);
         update_post_meta($post_id, '_seo_playground_schema_type', $schema_type); // Legacy
+        update_post_meta($post_id, '_almaseo_schema_primary_type', $schema_type); // Advanced output reads this
     }
 
-    // Advanced Schema - Primary Type (Pro)
-    if (isset($_POST['almaseo_schema_primary_type'])) {
-        update_post_meta($post_id, '_almaseo_schema_primary_type', sanitize_text_field(wp_unslash($_POST['almaseo_schema_primary_type'])));
+    // Backwards compatibility: legacy POST field from older form versions
+    if (isset($_POST['almaseo_schema_primary_type']) && !isset($_POST['almaseo_schema_type'])) {
+        $primary = almaseo_sanitize_schema_type(wp_unslash($_POST['almaseo_schema_primary_type']));
+        update_post_meta($post_id, '_almaseo_schema_primary_type', $primary);
+        update_post_meta($post_id, '_almaseo_schema_type', $primary);
     }
 
     // Advanced Schema - FAQPage toggle (Pro)
@@ -211,6 +217,26 @@ function almaseo_save_seo_playground_meta($post_id) {
             }
         }
         update_post_meta($post_id, '_almaseo_lb_hours', wp_json_encode($hours));
+    }
+
+    // MusicGroup fields — band/artist/ensemble schema
+    if (isset($_POST['almaseo_mg_genre'])) {
+        update_post_meta($post_id, '_almaseo_mg_genre', sanitize_text_field(wp_unslash($_POST['almaseo_mg_genre'])));
+    }
+    if (isset($_POST['almaseo_mg_founding_date'])) {
+        update_post_meta($post_id, '_almaseo_mg_founding_date', sanitize_text_field(wp_unslash($_POST['almaseo_mg_founding_date'])));
+    }
+    if (isset($_POST['almaseo_mg_founding_location'])) {
+        update_post_meta($post_id, '_almaseo_mg_founding_location', sanitize_text_field(wp_unslash($_POST['almaseo_mg_founding_location'])));
+    }
+    if (isset($_POST['almaseo_mg_members'])) {
+        update_post_meta($post_id, '_almaseo_mg_members', sanitize_textarea_field(wp_unslash($_POST['almaseo_mg_members'])));
+    }
+    if (isset($_POST['almaseo_mg_image'])) {
+        update_post_meta($post_id, '_almaseo_mg_image', esc_url_raw(wp_unslash($_POST['almaseo_mg_image'])));
+    }
+    if (isset($_POST['almaseo_mg_same_as'])) {
+        update_post_meta($post_id, '_almaseo_mg_same_as', sanitize_textarea_field(wp_unslash($_POST['almaseo_mg_same_as'])));
     }
 
     // Open Graph metadata

@@ -82,10 +82,11 @@ function almaseo_sanitize_notes($notes) {
 if (!function_exists('almaseo_sanitize_schema_type')) {
 function almaseo_sanitize_schema_type($type) {
     $allowed_types = array(
-        'None', 'Article', 'BlogPosting', 'NewsArticle', 
-        'Product', 'Recipe', 'Event', 'Course', 
+        'None', 'Article', 'BlogPosting', 'NewsArticle',
+        'Product', 'Recipe', 'Event', 'Course',
         'JobPosting', 'LocalBusiness', 'Organization',
-        'Person', 'Review', 'HowTo', 'FAQ'
+        'Person', 'Review', 'HowTo', 'FAQ', 'FAQPage', 'Service',
+        'MusicGroup',
     );
     
     if (in_array($type, $allowed_types)) {

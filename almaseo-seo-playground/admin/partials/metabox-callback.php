@@ -2358,13 +2358,19 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             <?php 
                             $current_schema = get_post_meta($post->ID, '_almaseo_schema_type', true) ?: 'Article';
                             ?>
-                            <?php 
-                            $is_connected = seo_playground_is_alma_connected();
+                            <?php
+                            // Gate Pro types on the actual Pro-feature check, not just the
+                            // cloud-connection state. almaseo_feature_available('schema_advanced')
+                            // resolves to almaseo_is_pro_active() which defaults to 'pro' until
+                            // server-side tier sync is wired up — so local/dev sites unlock by
+                            // default, matching the behaviour the rest of the metabox uses.
+                            $advanced_unlocked = almaseo_feature_available('schema_advanced');
                             $schema_options = array(
-                                array('value' => 'Article', 'label' => 'Article (BlogPosting) (Free)', 'locked' => false),
-                                array('value' => 'FAQPage', 'label' => 'FAQPage', 'locked' => !$is_connected),
-                                array('value' => 'HowTo', 'label' => 'HowTo', 'locked' => !$is_connected),
-                                array('value' => 'LocalBusiness', 'label' => 'LocalBusiness', 'locked' => !$is_connected)
+                                array('value' => 'Article',       'label' => 'Article (BlogPosting) (Free)', 'locked' => false),
+                                array('value' => 'FAQPage',       'label' => 'FAQPage',                      'locked' => !$advanced_unlocked),
+                                array('value' => 'HowTo',         'label' => 'HowTo',                        'locked' => !$advanced_unlocked),
+                                array('value' => 'LocalBusiness', 'label' => 'LocalBusiness',                'locked' => !$advanced_unlocked),
+                                array('value' => 'MusicGroup',    'label' => 'MusicGroup (Band/Artist)',     'locked' => !$advanced_unlocked),
                             );
                             
                             foreach ($schema_options as $option): ?>
@@ -2437,22 +2443,13 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             $disable_advanced = get_post_meta($post->ID, '_almaseo_schema_disable', true);
                             ?>
 
-                            <div class="almaseo-field-group">
-                                <label for="almaseo_schema_primary_type">Primary Schema Type</label>
-                                <select id="almaseo_schema_primary_type"
-                                        name="almaseo_schema_primary_type"
-                                        class="almaseo-select">
-                                    <option value=""><?php esc_html_e('Use default for this post type', 'almaseo-seo-playground'); ?></option>
-                                    <option value="Article" <?php selected($primary_type, 'Article'); ?>>Article</option>
-                                    <option value="BlogPosting" <?php selected($primary_type, 'BlogPosting'); ?>>BlogPosting</option>
-                                    <option value="NewsArticle" <?php selected($primary_type, 'NewsArticle'); ?>>NewsArticle</option>
-                                    <option value="FAQPage" <?php selected($primary_type, 'FAQPage'); ?>>FAQPage</option>
-                                    <option value="HowTo" <?php selected($primary_type, 'HowTo'); ?>>HowTo</option>
-                                    <option value="Service" <?php selected($primary_type, 'Service'); ?>>Service</option>
-                                    <option value="LocalBusiness" <?php selected($primary_type, 'LocalBusiness'); ?>>LocalBusiness</option>
-                                </select>
-                                <p class="field-hint">Override the global default for this specific post</p>
-                            </div>
+                            <!-- Primary Schema Type dropdown removed: the merged Schema Type
+                                 dropdown at the top of this tab is now the single source of
+                                 truth, and the save handler syncs the value to both meta keys
+                                 (_almaseo_schema_type + _almaseo_schema_primary_type) so all
+                                 consumers stay in sync. $primary_type is still read above for
+                                 backward-compat in the $show_lb / $show_mg panel-visibility
+                                 checks (covers posts saved before the sync was added). -->
 
                             <!-- LocalBusiness Fields (shown when LocalBusiness selected) -->
                             <?php
@@ -2564,6 +2561,98 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                     <p class="description" style="margin-top: 6px; font-size: 11px;">Leave blank for closed days.</p>
                                 </fieldset>
                             </div>
+
+                            <!-- MusicGroup Fields (shown when MusicGroup selected) -->
+                            <?php
+                            $mg_genre             = get_post_meta($post->ID, '_almaseo_mg_genre', true);
+                            $mg_founding_date     = get_post_meta($post->ID, '_almaseo_mg_founding_date', true);
+                            $mg_founding_location = get_post_meta($post->ID, '_almaseo_mg_founding_location', true);
+                            $mg_members           = get_post_meta($post->ID, '_almaseo_mg_members', true);
+                            $mg_image             = get_post_meta($post->ID, '_almaseo_mg_image', true);
+                            $mg_same_as           = get_post_meta($post->ID, '_almaseo_mg_same_as', true);
+                            $show_mg = ( $primary_type === 'MusicGroup' || $current_schema === 'MusicGroup' );
+                            ?>
+                            <div id="almaseo-musicgroup-fields" style="<?php echo esc_attr(($show_mg ? '' : 'display:none; ') . 'margin-top: 15px; padding: 15px; background: #f9fafb; border: 1px solid #e2e4e7; border-radius: 6px;'); ?>">
+                                <h4 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 600; color: #1d2327;">🎵 <?php esc_html_e('Music Group / Artist Details', 'almaseo-seo-playground'); ?></h4>
+
+                                <div style="margin-bottom: 14px; padding: 10px 12px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 12px; color: #475569; line-height: 1.5;">
+                                    <?php esc_html_e('Use these fields when the page represents a band, musician, or music ensemble. The post title becomes the artist name, the URL is the canonical artist URL, and the featured image is used if no override is set.', 'almaseo-seo-playground'); ?>
+                                </div>
+
+                                <div style="margin-bottom: 10px;">
+                                    <label for="almaseo_mg_genre" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Genre', 'almaseo-seo-playground'); ?></label>
+                                    <input type="text" id="almaseo_mg_genre" name="almaseo_mg_genre" value="<?php echo esc_attr($mg_genre); ?>" placeholder="<?php esc_attr_e('Indie Rock, Alternative', 'almaseo-seo-playground'); ?>" class="almaseo-input" style="width: 100%;" />
+                                    <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('Comma-separated for multiple genres.', 'almaseo-seo-playground'); ?></p>
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <div>
+                                        <label for="almaseo_mg_founding_date" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Founding Date', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_mg_founding_date" name="almaseo_mg_founding_date" value="<?php echo esc_attr($mg_founding_date); ?>" placeholder="2009 or 2009-04-15" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                    <div>
+                                        <label for="almaseo_mg_founding_location" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Founding Location', 'almaseo-seo-playground'); ?></label>
+                                        <input type="text" id="almaseo_mg_founding_location" name="almaseo_mg_founding_location" value="<?php echo esc_attr($mg_founding_location); ?>" placeholder="Brooklyn, NY" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                </div>
+
+                                <div style="margin-bottom: 10px;">
+                                    <label for="almaseo_mg_members" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Members', 'almaseo-seo-playground'); ?></label>
+                                    <textarea id="almaseo_mg_members" name="almaseo_mg_members" rows="4" class="almaseo-input" style="width: 100%; font-family: monospace; font-size: 12px;" placeholder="Jane Doe | Lead Vocals&#10;John Smith | Guitar&#10;Pat Lee | Drums"><?php echo esc_textarea($mg_members); ?></textarea>
+                                    <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('One per line: Name | Role. Role is optional.', 'almaseo-seo-playground'); ?></p>
+                                </div>
+
+                                <div style="margin-bottom: 10px;">
+                                    <label for="almaseo_mg_image" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Image URL', 'almaseo-seo-playground'); ?></label>
+                                    <input type="url" id="almaseo_mg_image" name="almaseo_mg_image" value="<?php echo esc_attr($mg_image); ?>" placeholder="https://example.com/band-photo.jpg" class="almaseo-input" style="width: 100%;" />
+                                    <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('Optional. Falls back to featured image if blank.', 'almaseo-seo-playground'); ?></p>
+                                </div>
+
+                                <div style="margin-bottom: 0;">
+                                    <label for="almaseo_mg_same_as" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Same As (External Profiles)', 'almaseo-seo-playground'); ?></label>
+                                    <textarea id="almaseo_mg_same_as" name="almaseo_mg_same_as" rows="3" class="almaseo-input" style="width: 100%; font-family: monospace; font-size: 12px;" placeholder="https://open.spotify.com/artist/...&#10;https://music.apple.com/artist/...&#10;https://www.instagram.com/..."><?php echo esc_textarea($mg_same_as); ?></textarea>
+                                    <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('One URL per line. Spotify, Apple Music, Wikipedia, Instagram, official site.', 'almaseo-seo-playground'); ?></p>
+                                </div>
+                            </div>
+
+                            <!-- Generic typed-panel show/hide based on selected schema type.
+                                 Add new entries here as we ship more typed panels (Person,
+                                 Organization, Recipe, Event, Product…). Uses event delegation
+                                 so the handler survives Gutenberg metabox re-renders. -->
+                            <script>
+                            (function(){
+                                var typePanelMap = {
+                                    'MusicGroup': 'almaseo-musicgroup-fields'
+                                    // LocalBusiness has its own legacy handler in schema-meta-tab.js
+                                };
+
+                                function update() {
+                                    var sel = document.getElementById('almaseo_schema_type');
+                                    if (!sel) return;
+                                    var opt = sel.options[sel.selectedIndex];
+                                    if (!opt) return;
+                                    var val = opt.value;
+                                    Object.keys(typePanelMap).forEach(function(type) {
+                                        var panel = document.getElementById(typePanelMap[type]);
+                                        if (panel) {
+                                            panel.style.display = (val === type) ? '' : 'none';
+                                        }
+                                    });
+                                }
+
+                                document.addEventListener('change', function(e) {
+                                    if (e.target && e.target.id === 'almaseo_schema_type') {
+                                        update();
+                                    }
+                                });
+
+                                if (document.readyState === 'loading') {
+                                    document.addEventListener('DOMContentLoaded', update);
+                                } else {
+                                    update();
+                                }
+                            })();
+                            </script>
 
                             <div class="almaseo-field-group">
                                 <label>

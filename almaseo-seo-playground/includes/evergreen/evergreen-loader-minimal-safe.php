@@ -197,22 +197,25 @@ add_action('enqueue_block_editor_assets', function() {
         );
     }
     
-    // Enqueue Schema panel
-    $schema_panel = $plugin_dir . 'assets/js/schema-panel.js';
-    if (file_exists($schema_panel)) {
-        wp_enqueue_script(
-            'almaseo-schema-panel',
-            $plugin_url . 'assets/js/schema-panel.js',
-            array('wp-plugins', 'wp-edit-post', 'wp-editor', 'wp-element', 'wp-components', 'wp-data', 'wp-i18n'),
-            '4.2.0',
-            true
-        );
-        
-        wp_localize_script('almaseo-schema-panel', 'almaseoSchemaSettings', array(
-            'apiRoot' => esc_url_raw(rest_url()),
-            'nonce' => wp_create_nonce('wp_rest')
-        ));
-    }
+    // Schema panel (Gutenberg sidebar) — disabled. The unified Schema & Meta tab
+    // in the AlmaSEO metabox is the single source of truth for per-post schema
+    // settings; the React sidebar duplicated that UI and confused users.
+    // Re-enable by uncommenting the wp_enqueue_script + wp_localize_script below.
+    // $schema_panel = $plugin_dir . 'assets/js/schema-panel.js';
+    // if (file_exists($schema_panel)) {
+    //     wp_enqueue_script(
+    //         'almaseo-schema-panel',
+    //         $plugin_url . 'assets/js/schema-panel.js',
+    //         array('wp-plugins', 'wp-edit-post', 'wp-editor', 'wp-element', 'wp-components', 'wp-data', 'wp-i18n'),
+    //         '4.2.0',
+    //         true
+    //     );
+    //
+    //     wp_localize_script('almaseo-schema-panel', 'almaseoSchemaSettings', array(
+    //         'apiRoot' => esc_url_raw(rest_url()),
+    //         'nonce' => wp_create_nonce('wp_rest')
+    //     ));
+    // }
     
     // Use enhanced panel v2
     $enhanced_panel_v2 = $plugin_dir . 'assets/js/evergreen-panel-enhanced-v2.js';

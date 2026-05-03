@@ -374,8 +374,9 @@ jQuery(document).ready(function($) {
         }
     }
     
-    // Update previews when fields change
-    $('#almaseo_schema_type, #almaseo_title, #almaseo_description, #almaseo_og_title, #almaseo_og_description, #almaseo_og_image, #almaseo_twitter_card, #almaseo_twitter_title, #almaseo_twitter_description, #almaseo_twitter_image').on('change keyup', function() {
+    // Update previews when fields change — delegated from document so the
+    // #almaseo_schema_type handler survives Gutenberg metabox re-renders.
+    $(document).on('change keyup', '#almaseo_schema_type, #almaseo_title, #almaseo_description, #almaseo_og_title, #almaseo_og_description, #almaseo_og_image, #almaseo_twitter_card, #almaseo_twitter_title, #almaseo_twitter_description, #almaseo_twitter_image', function() {
         if ($('#schema-preview-content').is(':visible')) {
             updateSchemaPreview();
         }
@@ -404,8 +405,9 @@ jQuery(document).ready(function($) {
         setTimeout(checkTwitterCardDowngrade, 500);
     });
     
-    // Handle locked schema selection
-    $('#almaseo_schema_type').on('change', function(e) {
+    // Handle locked schema selection — delegated from document so it survives
+    // Gutenberg metabox re-renders that orphan direct bindings.
+    $(document).on('change', '#almaseo_schema_type', function(e) {
         var $selected = $(this).find('option:selected');
         var $notice = $('#schema-locked-notice');
         
@@ -518,11 +520,12 @@ jQuery(document).ready(function($) {
         }
     }
 
-    // Bind to both schema selectors
-    $('#almaseo_schema_primary_type').on('change', toggleLocalBusinessFields);
+    // Bind to both schema selectors — delegated from document so handlers
+    // survive Gutenberg metabox re-renders that orphan direct bindings.
+    $(document).on('change', '#almaseo_schema_primary_type', toggleLocalBusinessFields);
 
-    // Schema type change handler
-    $('#almaseo_schema_type').on('change', function() {
+    // Schema type change handler — delegated for the same reason.
+    $(document).on('change', '#almaseo_schema_type', function() {
         var selectedSchema = $(this).val();
         toggleLocalBusinessFields();
 

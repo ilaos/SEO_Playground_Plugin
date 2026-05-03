@@ -137,3 +137,63 @@
         font-size: 18px;
     }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Custom hover tooltip — replaces native title="" attributes which can clip
+ * off the viewport edge with no way to reposition. Opens to the bottom-right
+ * of the trigger so it stays inside the WP admin column.
+ * Usage: <span class="almaseo-hover-tip" data-tip="..." tabindex="0">…</span>
+ * ──────────────────────────────────────────────────────────────────────── */
+.almaseo-hover-tip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    cursor: help;
+    color: #2271b1;
+    outline: none;
+}
+
+.almaseo-hover-tip::after {
+    content: attr(data-tip);
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 9999;
+    width: max-content;
+    max-width: 300px;
+    padding: 8px 10px;
+    background: #1d2327;
+    color: #fff;
+    font-size: 12px;
+    font-weight: normal;
+    line-height: 1.45;
+    text-align: left;
+    white-space: normal;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition: opacity 0.12s ease-out, transform 0.12s ease-out;
+}
+
+.almaseo-hover-tip::before {
+    content: "";
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 8px;
+    z-index: 10000;
+    border: 6px solid transparent;
+    border-bottom-color: #1d2327;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s ease-out;
+}
+
+.almaseo-hover-tip:hover::after,
+.almaseo-hover-tip:focus::after,
+.almaseo-hover-tip:hover::before,
+.almaseo-hover-tip:focus::before {
+    opacity: 1;
+    transform: translateY(0);
+}
