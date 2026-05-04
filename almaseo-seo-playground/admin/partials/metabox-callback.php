@@ -2401,12 +2401,104 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         <!-- Locked schema upsell notice -->
                         <div id="schema-locked-notice" style="display: none; margin-top: 10px; padding: 10px; background: #fff8e5; border-left: 3px solid #dba617; border-radius: 3px;">
                             <small style="color: #2c3338;">
-                                Advanced schema types are available with an AlmaSEO connection. 
+                                Advanced schema types are available with an AlmaSEO connection.
                                 <a href="#tab-unlock-features" class="almaseo-tab-link">Connect now →</a>
                             </small>
                         </div>
+
+                        <?php
+                        // --- Additional Schema Types (multi-schema) ---
+                        // A page can describe multiple things at once (e.g. a band that's
+                        // also a venue → MusicGroup + LocalBusiness). The primary type above
+                        // is what the page IS; these are additional facets. Output is a
+                        // JSON-LD @graph with one node per checked type.
+                        $secondary_raw = get_post_meta($post->ID, '_almaseo_schema_secondary_types', true);
+                        $secondary_active = array();
+                        if ($secondary_raw) {
+                            $decoded = is_array($secondary_raw) ? $secondary_raw : json_decode($secondary_raw, true);
+                            if (is_array($decoded)) {
+                                $secondary_active = array_values(array_filter($decoded));
+                            }
+                        }
+                        // Gated behind its own Pro feature flag (schema_multi) rather than
+                        // the broader schema_advanced gate, so multi-schema can be priced/
+                        // marketed independently. During dev both flags pass because
+                        // almaseo_is_pro_active() defaults to 'pro'; flips to enforced
+                        // when the tier-sync endpoint goes live.
+                        $multi_schema_unlocked = almaseo_feature_available('schema_multi');
+                        if ($multi_schema_unlocked):
+                        ?>
+                        <div style="margin-top: 18px; padding-top: 14px; border-top: 1px dashed #dcdcde;">
+                            <label style="font-weight: 600; font-size: 13px; display: block; margin-bottom: 4px;">
+                                <?php esc_html_e('Also describe this page as:', 'almaseo-seo-playground'); ?>
+                                <span style="font-weight: normal; color: #94a3b8; font-size: 11px; margin-left: 4px;"><?php esc_html_e('(optional — adds a separate node to the JSON-LD @graph)', 'almaseo-seo-playground'); ?></span>
+                                <span class="almaseo-tier-badge almaseo-tier-pro" style="display: inline-block; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 1px 5px; border-radius: 3px; line-height: 1.4; vertical-align: middle; margin-left: 4px; background: rgba(107, 33, 168, 0.15); color: #6b21a8;">PRO</span>
+                            </label>
+                            <p class="field-hint" style="margin: 0 0 8px 0; font-size: 11px;">
+                                <?php esc_html_e('Use when one page genuinely represents more than one entity. Each checked type opens its own field panel below.', 'almaseo-seo-playground'); ?>
+                            </p>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px 12px; padding: 10px 12px; background: #f9fafb; border: 1px solid #e2e4e7; border-radius: 4px;">
+                                <?php
+                                // Build secondary checkbox list from the same options as the
+                                // primary dropdown, minus Article (default fallback — no panel).
+                                foreach ($schema_options as $opt) {
+                                    if ($opt['value'] === 'Article' || $opt['locked']) continue;
+                                    $is_checked = in_array($opt['value'], $secondary_active, true);
+                                    $is_primary = ($opt['value'] === $current_schema);
+                                    ?>
+                                    <label style="display: flex; align-items: flex-start; gap: 6px; font-size: 12px; cursor: <?php echo $is_primary ? 'not-allowed' : 'pointer'; ?>; opacity: <?php echo $is_primary ? '0.45' : '1'; ?>;">
+                                        <input type="checkbox"
+                                               class="almaseo-secondary-schema-cb"
+                                               name="almaseo_schema_secondary_types[]"
+                                               value="<?php echo esc_attr($opt['value']); ?>"
+                                               data-type="<?php echo esc_attr($opt['value']); ?>"
+                                               <?php checked($is_checked); ?>
+                                               <?php disabled($is_primary); ?>
+                                               style="margin-top: 2px;" />
+                                        <span>
+                                            <?php echo esc_html(preg_replace('/\s*\(.*$/', '', $opt['label'])); ?>
+                                            <?php if ($is_primary): ?><em style="color: #94a3b8; font-size: 10px;"> <?php esc_html_e('(primary)', 'almaseo-seo-playground'); ?></em><?php endif; ?>
+                                        </span>
+                                    </label>
+                                <?php } ?>
+                            </div>
+                            <!-- LocalBusiness-specific guidance: most-misused schema type. -->
+                            <div id="almaseo-lb-usage-note" style="display: none; margin-top: 8px; padding: 8px 12px; background: #fff8e5; border-left: 3px solid #dba617; border-radius: 3px; font-size: 11px; color: #5c4a00; line-height: 1.5;">
+                                <strong>⚠ <?php esc_html_e('LocalBusiness usage tip:', 'almaseo-seo-playground'); ?></strong>
+                                <?php esc_html_e('Use this only when customers physically visit your address (storefront, restaurant, clinic, studio). For service-area businesses that travel to clients (wedding bands, plumbers, mobile groomers), prefer the primary type with `areaServed` instead — adding LocalBusiness without a real visitable address can mislead Google\'s entity resolution and trigger the wrong rich result.', 'almaseo-seo-playground'); ?>
+                            </div>
+                        </div>
+                        <?php endif; // $multi_schema_unlocked ?>
                     </div>
-                    
+
+                    <!-- Validator buttons — open this page's URL in Google's Rich Results Test
+                         and Schema.org's validator. Disabled before publish (no public URL). -->
+                    <?php
+                    $perma = get_permalink($post->ID);
+                    $is_published = ($post->post_status === 'publish' && !empty($perma));
+                    $rr_url  = 'https://search.google.com/test/rich-results?url=' . rawurlencode($perma);
+                    $sch_url = 'https://validator.schema.org/?url=' . rawurlencode($perma);
+                    ?>
+                    <div style="margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap;">
+                        <a href="<?php echo $is_published ? esc_url($rr_url) : '#'; ?>"
+                           target="_blank" rel="noopener noreferrer"
+                           class="button button-secondary"
+                           <?php echo $is_published ? '' : 'aria-disabled="true" style="pointer-events:none; opacity:0.5;"'; ?>>
+                            🔍 <?php esc_html_e('Test in Google Rich Results', 'almaseo-seo-playground'); ?>
+                        </a>
+                        <a href="<?php echo $is_published ? esc_url($sch_url) : '#'; ?>"
+                           target="_blank" rel="noopener noreferrer"
+                           class="button button-secondary"
+                           <?php echo $is_published ? '' : 'aria-disabled="true" style="pointer-events:none; opacity:0.5;"'; ?>>
+                            ✓ <?php esc_html_e('Validate on Schema.org', 'almaseo-seo-playground'); ?>
+                        </a>
+                        <?php if (!$is_published): ?>
+                        <span style="font-size: 11px; color: #94a3b8; align-self: center;">
+                            <?php esc_html_e('Publish the page first to enable validators.', 'almaseo-seo-playground'); ?>
+                        </span>
+                        <?php endif; ?>
+                    </div>
+
                     <!-- Collapsible Schema Preview -->
                     <div class="almaseo-collapsible" style="margin-top: 20px;">
                         <button type="button" class="almaseo-collapsible-toggle" data-target="schema-jsonld-preview" style="width: 100%; text-align: left; padding: 10px; background: #f6f7f7; border: 1px solid #c3c4c7; border-radius: 3px; cursor: pointer;">
@@ -2579,6 +2671,12 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             $mg_genre             = get_post_meta($post->ID, '_almaseo_mg_genre', true);
                             $mg_founding_date     = get_post_meta($post->ID, '_almaseo_mg_founding_date', true);
                             $mg_founding_location = get_post_meta($post->ID, '_almaseo_mg_founding_location', true);
+                            $mg_area_served       = get_post_meta($post->ID, '_almaseo_mg_area_served', true);
+                            $mg_street            = get_post_meta($post->ID, '_almaseo_mg_street', true);
+                            $mg_city              = get_post_meta($post->ID, '_almaseo_mg_city', true);
+                            $mg_state             = get_post_meta($post->ID, '_almaseo_mg_state', true);
+                            $mg_zip               = get_post_meta($post->ID, '_almaseo_mg_zip', true);
+                            $mg_country           = get_post_meta($post->ID, '_almaseo_mg_country', true);
                             $mg_members           = get_post_meta($post->ID, '_almaseo_mg_members', true);
                             $mg_image             = get_post_meta($post->ID, '_almaseo_mg_image', true);
                             $mg_same_as           = get_post_meta($post->ID, '_almaseo_mg_same_as', true);
@@ -2607,6 +2705,26 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                         <input type="text" id="almaseo_mg_founding_location" name="almaseo_mg_founding_location" value="<?php echo esc_attr($mg_founding_location); ?>" placeholder="Brooklyn, NY" class="almaseo-input" style="width: 100%;" />
                                     </div>
                                 </div>
+
+                                <div style="margin-bottom: 10px;">
+                                    <label for="almaseo_mg_area_served" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Area Served', 'almaseo-seo-playground'); ?></label>
+                                    <input type="text" id="almaseo_mg_area_served" name="almaseo_mg_area_served" value="<?php echo esc_attr($mg_area_served); ?>" placeholder="<?php esc_attr_e('Greater Atlanta, GA', 'almaseo-seo-playground'); ?>" class="almaseo-input" style="width: 100%;" />
+                                    <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('Geographic region the band performs in. Use this for service-area acts (e.g. wedding bands, cover bands).', 'almaseo-seo-playground'); ?></p>
+                                </div>
+
+                                <fieldset style="border: 1px solid #dcdcde; border-radius: 4px; padding: 10px; margin-bottom: 10px;">
+                                    <legend style="font-size: 12px; font-weight: 600; padding: 0 5px;"><?php esc_html_e('Business Address', 'almaseo-seo-playground'); ?></legend>
+                                    <p class="field-hint" style="margin: 0 0 8px 0; font-size: 11px;"><?php esc_html_e('Optional. Booking or mailing address. Leave blank if not publicly listed.', 'almaseo-seo-playground'); ?></p>
+                                    <div style="margin-bottom: 6px;">
+                                        <input type="text" name="almaseo_mg_street" value="<?php echo esc_attr($mg_street); ?>" placeholder="<?php esc_attr_e('Street Address', 'almaseo-seo-playground'); ?>" class="almaseo-input" style="width: 100%;" />
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 6px; margin-bottom: 6px;">
+                                        <input type="text" name="almaseo_mg_city" value="<?php echo esc_attr($mg_city); ?>" placeholder="<?php esc_attr_e('City', 'almaseo-seo-playground'); ?>" class="almaseo-input" />
+                                        <input type="text" name="almaseo_mg_state" value="<?php echo esc_attr($mg_state); ?>" placeholder="<?php esc_attr_e('State', 'almaseo-seo-playground'); ?>" class="almaseo-input" />
+                                        <input type="text" name="almaseo_mg_zip" value="<?php echo esc_attr($mg_zip); ?>" placeholder="<?php esc_attr_e('ZIP', 'almaseo-seo-playground'); ?>" class="almaseo-input" />
+                                    </div>
+                                    <input type="text" name="almaseo_mg_country" value="<?php echo esc_attr($mg_country); ?>" placeholder="<?php esc_attr_e('Country (e.g. US)', 'almaseo-seo-playground'); ?>" class="almaseo-input" style="width: 100%;" />
+                                </fieldset>
 
                                 <div style="margin-bottom: 10px;">
                                     <label for="almaseo_mg_members" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 3px;"><?php esc_html_e('Members', 'almaseo-seo-playground'); ?></label>
@@ -3103,9 +3221,10 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 </div>
                             </div>
 
-                            <!-- Generic typed-panel show/hide based on selected schema type.
-                                 Add new entries here as we ship more typed panels. Uses event
-                                 delegation so the handler survives Gutenberg metabox re-renders. -->
+                            <!-- Generic typed-panel show/hide based on selected schema type
+                                 AND the "Also describe this page as:" secondary checkboxes.
+                                 A panel shows if its type is the primary OR a checked secondary.
+                                 Uses event delegation so handlers survive Gutenberg re-renders. -->
                             <script>
                             (function(){
                                 var typePanelMap = {
@@ -3114,26 +3233,59 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                     'Organization': 'almaseo-organization-fields',
                                     'Product':      'almaseo-product-fields',
                                     'Event':        'almaseo-event-fields',
-                                    'Recipe':       'almaseo-recipe-fields'
-                                    // LocalBusiness has its own legacy handler in schema-meta-tab.js
+                                    'Recipe':       'almaseo-recipe-fields',
+                                    'LocalBusiness': 'almaseo-localbusiness-fields'
                                 };
 
-                                function update() {
+                                function getActiveTypes() {
+                                    var active = {};
                                     var sel = document.getElementById('almaseo_schema_type');
-                                    if (!sel) return;
-                                    var opt = sel.options[sel.selectedIndex];
-                                    if (!opt) return;
-                                    var val = opt.value;
+                                    if (sel && sel.options[sel.selectedIndex]) {
+                                        active[sel.options[sel.selectedIndex].value] = true;
+                                    }
+                                    var cbs = document.querySelectorAll('.almaseo-secondary-schema-cb');
+                                    for (var i = 0; i < cbs.length; i++) {
+                                        if (cbs[i].checked && !cbs[i].disabled) {
+                                            active[cbs[i].getAttribute('data-type')] = true;
+                                        }
+                                    }
+                                    return active;
+                                }
+
+                                function update() {
+                                    var active = getActiveTypes();
                                     Object.keys(typePanelMap).forEach(function(type) {
                                         var panel = document.getElementById(typePanelMap[type]);
                                         if (panel) {
-                                            panel.style.display = (val === type) ? '' : 'none';
+                                            panel.style.display = active[type] ? '' : 'none';
                                         }
                                     });
+                                    // LocalBusiness usage warning visible whenever LB is active
+                                    // (primary OR secondary) so users see the guidance once.
+                                    var lbNote = document.getElementById('almaseo-lb-usage-note');
+                                    if (lbNote) {
+                                        lbNote.style.display = active['LocalBusiness'] ? '' : 'none';
+                                    }
+                                    // Disable the secondary checkbox matching the current primary
+                                    // (can't add a type as both primary and secondary).
+                                    var primary = (document.getElementById('almaseo_schema_type') || {}).value;
+                                    var cbs = document.querySelectorAll('.almaseo-secondary-schema-cb');
+                                    for (var i = 0; i < cbs.length; i++) {
+                                        var match = (cbs[i].getAttribute('data-type') === primary);
+                                        cbs[i].disabled = match;
+                                        var label = cbs[i].closest('label');
+                                        if (label) {
+                                            label.style.opacity = match ? '0.45' : '1';
+                                            label.style.cursor = match ? 'not-allowed' : 'pointer';
+                                        }
+                                        if (match) cbs[i].checked = false;
+                                    }
                                 }
 
                                 document.addEventListener('change', function(e) {
-                                    if (e.target && e.target.id === 'almaseo_schema_type') {
+                                    if (!e.target) return;
+                                    if (e.target.id === 'almaseo_schema_type' ||
+                                        e.target.classList.contains('almaseo-secondary-schema-cb')) {
                                         update();
                                     }
                                 });

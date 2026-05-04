@@ -508,26 +508,14 @@ jQuery(document).ready(function($) {
         }
     }
     
-    // LocalBusiness fields show/hide helper
-    function toggleLocalBusinessFields() {
-        var schemaVal = $('#almaseo_schema_primary_type').length ? $('#almaseo_schema_primary_type').val() : '';
-        var basicVal  = $('#almaseo_schema_type').val();
-        var isLB = (schemaVal === 'LocalBusiness') || (!schemaVal && basicVal === 'LocalBusiness');
-        if (isLB) {
-            $('#almaseo-localbusiness-fields').slideDown();
-        } else {
-            $('#almaseo-localbusiness-fields').slideUp();
-        }
-    }
+    // LocalBusiness panel show/hide is now handled by the unified panel-map
+    // script inline in metabox-callback.php (it also accounts for the secondary
+    // schema checkboxes). Don't double-toggle here.
 
-    // Bind to both schema selectors — delegated from document so handlers
-    // survive Gutenberg metabox re-renders that orphan direct bindings.
-    $(document).on('change', '#almaseo_schema_primary_type', toggleLocalBusinessFields);
-
-    // Schema type change handler — delegated for the same reason.
+    // Schema type change handler — Article-fields only; panel show/hide is
+    // delegated to the inline panel-map script.
     $(document).on('change', '#almaseo_schema_type', function() {
         var selectedSchema = $(this).val();
-        toggleLocalBusinessFields();
 
         // Show/hide article-specific fields
         if (selectedSchema === 'Article') {

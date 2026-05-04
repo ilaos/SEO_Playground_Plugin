@@ -54,6 +54,7 @@ function almaseo_is_pro_active() {
  * - 'llm_optimization': LLM Optimization advanced features
  * - 'evergreen_advanced': Advanced evergreen content filters
  * - 'schema_advanced': Advanced schema markup options
+ * - 'schema_multi': Multi-schema (additional @graph nodes per page)
  * - 'optimization_dataforseo': DataForSEO keyword provider
  * - 'internal_links': Internal links auto-linker
  * - 'refresh_drafts': Content refresh drafts
@@ -90,6 +91,7 @@ function almaseo_feature_available( $feature ) {
         'llm_optimization',       // LLM Optimization advanced features
         'evergreen_advanced',     // Advanced evergreen filters
         'schema_advanced',        // Advanced schema options
+        'schema_multi',           // Multi-schema (additional @graph nodes per page)
         'optimization_dataforseo', // DataForSEO provider
         'internal_links',         // Internal links auto-linker
         'refresh_drafts',         // Content refresh drafts
@@ -209,6 +211,7 @@ function almaseo_get_pro_features() {
         'llm_optimization',
         'evergreen_advanced',
         'schema_advanced',
+        'schema_multi',
         'optimization_dataforseo',
         'internal_links',
         'refresh_drafts',

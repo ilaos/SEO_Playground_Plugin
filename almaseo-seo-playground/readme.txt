@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.7.3
+Stable tag: 1.9.0
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,14 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.9.0 =
+* Feature: Multi-schema support — a single page can now describe more than one entity (e.g. a band that's also a venue → MusicGroup + LocalBusiness). New "Also describe this page as:" checkbox row under the Schema Type dropdown; checked types open their existing field panels and emit additional nodes in the JSON-LD @graph.
+* Feature: Inline LocalBusiness usage warning — appears whenever LocalBusiness is active to help users avoid misapplying it to service-area businesses (wedding bands, mobile services, etc.) that don't have a customer-visitable address.
+* Feature: One-click validators — "Test in Google Rich Results" and "Validate on Schema.org" buttons in the Schema & Meta tab open the current page's URL in the respective tester. Disabled for unpublished posts.
+
+= 1.8.0 =
+* Feature: MusicGroup schema now supports `areaServed` (geographic service area) and `address` (PostalAddress) — useful for service-area acts like wedding bands and cover bands that perform across a metro region
 
 = 1.7.3 =
 * Feature: Add MusicGroup, Person, Organization, Product, Event, and Recipe schema types to the Schema & Meta tab

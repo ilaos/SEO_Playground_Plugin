@@ -68,6 +68,30 @@ function almaseo_output_advanced_schema() {
         $graph[] = $primary_node;
     }
 
+    // 3. Secondary schema type nodes — user can describe a single page as
+    //    multiple things (e.g. MusicGroup + LocalBusiness for a venue band).
+    //    Stored as JSON array of type strings; deduped against primary.
+    //    Pro-gated (schema_multi) — even with data in post meta from a prior
+    //    Pro session, free-tier sites must not emit additional graph nodes.
+    $secondary_raw = get_post_meta($post->ID, '_almaseo_schema_secondary_types', true);
+    $secondary_types = array();
+    if ($secondary_raw && function_exists('almaseo_feature_available') && almaseo_feature_available('schema_multi')) {
+        $decoded = is_array($secondary_raw) ? $secondary_raw : json_decode($secondary_raw, true);
+        if (is_array($decoded)) {
+            $secondary_types = array_values(array_unique(array_filter($decoded)));
+        }
+    }
+    if (!empty($secondary_types)) {
+        $primary_type_str = is_array($primary_node) && isset($primary_node['@type']) ? $primary_node['@type'] : '';
+        foreach ($secondary_types as $sec_type) {
+            if ($sec_type === $primary_type_str) continue;
+            $sec_node = almaseo_build_schema_node_by_type($post, $sec_type);
+            if ($sec_node) {
+                $graph[] = $sec_node;
+            }
+        }
+    }
+
     // Output JSON-LD if we have any nodes
     if (!empty($graph)) {
         $data = array(
@@ -135,43 +159,47 @@ function almaseo_build_knowledge_graph_node($settings) {
  */
 if (!function_exists('almaseo_build_primary_schema_node')) {
 function almaseo_build_primary_schema_node($post, $settings) {
-    // Determine schema type
     $schema_type = almaseo_determine_schema_type($post, $settings);
-
     if (!$schema_type) {
         return null;
     }
+    return almaseo_build_schema_node_by_type($post, $schema_type);
+}
+} // end function_exists guard: almaseo_build_primary_schema_node
 
-    // Build node based on type
-    switch ($schema_type) {
-        case 'FAQPage':
-            return almaseo_build_faqpage_node($post);
-        case 'HowTo':
-            return almaseo_build_howto_node($post);
-        case 'Service':
-            return almaseo_build_service_node($post);
-        case 'LocalBusiness':
-            return almaseo_build_localbusiness_node($post);
-        case 'MusicGroup':
-            return almaseo_build_musicgroup_node($post);
-        case 'Person':
-            return almaseo_build_person_node($post);
-        case 'Organization':
-            return almaseo_build_organization_node($post);
-        case 'Product':
-            return almaseo_build_product_node($post);
-        case 'Event':
-            return almaseo_build_event_node($post);
-        case 'Recipe':
-            return almaseo_build_recipe_node($post);
+/**
+ * Generic dispatcher: build a schema node for any supported type.
+ *
+ * Used by the primary node builder AND by the secondary-types loop in
+ * almaseo_output_advanced_schema. Returns null for unknown types so callers
+ * can safely skip without emitting a malformed node.
+ *
+ * @param WP_Post $post
+ * @param string $type Schema.org type name (e.g. "MusicGroup", "LocalBusiness")
+ * @return array|null
+ */
+if (!function_exists('almaseo_build_schema_node_by_type')) {
+function almaseo_build_schema_node_by_type($post, $type) {
+    switch ($type) {
+        case 'FAQPage':       return almaseo_build_faqpage_node($post);
+        case 'HowTo':         return almaseo_build_howto_node($post);
+        case 'Service':       return almaseo_build_service_node($post);
+        case 'LocalBusiness': return almaseo_build_localbusiness_node($post);
+        case 'MusicGroup':    return almaseo_build_musicgroup_node($post);
+        case 'Person':        return almaseo_build_person_node($post);
+        case 'Organization':  return almaseo_build_organization_node($post);
+        case 'Product':       return almaseo_build_product_node($post);
+        case 'Event':         return almaseo_build_event_node($post);
+        case 'Recipe':        return almaseo_build_recipe_node($post);
         case 'Article':
         case 'BlogPosting':
         case 'NewsArticle':
+            return almaseo_build_article_node($post, $type);
         default:
-            return almaseo_build_article_node($post, $schema_type);
+            return null;
     }
 }
-} // end function_exists guard: almaseo_build_primary_schema_node
+} // end function_exists guard: almaseo_build_schema_node_by_type
 
 /**
  * Determine the schema type for a post
@@ -580,6 +608,29 @@ function almaseo_build_musicgroup_node($post) {
             '@type' => 'Place',
             'name'  => $founding_location,
         );
+    }
+
+    $area_served = get_post_meta($post->ID, '_almaseo_mg_area_served', true);
+    if ($area_served) {
+        $node['areaServed'] = array(
+            '@type' => 'Place',
+            'name'  => $area_served,
+        );
+    }
+
+    $street  = get_post_meta($post->ID, '_almaseo_mg_street', true);
+    $city    = get_post_meta($post->ID, '_almaseo_mg_city', true);
+    $state   = get_post_meta($post->ID, '_almaseo_mg_state', true);
+    $zip     = get_post_meta($post->ID, '_almaseo_mg_zip', true);
+    $country = get_post_meta($post->ID, '_almaseo_mg_country', true);
+    if ($street || $city || $state || $zip || $country) {
+        $address = array('@type' => 'PostalAddress');
+        if ($street)  $address['streetAddress']   = $street;
+        if ($city)    $address['addressLocality'] = $city;
+        if ($state)   $address['addressRegion']   = $state;
+        if ($zip)     $address['postalCode']      = $zip;
+        if ($country) $address['addressCountry']  = $country;
+        $node['address'] = $address;
     }
 
     // Members — "Name | Role" per line, becomes Person nodes with roleName

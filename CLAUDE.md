@@ -1,18 +1,28 @@
 # AlmaSEO SEO Playground Plugin
 
 ## Project Overview
-- **Plugin Version:** 8.7.0
+- **Plugin Version:** 1.8.0
 - **Plugin Source:** `almaseo-seo-playground/` (root of this repo)
 - **Main Plugin File:** `almaseo-seo-playground/almaseo-seo-playground.php`
 
+> **Versioning history note:** This file contains historical references to features shipped under a `v8.x` scheme (e.g. "Full Migration System (v8.7.0)"). Those numbers are accurate to when the work landed. The version was reset to `1.x` in commit `a2ee9a4` (fixing a header/constant drift) and continues from there. Treat `v8.x` mentions in section titles as historical timestamps, not the current line.
+
 ## Live Testing Workflow
-A Windows junction connects the plugin source directly to the Local by Flywheel WordPress site:
+> **The canonical test site is `submittal-test-site`.** `my-playground` exists for historical reasons but is NOT where the user tests. See `memory/project_canonical_test_site.md`.
 
 - **Source:** `C:\Users\ishla\Desktop\SEO ACTUAL PLAYGROUND PLUGIN\SEO_Playground_Plugin\almaseo-seo-playground\`
-- **WP Plugins Dir:** `C:\Users\ishla\Local Sites\my-playground\app\public\wp-content\plugins\almaseo-seo-playground` (junction)
+- **submittal-test-site (canonical test target):** `C:\Users\ishla\Local Sites\submittal-test-site\app\public\wp-content\plugins\almaseo-seo-playground\` — **real directory, no junction.** Junction was removed 2026-05-02 because WP auto-update wiped the source folder twice through it. Edits to source do NOT propagate here automatically.
+- **my-playground (legacy, NOT the test site):** `C:\Users\ishla\Local Sites\my-playground\app\public\wp-content\plugins\almaseo-seo-playground\` — junction → source. Edits flow here, but the user does not test here.
 - **PHP Binary:** `C:\Users\ishla\AppData\Roaming\Local\lightning-services\php-8.2.27+1\bin\win64\php.exe`
 
-**Every file edit is instantly live.** The user just refreshes their browser to see changes — no zip, upload, or reinstall needed.
+**After editing source, manually copy the changed files to submittal before claiming the change is live.** Bash example:
+```bash
+SRC="C:/Users/ishla/Desktop/SEO ACTUAL PLAYGROUND PLUGIN/SEO_Playground_Plugin/almaseo-seo-playground"
+DST="C:/Users/ishla/Local Sites/submittal-test-site/app/public/wp-content/plugins/almaseo-seo-playground"
+cp "$SRC/path/to/file.php" "$DST/path/to/file.php"
+```
+
+If the user wants automatic propagation back, the options are: (a) re-junction submittal (re-introduces wipe risk — needs WP auto-update suppression first), or (b) flip the junction over from my-playground.
 
 ## Local WordPress Site
 - **Platform:** Local by Flywheel
@@ -518,16 +528,16 @@ This local development environment builds WordPress plugins (Connector and SEO P
 
 Examples:
 - `almaseo-connector-v2.1.4.zip`
-- `almaseo-seo-playground-v8.7.0.zip`
+- `almaseo-seo-playground-v1.8.0.zip`
 
 These names MUST match exactly — the server uses them to serve downloads.
 
 ### Version Bumping Rules
 - Use semantic versioning: MAJOR.MINOR.PATCH
-- Bug fixes (like the duplicate function fix) = PATCH bump (e.g., 8.7.0 → 8.7.1)
-- New features = MINOR bump (e.g., 8.7.0 → 8.8.0)
+- Bug fixes = PATCH bump (e.g., 1.8.0 → 1.8.1)
+- New features = MINOR bump (e.g., 1.8.0 → 1.9.0)
 - Breaking changes = MAJOR bump
-- Update the version number inside the plugin's main PHP file header AND in any internal version constants before zipping
+- Update the version number inside the plugin's main PHP file header AND in BOTH `ALMASEO_PLUGIN_VERSION` constants (one in the AIOSEO-conflict early-return block ~line 53, one in the main constants block ~line 65) before zipping. Then update `Stable tag` and add a `== Changelog ==` entry in `readme.txt`.
 
 ### How to Package a Release
 1. Ensure all changes are saved and tested
@@ -537,12 +547,16 @@ These names MUST match exactly — the server uses them to serve downloads.
 5. Place the zip on the user's desktop or a known location so it can be transferred to the server
 
 ### What Happens After You Zip
-The user will transfer the zip to the production server. The server-side Claude Code agent will then:
-1. Place it in `static/downloads/`
-2. Update the version constant in `dashboard.py` (`LATEST_PLAYGROUND_VERSION` or `LATEST_CONNECTOR_VERSION`)
-3. Restart the server
+**Default workflow is direct SSH from this session — there is no separate server-side agent.** See `memory/feedback_release_default_broadcast.md` for the full chain. Summary:
 
-You do NOT need to handle any of those steps — just produce a correctly named zip.
+1. SCP zip → `/root/FULLY WORKING WITH MULTIPLE SITE OPTIONS/static/downloads/almaseo-seo-playground-v{VERSION}.zip` (dashboard download button)
+2. `cp` it to `/var/www/api.almaseo.com/updates/almaseo-seo-playground-v{VERSION}.zip` (PUC auto-update endpoint)
+3. Update `/var/www/api.almaseo.com/updates/almaseo-sitemap.json` (`version`, `download_url`, `sections.changelog`) via Python `json.load`/`json.dump` — never sed
+4. `sed` the `LATEST_PLAYGROUND_VERSION` constant in `dashboard.py` (line drifts; always grep)
+5. Restart gunicorn via `./start_with_openai.sh` with `bash -ic` (interactive, so `~/.bashrc` API keys load) — **NOT `pkill -HUP`** (workers respawn but keep stale module)
+6. Verify: `curl https://api.almaseo.com/updates/almaseo-sitemap.json` returns new version, zip URL returns 200
+
+Skip the broadcast only when the user explicitly opts out ("don't push", "let me test locally first").
 
 ### Plugin Relationship Rules
 - The **SEO Playground** plugin is the full suite and REPLACES the Connector plugin
@@ -559,6 +573,6 @@ You do NOT need to handle any of those steps — just produce a correctly named 
 - [ ] Zip follows naming convention: `almaseo-seo-playground-v{VERSION}.zip`
 - [ ] Zip contains a single top-level directory, not loose files
 
-### Current Versions (as of 2026-03-19)
+### Current Versions (as of 2026-05-04)
 - Connector: v2.1.4
-- SEO Playground: v8.7.0
+- SEO Playground: v1.8.0

@@ -93,6 +93,7 @@ class AlmaSEO_Tier_Labels {
         'refresh_queue'          => 'pro',
         'date_hygiene'           => 'pro',
         'bulkmeta'               => 'pro',
+        'schema_multi'           => 'pro',
     );
 
     /**

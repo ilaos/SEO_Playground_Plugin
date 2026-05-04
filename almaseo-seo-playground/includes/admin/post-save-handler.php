@@ -145,6 +145,29 @@ function almaseo_save_seo_playground_meta($post_id) {
         update_post_meta($post_id, '_almaseo_schema_type', $primary);
     }
 
+    // Secondary schema types — multi-schema. Whitelist-validated against the
+    // dispatcher's known types so a tampered POST can't inject arbitrary @types.
+    // Always write (even when empty) so unticking everything actually clears.
+    if (current_user_can('edit_post', $post_id)) {
+        $allowed_secondary = array(
+            'FAQPage', 'HowTo', 'LocalBusiness', 'MusicGroup',
+            'Person', 'Organization', 'Product', 'Event', 'Recipe',
+        );
+        $primary_for_dedup = isset($_POST['almaseo_schema_type'])
+            ? almaseo_sanitize_schema_type(wp_unslash($_POST['almaseo_schema_type']))
+            : '';
+        $submitted = isset($_POST['almaseo_schema_secondary_types']) && is_array($_POST['almaseo_schema_secondary_types'])
+            ? array_map('sanitize_text_field', wp_unslash($_POST['almaseo_schema_secondary_types']))
+            : array();
+        $clean_secondary = array();
+        foreach ($submitted as $t) {
+            if ($t && $t !== $primary_for_dedup && in_array($t, $allowed_secondary, true) && !in_array($t, $clean_secondary, true)) {
+                $clean_secondary[] = $t;
+            }
+        }
+        update_post_meta($post_id, '_almaseo_schema_secondary_types', wp_json_encode($clean_secondary));
+    }
+
     // Advanced Schema - FAQPage toggle (Pro)
     if (isset($_POST['almaseo_schema_is_faqpage'])) {
         update_post_meta($post_id, '_almaseo_schema_is_faqpage', true);
@@ -237,6 +260,19 @@ function almaseo_save_seo_playground_meta($post_id) {
     }
     if (isset($_POST['almaseo_mg_same_as'])) {
         update_post_meta($post_id, '_almaseo_mg_same_as', sanitize_textarea_field(wp_unslash($_POST['almaseo_mg_same_as'])));
+    }
+    $mg_address_fields = array(
+        'almaseo_mg_area_served' => '_almaseo_mg_area_served',
+        'almaseo_mg_street'      => '_almaseo_mg_street',
+        'almaseo_mg_city'        => '_almaseo_mg_city',
+        'almaseo_mg_state'       => '_almaseo_mg_state',
+        'almaseo_mg_zip'         => '_almaseo_mg_zip',
+        'almaseo_mg_country'     => '_almaseo_mg_country',
+    );
+    foreach ($mg_address_fields as $post_key => $meta_key) {
+        if (isset($_POST[$post_key])) {
+            update_post_meta($post_id, $meta_key, sanitize_text_field(wp_unslash($_POST[$post_key])));
+        }
     }
 
     // Person fields — author/profile/public-figure schema
