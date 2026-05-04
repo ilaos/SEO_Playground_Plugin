@@ -134,7 +134,7 @@ class Autofill_Generator {
                 // Original title fits on its own
                 $enhanced = $title;
             } else {
-                $enhanced = self::truncate_at_word( $title, 57 ) . '...';
+                $enhanced = self::truncate_at_word( $title, 60 );
             }
         }
 
@@ -170,7 +170,7 @@ class Autofill_Generator {
         $desc = $base_text;
 
         if ( mb_strlen( $desc ) > 160 ) {
-            $desc = self::truncate_at_word( $desc, 157 ) . '...';
+            $desc = self::truncate_at_word( $desc, 160 );
         } elseif ( mb_strlen( $desc ) < 120 ) {
             // Too short — expand with topic context
             $suffix_options = array(
@@ -187,8 +187,8 @@ class Autofill_Generator {
                 }
             }
             // Final trim if expansion overshot
-            if ( mb_strlen( $desc ) > 165 ) {
-                $desc = self::truncate_at_word( $desc, 157 ) . '...';
+            if ( mb_strlen( $desc ) > 160 ) {
+                $desc = self::truncate_at_word( $desc, 160 );
             }
         }
 
@@ -391,21 +391,22 @@ class Autofill_Generator {
     }
 
     /**
-     * Truncate text at a word boundary.
+     * Truncate text at a word boundary — no ellipsis.
+     * A clean shorter string is better than one Google truncates.
      */
     private static function truncate_at_word( $text, $max_length ) {
         if ( mb_strlen( $text ) <= $max_length ) {
             return $text;
         }
 
-        $truncated = mb_substr( $text, 0, $max_length );
+        $truncated = mb_substr( $text, 0, $max_length + 1 );
         $last_space = mb_strrpos( $truncated, ' ' );
 
         if ( $last_space && $last_space > $max_length * 0.6 ) {
-            return mb_substr( $truncated, 0, $last_space );
+            return rtrim( mb_substr( $truncated, 0, $last_space ), '.,;:!?-' );
         }
 
-        return $truncated;
+        return mb_substr( $text, 0, $max_length );
     }
 }
 
