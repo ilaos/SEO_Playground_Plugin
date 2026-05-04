@@ -1,0 +1,4 @@
+# Build artifacts — release zips are produced on the desktop and broadcast
+# to the prod server; they don't belong in the repo.
+almaseo-seo-playground-v*.zip
+almaseo-connector-v*.zip
