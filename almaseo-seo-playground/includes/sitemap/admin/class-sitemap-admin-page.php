@@ -49,7 +49,10 @@ class Alma_Sitemap_Admin_Page {
      * Enqueue assets
      */
     public function enqueue_assets($hook) {
-        if ($hook !== 'seo-playground_page_almaseo-sitemaps') {
+        // The hook prefix is sanitize_title() of the parent menu's *title*,
+        // not its slug — currently "AlmaSEO SEO Playground" → "almaseo-seo-playground".
+        // Match by suffix so a parent-title rename doesn't strip our assets.
+        if (strpos($hook, '_page_almaseo-sitemaps') === false) {
             return;
         }
         

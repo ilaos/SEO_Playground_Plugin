@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.13.3
+Stable tag: 1.13.4
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,9 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.13.4 =
+* Fix: Sitemaps and Settings admin pages now load with their stylesheets and scripts. The asset enqueue handler was comparing the WordPress hook suffix against the menu *slug* (`seo-playground_page_*`), but the actual hook prefix is `sanitize_title()` of the parent menu's *title* — currently `almaseo-seo-playground_page_*`. The mismatch silently dropped every CSS/JS enqueue on those two screens, leaving them rendered as unstyled HTML. Switched both checks to a substring match against the page slug suffix so a parent-title rename can't strip the assets again.
 
 = 1.13.3 =
 * Fix: Sitemaps admin page no longer fatals with "Call to undefined function almaseo_get_index_urls()". The sitemap helpers file used a single top-of-file bail that checked only the singular `almaseo_get_index_url` — if that singular got declared first by anything else (Connector plugin coexistence, opcache, duplicate include path), the file returned before declaring the plural variant the Sitemaps screen actually calls. Replaced with per-function `function_exists()` guards on all eight helpers in the file so each one protects itself independently.

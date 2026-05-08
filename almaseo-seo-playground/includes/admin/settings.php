@@ -265,7 +265,9 @@ class AlmaSEO_Settings {
      * Enqueue assets
      */
     public function enqueue_assets($hook) {
-        if ($hook !== 'seo-playground_page_almaseo-settings') {
+        // Hook prefix is sanitize_title() of the parent menu's *title* —
+        // currently "AlmaSEO SEO Playground" → "almaseo-seo-playground" — not the slug.
+        if (strpos($hook, '_page_almaseo-settings') === false) {
             return;
         }
         
