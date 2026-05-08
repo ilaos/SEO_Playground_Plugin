@@ -157,7 +157,7 @@ function almaseo_welcome_screen_page() {
         <div class="almaseo-welcome-container">
             <div class="almaseo-welcome-header">
                 <h1 class="almaseo-welcome-title">🎯 Welcome to SEO Playground by AlmaSEO</h1>
-                <p class="almaseo-welcome-subtitle">Your AI-powered WordPress SEO optimization toolkit is ready to transform your content</p>
+                <p class="almaseo-welcome-subtitle">Your Alma-powered WordPress SEO optimization toolkit is ready to transform your content</p>
             </div>
 
             <div style="padding: 20px; background: #f0f8ff; border-radius: 8px; margin-bottom: 30px;">
@@ -211,6 +211,17 @@ function almaseo_welcome_screen_page() {
                 </div>
             </div>
 
+            <?php
+            // Detect what other AlmaSEO/SEO plugins are active so Step 2 can be specific.
+            $connector_active = function_exists( 'almaseo_detect_active_connector' )
+                ? almaseo_detect_active_connector()
+                : false;
+            $seo_conflicts = function_exists( 'almaseo_detect_conflicting_seo_plugins' )
+                ? almaseo_detect_conflicting_seo_plugins()
+                : array();
+            $plugins_page_url = admin_url( 'plugins.php' );
+            ?>
+
             <div class="almaseo-features-grid">
                 <div class="almaseo-feature-card">
                     <h3 class="almaseo-feature-title">
@@ -218,27 +229,45 @@ function almaseo_welcome_screen_page() {
                         Step 1: Connect to AlmaSEO
                     </h3>
                     <p class="almaseo-feature-description">
-                        Click "Connect to AlmaSEO" below to link your site and enable all AI-powered features. The connection process takes less than a minute.
+                        Click "Connect to AlmaSEO" below to link your site and enable all Alma-powered features. The connection process takes less than a minute.
                     </p>
                 </div>
 
                 <div class="almaseo-feature-card">
                     <h3 class="almaseo-feature-title">
-                        <span class="dashicons dashicons-edit"></span>
-                        Step 2: Create or Edit Content
+                        <span class="dashicons dashicons-dismiss"></span>
+                        Step 2: Deactivate Other Plugins
                     </h3>
                     <p class="almaseo-feature-description">
-                        Open any post or page and find the "AlmaSEO SEO Playground" meta box. This is where all the SEO magic happens.
+                        <?php if ( $connector_active && ! empty( $seo_conflicts ) ) : ?>
+                            We detected the AlmaSEO Connector and another SEO plugin (<?php echo esc_html( implode( ', ', $seo_conflicts ) ); ?>). SEO Playground replaces both — deactivate them on your <a href="<?php echo esc_url( $plugins_page_url ); ?>">Plugins page</a> to avoid conflicts.
+                        <?php elseif ( $connector_active ) : ?>
+                            We detected the AlmaSEO Connector plugin. SEO Playground includes everything the Connector does plus a full SEO toolkit, so deactivate the Connector on your <a href="<?php echo esc_url( $plugins_page_url ); ?>">Plugins page</a>. Your connection settings are preserved.
+                        <?php elseif ( ! empty( $seo_conflicts ) ) : ?>
+                            We detected another SEO plugin (<?php echo esc_html( implode( ', ', $seo_conflicts ) ); ?>). To avoid conflicts, deactivate it on your <a href="<?php echo esc_url( $plugins_page_url ); ?>">Plugins page</a> — Step 4 below will help you bring your existing SEO data over first.
+                        <?php else : ?>
+                            If you have the AlmaSEO Connector plugin or another SEO plugin (Yoast, Rank Math, AIOSEO, etc.) active, deactivate it on your <a href="<?php echo esc_url( $plugins_page_url ); ?>">Plugins page</a>. SEO Playground replaces them. You can skip this step if neither is installed.
+                        <?php endif; ?>
                     </p>
                 </div>
 
                 <div class="almaseo-feature-card">
                     <h3 class="almaseo-feature-title">
-                        <span class="dashicons dashicons-superhero-alt"></span>
-                        Step 3: Use AI Features
+                        <span class="dashicons dashicons-admin-tools"></span>
+                        Step 3: Run the Setup Wizard
                     </h3>
                     <p class="almaseo-feature-description">
-                        Click the AI generation buttons to create optimized titles, descriptions, and get keyword suggestions powered by AlmaSEO.
+                        Configure social profiles, search appearance templates, and your sitemap in a quick guided flow. <a href="<?php echo esc_url( admin_url( 'admin.php?page=almaseo-setup-wizard' ) ); ?>">Open the Setup Wizard</a>.
+                    </p>
+                </div>
+
+                <div class="almaseo-feature-card">
+                    <h3 class="almaseo-feature-title">
+                        <span class="dashicons dashicons-migrate"></span>
+                        Step 4: Import Your SEO Data
+                    </h3>
+                    <p class="almaseo-feature-description">
+                        Replacing Yoast, Rank Math, or AIOSEO? Use the <a href="<?php echo esc_url( admin_url( 'admin.php?page=almaseo-import' ) ); ?>">Import &amp; Migrate</a> tool to bring your titles, descriptions, redirects, and term metadata across in 5 steps.
                     </p>
                 </div>
             </div>
@@ -251,13 +280,10 @@ function almaseo_welcome_screen_page() {
                     <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>" class="almaseo-btn-primary">
                         🔗 Connect to AlmaSEO
                     </a>
-                    <a href="<?php echo esc_url(admin_url('post-new.php')); ?>" class="almaseo-btn-secondary">
-                        ✍️ Create New Post
-                    </a>
                 </div>
 
                 <p style="margin-top: 20px; color: #999; font-size: 14px;">
-                    Need help? Visit our <a href="https://almaseo.com/docs" target="_blank">documentation</a> or <a href="https://almaseo.com/support" target="_blank">contact support</a>.
+                    Need help? Visit our <a href="https://docs.almaseo.com/" target="_blank" rel="noopener">documentation</a> or <a href="https://webstuffguylabs.com/support/" target="_blank" rel="noopener">contact support</a>.
                 </p>
             </div>
         </div>

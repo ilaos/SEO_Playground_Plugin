@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.9.3
+Stable tag: 1.9.4
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,13 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.9.4 =
+* UX: Activation now always redirects to the Welcome page (was: setup wizard for fresh installs / welcome page for returning users). The Welcome page is now the single canonical onboarding landing.
+* UX: Welcome page restructured into 4 steps — Connect to AlmaSEO, Deactivate Other Plugins (Connector or rival SEO plugin), Run the Setup Wizard, and Import Your SEO Data. Step 2 dynamically detects which other plugins are active and tailors its copy.
+* UX: Removed the "Create New Post" button from the Welcome page CTA — Connect to AlmaSEO is now the single primary action.
+* Updated documentation link to https://docs.almaseo.com/ and contact-support link to https://webstuffguylabs.com/support/. Both open in a new tab.
+* Subtitle changed from "AI-powered" to "Alma-powered" on the Welcome page.
 
 = 1.9.3 =
 * Fix: WP Engine and other managed hosts that disable WP Application Passwords now show the JWT token panel directly on the Connection Settings page — no more "WordPress 5.6 or higher is required" dead-end. JWT auth doesn't depend on Application Passwords and works regardless of hosting restrictions.
