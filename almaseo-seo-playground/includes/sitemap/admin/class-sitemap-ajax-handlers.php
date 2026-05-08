@@ -872,14 +872,25 @@ class Alma_Sitemap_Ajax_Handlers {
      */
     public static function handle_get_live_stats() {
         self::verify_ajax_nonce();
-        
-        $stats = get_option('almaseo_sitemap_stats', ['files' => 0, 'urls' => 0]);
-        $last_built = get_option('almaseo_sitemap_last_built');
-        
+
+        // Read from the same nested path Alma_Sitemap_Writer::finalize_build()
+        // actually writes to. The previous reads against `almaseo_sitemap_stats`
+        // and `almaseo_sitemap_last_built` always returned defaults — those
+        // option keys are not written by anything in this codebase.
+        $settings = get_option('almaseo_sitemap_settings', []);
+        $build    = $settings['health']['last_build_stats'] ?? [];
+
+        $files     = (int) ($build['files'] ?? 0);
+        $urls      = (int) ($build['urls'] ?? 0);
+        $finished  = (int) ($build['finished'] ?? 0);
+
         wp_send_json_success([
-            'files' => $stats['files'],
-            'urls' => $stats['urls'],
-            'last_built' => $last_built ? human_time_diff(strtotime($last_built)) . ' ago' : 'Never'
+            'files'      => $files,
+            'urls'       => $urls,
+            /* translators: %s: human-readable time difference (e.g. "2 hours") */
+            'last_built' => $finished > 0
+                ? sprintf(__('%s ago', 'almaseo-seo-playground'), human_time_diff($finished))
+                : __('Never', 'almaseo-seo-playground'),
         ]);
     }
     
@@ -1021,11 +1032,10 @@ class Alma_Sitemap_Ajax_Handlers {
         
         switch ($section) {
             case 'overview_stats':
-                // Load overview statistics
-                $stats = get_option('almaseo_sitemap_stats', ['files' => 0, 'urls' => 0]);
+                $build = get_option('almaseo_sitemap_settings', [])['health']['last_build_stats'] ?? [];
                 echo '<div class="stats-loaded">';
-                echo '<span>Files: ' . esc_html($stats['files']) . '</span>';
-                echo '<span>URLs: ' . esc_html($stats['urls']) . '</span>';
+                echo '<span>Files: ' . esc_html((int) ($build['files'] ?? 0)) . '</span>';
+                echo '<span>URLs: ' . esc_html((int) ($build['urls'] ?? 0)) . '</span>';
                 echo '</div>';
                 break;
                 
@@ -1074,12 +1084,16 @@ class Alma_Sitemap_Ajax_Handlers {
             $name = 'Snapshot ' . gmdate('Y-m-d H:i:s');
         }
         
-        // Create snapshot of current sitemap state
+        // Create snapshot of current sitemap state. Stats live nested inside
+        // almaseo_sitemap_settings.health.last_build_stats (written by
+        // Alma_Sitemap_Writer::finalize_build), not in a top-level
+        // almaseo_sitemap_stats option — that key is never written.
+        $current_settings = get_option('almaseo_sitemap_settings', []);
         $snapshot = [
-            'name' => $name,
-            'created' => current_time('mysql'),
-            'settings' => get_option('almaseo_sitemap_settings', []),
-            'stats' => get_option('almaseo_sitemap_stats', [])
+            'name'     => $name,
+            'created'  => current_time('mysql'),
+            'settings' => $current_settings,
+            'stats'    => $current_settings['health']['last_build_stats'] ?? [],
         ];
         
         $snapshots = get_option('almaseo_sitemap_snapshots', []);

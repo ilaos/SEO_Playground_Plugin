@@ -38,7 +38,7 @@ try {
         $news_provider = Alma_Sitemap_Manager::get_instance()->get_provider('news');
         $news_stats = $news_provider ? $news_provider->get_stats() : array();
     }
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     // Handle gracefully if news class is not available
 }
 ?>

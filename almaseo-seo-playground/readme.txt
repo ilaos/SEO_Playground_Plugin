@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.13.6
+Stable tag: 1.13.7
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,12 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.13.7 =
+* Fix: Sitemaps panel — foundation. The main `sitemaps-consolidated.js` bundle was throwing `TypeError: Cannot read properties of undefined` at module-load on every page view because PHP localized its data as `almaseo_sitemaps` (snake_case) while JS read `window.almaseoSitemaps` (camelCase) ~70 times. Renamed the localized variable to camelCase to match what JS expects (and to match the rest of the plugin's localize calls — `almaseoAdmin`, `almaseoWoo`, `almaseoInternalLinks`, `almaseoImport`, `almaseoHistory`, `almaseoDH`, `almaseoGSC`, `almaseoWizard`). Also reshaped the localized payload so JS field accesses (`.ajaxUrl`, `.sitemapUrl`, `.settings`, `.i18n.*`) actually find their data.
+* Fix: 11 AJAX action names called from `sitemaps-consolidated.js` did not match any registered server-side handler — every Save / Add URL / Import CSV / Export CSV / Conflict Scan / Export Conflicts / Export Diff / Recalculate / Build Static button was returning WP's silent `0` response and looking like the click did nothing. Renamed JS calls to match the registered PHP handler names: `almaseo_save_sitemap_settings` → `almaseo_save_settings`, `almaseo_recalculate_sitemap` → `almaseo_recalculate`, `almaseo_build_static_sitemaps` → `almaseo_rebuild_static`, `almaseo_add_additional_url` → `almaseo_add_url`, `almaseo_import_urls_csv` → `almaseo_import_csv`, `almaseo_export_urls_csv` → `almaseo_export_csv`, `almaseo_start_conflict_scan` → `almaseo_start_scan`, `almaseo_get_conflict_status` → `almaseo_get_scan_status`, `almaseo_get_conflict_results` → `almaseo_get_scan_results`, `almaseo_export_conflicts_csv` → `almaseo_export_conflicts`, `almaseo_export_diff_csv` → `almaseo_export_diff`.
+* Fix: The live-stats AJAX endpoint was reading from option keys (`almaseo_sitemap_stats`, `almaseo_sitemap_last_built`) that nothing in the codebase ever wrote, so it always returned `files: 0, urls: 0, last_built: Never` regardless of build state. Repointed at the same nested option path the writer's `finalize_build()` actually writes to (`almaseo_sitemap_settings.health.last_build_stats`). The `lazy_load` overview-stats handler and `create_snapshot` handler had the same bug and were also fixed.
+* Fix: Tightened `catch (Exception $e)` to `catch (\Throwable $e)` in 6 sitemap tab partials. PHP 7+ `Error`/`TypeError`/`ParseError` extend `Throwable`, not `Exception`, so the existing catch blocks would let any "method does not exist" or "argument type mismatch" propagate up and fatal the entire page render — the same class of bug that took out the rebuild handler before 1.13.5.
 
 = 1.13.6 =
 * Fix: `assets/js/sitemaps-consolidated.js` had a bundle-seam syntax error (`}); // End jQuery wrapper/**` collapsed onto a single line, so the `//` line-comment swallowed the `/**` block-comment opener of the next file). Browsers parsed the next line's leading ` * ` as multiplication on `undefined`, the entire bundle aborted with `SyntaxError: Unexpected token '*'`, and every handler defined in that file was lost — including the silent failure mode the user was seeing on the Rebuild button.

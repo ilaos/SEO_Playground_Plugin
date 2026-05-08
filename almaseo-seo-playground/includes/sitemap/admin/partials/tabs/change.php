@@ -33,7 +33,7 @@ try {
     if (class_exists('Alma_Provider_Delta') && method_exists('Alma_Provider_Delta', 'get_stats')) {
         $delta_stats = Alma_Provider_Delta::get_stats();
     }
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     // Handle gracefully if delta class is not available
     error_log('Delta provider error: ' . $e->getMessage());
 }

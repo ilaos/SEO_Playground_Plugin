@@ -31,7 +31,7 @@
      */
     function saveSettings(showNotification = true) {
         const data = {
-            action: 'almaseo_save_sitemap_settings',
+            action: 'almaseo_save_settings',
             nonce: almaseoSitemaps.nonce,
             enabled: $('#master-enable').prop('checked'),
             include: {
@@ -166,7 +166,7 @@
             $btn.prop('disabled', true);
             
             $.post(almaseoSitemaps.ajaxUrl, {
-                action: 'almaseo_recalculate_sitemap',
+                action: 'almaseo_recalculate',
                 nonce: almaseoSitemaps.nonce
             }, function(response) {
                 if (response.success) {
@@ -593,7 +593,7 @@ jQuery(function($) {
         $button.prop('disabled', true).text('Building...');
         
         $.post(almaseoSitemaps.ajaxUrl, {
-            action: 'almaseo_build_static_sitemaps',
+            action: 'almaseo_rebuild_static',
             nonce: almaseoSitemaps.nonce
         })
         .done(function(response) {
@@ -772,7 +772,7 @@ jQuery(function($) {
         $btn.prop('disabled', true);
         
         $.post(almaseoSitemaps.ajaxUrl, {
-            action: 'almaseo_add_additional_url',
+            action: 'almaseo_add_url',
             nonce: almaseoSitemaps.nonce,
             url: url,
             priority: priority,
@@ -813,7 +813,7 @@ jQuery(function($) {
         $btn.prop('disabled', true);
         
         $.post(almaseoSitemaps.ajaxUrl, {
-            action: 'almaseo_import_urls_csv',
+            action: 'almaseo_import_csv',
             nonce: almaseoSitemaps.nonce,
             csv: csv
         }, function(response) {
@@ -840,7 +840,7 @@ jQuery(function($) {
     // Export CSV button
     $('#export-csv-btn').on('click', function() {
         $.post(almaseoSitemaps.ajaxUrl, {
-            action: 'almaseo_export_urls_csv',
+            action: 'almaseo_export_csv',
             nonce: almaseoSitemaps.nonce
         }, function(response) {
             if (response.success) {
@@ -866,7 +866,7 @@ jQuery(function($) {
         $btn.prop('disabled', true);
         
         $.post(almaseoSitemaps.ajaxUrl, {
-            action: 'almaseo_start_conflict_scan',
+            action: 'almaseo_start_scan',
             nonce: almaseoSitemaps.nonce
         }, function(response) {
             if (response.success) {
@@ -885,7 +885,7 @@ jQuery(function($) {
     // Check scan status
     function checkScanStatus() {
         $.post(almaseoSitemaps.ajaxUrl, {
-            action: 'almaseo_get_conflict_status',
+            action: 'almaseo_get_scan_status',
             nonce: almaseoSitemaps.nonce
         }, function(response) {
             if (response.success) {
@@ -953,7 +953,7 @@ jQuery(function($) {
     // View conflict details
     function viewConflictDetails() {
         $.post(almaseoSitemaps.ajaxUrl, {
-            action: 'almaseo_get_conflict_results',
+            action: 'almaseo_get_scan_results',
             nonce: almaseoSitemaps.nonce,
             filter: 'all',
             page: 1
@@ -999,7 +999,7 @@ jQuery(function($) {
     // Export conflicts CSV
     $('#export-conflicts-csv').on('click', function() {
         $.post(almaseoSitemaps.ajaxUrl, {
-            action: 'almaseo_export_conflicts_csv',
+            action: 'almaseo_export_conflicts',
             nonce: almaseoSitemaps.nonce
         }, function(response) {
             if (response.success) {
@@ -1128,7 +1128,7 @@ jQuery(function($) {
         const activeTab = $('.almaseo-tab.active').data('tab') || 'added';
         
         $.post(almaseoSitemaps.ajaxUrl, {
-            action: 'almaseo_export_diff_csv',
+            action: 'almaseo_export_diff',
             nonce: almaseoSitemaps.nonce,
             type: activeTab
         }, function(response) {

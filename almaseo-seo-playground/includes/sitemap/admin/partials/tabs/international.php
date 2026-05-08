@@ -35,7 +35,7 @@ try {
         $hreflang = new Alma_Hreflang($settings['hreflang']);
         $hreflang_stats = $hreflang->get_stats();
     }
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     // Handle gracefully if hreflang class is not available
 }
 

@@ -25,7 +25,7 @@ try {
         $last_check = $update_settings['last_check'] ?? 0;
         $last_found = $update_settings['last_found'] ?? null;
     }
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     // Handle gracefully if update manager is not available
 }
 ?>

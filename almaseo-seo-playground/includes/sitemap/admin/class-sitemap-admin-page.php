@@ -105,19 +105,34 @@ class Alma_Sitemap_Admin_Page {
             );
         }
         
-        // Localize script
-        wp_localize_script('almaseo-sitemaps', 'almaseo_sitemaps', [
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('almaseo_sitemaps_nonce'),
-            'strings' => [
-                'saving' => __('Saving...', 'almaseo-seo-playground'),
-                'saved' => __('Settings saved', 'almaseo-seo-playground'),
-                'error' => __('An error occurred', 'almaseo-seo-playground'),
-                'rebuilding' => __('Rebuilding sitemaps...', 'almaseo-seo-playground'),
-                'rebuilt' => __('Sitemaps rebuilt successfully', 'almaseo-seo-playground'),
-                'copied' => __('URL copied to clipboard', 'almaseo-seo-playground'),
-                'confirm_disable' => __('Are you sure you want to disable sitemaps?', 'almaseo-seo-playground')
-            ]
+        // Localize script. Object name is camelCase to match the rest of the
+        // plugin's localize calls (almaseoAdmin, almaseoWoo, almaseoInternalLinks,
+        // almaseoImport, almaseoHistory, almaseoDH, almaseoGSC, almaseoWizard)
+        // and to match what sitemaps-consolidated.js actually reads. Field names
+        // are camelCase for the same reason — JS reads .ajaxUrl, .sitemapUrl,
+        // .i18n.*, .settings.* directly.
+        $urls = function_exists('almaseo_get_index_urls') ? almaseo_get_index_urls() : ['primary' => home_url('/almaseo-sitemap.xml')];
+        wp_localize_script('almaseo-sitemaps', 'almaseoSitemaps', [
+            'ajaxUrl'    => admin_url('admin-ajax.php'),
+            'nonce'      => wp_create_nonce('almaseo_sitemaps_nonce'),
+            'sitemapUrl' => $urls['primary'],
+            'settings'   => get_option('almaseo_sitemap_settings', []),
+            'i18n'       => [
+                'saving'        => __('Saving...', 'almaseo-seo-playground'),
+                'saved'         => __('Settings saved', 'almaseo-seo-playground'),
+                'error'         => __('An error occurred', 'almaseo-seo-playground'),
+                'rebuilding'    => __('Rebuilding sitemaps...', 'almaseo-seo-playground'),
+                'rebuilt'       => __('Sitemaps rebuilt successfully', 'almaseo-seo-playground'),
+                'copied'        => __('URL copied to clipboard', 'almaseo-seo-playground'),
+                'enabled'       => __('Enabled', 'almaseo-seo-playground'),
+                'disabled'      => __('Disabled', 'almaseo-seo-playground'),
+                'recalculating' => __('Recalculating...', 'almaseo-seo-playground'),
+                'recalculated'  => __('Recalculate', 'almaseo-seo-playground'),
+                'lastBuilt'     => __('Last Built:', 'almaseo-seo-playground'),
+                'files'         => __('Files:', 'almaseo-seo-playground'),
+                'urls'          => __('URLs:', 'almaseo-seo-playground'),
+                'confirmDisable' => __('Are you sure you want to disable sitemaps?', 'almaseo-seo-playground'),
+            ],
         ]);
     }
     

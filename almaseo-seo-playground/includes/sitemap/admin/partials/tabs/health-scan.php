@@ -16,7 +16,7 @@ try {
     if (class_exists('Alma_Sitemap_Conflicts')) {
         $scan_status = Alma_Sitemap_Conflicts::get_status();
     }
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     // Handle gracefully
 }
 
@@ -26,7 +26,7 @@ try {
     if (class_exists('Alma_Sitemap_Diff')) {
         $diff_summary = Alma_Sitemap_Diff::get_summary();
     }
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     // Handle gracefully
 }
 
@@ -38,7 +38,7 @@ try {
         $logs = Alma_Health_Log::get_logs('', 20);
         $log_stats = Alma_Health_Log::get_stats();
     }
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     // Handle gracefully
 }
 ?>

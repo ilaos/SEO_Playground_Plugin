@@ -40,7 +40,7 @@ try {
     if (class_exists('Alma_Provider_Media')) {
         $media_stats = Alma_Provider_Media::get_stats();
     }
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     // Handle gracefully if media class is not available
 }
 ?>
