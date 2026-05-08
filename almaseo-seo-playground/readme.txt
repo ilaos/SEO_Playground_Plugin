@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.13.5
+Stable tag: 1.13.6
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.13.6 =
+* Fix: `assets/js/sitemaps-consolidated.js` had a bundle-seam syntax error (`}); // End jQuery wrapper/**` collapsed onto a single line, so the `//` line-comment swallowed the `/**` block-comment opener of the next file). Browsers parsed the next line's leading ` * ` as multiplication on `undefined`, the entire bundle aborted with `SyntaxError: Unexpected token '*'`, and every handler defined in that file was lost — including the silent failure mode the user was seeing on the Rebuild button.
+* Fix: Sitemaps page Rebuild button now shows immediate UI feedback. The "Last Built" cell flips to "Just now" and the Files / URLs counts update from the AJAX response payload, instead of requiring a page reload to re-run the PHP renderer.
+* Fix: When rebuild fails, the toast now displays the actual error message (`build_locked`, `rebuild_failed: ...`) rather than a generic "Failed to rebuild sitemap". The handler unpacks both string and object error envelopes from `wp_send_json_error`.
 
 = 1.13.5 =
 * Fix: The Sitemaps page's "Rebuild" button now actually rebuilds the sitemaps and the "Last Built" stat updates accordingly. The previous handler called a method that didn't exist (`$writer->write_provider_sitemap()`), invoked `write_index()` without its required `$sitemaps` argument, used `new Alma_Sitemap_Manager()` against a private constructor, and caught only `Exception` — so the resulting `Error` escaped, the AJAX response 500'd, and the build lock orphaned for 5 minutes. The handler now delegates to a new `Alma_Sitemap_Manager::rebuild_now()` method which runs the same proven pipeline used by the cron rebuild (`start_build` → `generate_with_seek` per provider → `write_index($sitemaps)` → `finalize_build()`), catches `Throwable` so any provider bug releases the lock instead of stranding it, and returns a proper stats payload. `finalize_build()` writes to `almaseo_sitemap_settings.health.last_build_stats` — which is the exact key `helpers.php` reads — so the Last Built timestamp now updates on every successful rebuild.

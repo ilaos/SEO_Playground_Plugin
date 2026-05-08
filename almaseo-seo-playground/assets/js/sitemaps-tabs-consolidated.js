@@ -244,12 +244,44 @@ jQuery(function($) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Show success toast
                 showToast('Sitemap rebuilt successfully', 'success');
-                // Update stats
+
+                // Reflect the new Last Built timestamp in the stats card
+                // immediately; updateLiveStats() only touches the live-stat
+                // chips, not the data-stat="last-built" cell, so without this
+                // the user has to hard-refresh to see the timestamp move off
+                // "Never" or its previous value.
+                const lastBuilt = qs('[data-stat="last-built"]');
+                if (lastBuilt) lastBuilt.textContent = 'Just now';
+
+                // Update files/urls counts from the response payload directly
+                // rather than waiting on the polling tick.
+                if (data.data && data.data.stats) {
+                    const filesNum = qs('[data-stat="files"]');
+                    if (filesNum && typeof data.data.stats.files === 'number') {
+                        filesNum.textContent = data.data.stats.files.toLocaleString();
+                    }
+                    const urlsNum = qs('[data-stat="urls"]');
+                    if (urlsNum && typeof data.data.stats.urls === 'number') {
+                        urlsNum.textContent = data.data.stats.urls.toLocaleString();
+                    }
+                }
+
                 setTimeout(updateLiveStats, 1000);
             } else {
-                showToast(data.data || 'Failed to rebuild sitemap', 'error');
+                // Server-side failure. data.data is whatever wp_send_json_error
+                // packed in: { message, code } from rebuild_now() WP_Errors,
+                // or a bare string from older paths. Surface the message so a
+                // "build_locked" or "rebuild_failed" doesn't look like nothing
+                // happened.
+                let msg = 'Failed to rebuild sitemap';
+                if (data.data) {
+                    msg = (typeof data.data === 'string')
+                        ? data.data
+                        : (data.data.message || msg);
+                }
+                console.error('Rebuild error:', data);
+                showToast(msg, 'error');
             }
         })
         .catch(error => {

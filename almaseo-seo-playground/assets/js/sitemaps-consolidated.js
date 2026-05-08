@@ -733,7 +733,9 @@ jQuery(function($) {
         });
     });
 
-}); // End jQuery wrapper/**
+}); // End jQuery wrapper
+
+/**
  * AlmaSEO Sitemaps Phase 3 JavaScript
  * 
  * Additional URLs management, conflict scanning, and diff reporting
