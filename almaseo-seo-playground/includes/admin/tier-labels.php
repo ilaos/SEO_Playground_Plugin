@@ -94,6 +94,7 @@ class AlmaSEO_Tier_Labels {
         'date_hygiene'           => 'pro',
         'bulkmeta'               => 'pro',
         'schema_multi'           => 'pro',
+        'meta_autogen'           => 'pro',
     );
 
     /**

@@ -4,15 +4,15 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.9.4
+Stable tag: 1.13.2
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights.
+Professional SEO optimization plugin with Alma-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights.
 
 == Description ==
 
-AlmaSEO SEO Playground is a complete SEO toolkit for WordPress that combines free competitive-parity features with optional AI-powered enhancements.
+AlmaSEO SEO Playground is a complete SEO toolkit for WordPress that combines free competitive-parity features with optional Alma-powered enhancements.
 
 **Free Features:**
 
@@ -59,20 +59,20 @@ AlmaSEO SEO Playground is a complete SEO toolkit for WordPress that combines fre
 * Featured Snippet Targeting
 * DataForSEO Integration
 
-**AI-Enhanced (when connected to AlmaSEO dashboard):**
+**Alma-Enhanced (when connected to AlmaSEO dashboard):**
 
-* AI Keyword Suggestions
-* AI Headline Rewrites with CTR predictions
-* AI Readability Benchmarks
-* AI Image Alt Text generation
-* AI Cornerstone Content detection
+* Alma Keyword Suggestions
+* Alma Headline Rewrites with CTR predictions
+* Alma Readability Benchmarks
+* Alma Image Alt Text generation
+* Alma Cornerstone Content detection
 
 == Installation ==
 
 1. Upload the `almaseo-seo-playground` folder to `/wp-content/plugins/`
 2. Activate the plugin through the Plugins menu
 3. Follow the Setup Wizard to configure your site
-4. Optionally connect to the AlmaSEO dashboard for AI features
+4. Optionally connect to the AlmaSEO dashboard for Alma-enhanced features
 
 == Frequently Asked Questions ==
 
@@ -86,13 +86,42 @@ Yes. The Import & Migrate wizard (SEO Playground > Import & Migrate) supports al
 
 = Do I need the AlmaSEO dashboard connection? =
 
-No. All local features work without any connection. The dashboard connection adds optional AI-powered enhancements on top of the free local analysis.
+No. All local features work without any connection. The dashboard connection adds optional Alma-powered enhancements on top of the free local analysis.
 
 = Can I use this alongside other SEO plugins? =
 
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.13.2 =
+* Branding: User-facing copy across the plugin no longer leans on "AI" terminology. Plugin-owned features (autofill, rewrites, alt text, freshness scoring, refresh suggestions) are branded "Alma" or "Alma-powered". External LLM systems (ChatGPT, Gemini, Google AI Overviews) are referred to as "LLMs" instead of "AI" where the original phrasing was generic. Touched ~50 strings across the metabox panel, Welcome page, Documentation page, Bulk Meta page, Connection Settings, settings, Refresh Queue, Refresh Drafts, llms.txt editor, evergreen dashboard, image SEO settings, health UI, tier management modals, and the readme.
+* Prep: Registered new `meta_autogen` Pro feature flag for the per-post Generate Title / Generate Description button. Wiring sits behind the same tier-default cutover used by other gated features — currently passes for everyone, locks automatically when the license-helper default flips from 'pro' to 'free'. Adds a `local_locked` resolution badge ("Generated locally — Upgrade to AlmaSEO Pro for profile-aware generation") that fires only after that cutover.
+* Fix: The "Test Connection to AlmaSEO API" button on the Connection Settings page now actually round-trips. Previously the AJAX call did not include the security nonce that the backend handler required, so every click returned "Security check failed" — a latent bug that pre-dated the JWT auth work but never surfaced because the dashboard's `/api/v1/ping` endpoint did not exist either. The endpoint is now live (server-side, no plugin update needed for that part) and the JS sends the nonce, so the button reports the real connection state.
+
+= 1.13.1 =
+* Fix: The "Test Connection to AlmaSEO API" button on the Connection Settings page no longer returns "Security check failed". The button's AJAX call wasn't sending a nonce, but the backend handler required one — so the button has been broken on every install since it was introduced. With this fix, clicking it will actually round-trip credentials to the AlmaSEO API and report the real status (or the real error message), which is what makes it useful as a diagnostic for sites where AI autofill or the Search Console panel report authentication problems.
+
+= 1.13.0 =
+* Fix: JWT-host sites (WP Engine and other managed hosts that disable WP Application Passwords) were inbound-connectable but couldn't outbound-authenticate to the dashboard. The plugin's outbound calls (AI autofill, site profile, GSC page data) all read `almaseo_app_password` for Basic Auth, but the JWT path never wrote to that option — so Generate Title fell back to local generation, the Search Console panel showed "AlmaSEO connection not detected", and any other dashboard-dependent feature silently no-op'd. New `almaseo_get_active_jwt()` helper persists the JWT to the same options the app-password path uses, with caching so repeated calls don't churn out fresh tokens that desync from the dashboard's stored copy.
+* Fix: The Connection Settings page's stale-password detection no longer wipes JWT credentials. Previously it deleted `almaseo_app_password` whenever no matching `WP_Application_Passwords` record existed — but JWT-host sites have no app-password records by design, so the JWT was being deleted on every page load.
+* Fix: Plugin's REST API JWT recognition now also accepts a JWT in the Basic Auth password slot (in addition to the `X-AlmaSEO-Token` header). This enables the dashboard's auto-heal probe — which authenticates via Basic Auth — to succeed on JWT-host sites and re-sync the stored credential automatically.
+
+= 1.12.0 =
+* Fix: Profile cache now lazy-fetches on the first Generate Title/Description click after upgrade, instead of waiting for a daily cron tick or a credential re-save. Previously, plugin upgrades didn't re-pull the profile, so 1.10.0/1.11.0 users with already-saved credentials saw a blank cache and the generator fell back to content-only output.
+* Feat: New resolution badge appears next to the generated value showing exactly which path ran — "Generated by AlmaSEO AI (using your profile)", "Generated by AlmaSEO AI", "Generated locally using your profile", or "Generated locally (no profile cached)". Hover for the list of profile fields the plugin had cached.
+* Fix: When the local fallback derives a title from post content, it now prefers the first complete sentence (e.g. "Sell your car without the hassle") over a word-boundary cut that left fragments like "We cover the entire" hanging mid-clause. Strips trailing articles/conjunctions on truncated bases.
+
+= 1.11.0 =
+* Repackage of 1.10.0 with a corrected release zip. The 1.10.0 archive was built with PowerShell's `Compress-Archive`, which writes non-standard backslash path separators. Linux WordPress installs rejected the entries and showed "Plugin file does not exist" on activation. No code changes between 1.10.0 and 1.11.0 — only the packaging.
+
+= 1.10.0 =
+* Feat: Auto-Generate Title/Description is now profile-aware. The plugin pulls your business profile (services, service areas, business name, about_us) from the AlmaSEO dashboard and caches it locally so generated titles use real, specific terms — e.g. "Car Buying in Vallejo | Your Car's Not Junk" instead of "Comprehensive Home in 2026". Profile refreshes daily via wp-cron and on connect.
+* Feat: New patience banner appears above the SEO fields during Generate Title/Description so the user knows what's happening behind the spinner.
+* Fix: Local fallback no longer decorates placeholder titles ("Home", "Front Page", "Sample Page", "Welcome", etc.) with stock power words. Power-word selection is now deterministic per post — re-running on the same post produces the same result.
+* Fix: When the post title is empty or a placeholder and no profile is cached, the local generator now derives a base title from the first paragraph of `post_content` or the site tagline (`bloginfo('description')`) instead of falling back to generic decoration.
+* Fix: `generate_description` for placeholder/homepage posts now prefers `about_us` from the cached profile over a bare "Explore everything about Home." string.
+* Internal: New dashboard endpoint `GET /api/plugin/site-profile` returns normalized profile data with server-side address scrubbing (filters out scraped nav-menu pollution found in some `street_address` rows).
 
 = 1.9.4 =
 * UX: Activation now always redirects to the Welcome page (was: setup wizard for fresh installs / welcome page for returning users). The Welcome page is now the single canonical onboarding landing.

@@ -142,7 +142,7 @@
                     $(this)
                         .addClass('ai-btn-locked')
                         .attr('disabled', true)
-                        .attr('title', 'Connect to AlmaSEO to unlock AI features');
+                        .attr('title', 'Connect to AlmaSEO to unlock premium features');
                 });
             } else if (tier === 'free') {
                 // Check usage limits for free tier
@@ -154,7 +154,7 @@
                         $(this)
                             .addClass('ai-btn-limit-reached')
                             .attr('disabled', true)
-                            .attr('title', 'Daily limit reached. Upgrade to Pro for more AI generations');
+                            .attr('title', 'Daily limit reached. Upgrade to Pro for more Alma generations');
                     });
                 } else {
                     $aiButtons.each(function() {
@@ -199,7 +199,7 @@
                 
                 const indicatorHtml = `
                     <div class="ai-usage-indicator ${warningClass}">
-                        <span class="usage-label">AI Generations Today:</span>
+                        <span class="usage-label">Alma Generations Today:</span>
                         <span class="usage-count">${usage.daily} / ${dailyLimit}</span>
                         <div class="usage-bar">
                             <div class="usage-progress" style="width: ${Math.min(usagePercent, 100)}%"></div>
@@ -223,8 +223,8 @@
                         const lockMessage = `
                             <div class="tier-lock-message">
                                 <div class="lock-icon">🔒</div>
-                                <div class="lock-title">AI Features Locked</div>
-                                <div class="lock-description">Connect to AlmaSEO to unlock powerful AI tools</div>
+                                <div class="lock-title">Premium Features Locked</div>
+                                <div class="lock-description">Connect to AlmaSEO to unlock powerful Alma tools</div>
                                 <a href="#" class="upgrade-btn" onclick="jQuery('.almaseo-tab-btn[data-tab=\\'unlock-features\\']').click(); return false;">
                                     Unlock Features →
                                 </a>
@@ -257,7 +257,7 @@
                                 <p>${getTierDescription(tier)}</p>
                             </div>
                         </div>
-                        ${tier === 'free' ? '<div class="usage-warning">Using Free tier. <a href="https://almaseo.com/pricing" target="_blank">Upgrade to Pro</a> for unlimited AI generations.</div>' : ''}
+                        ${tier === 'free' ? '<div class="usage-warning">Using Free tier. <a href="https://almaseo.com/pricing" target="_blank">Upgrade to Pro</a> for unlimited Alma generations.</div>' : ''}
                     </div>
                 `;
                 
@@ -299,7 +299,7 @@
                 modalContent = `
                     <div class="usage-modal-content">
                         <h3>Daily Limit Reached</h3>
-                        <p>You've used all your AI generations for today.</p>
+                        <p>You've used all your Alma generations for today.</p>
                         <p>Your limit will reset tomorrow, or upgrade to Pro for unlimited access.</p>
                         <div class="modal-actions">
                             <a href="https://almaseo.com/pricing" target="_blank" class="btn-upgrade">Upgrade to Pro</a>
@@ -311,8 +311,8 @@
                 modalContent = `
                     <div class="usage-modal-content">
                         <h3>Low Usage Warning</h3>
-                        <p>You have only <strong>${remaining}</strong> AI generation${remaining > 1 ? 's' : ''} left today.</p>
-                        <p>Consider upgrading to Pro for unlimited AI generations.</p>
+                        <p>You have only <strong>${remaining}</strong> Alma generation${remaining > 1 ? 's' : ''} left today.</p>
+                        <p>Consider upgrading to Pro for unlimited Alma generations.</p>
                         <div class="modal-actions">
                             <a href="https://almaseo.com/pricing" target="_blank" class="btn-upgrade">Learn More</a>
                             <button class="btn-dismiss">Got it</button>
@@ -422,10 +422,10 @@
         
         function getTierDescription(tier) {
             const descriptions = {
-                'free': 'Limited to 10 AI generations per day',
-                'pro': 'Up to 100 AI generations per day',
-                'max': 'Unlimited AI generations',
-                'unconnected': 'Connect to unlock AI features'
+                'free': 'Limited to 10 Alma generations per day',
+                'pro': 'Up to 100 Alma generations per day',
+                'max': 'Unlimited Alma generations',
+                'unconnected': 'Connect to unlock premium features'
             };
             return descriptions[tier] || '';
         }
@@ -439,8 +439,8 @@
             if (tier === 'free') {
                 const promptHtml = `
                     <div class="upgrade-prompt">
-                        <h3>Unlock More AI Power</h3>
-                        <p>Upgrade to Pro for 10x more AI generations and advanced features.</p>
+                        <h3>Unlock More Alma Power</h3>
+                        <p>Upgrade to Pro for 10x more Alma generations and advanced features.</p>
                         <div class="cta-buttons">
                             <a href="https://almaseo.com/pricing" target="_blank" class="cta-btn cta-btn-primary">
                                 Upgrade Now

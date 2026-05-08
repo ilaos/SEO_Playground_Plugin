@@ -365,7 +365,7 @@
             });
 
             // Announce to screen readers
-            announceToScreenReader(`Loaded ${suggestions.length} AI suggestions`);
+            announceToScreenReader(`Loaded ${suggestions.length} Alma suggestions`);
         }, 1500);
     }
 

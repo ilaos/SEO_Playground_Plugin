@@ -28,7 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             <ol>
                 <li><?php esc_html_e( 'Click Recalculate to score all your published content across four signals: business value, traffic decline, conversion intent, and opportunity size.', 'almaseo-seo-playground' ); ?></li>
                 <li><?php esc_html_e( 'Posts are ranked by a weighted priority score. High-priority pages appear at the top — these are your best candidates for a content refresh.', 'almaseo-seo-playground' ); ?></li>
-                <li><?php esc_html_e( 'Work through the queue: skip pages you don\'t want to refresh, or send high-priority ones to Content Refresh for an AI-assisted rewrite.', 'almaseo-seo-playground' ); ?></li>
+                <li><?php esc_html_e( 'Work through the queue: skip pages you don\'t want to refresh, or send high-priority ones to Content Refresh for an Alma-assisted rewrite.', 'almaseo-seo-playground' ); ?></li>
             </ol>
         </div>
 

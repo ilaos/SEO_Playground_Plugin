@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     <!-- Feature Intro -->
     <div class="almaseo-rd-intro">
         <p class="almaseo-rd-intro-lead">
-            <?php esc_html_e( 'Keep your content fresh without rewriting entire posts. Review AI-suggested improvements section by section, keep what you like, and update your live page in one click.', 'almaseo-seo-playground' ); ?>
+            <?php esc_html_e( 'Keep your content fresh without rewriting entire posts. Review Alma-suggested improvements section by section, keep what you like, and update your live page in one click.', 'almaseo-seo-playground' ); ?>
         </p>
 
         <div class="almaseo-rd-how-it-works">

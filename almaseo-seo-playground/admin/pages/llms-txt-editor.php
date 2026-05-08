@@ -20,7 +20,7 @@ if ( empty( $content ) ) {
 <div class="wrap almaseo-llms-txt-wrap">
     <h1><?php esc_html_e( 'LLMs.txt Editor', 'almaseo-seo-playground' ); ?></h1>
     <p class="description">
-        <?php esc_html_e( 'The llms.txt file helps AI language models understand your site structure and content. Similar to robots.txt for search engines, this file guides LLMs on how to interact with your content.', 'almaseo-seo-playground' ); ?>
+        <?php esc_html_e( 'The llms.txt file helps large language models understand your site structure and content. Similar to robots.txt for search engines, this file guides LLMs on how to interact with your content.', 'almaseo-seo-playground' ); ?>
     </p>
 
     <div class="almaseo-llms-txt-notice" id="almaseo-llms-txt-notice" style="display:none;"></div>

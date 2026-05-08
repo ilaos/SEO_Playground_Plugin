@@ -102,6 +102,7 @@ function almaseo_feature_available( $feature ) {
         'orphan_detection',       // Orphan page detection
         'schema_drift',           // Schema drift monitor
         'snippet_targeting',      // Featured snippet targeting
+        'meta_autogen',           // Profile-aware title/description generation (per-post button)
     );
 
     // Check if this feature requires Pro tier

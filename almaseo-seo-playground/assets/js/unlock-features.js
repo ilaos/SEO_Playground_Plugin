@@ -276,7 +276,7 @@
                     <div class="success-icon">🎉</div>
                     <div class="success-text">
                         <h3>Successfully Connected!</h3>
-                        <p>All AI features are now unlocked. Let's optimize your content!</p>
+                        <p>All Alma features are now unlocked. Let's optimize your content!</p>
                     </div>
                 `
             });

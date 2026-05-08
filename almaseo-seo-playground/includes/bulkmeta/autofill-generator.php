@@ -46,16 +46,53 @@ class Autofill_Generator {
      * rather than replacing it with a generic template. This preserves
      * the page's real meaning while improving headline score.
      *
+     * Resolution order:
+     *   1. If the cached business profile is filled and the title is a
+     *      placeholder ("Home", "Front Page", etc.) or this is the front
+     *      page, build a profile-driven title:
+     *        "{primary service} in {primary area} | {business name}"
+     *   2. Otherwise enhance the literal post_title with year/power word
+     *      decoration (Plan B), but only when the base title has enough
+     *      meaningful words. Power-word selection is deterministic per
+     *      post so re-runs are stable.
+     *
      * @param \WP_Post $post The post object.
      * @return string Generated title (50-60 chars target).
      */
     public static function generate_title( $post ) {
         $raw_title = trim( $post->post_title ?? '' );
-        $year      = gmdate( 'Y' );
         $site      = get_bloginfo( 'name' );
 
-        if ( empty( $raw_title ) ) {
-            return '';
+        // ── Plan A: profile-driven build for placeholder/homepage titles ──
+        $profile        = self::profile_data();
+        $is_placeholder = self::is_placeholder_title( $raw_title, $post );
+
+        if ( $is_placeholder && ! empty( $profile ) ) {
+            $built = self::build_from_profile( $profile, $site );
+            if ( ! empty( $built ) ) {
+                return self::clean_title( $built );
+            }
+        }
+
+        // ── Plan B: title is a placeholder (or empty) and no profile cached.
+        // Pull a base from post_content rather than literally decorating
+        // "Home". The page tagline is also a reasonable seed for the front
+        // page when content is thin.
+        if ( $is_placeholder || empty( $raw_title ) ) {
+            $derived = self::derive_base_from_content( $post );
+            if ( empty( $derived ) ) {
+                $tagline = trim( (string) get_bloginfo( 'description' ) );
+                if ( $tagline !== '' ) {
+                    $derived = $tagline;
+                }
+            }
+            if ( ! empty( $derived ) ) {
+                $raw_title = $derived;
+            } elseif ( empty( $raw_title ) ) {
+                // Truly nothing to work with — let the caller fall back to
+                // the WP-rendered title rather than emit a stub.
+                return '';
+            }
         }
 
         // Step 1: Clean the title (remove existing site name suffixes, pipes, dashes)
@@ -73,9 +110,6 @@ class Autofill_Generator {
             }
         }
 
-        // Step 3: Check if title already contains a number
-        $has_number = (bool) preg_match( '/\d/', $title );
-
         // Step 4: Build the enhanced title
         // Strategy: only add elements if there's room. Never force additions
         // that would make the title too long or nonsensical.
@@ -87,8 +121,15 @@ class Autofill_Generator {
             return self::clean_title( $enhanced );
         }
 
+        // Don't decorate with stock power words / years on placeholder-ish
+        // titles — that's where "Comprehensive Home in 2026" came from. The
+        // title needs at least 2 meaningful (non-stopword) tokens of length
+        // ≥3 before we'll pad it.
+        $can_decorate = self::has_meaningful_tokens( $title, 2 );
+
         // Only try enhancements if there's room (title under ~45 chars)
-        if ( $len < 45 ) {
+        if ( $can_decorate && $len < 45 ) {
+            $year = gmdate( 'Y' );
             // Try adding year if not present
             if ( ! preg_match( '/20\d{2}/', $enhanced ) ) {
                 $with_year = $enhanced . ' in ' . $year;
@@ -97,10 +138,13 @@ class Autofill_Generator {
                 }
             }
 
-            // Add a power word if none present and there's still room
+            // Add a power word if none present and there's still room.
+            // Selection is deterministic per post — re-running the generator
+            // on the same post returns the same title.
             if ( ! $has_power && mb_strlen( $enhanced ) < 50 ) {
                 $contextual_powers = array( 'essential', 'complete', 'proven', 'expert', 'comprehensive' );
-                $power = $contextual_powers[ array_rand( $contextual_powers ) ];
+                $idx   = abs( crc32( (string) ( $post->ID ?? 0 ) ) ) % count( $contextual_powers );
+                $power = $contextual_powers[ $idx ];
 
                 $with_power = ucfirst( $power ) . ' ' . $enhanced;
                 if ( mb_strlen( $with_power ) <= 60 ) {
@@ -142,6 +186,154 @@ class Autofill_Generator {
     }
 
     /**
+     * Read the cached business profile (services, service areas, etc.)
+     * pulled from the AlmaSEO dashboard. Returns empty array when unavailable.
+     */
+    private static function profile_data() {
+        if ( class_exists( '\\AlmaSEO\\Connection\\Site_Profile' ) ) {
+            return \AlmaSEO\Connection\Site_Profile::profile_data();
+        }
+        return array();
+    }
+
+    /**
+     * Whether a title is generic enough that we should ignore it and pull
+     * from the profile instead. Catches WP defaults ("Home", "Sample Page")
+     * and sites where the front page is set via Settings → Reading.
+     */
+    private static function is_placeholder_title( $title, $post ) {
+        $is_front = false;
+        if ( ! empty( $post->ID ) && (int) get_option( 'page_on_front' ) === (int) $post->ID ) {
+            $is_front = true;
+        }
+
+        if ( $is_front ) {
+            return true;
+        }
+
+        $needle = strtolower( trim( $title ) );
+        if ( $needle === '' ) {
+            return true;
+        }
+
+        $placeholders = array( 'home', 'homepage', 'front page', 'welcome', 'untitled', 'sample page', 'main', 'index' );
+        return in_array( $needle, $placeholders, true );
+    }
+
+    /**
+     * Build a title from cached profile data:
+     *   "{primary service} in {primary area} | {business name}"
+     * Falls back gracefully when fields are missing.
+     */
+    private static function build_from_profile( $profile, $site ) {
+        $business = ! empty( $profile['business_name'] ) ? $profile['business_name'] : $site;
+        $services = isset( $profile['services'] ) && is_array( $profile['services'] ) ? $profile['services'] : array();
+        $areas    = isset( $profile['service_areas'] ) && is_array( $profile['service_areas'] ) ? $profile['service_areas'] : array();
+
+        $primary_service = ! empty( $services ) ? ucwords( (string) $services[0] ) : '';
+        $primary_area    = ! empty( $areas ) ? (string) $areas[0] : '';
+        if ( $primary_area === '' && ! empty( $profile['city'] ) ) {
+            $primary_area = $profile['state']
+                ? $profile['city'] . ', ' . $profile['state']
+                : $profile['city'];
+        }
+
+        $candidates = array();
+        if ( $primary_service && $primary_area && $business ) {
+            $candidates[] = $primary_service . ' in ' . $primary_area . ' | ' . $business;
+        }
+        if ( $primary_service && $business ) {
+            $candidates[] = $primary_service . ' | ' . $business;
+        }
+        if ( $primary_area && $business ) {
+            $candidates[] = $business . ' — ' . $primary_area;
+        }
+        if ( $business && ! empty( $profile['slogan'] ) ) {
+            $candidates[] = $business . ' | ' . $profile['slogan'];
+        }
+        if ( $business ) {
+            $candidates[] = $business;
+        }
+
+        // Pick the first candidate that fits within 65 chars; otherwise the
+        // longest one trimmed at a word boundary.
+        foreach ( $candidates as $cand ) {
+            if ( mb_strlen( $cand ) <= 65 ) {
+                return $cand;
+            }
+        }
+
+        return ! empty( $candidates ) ? self::truncate_at_word( $candidates[0], 60 ) : '';
+    }
+
+    /**
+     * Pull a candidate title from the first paragraph of post_content when
+     * the post has no usable post_title and there's no profile to fall
+     * back to. Prefers the first *complete sentence* if it fits in the
+     * title length budget — that beats truncating mid-sentence.
+     */
+    private static function derive_base_from_content( $post ) {
+        $content = $post->post_content ?? '';
+        if ( empty( $content ) ) {
+            return '';
+        }
+        $first = self::extract_first_paragraph( $content );
+        $first = trim( preg_replace( '/\s+/', ' ', $first ) );
+        if ( $first === '' ) {
+            return '';
+        }
+
+        // Try the first complete sentence — preferred over a truncated
+        // fragment like "We cover the entire" hanging off mid-clause.
+        if ( preg_match( '/^(.+?[.!?])(?:\s|$)/u', $first, $m ) ) {
+            $sentence = trim( $m[1] );
+            $len = mb_strlen( $sentence );
+            if ( $len >= 20 && $len <= 60 ) {
+                // Drop the trailing period — titles read cleaner without it.
+                return rtrim( $sentence, '.' );
+            }
+        }
+
+        // Otherwise truncate at a word boundary and trim trailing
+        // articles/conjunctions so we don't end with "the entire".
+        if ( mb_strlen( $first ) > 60 ) {
+            $first = self::truncate_at_word( $first, 55 );
+        }
+        $first = preg_replace(
+            '/\s+(the|a|an|and|or|but|in|on|at|to|for|of|with|by|from)$/i',
+            '',
+            $first
+        );
+        return trim( $first );
+    }
+
+    /**
+     * Whether a candidate has at least $min meaningful (non-stopword,
+     * length ≥3) tokens. Used to gate stock decoration so we don't end up
+     * with nonsense like "Comprehensive Home in 2026".
+     */
+    private static function has_meaningful_tokens( $title, $min ) {
+        $stops = array(
+            'the','a','an','and','or','but','in','on','at','to','for',
+            'of','with','by','from','is','are','was','how','what','why',
+            'when','where','who','which','your','our','my','this','that',
+            'home','page','welcome','main','index',
+        );
+        $words = preg_split( '/\s+/', strtolower( $title ) );
+        $kept  = 0;
+        foreach ( (array) $words as $w ) {
+            $w = preg_replace( '/[^a-z0-9]/', '', $w );
+            if ( mb_strlen( $w ) >= 3 && ! in_array( $w, $stops, true ) ) {
+                $kept++;
+                if ( $kept >= $min ) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Generate meta description from post data.
      *
      * @param \WP_Post $post The post object.
@@ -152,8 +344,15 @@ class Autofill_Generator {
         $excerpt = $post->post_excerpt ?? '';
         $topic   = self::extract_topic( $post );
 
-        // Start with excerpt if available, otherwise first paragraph of content
-        if ( ! empty( $excerpt ) ) {
+        // Profile-aware path: for placeholder/homepage posts, prefer about_us
+        // from the cached business profile over a generic "Explore everything
+        // about Home." string.
+        $profile = self::profile_data();
+        $is_placeholder = self::is_placeholder_title( $post->post_title ?? '', $post );
+
+        if ( $is_placeholder && ! empty( $profile['about_us'] ) ) {
+            $base_text = $profile['about_us'];
+        } elseif ( ! empty( $excerpt ) ) {
             $base_text = wp_strip_all_tags( $excerpt );
         } else {
             $base_text = self::extract_first_paragraph( $content );
@@ -163,7 +362,17 @@ class Autofill_Generator {
         $base_text = preg_replace( '/\s+/', ' ', trim( $base_text ) );
 
         if ( empty( $base_text ) ) {
-            $base_text = "Explore everything about {$topic}.";
+            // Final fallback — even here, prefer profile context over a
+            // bare "Explore everything about Home." sentence.
+            if ( ! empty( $profile['business_name'] ) && ! empty( $profile['services'] ) ) {
+                $service = ucfirst( (string) $profile['services'][0] );
+                $area    = ! empty( $profile['service_areas'] ) ? $profile['service_areas'][0] : ( $profile['city'] ?? '' );
+                $base_text = $area
+                    ? "{$profile['business_name']} provides {$service} in {$area}."
+                    : "{$profile['business_name']} provides {$service}.";
+            } else {
+                $base_text = "Explore everything about {$topic}.";
+            }
         }
 
         // Target 150-160 characters
@@ -435,8 +644,35 @@ function almaseo_ajax_autofill_field() {
 
     $profile_suggestions = array();
 
-    // Try AI if mode is 'ai' or 'auto' (and connected)
-    if ( $mode !== 'basic' ) {
+    // Lazy-fetch the cached site profile if the cache is empty/stale. This
+    // covers upgrades where the password was already saved before this
+    // version landed (the update_option hook only fires on re-save).
+    $profile_ready = false;
+    $profile_fields_present = array();
+    if ( class_exists( '\\AlmaSEO\\Connection\\Site_Profile' ) ) {
+        $profile_ready = \AlmaSEO\Connection\Site_Profile::ensure_fresh();
+        if ( $profile_ready ) {
+            $p = \AlmaSEO\Connection\Site_Profile::profile_data();
+            foreach ( array( 'business_name', 'industry_type', 'about_us', 'slogan' ) as $f ) {
+                if ( ! empty( $p[ $f ] ) ) {
+                    $profile_fields_present[] = $f;
+                }
+            }
+            if ( ! empty( $p['services'] ) ) {
+                $profile_fields_present[] = 'services';
+            }
+            if ( ! empty( $p['service_areas'] ) ) {
+                $profile_fields_present[] = 'service_areas';
+            }
+        }
+    }
+
+    $tier_blocked = ( $mode !== 'basic' )
+        && function_exists( 'almaseo_feature_available' )
+        && ! almaseo_feature_available( 'meta_autogen' );
+
+    // Try AlmaSEO-powered generation if mode is 'ai' or 'auto', tier permits, and site is connected
+    if ( $mode !== 'basic' && ! $tier_blocked ) {
         require_once __DIR__ . '/ai-autofill-generator.php';
         if ( AI_Autofill_Generator::is_available() ) {
             $ai_result = AI_Autofill_Generator::generate_single( $post_id, $field );
@@ -457,6 +693,16 @@ function almaseo_ajax_autofill_field() {
         $generated = Autofill_Generator::generate_all( $post );
     }
 
+    // Resolution path — surfaced in the UI badge so the user can see which
+    // generator ran and whether the business profile was reachable.
+    if ( $ai_used ) {
+        $resolution = $profile_ready ? 'ai_with_profile' : 'ai';
+    } elseif ( $tier_blocked ) {
+        $resolution = 'local_locked';
+    } else {
+        $resolution = $profile_ready ? 'local_with_profile' : 'local';
+    }
+
     $field_map = array(
         'title'       => 'meta_title',
         'description' => 'meta_description',
@@ -466,7 +712,13 @@ function almaseo_ajax_autofill_field() {
     if ( ! empty( $field ) && isset( $field_map[ $field ] ) ) {
         $key   = $field_map[ $field ];
         $value = isset( $generated[ $key ] ) ? $generated[ $key ] : '';
-        $response = array( 'value' => $value, 'field' => $field, 'ai' => $ai_used );
+        $response = array(
+            'value'                  => $value,
+            'field'                  => $field,
+            'ai'                     => $ai_used,
+            'resolution'             => $resolution,
+            'profile_fields_present' => $profile_fields_present,
+        );
         if ( ! empty( $profile_suggestions ) ) {
             $response['profile_suggestions'] = $profile_suggestions;
         }
@@ -474,7 +726,9 @@ function almaseo_ajax_autofill_field() {
     }
 
     // Return all fields
-    $generated['ai'] = $ai_used;
+    $generated['ai']                     = $ai_used;
+    $generated['resolution']             = $resolution;
+    $generated['profile_fields_present'] = $profile_fields_present;
     if ( ! empty( $profile_suggestions ) ) {
         $generated['profile_suggestions'] = $profile_suggestions;
     }

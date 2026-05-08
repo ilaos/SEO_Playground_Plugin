@@ -24,9 +24,14 @@ function almaseo_connector_settings_page() {
     $comprehensive_status = almaseo_get_comprehensive_connection_status();
     $app_password = get_option('almaseo_app_password', '');
 
-    // Validate stored password — check if a real WP Application Password still exists
+    // Validate stored password — check if a real WP Application Password still exists.
+    // Skip this check when the stored credential is a JWT (three base64url
+    // segments separated by dots). JWT-host sites (WP Engine, etc.) don't
+    // have matching WP_Application_Passwords records by design — wiping
+    // the JWT here would force the user to reconnect on every page load.
     $stale_password = false;
-    if ($app_password && !isset($_POST['generate_password']) && !isset($_POST['save_manual_password'])) {
+    $is_jwt_credential = $app_password && substr_count($app_password, '.') === 2 && strlen($app_password) > 50;
+    if ($app_password && !$is_jwt_credential && !isset($_POST['generate_password']) && !isset($_POST['save_manual_password'])) {
         if (class_exists('WP_Application_Passwords')) {
             $wp_app_passwords = WP_Application_Passwords::get_user_application_passwords($current_user->ID);
             $has_almaseo_wp_password = false;
@@ -177,7 +182,7 @@ function almaseo_connector_settings_page() {
     echo '<div class="header-content">';
     echo '<div class="header-text">';
     echo '<h1>SEO Playground by AlmaSEO - Connection Settings</h1>';
-    echo '<p>Connect your WordPress site to AlmaSEO AI for automated content creation and deeper LLM optimization analysis</p>';
+    echo '<p>Connect your WordPress site to AlmaSEO for automated content creation and deeper LLM optimization analysis</p>';
     echo '</div>';
     echo '<div class="header-logo">';
     echo '<img src="' . esc_url($logo_url) . '" alt="AlmaSEO Assistant" class="almaseo-character">';
@@ -272,7 +277,7 @@ function almaseo_connector_settings_page() {
                 echo '</div>';
 
                 // JWT — Recommended solution
-                $jwt_token = almaseo_create_jwt($username);
+                $jwt_token = function_exists('almaseo_get_active_jwt') ? almaseo_get_active_jwt($username) : almaseo_create_jwt($username);
                 echo '<div style="background:#f0f7ff;border:2px solid #2271b1;border-radius:8px;padding:20px;margin:20px 30px;">';
                 echo '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">';
                 echo '<span style="background:#2271b1;color:#fff;font-weight:700;font-size:13px;padding:2px 10px;border-radius:4px;">RECOMMENDED</span>';
@@ -421,7 +426,7 @@ function almaseo_connector_settings_page() {
             echo '</div>';
 
             // JWT Token section
-            $jwt_token = almaseo_create_jwt($username);
+            $jwt_token = function_exists('almaseo_get_active_jwt') ? almaseo_get_active_jwt($username) : almaseo_create_jwt($username);
             echo '<div class="detail-row">';
             echo '<label>JWT Token <span style="font-size:11px;color:#666;font-weight:normal">(Alternative Auth)</span>:</label>';
             echo '<div class="detail-value">';
@@ -948,7 +953,8 @@ function almaseo_connector_settings_page() {
             result.empty();
 
             $.post(ajaxurl, {
-                action: "almaseo_test_connection"
+                action: "almaseo_test_connection",
+                nonce: "' . wp_create_nonce('almaseo_nonce') . '"
             }).done(function(response) {
                 if (response.success) {
                     result.html("<span style=\"color: #4CAF50;\">Connection successful</span>");

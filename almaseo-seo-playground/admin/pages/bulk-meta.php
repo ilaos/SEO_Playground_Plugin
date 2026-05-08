@@ -53,7 +53,7 @@ if ( file_exists( $autofill_ai_file ) ) {
         ">
             <?php if ( $ai_autofill_available ) : ?>
                 <span style="font-size: 18px;">&#10024;</span>
-                <strong style="color: #5b21b6;"><?php esc_html_e('AI-Powered Auto-Fill is Active', 'almaseo-seo-playground'); ?></strong>
+                <strong style="color: #5b21b6;"><?php esc_html_e('Alma-Powered Auto-Fill is Active', 'almaseo-seo-playground'); ?></strong>
                 <span style="background: #7c3aed; color: #fff; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600; letter-spacing: 0.5px;">PRO</span>
             <?php else : ?>
                 <span class="dashicons dashicons-info-outline" style="color: #646970;"></span>
@@ -66,7 +66,7 @@ if ( file_exists( $autofill_ai_file ) ) {
                 <!-- AI Mode -->
                 <div style="padding: 16px; background: linear-gradient(135deg, #faf5ff 0%, #f0f0ff 100%); border: 1px solid #ddd6fe; border-radius: 8px;">
                     <h4 style="margin: 0 0 10px 0; color: #5b21b6; font-size: 14px;">
-                        &#10024; <?php esc_html_e('AI Mode', 'almaseo-seo-playground'); ?>
+                        &#10024; <?php esc_html_e('Alma Mode', 'almaseo-seo-playground'); ?>
                         <?php if ( $ai_autofill_available ) : ?>
                             <span style="background: #22c55e; color: #fff; font-size: 9px; padding: 2px 6px; border-radius: 8px; margin-left: 6px; vertical-align: middle;">ACTIVE</span>
                         <?php endif; ?>
@@ -81,7 +81,7 @@ if ( file_exists( $autofill_ai_file ) ) {
                     <?php if ( ! $ai_autofill_available ) : ?>
                         <p style="margin: 12px 0 0 0; font-size: 12px; color: #7c3aed;">
                             <a href="<?php echo esc_url( admin_url('admin.php?page=seo-playground-connection') ); ?>" style="color: #7c3aed; text-decoration: underline;">
-                                <?php esc_html_e('Connect to AlmaSEO to unlock AI mode', 'almaseo-seo-playground'); ?>
+                                <?php esc_html_e('Connect to AlmaSEO to unlock Alma mode', 'almaseo-seo-playground'); ?>
                             </a>
                         </p>
                     <?php endif; ?>
@@ -124,7 +124,7 @@ if ( file_exists( $autofill_ai_file ) ) {
         <div class="autofill-actions" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
             <?php if ( $ai_autofill_available ) : ?>
                 <span style="font-size: 18px;">&#10024;</span>
-                <strong style="font-size: 13px; color: #5b21b6;"><?php echo esc_html__('AI Auto-Fill', 'almaseo-seo-playground'); ?></strong>
+                <strong style="font-size: 13px; color: #5b21b6;"><?php echo esc_html__('Alma Auto-Fill', 'almaseo-seo-playground'); ?></strong>
             <?php else : ?>
                 <span class="dashicons dashicons-admin-generic" style="color: #2271b1; font-size: 20px; line-height: 30px;"></span>
                 <strong style="font-size: 13px;"><?php echo esc_html__('Auto-Fill', 'almaseo-seo-playground'); ?></strong>
@@ -132,17 +132,17 @@ if ( file_exists( $autofill_ai_file ) ) {
 
             <button type="button" class="button button-primary" id="autofill-selected" title="<?php echo esc_attr__('Auto-generate metadata for checked posts only', 'almaseo-seo-playground'); ?>" <?php if ($ai_autofill_available) echo 'style="background: #7c3aed; border-color: #6d28d9;"'; ?>>
                 <span class="dashicons dashicons-edit-page" style="font-size: 16px; line-height: 28px; margin-right: 2px;"></span>
-                <?php echo $ai_autofill_available ? esc_html__('AI-Fill Selected', 'almaseo-seo-playground') : esc_html__('Auto-Fill Selected', 'almaseo-seo-playground'); ?>
+                <?php echo $ai_autofill_available ? esc_html__('Alma-Fill Selected', 'almaseo-seo-playground') : esc_html__('Auto-Fill Selected', 'almaseo-seo-playground'); ?>
             </button>
 
             <button type="button" class="button" id="autofill-all-empty" title="<?php echo esc_attr__('Scan site and fill only posts/pages with missing metadata', 'almaseo-seo-playground'); ?>">
                 <span class="dashicons dashicons-welcome-write-blog" style="font-size: 16px; line-height: 28px; margin-right: 2px;"></span>
-                <?php echo $ai_autofill_available ? esc_html__('AI-Fill All Empty', 'almaseo-seo-playground') : esc_html__('Auto-Fill All Empty', 'almaseo-seo-playground'); ?>
+                <?php echo $ai_autofill_available ? esc_html__('Alma-Fill All Empty', 'almaseo-seo-playground') : esc_html__('Auto-Fill All Empty', 'almaseo-seo-playground'); ?>
             </button>
 
             <button type="button" class="button" id="autofill-entire-site" title="<?php echo esc_attr__('Regenerate metadata for every post and page on the site — overwrites existing', 'almaseo-seo-playground'); ?>" style="color: #b32d2e; border-color: #b32d2e;">
                 <span class="dashicons dashicons-update" style="font-size: 16px; line-height: 28px; margin-right: 2px;"></span>
-                <?php echo $ai_autofill_available ? esc_html__('AI-Fill Entire Site', 'almaseo-seo-playground') : esc_html__('Auto-Fill Entire Site', 'almaseo-seo-playground'); ?>
+                <?php echo $ai_autofill_available ? esc_html__('Alma-Fill Entire Site', 'almaseo-seo-playground') : esc_html__('Auto-Fill Entire Site', 'almaseo-seo-playground'); ?>
             </button>
 
             <span style="color: #c3c4c7;">|</span>
@@ -156,7 +156,7 @@ if ( file_exists( $autofill_ai_file ) ) {
         </div>
         <p class="description" style="margin: 6px 0 0 32px; font-size: 12px; color: #646970;">
             <?php if ( $ai_autofill_available ) : ?>
-                <?php echo esc_html__('AI reads your content and generates unique, context-aware metadata — titles, descriptions, focus keywords, and Open Graph fields.', 'almaseo-seo-playground'); ?>
+                <?php echo esc_html__('Alma reads your content and generates unique, context-aware metadata — titles, descriptions, focus keywords, and Open Graph fields.', 'almaseo-seo-playground'); ?>
             <?php else : ?>
                 <?php echo esc_html__('Generates SEO-optimized titles, descriptions, focus keywords, and Open Graph fields from your existing content.', 'almaseo-seo-playground'); ?>
             <?php endif; ?>

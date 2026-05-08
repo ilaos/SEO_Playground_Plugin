@@ -340,7 +340,7 @@ function almaseo_health_meta_box_callback($post) {
         ?>
         <div style="margin-top: 12px; padding: 10px 12px; background: linear-gradient(135deg, #f0f4ff 0%, #f8f9ff 100%); border: 1px solid #d0d5ff; border-radius: 6px;">
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                <span style="font-size: 12px; font-weight: 600; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI</span>
+                <span style="font-size: 12px; font-weight: 600; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Alma</span>
                 <strong style="font-size: 13px;"><?php esc_html_e( 'SERP Readability Benchmark', 'almaseo-seo-playground' ); ?></strong>
             </div>
             <?php if ( ! empty( $rd_dash_data['competitor_avg_score'] ) ) : ?>

@@ -2,8 +2,8 @@
 /*
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
-Description: Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
-Version: 1.9.4
+Description: Professional SEO optimization plugin with Alma-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
+Version: 1.13.2
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -50,7 +50,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
     }
     if ( $almaseo_seo_conflict ) {
         // Define only the bare minimum constants, then stop loading.
-        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.9.4' );
+        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.13.2' );
         if ( ! defined( 'ALMASEO_PATH' ) )           define( 'ALMASEO_PATH', plugin_dir_path( __FILE__ ) );
         if ( ! defined( 'ALMASEO_URL' ) )            define( 'ALMASEO_URL', plugin_dir_url( __FILE__ ) );
         if ( ! defined( 'ALMASEO_MAIN_FILE' ) )      define( 'ALMASEO_MAIN_FILE', __FILE__ );
@@ -62,7 +62,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
 if (!defined('ALMASEO_MAIN_FILE'))       define('ALMASEO_MAIN_FILE', __FILE__);
 if (!defined('ALMASEO_PATH'))            define('ALMASEO_PATH', plugin_dir_path(__FILE__));
 if (!defined('ALMASEO_URL'))             define('ALMASEO_URL', plugin_dir_url(__FILE__));
-if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.9.4');
+if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.13.2');
 if (!defined('ALMASEO_VERSION'))         define('ALMASEO_VERSION', '6.5.0');
 if (!defined('ALMASEO_API_NAMESPACE'))   define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
 if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
@@ -395,6 +395,19 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/setup-wizard.php')) 
 // Include Connection Handoff (Scenario-4 deep-link, v1.9.0+)
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/connection/connection-handoff.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/connection/connection-handoff.php';
+}
+
+// Include Site Profile cache (v1.10.0+) — pulls business profile from
+// dashboard so meta-generation can produce profile-aware titles even when
+// the AI endpoint is unreachable.
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/connection/site-profile.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/connection/site-profile.php';
+    register_deactivation_hook(__FILE__, function () {
+        $ts = wp_next_scheduled(\AlmaSEO\Connection\Site_Profile::CRON_HOOK);
+        if ($ts) {
+            wp_unschedule_event($ts, \AlmaSEO\Connection\Site_Profile::CRON_HOOK);
+        }
+    });
 }
 
 // Include Gutenberg Blocks (v8.3.0+) - FAQ, Table of Contents
@@ -1246,6 +1259,45 @@ if (!function_exists('almaseo_validate_jwt')) {
     }
 }
 
+/**
+ * Return the active JWT for outbound dashboard auth, generating one only
+ * when the stored credential is missing or invalid.
+ *
+ * The plugin's outbound calls (AI autofill, site profile, GSC page data)
+ * read `almaseo_app_password` for Basic Auth. On hosts that disable WP
+ * Application Passwords (WP Engine, etc.), the connection flow falls back
+ * to a JWT — but historically the JWT was only displayed for the user to
+ * paste into the dashboard, never written to that option, so the plugin
+ * could be inbound-auth'd by the dashboard but couldn't outbound-auth
+ * itself. This helper closes that gap.
+ *
+ * Caches via `almaseo_app_password`. Reuses the stored JWT if it's still
+ * valid (signature ok, not expired) so display calls (which can fire on
+ * every Connection Settings page load) don't churn out a fresh token each
+ * time and desync from whatever the dashboard has on file.
+ */
+if (!function_exists('almaseo_get_active_jwt')) {
+    function almaseo_get_active_jwt($username) {
+        $existing = (string) get_option('almaseo_app_password', '');
+        // A JWT has three base64url parts separated by dots. App passwords
+        // don't, so this distinguishes the two without a separate option.
+        if ($existing !== '' && substr_count($existing, '.') === 2 && function_exists('almaseo_validate_jwt')) {
+            $valid = almaseo_validate_jwt($existing);
+            if (!is_wp_error($valid)) {
+                return $existing;
+            }
+        }
+
+        $jwt = almaseo_create_jwt($username);
+        update_option('almaseo_app_password', $jwt);
+        update_option('almaseo_connected_user', $username);
+        if (!get_option('almaseo_connected_date')) {
+            update_option('almaseo_connected_date', current_time('mysql'));
+        }
+        return $jwt;
+    }
+}
+
 if (!function_exists('almaseo_is_our_password')) {
     function almaseo_is_our_password($name) {
         return strpos($name, 'AlmaSEO AI') === 0 || strpos($name, 'AlmaSEO Connection') === 0;
@@ -1269,8 +1321,27 @@ if (!function_exists('almaseo_jwt_determine_current_user')) {
             return $user_id;
         }
 
-        // Check for JWT token in custom header
+        // Check for JWT token in custom header (preferred — bypasses any
+        // host that strips Authorization headers)
         $jwt_token = isset($_SERVER['HTTP_X_ALMASEO_TOKEN']) ? $_SERVER['HTTP_X_ALMASEO_TOKEN'] : '';
+
+        // Fall back to Basic Auth — accept a JWT in the password slot. This
+        // is what makes the dashboard's auto-heal probe (which calls
+        // /wp/v2/users/me with Basic Auth) succeed on JWT-host sites where
+        // WP's normal app-password authenticator can't validate the token.
+        if (empty($jwt_token) && isset($_SERVER['HTTP_AUTHORIZATION'])
+            && stripos($_SERVER['HTTP_AUTHORIZATION'], 'Basic ') === 0) {
+            $decoded = base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6), true);
+            if ($decoded && strpos($decoded, ':') !== false) {
+                list(, $candidate) = explode(':', $decoded, 2);
+                // Only treat as JWT if it has the three-part structure;
+                // otherwise leave it for WP's app-password authenticator.
+                if ($candidate && substr_count($candidate, '.') === 2 && strlen($candidate) > 50) {
+                    $jwt_token = $candidate;
+                }
+            }
+        }
+
         if (empty($jwt_token)) {
             return $user_id;
         }

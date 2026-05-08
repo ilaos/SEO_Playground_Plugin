@@ -233,7 +233,7 @@ function seo_playground_render_overview_page() {
                                 <tr>
                                     <th>Post Title</th>
                                     <th>Status</th>
-                                    <th>Last AI Action</th>
+                                    <th>Last Alma Action</th>
                                     <th>Schema</th>
                                     <th>Score</th>
                                     <th>Actions</th>
@@ -284,7 +284,7 @@ function seo_playground_render_overview_page() {
                                 // Determine last AI action
                                 $last_ai_action = 'None';
                                 if (!empty($rewrite_data)) {
-                                    $last_ai_action = 'AI Rewrite';
+                                    $last_ai_action = 'Alma Rewrite';
                                 } elseif (!empty($keyword_suggestions)) {
                                     $last_ai_action = 'Keyword Suggestions';
                                 } elseif (!empty($seo_title) || !empty($seo_description)) {
@@ -461,7 +461,7 @@ function seo_playground_render_overview_page() {
                     </div>
                     <div class="almaseo-pro-teaser-text">
                         <h3>Unlock Advanced SEO Features with AlmaSEO Pro</h3>
-                        <p>Get access to <strong>LLM Optimization</strong> (optimize for ChatGPT & AI models), 301 Redirects, Bulk Meta Editor, WooCommerce SEO, Advanced Schema, 404 Monitoring, and more!</p>
+                        <p>Get access to <strong>LLM Optimization</strong> (optimize for ChatGPT & LLM-powered search), 301 Redirects, Bulk Meta Editor, WooCommerce SEO, Advanced Schema, 404 Monitoring, and more!</p>
                     </div>
                     <div class="almaseo-pro-teaser-action">
                         <a href="https://almaseo.com/pricing" target="_blank" class="almaseo-pro-upgrade-btn">

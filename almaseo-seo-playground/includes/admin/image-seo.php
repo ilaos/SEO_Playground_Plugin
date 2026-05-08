@@ -128,8 +128,8 @@ class AlmaSEO_Image_SEO {
             <p class="description"><?php esc_html_e( 'Automatically add alt text and title attributes to images that are missing them.', 'almaseo-seo-playground' ); ?></p>
             <?php if ( function_exists('seo_playground_is_alma_connected') && seo_playground_is_alma_connected() ) : ?>
             <p class="description" style="margin-top: 4px; padding: 6px 10px; background: linear-gradient(135deg, #f0f4ff, #f8f9ff); border-left: 3px solid #667eea; border-radius: 3px;">
-                <strong style="background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI Enhanced</strong> —
-                <?php esc_html_e( 'Your dashboard connection provides AI-generated alt text that understands image context.', 'almaseo-seo-playground' ); ?>
+                <strong style="background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Alma Enhanced</strong> —
+                <?php esc_html_e( 'Your dashboard connection provides Alma-generated alt text that understands image context.', 'almaseo-seo-playground' ); ?>
             </p>
             <?php endif; ?>
             <table class="form-table">

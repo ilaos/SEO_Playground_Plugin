@@ -540,16 +540,16 @@ function almaseo_eg_render_dashboard() {
                     <!-- AI Freshness Impact Panel -->
                     <div class="almaseo-eg-panel" style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
                         <h3 style="margin-top: 0; color: #1e293b; font-size: 16px;">
-                            <?php esc_html_e('AI Freshness Impact', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('Alma Freshness Impact', 'almaseo-seo-playground'); ?>
                         </h3>
                         <p class="description" style="margin-bottom: 20px;">
-                            <?php esc_html_e('How content clarity and AI-friendly signals affect your content health', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('How content clarity and LLM-friendly signals affect your content health', 'almaseo-seo-playground'); ?>
                         </p>
 
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 20px;">
                             <div style="background: #f8fafc; padding: 16px; border-radius: 6px; border: 1px solid #e2e8f0;">
                                 <div style="color: #64748b; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-                                    <?php esc_html_e('Average AI Freshness Score', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('Average Alma Freshness Score', 'almaseo-seo-playground'); ?>
                                 </div>
                                 <div style="font-size: 36px; font-weight: 700; color: #1e293b; margin-top: 8px;">
                                     <?php echo esc_html($advanced_summary['ai_freshness']['average']); ?>
@@ -567,7 +567,7 @@ function almaseo_eg_render_dashboard() {
                                     <?php echo esc_html($advanced_summary['ai_freshness']['below_threshold']); ?>
                                 </div>
                                 <div style="color: #92400e; font-size: 12px; margin-top: 4px;">
-                                    <?php esc_html_e('need AI optimization', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('need Alma optimization', 'almaseo-seo-playground'); ?>
                                 </div>
                             </div>
                         </div>
@@ -575,13 +575,13 @@ function almaseo_eg_render_dashboard() {
                         <?php if (!empty($advanced_summary['ai_freshness']['top_at_risk'])): ?>
                         <div>
                             <h4 style="margin: 16px 0 12px 0; color: #475569; font-size: 14px; font-weight: 600;">
-                                <?php esc_html_e('Top 5 Posts Needing AI Optimization', 'almaseo-seo-playground'); ?>
+                                <?php esc_html_e('Top 5 Posts Needing Alma Optimization', 'almaseo-seo-playground'); ?>
                             </h4>
                             <table class="wp-list-table widefat fixed striped" style="font-size: 13px;">
                                 <thead>
                                     <tr>
                                         <th><?php esc_html_e('Post', 'almaseo-seo-playground'); ?></th>
-                                        <th style="width: 120px;"><?php esc_html_e('AI Score', 'almaseo-seo-playground'); ?></th>
+                                        <th style="width: 120px;"><?php esc_html_e('Alma Score', 'almaseo-seo-playground'); ?></th>
                                         <th style="width: 120px;"><?php esc_html_e('Risk', 'almaseo-seo-playground'); ?></th>
                                     </tr>
                                 </thead>

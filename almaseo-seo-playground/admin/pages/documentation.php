@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
             <?php esc_html_e( 'AlmaSEO SEO Playground ships 39 free features — everything Yoast, Rank Math, and AIOSEO offer for free, combined in one plugin.', 'almaseo-seo-playground' ); ?>
         </p>
         <p class="almaseo-docs-intro-desc">
-            <?php esc_html_e( 'Browse the categories below to learn what each feature does and where to find it. Use the search bar to quickly locate any feature. Features marked "AI Enhanced" gain additional capabilities when connected to the AlmaSEO cloud dashboard.', 'almaseo-seo-playground' ); ?>
+            <?php esc_html_e( 'Browse the categories below to learn what each feature does and where to find it. Use the search bar to quickly locate any feature. Features marked "Alma Enhanced" gain additional capabilities when connected to the AlmaSEO cloud dashboard.', 'almaseo-seo-playground' ); ?>
         </p>
     </div>
 
@@ -48,7 +48,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
             <li><a href="#cat-content"><?php esc_html_e( 'Content Tools', 'almaseo-seo-playground' ); ?></a> <span class="almaseo-docs-toc-count">(7)</span></li>
             <li><a href="#cat-management"><?php esc_html_e( 'Site Management', 'almaseo-seo-playground' ); ?></a> <span class="almaseo-docs-toc-count">(7)</span></li>
             <li><a href="#cat-blocks"><?php esc_html_e( 'Block Editor Enhancements', 'almaseo-seo-playground' ); ?></a> <span class="almaseo-docs-toc-count">(2)</span></li>
-            <li><a href="#cat-dashboard"><?php esc_html_e( 'AI-Powered Dashboard Enhancements', 'almaseo-seo-playground' ); ?></a></li>
+            <li><a href="#cat-dashboard"><?php esc_html_e( 'Alma-Powered Dashboard Enhancements', 'almaseo-seo-playground' ); ?></a></li>
             <li><a href="#cat-pro"><?php esc_html_e( 'Pro Features', 'almaseo-seo-playground' ); ?></a></li>
         </ol>
     </div>
@@ -77,7 +77,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                     <li><?php esc_html_e( 'Meta title with character counter (60 characters recommended)', 'almaseo-seo-playground' ); ?></li>
                     <li><?php esc_html_e( 'Meta description with length indicator (150-160 characters)', 'almaseo-seo-playground' ); ?></li>
                     <li><?php esc_html_e( 'Google SERP preview showing how your page appears in search results (desktop and mobile)', 'almaseo-seo-playground' ); ?></li>
-                    <li><?php esc_html_e( 'Tabs: SEO Page Health, Search Console, Schema & Meta, AI Tools, LLM Optimization, Notes & History', 'almaseo-seo-playground' ); ?></li>
+                    <li><?php esc_html_e( 'Tabs: SEO Page Health, Search Console, Schema & Meta, Alma Tools, LLM Optimization, Notes & History', 'almaseo-seo-playground' ); ?></li>
                 </ul>
             </div>
 
@@ -156,7 +156,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                 <div class="almaseo-docs-feature-header">
                     <h3><?php esc_html_e( 'Headline Analyzer', 'almaseo-seo-playground' ); ?></h3>
                     <span class="almaseo-docs-location"><?php esc_html_e( 'Post Editor — SEO Page Health Tab', 'almaseo-seo-playground' ); ?></span>
-                    <span class="almaseo-docs-tier almaseo-docs-tier-ai"><?php esc_html_e( 'Free + AI Enhanced', 'almaseo-seo-playground' ); ?></span>
+                    <span class="almaseo-docs-tier almaseo-docs-tier-ai"><?php esc_html_e( 'Free + Alma Enhanced', 'almaseo-seo-playground' ); ?></span>
                 </div>
                 <p class="almaseo-docs-feature-desc"><?php esc_html_e( 'Real-time headline scoring from 0-100 with instant feedback as you type. Analyzes the characteristics that make headlines perform well in search results and social media.', 'almaseo-seo-playground' ); ?></p>
                 <ul class="almaseo-docs-feature-details">
@@ -164,7 +164,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                     <li><?php esc_html_e( 'Power word and emotional word detection', 'almaseo-seo-playground' ); ?></li>
                     <li><?php esc_html_e( 'Number and question format bonuses', 'almaseo-seo-playground' ); ?></li>
                     <li><?php esc_html_e( 'Character length optimization', 'almaseo-seo-playground' ); ?></li>
-                    <li><?php esc_html_e( 'AI Enhanced: CTR prediction, emotional impact analysis, competitor headline comparison, AI rewrite suggestions', 'almaseo-seo-playground' ); ?></li>
+                    <li><?php esc_html_e( 'Alma Enhanced: CTR prediction, emotional impact analysis, competitor headline comparison, rewrite suggestions', 'almaseo-seo-playground' ); ?></li>
                 </ul>
             </div>
 
@@ -173,7 +173,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                 <div class="almaseo-docs-feature-header">
                     <h3><?php esc_html_e( 'Enhanced Readability Analysis', 'almaseo-seo-playground' ); ?></h3>
                     <span class="almaseo-docs-location"><?php esc_html_e( 'Post Editor — SEO Page Health Tab', 'almaseo-seo-playground' ); ?></span>
-                    <span class="almaseo-docs-tier almaseo-docs-tier-ai"><?php esc_html_e( 'Free + AI Enhanced', 'almaseo-seo-playground' ); ?></span>
+                    <span class="almaseo-docs-tier almaseo-docs-tier-ai"><?php esc_html_e( 'Free + Alma Enhanced', 'almaseo-seo-playground' ); ?></span>
                 </div>
                 <p class="almaseo-docs-feature-desc"><?php esc_html_e( 'Comprehensive readability breakdown that helps you write content your audience can easily understand. Provides specific, actionable feedback on writing quality.', 'almaseo-seo-playground' ); ?></p>
                 <ul class="almaseo-docs-feature-details">
@@ -182,7 +182,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                     <li><?php esc_html_e( 'Transition word usage analysis', 'almaseo-seo-playground' ); ?></li>
                     <li><?php esc_html_e( 'Subheading distribution check (one per 300 words)', 'almaseo-seo-playground' ); ?></li>
                     <li><?php esc_html_e( 'Sentence length analysis (flags sentences over 20 words)', 'almaseo-seo-playground' ); ?></li>
-                    <li><?php esc_html_e( 'AI Enhanced: SERP competitor readability benchmarks, per-paragraph improvement suggestions', 'almaseo-seo-playground' ); ?></li>
+                    <li><?php esc_html_e( 'Alma Enhanced: SERP competitor readability benchmarks, per-paragraph improvement suggestions', 'almaseo-seo-playground' ); ?></li>
                 </ul>
             </div>
 
@@ -482,14 +482,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                 <div class="almaseo-docs-feature-header">
                     <h3><?php esc_html_e( 'Cornerstone Content', 'almaseo-seo-playground' ); ?></h3>
                     <span class="almaseo-docs-location"><?php esc_html_e( 'Posts/Pages List + Editor', 'almaseo-seo-playground' ); ?></span>
-                    <span class="almaseo-docs-tier almaseo-docs-tier-ai"><?php esc_html_e( 'Free + AI Enhanced', 'almaseo-seo-playground' ); ?></span>
+                    <span class="almaseo-docs-tier almaseo-docs-tier-ai"><?php esc_html_e( 'Free + Alma Enhanced', 'almaseo-seo-playground' ); ?></span>
                 </div>
                 <p class="almaseo-docs-feature-desc"><?php esc_html_e( 'Mark your most important content as "cornerstone" so you can focus your internal linking and optimization efforts on the pages that matter most.', 'almaseo-seo-playground' ); ?></p>
                 <ul class="almaseo-docs-feature-details">
                     <li><?php esc_html_e( 'Star icon column in posts/pages list table', 'almaseo-seo-playground' ); ?></li>
                     <li><?php esc_html_e( 'Quick Edit checkbox support', 'almaseo-seo-playground' ); ?></li>
                     <li><?php esc_html_e( 'Sortable and filterable (Cornerstone Only / Non-Cornerstone)', 'almaseo-seo-playground' ); ?></li>
-                    <li><?php esc_html_e( 'AI Enhanced: Dashboard auto-suggests cornerstone posts based on traffic, backlinks, word count, and internal link analysis', 'almaseo-seo-playground' ); ?></li>
+                    <li><?php esc_html_e( 'Alma Enhanced: Dashboard auto-suggests cornerstone posts based on traffic, backlinks, word count, and internal link analysis', 'almaseo-seo-playground' ); ?></li>
                 </ul>
             </div>
 
@@ -498,14 +498,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                 <div class="almaseo-docs-feature-header">
                     <h3><?php esc_html_e( 'Image SEO (Auto Alt/Title)', 'almaseo-seo-playground' ); ?></h3>
                     <span class="almaseo-docs-location"><?php esc_html_e( 'Settings Page + Frontend', 'almaseo-seo-playground' ); ?></span>
-                    <span class="almaseo-docs-tier almaseo-docs-tier-ai"><?php esc_html_e( 'Free + AI Enhanced', 'almaseo-seo-playground' ); ?></span>
+                    <span class="almaseo-docs-tier almaseo-docs-tier-ai"><?php esc_html_e( 'Free + Alma Enhanced', 'almaseo-seo-playground' ); ?></span>
                 </div>
                 <p class="almaseo-docs-feature-desc"><?php esc_html_e( 'Automatically adds missing alt text and title attributes to images throughout your site. Uses customizable templates with smart tags.', 'almaseo-seo-playground' ); ?></p>
                 <ul class="almaseo-docs-feature-details">
                     <li><?php esc_html_e( 'Template tags: %%filename%%, %%sitename%%, %%post_title%%', 'almaseo-seo-playground' ); ?></li>
                     <li><?php esc_html_e( 'Strip file extension from filename when generating text', 'almaseo-seo-playground' ); ?></li>
                     <li><?php esc_html_e( 'Optional override of existing alt text', 'almaseo-seo-playground' ); ?></li>
-                    <li><?php esc_html_e( 'AI Enhanced: Context-aware AI-generated alt text with confidence scores and decorative image detection', 'almaseo-seo-playground' ); ?></li>
+                    <li><?php esc_html_e( 'Alma Enhanced: Context-aware Alma-generated alt text with confidence scores and decorative image detection', 'almaseo-seo-playground' ); ?></li>
                 </ul>
             </div>
 
@@ -529,7 +529,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                     <span class="almaseo-docs-location"><?php esc_html_e( 'SEO Playground → LLMs.txt', 'almaseo-seo-playground' ); ?></span>
                     <span class="almaseo-docs-tier almaseo-docs-tier-free"><?php esc_html_e( 'Free', 'almaseo-seo-playground' ); ?></span>
                 </div>
-                <p class="almaseo-docs-feature-desc"><?php esc_html_e( 'Create and manage a /llms.txt file that provides guidance to AI crawlers about how your content should be used by large language models. Similar to robots.txt but for AI.', 'almaseo-seo-playground' ); ?></p>
+                <p class="almaseo-docs-feature-desc"><?php esc_html_e( 'Create and manage a /llms.txt file that provides guidance to LLM crawlers about how your content should be used by large language models. Similar to robots.txt but for LLMs.', 'almaseo-seo-playground' ); ?></p>
                 <ul class="almaseo-docs-feature-details">
                     <li><?php esc_html_e( 'Template with sensible defaults', 'almaseo-seo-playground' ); ?></li>
                     <li><?php esc_html_e( 'Virtual file served via WordPress rewrite (no physical file)', 'almaseo-seo-playground' ); ?></li>
@@ -616,13 +616,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                 <div class="almaseo-docs-feature-header">
                     <h3><?php esc_html_e( 'Google Keyword Suggestions', 'almaseo-seo-playground' ); ?></h3>
                     <span class="almaseo-docs-location"><?php esc_html_e( 'Post Editor — Focus Keyword Field', 'almaseo-seo-playground' ); ?></span>
-                    <span class="almaseo-docs-tier almaseo-docs-tier-ai"><?php esc_html_e( 'Free + AI Enhanced', 'almaseo-seo-playground' ); ?></span>
+                    <span class="almaseo-docs-tier almaseo-docs-tier-ai"><?php esc_html_e( 'Free + Alma Enhanced', 'almaseo-seo-playground' ); ?></span>
                 </div>
                 <p class="almaseo-docs-feature-desc"><?php esc_html_e( 'As you type your focus keyword, get real-time suggestions from Google\'s autocomplete API. Shows what people are actually searching for related to your topic.', 'almaseo-seo-playground' ); ?></p>
                 <ul class="almaseo-docs-feature-details">
                     <li><?php esc_html_e( 'Debounced input with arrow key navigation', 'almaseo-seo-playground' ); ?></li>
                     <li><?php esc_html_e( '1-hour server-side caching for performance', 'almaseo-seo-playground' ); ?></li>
-                    <li><?php esc_html_e( 'AI Enhanced: AI keyword insights panel with search volume, competition, intent classification, and trend direction', 'almaseo-seo-playground' ); ?></li>
+                    <li><?php esc_html_e( 'Alma Enhanced: Alma keyword insights panel with search volume, competition, intent classification, and trend direction', 'almaseo-seo-playground' ); ?></li>
                 </ul>
             </div>
 
@@ -689,31 +689,31 @@ if ( ! defined( 'ABSPATH' ) ) exit;
     <!-- AI Dashboard Enhancements (informational section)           -->
     <!-- ════════════════════════════════════════════════════════════ -->
     <div class="almaseo-docs-info-section" id="cat-dashboard">
-        <h2><?php esc_html_e( 'AI-Powered Dashboard Enhancements', 'almaseo-seo-playground' ); ?></h2>
-        <p><?php esc_html_e( 'When connected to the AlmaSEO cloud dashboard, 5 free features gain AI capabilities that no other SEO plugin offers. All features work fully without the dashboard — the AI layer is a free bonus for connected sites.', 'almaseo-seo-playground' ); ?></p>
+        <h2><?php esc_html_e( 'Alma-Powered Dashboard Enhancements', 'almaseo-seo-playground' ); ?></h2>
+        <p><?php esc_html_e( 'When connected to the AlmaSEO cloud dashboard, 5 free features gain Alma-powered capabilities that no other SEO plugin offers. All features work fully without the dashboard — the Alma layer is a free bonus for connected sites.', 'almaseo-seo-playground' ); ?></p>
         <table class="almaseo-docs-table">
             <thead>
                 <tr>
                     <th><?php esc_html_e( 'Feature', 'almaseo-seo-playground' ); ?></th>
-                    <th><?php esc_html_e( 'AI Enhancement', 'almaseo-seo-playground' ); ?></th>
+                    <th><?php esc_html_e( 'Alma Enhancement', 'almaseo-seo-playground' ); ?></th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     <td><?php esc_html_e( 'Keyword Suggestions', 'almaseo-seo-playground' ); ?></td>
-                    <td><?php esc_html_e( 'AI keywords with search volume, competition level, search intent classification, and trend direction', 'almaseo-seo-playground' ); ?></td>
+                    <td><?php esc_html_e( 'Alma keywords with search volume, competition level, search intent classification, and trend direction', 'almaseo-seo-playground' ); ?></td>
                 </tr>
                 <tr>
                     <td><?php esc_html_e( 'Headline Analyzer', 'almaseo-seo-playground' ); ?></td>
-                    <td><?php esc_html_e( 'CTR prediction, emotional impact analysis, competitor headline comparison, AI rewrite suggestions', 'almaseo-seo-playground' ); ?></td>
+                    <td><?php esc_html_e( 'CTR prediction, emotional impact analysis, competitor headline comparison, rewrite suggestions', 'almaseo-seo-playground' ); ?></td>
                 </tr>
                 <tr>
                     <td><?php esc_html_e( 'Readability Analysis', 'almaseo-seo-playground' ); ?></td>
-                    <td><?php esc_html_e( 'SERP competitor readability benchmarks, per-paragraph AI improvement suggestions', 'almaseo-seo-playground' ); ?></td>
+                    <td><?php esc_html_e( 'SERP competitor readability benchmarks, per-paragraph Alma improvement suggestions', 'almaseo-seo-playground' ); ?></td>
                 </tr>
                 <tr>
                     <td><?php esc_html_e( 'Image SEO', 'almaseo-seo-playground' ); ?></td>
-                    <td><?php esc_html_e( 'Context-aware AI-generated alt text with confidence scores and decorative image detection', 'almaseo-seo-playground' ); ?></td>
+                    <td><?php esc_html_e( 'Context-aware Alma-generated alt text with confidence scores and decorative image detection', 'almaseo-seo-playground' ); ?></td>
                 </tr>
                 <tr>
                     <td><?php esc_html_e( 'Cornerstone Content', 'almaseo-seo-playground' ); ?></td>
@@ -744,7 +744,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                 </tr>
                 <tr>
                     <td><?php esc_html_e( 'Content Refresh Drafts', 'almaseo-seo-playground' ); ?></td>
-                    <td><?php esc_html_e( 'AI-powered content refresh with side-by-side diff review and selective merge', 'almaseo-seo-playground' ); ?></td>
+                    <td><?php esc_html_e( 'Alma-powered content refresh with side-by-side diff review and selective merge', 'almaseo-seo-playground' ); ?></td>
                 </tr>
                 <tr>
                     <td><?php esc_html_e( 'Refresh Queue', 'almaseo-seo-playground' ); ?></td>

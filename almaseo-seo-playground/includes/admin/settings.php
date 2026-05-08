@@ -324,7 +324,7 @@ class AlmaSEO_Settings {
         <div class="wrap almaseo-settings-wrap">
             <h1><?php esc_html_e('AlmaSEO Settings', 'almaseo-seo-playground'); ?></h1>
             <p class="description" style="margin-bottom: 20px; font-size: 14px;">
-                <?php esc_html_e('AlmaSEO is built for both search engines and AI models (LLMs), with a dedicated LLM Optimization panel in the editor.', 'almaseo-seo-playground'); ?>
+                <?php esc_html_e('AlmaSEO is built for both search engines and large language models (LLMs), with a dedicated LLM Optimization panel in the editor.', 'almaseo-seo-playground'); ?>
             </p>
 
             <form method="post" action="options.php">
@@ -561,7 +561,7 @@ class AlmaSEO_Settings {
                 <div class="almaseo-settings-section" style="margin-top: 40px; padding-top: 40px; border-top: 2px solid #e5e7eb;">
                     <h2><?php esc_html_e('Evergreen (Advanced)', 'almaseo-seo-playground'); ?></h2>
                     <p class="description" style="margin-bottom: 20px;">
-                        <?php esc_html_e('Advanced content freshness analysis with AI-powered scoring, traffic trend integration, and intelligent refresh prioritization.', 'almaseo-seo-playground'); ?>
+                        <?php esc_html_e('Advanced content freshness analysis with Alma-powered scoring, traffic trend integration, and intelligent refresh prioritization.', 'almaseo-seo-playground'); ?>
                     </p>
 
                     <?php if (!almaseo_feature_available('evergreen_advanced')): ?>
@@ -572,7 +572,7 @@ class AlmaSEO_Settings {
                                 <?php esc_html_e('Evergreen Advanced Features', 'almaseo-seo-playground'); ?>
                             </h3>
                             <p style="margin: 0 0 16px 0; color: #475569; max-width: 600px; margin-left: auto; margin-right: auto;">
-                                <?php esc_html_e('Unlock advanced freshness scoring, AI-powered prioritization, traffic trend analysis, and intelligent refresh matrices. Available in Pro and Agency tiers.', 'almaseo-seo-playground'); ?>
+                                <?php esc_html_e('Unlock advanced freshness scoring, Alma-powered prioritization, traffic trend analysis, and intelligent refresh matrices. Available in Pro and Agency tiers.', 'almaseo-seo-playground'); ?>
                             </p>
                             <a href="https://almaseo.com/pricing" target="_blank" class="button button-primary" style="background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%); border: none; box-shadow: 0 4px 6px rgba(99, 102, 241, 0.25); text-shadow: none;">
                                 <?php esc_html_e('Upgrade to Pro', 'almaseo-seo-playground'); ?>
@@ -608,7 +608,7 @@ class AlmaSEO_Settings {
                                         <?php esc_html_e('Enable advanced freshness scoring and prioritization', 'almaseo-seo-playground'); ?>
                                     </label>
                                     <p class="description">
-                                        <?php esc_html_e('When enabled, posts will be scored based on AI freshness, traffic trends, and content age for intelligent refresh prioritization.', 'almaseo-seo-playground'); ?>
+                                        <?php esc_html_e('When enabled, posts will be scored based on Alma freshness, traffic trends, and content age for intelligent refresh prioritization.', 'almaseo-seo-playground'); ?>
                                     </p>
                                 </td>
                             </tr>
@@ -620,7 +620,7 @@ class AlmaSEO_Settings {
                                 <td>
                                     <div style="margin-bottom: 16px;">
                                         <label style="display: block; margin-bottom: 6px; font-weight: 500;">
-                                            <?php esc_html_e('AI Freshness Weight (%)', 'almaseo-seo-playground'); ?>
+                                            <?php esc_html_e('Alma Freshness Weight (%)', 'almaseo-seo-playground'); ?>
                                         </label>
                                         <input type="number"
                                                name="almaseo_evergreen_advanced_settings[ai_freshness_weight]"
@@ -629,7 +629,7 @@ class AlmaSEO_Settings {
                                                max="100"
                                                class="small-text">
                                         <p class="description">
-                                            <?php esc_html_e('Weight for AI-detected freshness signals (0-100). Higher = more emphasis on content clarity and AI understanding.', 'almaseo-seo-playground'); ?>
+                                            <?php esc_html_e('Weight for Alma-detected freshness signals (0-100). Higher = more emphasis on content clarity and LLM understanding.', 'almaseo-seo-playground'); ?>
                                         </p>
                                     </div>
 

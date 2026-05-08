@@ -872,7 +872,7 @@
         async runAutofill(ids, overwrite = false) {
             const $status = $('#autofill-status');
             const useAi = typeof almaseoAutofillAi !== 'undefined' && almaseoAutofillAi;
-            const modeLabel = useAi ? 'AI-generating' : 'Generating';
+            const modeLabel = useAi ? 'Alma-generating' : 'Generating';
 
             $status.html('<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite;font-size:14px;vertical-align:middle;"></span> ' + modeLabel + ' metadata...').css('color', '#2271b1');
             $('#autofill-selected, #autofill-all-empty, #autofill-preview').prop('disabled', true);
@@ -889,7 +889,7 @@
                     }
                 });
 
-                const aiTag = result.ai_used ? ' (AI)' : '';
+                const aiTag = result.ai_used ? ' (Alma)' : '';
                 const msg = `Auto-filled ${result.success} post(s)${aiTag}` +
                     (result.skipped ? `, ${result.skipped} skipped` : '') +
                     (result.failed ? `, ${result.failed} failed` : '');
@@ -991,7 +991,7 @@
                     if (result.ai_used) aiWasUsed = true;
                 }
 
-                const aiTag = aiWasUsed ? ' (AI)' : '';
+                const aiTag = aiWasUsed ? ' (Alma)' : '';
                 const msg = `Done! Auto-filled ${totalSuccess} post(s)${aiTag}` +
                     (totalFailed ? `, ${totalFailed} failed` : '');
 
@@ -1077,7 +1077,7 @@
                     if (result.ai_used) aiWasUsed = true;
                 }
 
-                const aiTag = aiWasUsed ? ' (AI)' : '';
+                const aiTag = aiWasUsed ? ' (Alma)' : '';
                 const msg = `Done! Regenerated metadata for ${totalSuccess} post(s)${aiTag}` +
                     (totalFailed ? `, ${totalFailed} failed` : '');
 

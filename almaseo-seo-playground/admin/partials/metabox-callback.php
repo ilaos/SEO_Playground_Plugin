@@ -168,9 +168,9 @@ function almaseo_enqueue_seo_playground_styles() {
             'siteUrl' => get_site_url(),
             'postId' => get_the_ID() ?: 0,
             'strings' => array(
-                'unlockMessage' => '🔒 Unlock AI suggestions and automated insights by connecting to your AlmaSEO account.',
+                'unlockMessage' => '🔒 Unlock smart suggestions and automated insights by connecting to your AlmaSEO account.',
                 'connectButton' => 'Connect to AlmaSEO',
-                'connectedMessage' => '✅ Connected to AlmaSEO - AI features are available!'
+                'connectedMessage' => '✅ Connected to AlmaSEO — premium features are available.'
             )
         ));
     }
@@ -190,8 +190,8 @@ function almaseo_render_llm_optimization_panel($post) {
     ?>
     <div class="almaseo-llm-panel" data-post-id="<?php echo esc_attr($post->ID); ?>" data-is-pro-llm="<?php echo esc_attr($is_pro ? '1' : '0'); ?>">
         <div class="almaseo-llm-header">
-            <h2>AI Readiness Analysis</h2>
-            <p>See how AI systems like ChatGPT, Gemini, and Google AI Overviews understand this page — and what to improve.</p>
+            <h2>LLM Readiness Analysis</h2>
+            <p>See how LLM systems like ChatGPT, Gemini, and Google AI Overviews understand this page — and what to improve.</p>
         </div>
 
         <?php if (!$is_connected): ?>
@@ -199,15 +199,15 @@ function almaseo_render_llm_optimization_panel($post) {
                 <span class="dashicons dashicons-warning"></span>
                 <div>
                     <strong>Connect to AlmaSEO for Enhanced Analysis</strong>
-                    <p>Get deeper insights powered by our AI engine. <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>">Connect now &rarr;</a></p>
+                    <p>Get deeper insights powered by our Alma engine. <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>">Connect now &rarr;</a></p>
                 </div>
             </div>
         <?php endif; ?>
 
-        <!-- 1. AI Readiness Snapshot (scores at the top) -->
+        <!-- 1. LLM Readiness Snapshot (scores at the top) -->
         <?php if ($is_pro): ?>
         <div class="almaseo-llm-card almaseo-llm-card-highlight" data-section="scores">
-            <h3><span class="dashicons dashicons-chart-area"></span> AI Readiness Snapshot</h3>
+            <h3><span class="dashicons dashicons-chart-area"></span> LLM Readiness Snapshot</h3>
             <div class="almaseo-llm-scores almaseo-llm-loading">
                 <div class="almaseo-llm-spinner"></div>
                 <span>Calculating scores...</span>
@@ -218,11 +218,11 @@ function almaseo_render_llm_optimization_panel($post) {
             <div class="almaseo-llm-lock-icon">
                 <span class="dashicons dashicons-lock"></span>
             </div>
-            <h3>AI Readiness Snapshot</h3>
-            <p class="almaseo-llm-lock-subtitle">Pro unlocks AI readiness scoring so you can measure how well AI systems can use your content.</p>
+            <h3>LLM Readiness Snapshot</h3>
+            <p class="almaseo-llm-lock-subtitle">Pro unlocks LLM readiness scoring so you can measure how well LLM systems can use your content.</p>
             <ul class="almaseo-llm-lock-features">
-                <li><span class="dashicons dashicons-yes"></span> <strong>AI Readiness Score (0-100)</strong></li>
-                <li><span class="dashicons dashicons-yes"></span> <strong>Answer Strength Score</strong> — how usable this page is as an AI source</li>
+                <li><span class="dashicons dashicons-yes"></span> <strong>LLM Readiness Score (0-100)</strong></li>
+                <li><span class="dashicons dashicons-yes"></span> <strong>Answer Strength Score</strong> — how usable this page is as an LLM source</li>
                 <li><span class="dashicons dashicons-yes"></span> <strong>Score explanations</strong> showing exactly what to fix</li>
                 <li><span class="dashicons dashicons-yes"></span> <strong>Schema &amp; internal link suggestions</strong></li>
             </ul>
@@ -244,7 +244,7 @@ function almaseo_render_llm_optimization_panel($post) {
         <!-- 3. Summary Preview with style selector -->
         <div class="almaseo-llm-card" data-section="summary">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
-                <h3 style="margin: 0;"><span class="dashicons dashicons-media-document"></span> AI Summary Preview</h3>
+                <h3 style="margin: 0;"><span class="dashicons dashicons-media-document"></span> LLM Summary Preview</h3>
                 <select id="almaseo-llm-summary-style" class="almaseo-llm-style-dropdown" style="min-width: 140px;">
                     <option value="concise">Concise</option>
                     <option value="detailed">Detailed</option>
@@ -253,7 +253,7 @@ function almaseo_render_llm_optimization_panel($post) {
                     <option value="creative">Creative</option>
                     <option value="academic">Academic</option>
                     <option value="qa" <?php echo esc_attr(!$is_pro ? 'disabled' : ''); ?>>Q&A Format <?php echo esc_html(!$is_pro ? '(Pro)' : ''); ?></option>
-                    <option value="ai_answer" <?php echo esc_attr(!$is_pro ? 'disabled' : ''); ?>>AI Answer <?php echo esc_html(!$is_pro ? '(Pro)' : ''); ?></option>
+                    <option value="ai_answer" <?php echo esc_attr(!$is_pro ? 'disabled' : ''); ?>>LLM Answer <?php echo esc_html(!$is_pro ? '(Pro)' : ''); ?></option>
                 </select>
             </div>
             <div class="almaseo-llm-summary-text almaseo-llm-loading">
@@ -266,7 +266,7 @@ function almaseo_render_llm_optimization_panel($post) {
         <div class="almaseo-llm-sections-container" style="display:none;">
             <div class="almaseo-llm-card">
                 <h3><span class="dashicons dashicons-editor-alignleft"></span> Section Breakdown</h3>
-                <p class="description">How each section of your content performs for AI understanding.</p>
+                <p class="description">How each section of your content performs for LLM understanding.</p>
                 <div class="almaseo-llm-sections-list">
                     <!-- Populated by JavaScript -->
                 </div>
@@ -391,7 +391,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 </button>
                 <button type="button" class="almaseo-tab-btn" data-tab="ai-tools">
                     <span class="tab-icon">✨</span>
-                    <span class="tab-label">AI Tools</span>
+                    <span class="tab-label">Alma Tools</span>
                 </button>
                 <button type="button" class="almaseo-tab-btn" data-tab="llm-optimization">
                     <span class="tab-icon">🤖</span>
@@ -553,7 +553,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         <span style="background: #7c3aed; color: #fff; font-size: 8px; padding: 1px 4px; border-radius: 6px; margin-left: 3px; font-weight: 700; letter-spacing: 0.5px; vertical-align: middle;">PRO</span>
                         <?php endif; ?>
                     </button>
-                    <span style="font-style: italic; color: #666;"><?php echo $ai_autofill_available ? esc_html__('AI reads your content and writes a click-worthy title', 'almaseo-seo-playground') : esc_html__('Generate an SEO-optimized title from your content', 'almaseo-seo-playground'); ?></span>
+                    <span style="font-style: italic; color: #666;"><?php echo $ai_autofill_available ? esc_html__('Alma reads your content and writes a click-worthy title', 'almaseo-seo-playground') : esc_html__('Generate an SEO-optimized title from your content', 'almaseo-seo-playground'); ?></span>
                 </p>
 
                 <!-- Headline Analyzer -->
@@ -737,7 +737,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         <span style="background: #7c3aed; color: #fff; font-size: 8px; padding: 1px 4px; border-radius: 6px; margin-left: 3px; font-weight: 700; letter-spacing: 0.5px; vertical-align: middle;">PRO</span>
                         <?php endif; ?>
                     </button>
-                    <span style="font-style: italic; color: #666;"><?php echo $ai_autofill_available ? esc_html__('AI writes a compelling 155-char description from your content', 'almaseo-seo-playground') : esc_html__('Generate from your page content', 'almaseo-seo-playground'); ?></span>
+                    <span style="font-style: italic; color: #666;"><?php echo $ai_autofill_available ? esc_html__('Alma writes a compelling 155-char description from your content', 'almaseo-seo-playground') : esc_html__('Generate from your page content', 'almaseo-seo-playground'); ?></span>
                 </p>
             </div>
 
@@ -2180,7 +2180,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         $cs_reason = get_post_meta( $post->ID, '_almaseo_cornerstone_reason', true );
                     ?>
                     <div style="margin-top: 8px; padding: 8px 12px; background: linear-gradient(135deg, #f0f4ff 0%, #f8f9ff 100%); border: 1px solid #d0d5ff; border-radius: 4px; font-size: 12px;">
-                        <span style="font-weight: 600; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI</span>
+                        <span style="font-weight: 600; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Alma</span>
                         <?php
                         /* translators: %s: cornerstone confidence score wrapped in <strong> */
                         echo wp_kses( sprintf( __( 'AlmaSEO suggests marking this as cornerstone content (score: %s/100).', 'almaseo-seo-playground' ), '<strong>' . intval( $cs_score ) . '</strong>' ), array( 'strong' => array() ) ); ?>
@@ -3856,7 +3856,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
             <!-- AI Tools — Coming Soon (all tiers see the same view) -->
             <div class="almaseo-ai-upsell-screen">
                 <div class="upsell-hero">
-                    <h2>AI-Powered SEO Tools</h2>
+                    <h2>Alma-Powered SEO Tools</h2>
                     <p class="upsell-subtitle">
                         These tools are in active development. When ready, they’ll help you optimize content directly from the editor.
                     </p>
@@ -3865,21 +3865,21 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 <div class="locked-features-grid">
                     <div class="locked-feature">
                         <div class="feature-icon">🕐</div>
-                        <h3>✏️ AI Rewrite</h3>
+                        <h3>✏️ Alma Rewrite</h3>
                         <p>Rewrite and improve your content in different tones — professional, casual, friendly, and more.</p>
                         <span class="feature-badge" style="background: #f0f6ff; color: #2271b1;">Coming Soon</span>
                     </div>
 
                     <div class="locked-feature">
                         <div class="feature-icon">🕐</div>
-                        <h3>💡 AI Title Generator</h3>
+                        <h3>💡 Alma Title Generator</h3>
                         <p>Generate SEO-optimized title suggestions based on your post content.</p>
                         <span class="feature-badge" style="background: #f0f6ff; color: #2271b1;">Coming Soon</span>
                     </div>
 
                     <div class="locked-feature">
                         <div class="feature-icon">🕐</div>
-                        <h3>📝 AI Meta Description Generator</h3>
+                        <h3>📝 Alma Meta Description Generator</h3>
                         <p>Create optimized meta descriptions constrained to the ideal 155–160 character length.</p>
                         <span class="feature-badge" style="background: #f0f6ff; color: #2271b1;">Coming Soon</span>
                     </div>
@@ -3892,7 +3892,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         <li>✅ <strong>Instant Setup</strong> – Connect in less than 60 seconds</li>
                         <li>✅ <strong>Full SEO Toolkit</strong> – Schema markup, sitemaps, meta management, and health scoring included free</li>
                         <li>✅ <strong>Content Publishing</strong> – Publish articles directly from the AlmaSEO dashboard to your site</li>
-                        <li>✅ <strong>AI Tools on the Roadmap</strong> – Rewrite, title, and meta description generators are in active development</li>
+                        <li>✅ <strong>Alma Tools on the Roadmap</strong> – Rewrite, title, and meta description generators are in active development</li>
                     </ul>
                 </div>
 
@@ -4069,7 +4069,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 <span class="gradient-text">Supercharge Your Website with AlmaSEO Dashboard + Plugin</span>
                             </h1>
                             <p class="hero-description">
-                                AlmaSEO isn't just an AI toolkit — it's your SEO command center. Write high-authority blog posts, landing pages, and articles with a click, and publish them instantly to WordPress. Then manage, optimize, and track everything from your AlmaSEO dashboard.
+                                AlmaSEO isn't just a smart toolkit — it's your SEO command center. Write high-authority blog posts, landing pages, and articles with a click, and publish them instantly to WordPress. Then manage, optimize, and track everything from your AlmaSEO dashboard.
                             </p>
                             <div class="hero-cta-group">
                                 <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>" class="hero-cta-primary">
@@ -4110,7 +4110,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 
                 <!-- 2x3 Locked Features Grid -->
                 <div class="unlock-features-section">
-                    <h2 class="section-title">Premium AI Features Waiting for You</h2>
+                    <h2 class="section-title">Premium AlmaSEO Features Waiting for You</h2>
                     
                     <!-- Dashboard Superpowers Row -->
                     <div class="row-label">Dashboard Superpowers</div>
@@ -4209,7 +4209,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             <div class="feature-icon-wrapper">
                                 <span class="feature-icon">📝</span>
                             </div>
-                            <h3 class="feature-title">Meta Description AI</h3>
+                            <h3 class="feature-title">Meta Description Generator</h3>
                             <p class="feature-benefit">Generate compelling descriptions that increase clicks and improve search visibility.</p>
                             <div class="feature-stats">
                                 <span class="stat-item">Perfect length</span>
@@ -4283,7 +4283,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         <div class="benefit-item">
                             <div class="benefit-icon">🚀</div>
                             <div class="benefit-content">
-                                <h3>Instant AI Access</h3>
+                                <h3>Instant Alma Access</h3>
                                 <p>Connect in 60 seconds and start optimizing immediately. No complex setup, no technical knowledge required.</p>
                             </div>
                         </div>
@@ -4311,7 +4311,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             <span class="quote-mark">"</span>
                             <p class="testimonial-text">
                                 AlmaSEO transformed our content strategy completely. We went from page 5 to the first page 
-                                for our main keywords in just 6 weeks. The AI tools save us hours every day and the results 
+                                for our main keywords in just 6 weeks. The Alma tools save us hours every day and the results
                                 speak for themselves - our organic traffic is up 312%!
                             </p>
                         </div>
@@ -4492,7 +4492,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
             var $summary = $('.almaseo-llm-summary-text');
             $summary.removeClass('almaseo-llm-loading');
             if (data.summary) {
-                var summaryHtml = '<p class="almaseo-llm-summary-context">This is roughly how AI systems may interpret and summarize your page:</p>';
+                var summaryHtml = '<p class="almaseo-llm-summary-context">This is roughly how LLM systems may interpret and summarize your page:</p>';
                 summaryHtml += '<div class="almaseo-llm-summary-excerpt">' + escapeHtml(data.summary) + '</div>';
 
                 // Conditional warning if signals suggest poor extractability
@@ -4585,7 +4585,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
 
                 // AI Readiness score
                 scoresHtml += '<div class="almaseo-llm-score-item">' +
-                    '<div class="almaseo-llm-score-label">AI Readiness</div>' +
+                    '<div class="almaseo-llm-score-label">LLM Readiness</div>' +
                     '<div class="almaseo-llm-score-sublabel">Structure & extractability</div>' +
                     '<div class="almaseo-llm-score-value" style="color: ' + llmColor + '">' + llmScore + '</div>' +
                     '<div class="almaseo-llm-score-bar"><div class="almaseo-llm-score-fill" style="width: ' + llmScore + '%; background: ' + llmColor + '"></div></div>' +
@@ -4605,11 +4605,11 @@ function almaseo_seo_playground_meta_box_callback($post) {
 
                 // Status message — tiered
                 if (llmScore >= 75 && answerabilityScore >= 75) {
-                    scoresHtml += '<p class="almaseo-llm-score-status" style="color: #10b981;"><span class="dashicons dashicons-yes-alt"></span> High AI Visibility — This page is well-structured for AI-generated answers</p>';
+                    scoresHtml += '<p class="almaseo-llm-score-status" style="color: #10b981;"><span class="dashicons dashicons-yes-alt"></span> High LLM Visibility — This page is well-structured for LLM-generated answers</p>';
                 } else if (llmScore >= 50 || answerabilityScore >= 50) {
-                    scoresHtml += '<p class="almaseo-llm-score-status" style="color: #f59e0b;"><span class="dashicons dashicons-warning"></span> Moderate AI Visibility — This page may appear in AI answers but could be improved</p>';
+                    scoresHtml += '<p class="almaseo-llm-score-status" style="color: #f59e0b;"><span class="dashicons dashicons-warning"></span> Moderate LLM Visibility — This page may appear in LLM answers but could be improved</p>';
                 } else {
-                    scoresHtml += '<p class="almaseo-llm-score-status" style="color: #dc3232;"><span class="dashicons dashicons-dismiss"></span> Low AI Visibility — This page is unlikely to be used in AI-generated answers</p>';
+                    scoresHtml += '<p class="almaseo-llm-score-status" style="color: #dc3232;"><span class="dashicons dashicons-dismiss"></span> Low LLM Visibility — This page is unlikely to be used in LLM-generated answers</p>';
                 }
 
                 $scores.html(scoresHtml);
@@ -4717,7 +4717,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         reasons.push('<li>No FAQ structure detected</li>');
                     }
                     if (data.formatting && !data.formatting.has_lists && !data.formatting.has_tables) {
-                        reasons.push('<li>No lists or tables for AI to extract</li>');
+                        reasons.push('<li>No lists or tables for LLMs to extract</li>');
                     }
                     if (data.summary_detection && !data.summary_detection.has_tldr && !data.summary_detection.has_table_of_contents) {
                         reasons.push('<li>No summary or table of contents</li>');
@@ -4727,7 +4727,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     }
                 }
                 if (reasons.length === 0) {
-                    reasons.push('<li style="color: #10b981;">Content is well-structured for AI answers</li>');
+                    reasons.push('<li style="color: #10b981;">Content is well-structured for LLM answers</li>');
                 }
             }
 
@@ -4772,7 +4772,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     if (s.flags && s.flags.indexOf('thin_content') !== -1) thinCount++;
                 });
                 if (thinCount > 0) {
-                    issues.push({icon: 'dashicons-info', text: thinCount + ' section' + (thinCount > 1 ? 's' : '') + ' too short to be useful for AI extraction (under 30 words).', severity: 'medium'});
+                    issues.push({icon: 'dashicons-info', text: thinCount + ' section' + (thinCount > 1 ? 's' : '') + ' too short to be useful for LLM extraction (under 30 words).', severity: 'medium'});
                 }
             }
 
@@ -4916,7 +4916,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 html += '</div>';
 
                 if (!fmt.has_lists && !fmt.has_tables) {
-                    html += '<div class="almaseo-llm-structure-warn"><span class="dashicons dashicons-warning"></span> No lists or tables — add structured elements for better AI extraction</div>';
+                    html += '<div class="almaseo-llm-structure-warn"><span class="dashicons dashicons-warning"></span> No lists or tables — add structured elements for better LLM extraction</div>';
                 }
 
                 html += '</div>';
@@ -4998,7 +4998,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 // AI Readiness & Answer Strength (Pro only or show locked)
                 if (isPro) {
                     sectionsHtml += '<div class="almaseo-llm-section-score-pill" style="border-color: ' + llmColor + ';">';
-                    sectionsHtml += '<span class="label">AI Readiness:</span>';
+                    sectionsHtml += '<span class="label">LLM Readiness:</span>';
                     sectionsHtml += '<span class="value" style="color: ' + llmColor + ';">' + section.llm_readiness + '</span>';
                     sectionsHtml += '</div>';
 
@@ -5050,7 +5050,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
          */
         function getFlagLabel(flag) {
             var labels = {
-                'thin_content': 'Too short for AI extraction',
+                'thin_content': 'Too short for LLM extraction',
                 'ambiguous_pronouns': 'Unclear references (it, this, that)',
                 'vague_language': 'Vague wording (many, some, few)',
                 'missing_specifics': 'No specific names or terms',
@@ -5097,7 +5097,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
 
             // Check if Pro style is selected but user is not Pro
             if ((selectedStyle === 'qa' || selectedStyle === 'ai_answer') && !isPro) {
-                alert('This summary style requires Pro. Please upgrade to access Q&A Format and AI Answer styles.');
+                alert('This summary style requires Pro. Please upgrade to access Q&A Format and LLM Answer styles.');
                 $(this).val('concise'); // Reset to concise
                 return;
             }
@@ -5183,6 +5183,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
     ?>
     <script>
     var almaseoAiAutofillAvailable = <?php echo esc_js($ai_autofill_available ? 'true' : 'false'); ?>;
+    var almaseoDashboardUrl = '<?php echo esc_js( defined('ALMASEO_DASHBOARD_URL') ? ALMASEO_DASHBOARD_URL : 'https://app.almaseo.com' ); ?>';
     (function() {
         var btns = document.querySelectorAll('.almaseo-autofill-btn');
         if (!btns.length) return;
@@ -5214,6 +5215,34 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 }
             }
             return statusEl;
+        }
+
+        // Helper: show patience banner during generation, explaining what's
+        // happening so the user doesn't bail mid-request. Reuses one DOM
+        // node — show on click, hide on success/error.
+        function showPatienceBanner(fieldLabel) {
+            var banner = document.getElementById('almaseo-patience-banner');
+            if (!banner) {
+                banner = document.createElement('div');
+                banner.id = 'almaseo-patience-banner';
+                banner.style.cssText = 'margin: 0 0 12px 0; padding: 10px 14px; background: linear-gradient(135deg,#f5f3ff,#ede9fe); border: 1px solid #c4b5fd; border-left: 3px solid #7c3aed; border-radius: 4px; font-size: 12px; display: flex; align-items: center; gap: 8px;';
+                var fieldsSection = document.querySelector('.almaseo-seo-fields');
+                if (fieldsSection) {
+                    fieldsSection.insertBefore(banner, fieldsSection.firstChild);
+                }
+            }
+            var copy = aiAvailable
+                ? 'Personalizing your ' + fieldLabel + ' from your AlmaSEO profile — pulling business details, services, and service areas. This usually takes a few seconds.'
+                : 'Generating a ' + fieldLabel + ' from your post content. <a href="' + (typeof almaseoDashboardUrl !== "undefined" ? almaseoDashboardUrl : "https://app.almaseo.com") + '" target="_blank" style="color:#5b21b6;">Connect to AlmaSEO</a> for sharper, profile-aware results.';
+            banner.innerHTML = '<span class="dashicons dashicons-update" style="color: #7c3aed; font-size: 16px; width: 16px; height: 16px; flex-shrink: 0; animation:rotation 1s linear infinite;"></span>'
+                + '<span style="color: #4c1d95;">' + copy + '</span>';
+            banner.style.display = 'flex';
+        }
+        function hidePatienceBanner() {
+            var banner = document.getElementById('almaseo-patience-banner');
+            if (banner) {
+                banner.style.display = 'none';
+            }
         }
 
         // Helper: show save reminder banner (once per session)
@@ -5273,6 +5302,10 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     statusEl.style.opacity = '1';
                 }
 
+                // Patience banner explains what's actually happening behind
+                // the spinner so users don't think the page has hung.
+                showPatienceBanner(fieldLabel);
+
                 var fd = new FormData();
                 fd.append('action', 'almaseo_autofill_field');
                 fd.append('post_id', postId);
@@ -5286,6 +5319,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 xhr.onload = function() {
                     btn.innerHTML = origHTML;
                     btn.disabled = false;
+                    hidePatienceBanner();
 
                     try {
                         var resp = JSON.parse(xhr.responseText);
@@ -5307,16 +5341,28 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 }
                             }
 
-                            // Show success status outside the button
-                            if (resp.data.ai) {
-                                statusEl.innerHTML = '<span class="dashicons dashicons-yes-alt" style="color: #00a32a; font-size: 14px; width: 14px; height: 14px;"></span><span style="color: #00a32a; font-weight: 500;">Generated by AlmaSEO</span>';
-                                setTimeout(function() {
-                                    statusEl.style.opacity = '0';
-                                    setTimeout(function() { statusEl.innerHTML = ''; }, 300);
-                                }, 5000);
-                            } else {
-                                statusEl.innerHTML = '';
-                            }
+                            // Resolution badge — shows exactly which path
+                            // ran and whether the business profile was used.
+                            // Tooltip lists the cached profile fields that
+                            // were available, so the user can verify their
+                            // dashboard data is reaching the plugin.
+                            var res = resp.data.resolution || (resp.data.ai ? 'ai' : 'local');
+                            var fieldsPresent = resp.data.profile_fields_present || [];
+                            var fieldsTip = fieldsPresent.length
+                                ? 'Cached profile fields used: ' + fieldsPresent.join(', ')
+                                : 'No profile fields cached on this site yet.';
+                            var badgeMap = {
+                                'ai_with_profile':    { color: '#15803d', icon: 'yes-alt',  text: 'Generated by AlmaSEO (using your profile)' },
+                                'ai':                 { color: '#5b21b6', icon: 'yes-alt',  text: 'Generated by AlmaSEO' },
+                                'local_with_profile': { color: '#0369a1', icon: 'admin-site-alt3', text: 'Generated locally using your profile' },
+                                'local':              { color: '#64748b', icon: 'admin-site-alt3', text: 'Generated locally (no profile cached)' },
+                                'local_locked':       { color: '#a16207', icon: 'lock',     text: 'Generated locally — Upgrade to AlmaSEO Pro for profile-aware generation' }
+                            };
+                            var b = badgeMap[res] || badgeMap.local;
+                            statusEl.innerHTML = '<span class="dashicons dashicons-' + b.icon + '" style="color: ' + b.color + '; font-size: 14px; width: 14px; height: 14px;"></span>'
+                                + '<span style="color: ' + b.color + '; font-weight: 500;" title="' + fieldsTip.replace(/"/g, '&quot;') + '">' + b.text + '</span>';
+                            // Don't auto-hide — leave the badge so the
+                            // user can read it and inspect the tooltip.
 
                             // Show save reminder
                             showSaveReminder();
@@ -5337,12 +5383,14 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 xhr.onerror = function() {
                     btn.innerHTML = origHTML;
                     btn.disabled = false;
+                    hidePatienceBanner();
                     statusEl.innerHTML = '<span style="color: #d63638;">Request failed. Check your connection.</span>';
                     setTimeout(function() { statusEl.innerHTML = ''; }, 4000);
                 };
                 xhr.ontimeout = function() {
                     btn.innerHTML = origHTML;
                     btn.disabled = false;
+                    hidePatienceBanner();
                     statusEl.innerHTML = '<span style="color: #d63638;">Request timed out. Try again.</span>';
                     setTimeout(function() { statusEl.innerHTML = ''; }, 4000);
                 };
@@ -5363,7 +5411,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
             container.style.cssText = 'margin: 12px 0; padding: 12px 14px; background: #fef9ee; border: 1px solid #f0dca0; border-left: 3px solid #dba617; border-radius: 4px; font-size: 12px;';
 
             var html = '<div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">';
-            html += '<strong style="color: #92660a;">For better AI results, complete these in your AlmaSEO profile:</strong>';
+            html += '<strong style="color: #92660a;">For better Alma results, complete these in your AlmaSEO profile:</strong>';
             html += '</div><ul style="margin: 0; padding: 0 0 0 18px; line-height: 1.8;">';
 
             high.forEach(function(s) {

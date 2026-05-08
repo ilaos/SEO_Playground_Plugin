@@ -158,7 +158,7 @@ function seo_playground_ajax_rewrite() {
     // Check tier and usage limits
     if (!almaseo_can_use_ai_features()) {
         wp_send_json_error(array(
-            'message' => 'AI features require Pro or Max tier. Please upgrade to access AI tools.',
+            'message' => 'Alma features require Pro or Max tier. Please upgrade to access premium tools.',
             'tier' => almaseo_get_user_tier()
         ));
         return;
@@ -170,7 +170,7 @@ function seo_playground_ajax_rewrite() {
         $generations = almaseo_get_remaining_generations();
         if ($generations['remaining'] <= 0) {
             wp_send_json_error(array(
-                'message' => 'You have reached your monthly AI generation limit. Please upgrade to Max for unlimited access.',
+                'message' => 'You have reached your monthly Alma generation limit. Please upgrade to Max for unlimited access.',
                 'remaining' => 0
             ));
             return;

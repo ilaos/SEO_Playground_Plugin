@@ -181,10 +181,32 @@ if ( ! function_exists( 'almaseo_handoff_prepare_credentials' ) ) {
 		}
 
 		// 3. Fall back to JWT (long-lived token signed with almaseo_jwt_secret).
-		if ( function_exists( 'almaseo_create_jwt' ) ) {
+		// Persist the JWT to the same options used for outbound auth so the
+		// plugin's calls to the dashboard work the same way they do for the
+		// app-password path. Without this, JWT-host sites (WP Engine, etc.)
+		// stay outbound-disconnected — the dashboard receives the JWT in the
+		// handoff payload, but the WP options stay empty and is_available()
+		// returns false, so AI autofill / site-profile fetch silently fall
+		// through to the local generator. The dashboard's auth decorator
+		// already accepts the JWT as a valid Basic-Auth password
+		// (matched against sites.almaseo_token), so no server-side change
+		// is needed.
+		if ( function_exists( 'almaseo_get_active_jwt' ) ) {
 			return array(
 				'method' => 'jwt',
-				'jwt'    => almaseo_create_jwt( $username ),
+				'jwt'    => almaseo_get_active_jwt( $username ),
+			);
+		}
+		if ( function_exists( 'almaseo_create_jwt' ) ) {
+			// Older builds without the helper — still persist so the
+			// outbound path has a credential.
+			$jwt = almaseo_create_jwt( $username );
+			update_option( 'almaseo_app_password', $jwt );
+			update_option( 'almaseo_connected_user', $username );
+			update_option( 'almaseo_connected_date', current_time( 'mysql' ) );
+			return array(
+				'method' => 'jwt',
+				'jwt'    => $jwt,
 			);
 		}
 

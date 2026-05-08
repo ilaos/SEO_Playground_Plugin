@@ -162,7 +162,7 @@ function almaseo_welcome_screen_page() {
 
             <div style="padding: 20px; background: #f0f8ff; border-radius: 8px; margin-bottom: 30px;">
                 <p style="margin: 0; font-size: 16px; color: #0073aa;">
-                    <strong>🚀 Getting Started:</strong> Connect to AlmaSEO to unlock AI-powered features that will help you create SEO-optimized content in minutes, not hours.
+                    <strong>🚀 Getting Started:</strong> Connect to AlmaSEO to unlock Alma-powered features that will help you create SEO-optimized content in minutes, not hours.
                 </p>
             </div>
 
@@ -171,15 +171,15 @@ function almaseo_welcome_screen_page() {
             <div class="almaseo-features-checklist">
                 <div class="almaseo-feature-item">
                     <span class="dashicons dashicons-yes-alt"></span>
-                    <span><strong>AI Meta Titles & Descriptions</strong> - Generate optimized metadata instantly</span>
+                    <span><strong>Alma Meta Titles & Descriptions</strong> - Generate optimized metadata instantly</span>
                 </div>
                 <div class="almaseo-feature-item">
                     <span class="dashicons dashicons-yes-alt"></span>
-                    <span><strong>Focus Keyword Suggestions</strong> - AI-powered keyword recommendations</span>
+                    <span><strong>Focus Keyword Suggestions</strong> - Alma-powered keyword recommendations</span>
                 </div>
                 <div class="almaseo-feature-item">
                     <span class="dashicons dashicons-yes-alt"></span>
-                    <span><strong>Post Intelligence</strong> - AI analysis of your content quality</span>
+                    <span><strong>Post Intelligence</strong> - Alma analysis of your content quality</span>
                 </div>
                 <div class="almaseo-feature-item">
                     <span class="dashicons dashicons-yes-alt"></span>
@@ -207,7 +207,7 @@ function almaseo_welcome_screen_page() {
                 </div>
                 <div class="almaseo-feature-item">
                     <span class="dashicons dashicons-yes-alt"></span>
-                    <span><strong>AI Rewrite Assistant</strong> - Optimize existing content</span>
+                    <span><strong>Alma Rewrite Assistant</strong> - Optimize existing content</span>
                 </div>
             </div>
 
