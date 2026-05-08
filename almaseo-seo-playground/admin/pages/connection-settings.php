@@ -71,11 +71,28 @@ function almaseo_connector_settings_page() {
     $generated_password = '';
     $generation_error = '';
 
+    // Proactive Application Passwords availability check (v1.9.3+).
+    // WP Engine and several other managed hosts disable WP Application Passwords
+    // entirely (via the wp_is_application_passwords_available filter or by
+    // unsetting wp_generate_application_password). When that happens, the
+    // user clicking "Generate Password Now" is doomed — nothing can succeed.
+    // Treat unavailability the same as a WAF block so the JWT panel renders
+    // immediately on page load. JWT auth doesn't depend on App Passwords.
+    if ( ! $app_password ) {
+        $app_passwords_supported = function_exists( 'wp_generate_application_password' )
+            && function_exists( 'wp_is_application_passwords_available' )
+            && wp_is_application_passwords_available();
+        if ( ! $app_passwords_supported ) {
+            $generation_error = 'hosting_blocked';
+        }
+    }
+
     // Handle password generation with REST verification
     if (isset($_POST['generate_password']) && check_admin_referer('almaseo_generate_password')) {
         $app_passwords_check = almaseo_check_app_passwords_available();
         if (is_wp_error($app_passwords_check)) {
-            $generation_error = 'wp_version';
+            // Unified with hosting_blocked (v1.9.3+): same UX response — show JWT.
+            $generation_error = 'hosting_blocked';
         } else {
             almaseo_cleanup_old_passwords($current_user->ID);
             $label = 'AlmaSEO Connection ' . wp_date('Y-m-d H:i:s');
@@ -249,9 +266,9 @@ function almaseo_connector_settings_page() {
             if ($generation_error === 'hosting_blocked') {
                 // ===== HOSTING/WAF BLOCKED — JWT IS THE PRIMARY PATH =====
                 echo '<div style="background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:20px;margin:20px 30px 0;">';
-                echo '<h3 style="margin:0 0 8px;color:#856404;">Your hosting provider is blocking Application Passwords</h3>';
-                echo '<p style="margin:0 0 16px;color:#664d03;">This is a known issue with some hosting providers (GoDaddy, SiteGround, Bluehost, and others). ';
-                echo 'Their server firewall blocks the WordPress feature used for standard authentication. <strong>This is not a problem with your site or WordPress version.</strong></p>';
+                echo '<h3 style="margin:0 0 8px;color:#856404;">Your hosting provider has disabled Application Passwords</h3>';
+                echo '<p style="margin:0 0 16px;color:#664d03;">This is a known issue with several managed hosts (WP Engine, GoDaddy, SiteGround, Bluehost, and others). ';
+                echo 'They either block the WordPress REST authentication header or disable the Application Passwords feature outright. <strong>This is not a problem with your site or WordPress version.</strong></p>';
                 echo '</div>';
 
                 // JWT — Recommended solution

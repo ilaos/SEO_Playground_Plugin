@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.9.2
+Stable tag: 1.9.3
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,10 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.9.3 =
+* Fix: WP Engine and other managed hosts that disable WP Application Passwords now show the JWT token panel directly on the Connection Settings page — no more "WordPress 5.6 or higher is required" dead-end. JWT auth doesn't depend on Application Passwords and works regardless of hosting restrictions.
+* Internal: Connection Settings page now proactively checks `wp_is_application_passwords_available()` on page load. If unavailable, the JWT panel renders immediately without requiring the user to click a doomed Generate button.
 
 = 1.9.2 =
 * Feature: Uninstall now wipes only connection state (App Password, JWT secret, dashboard pairing flags, AlmaSEO-named WP Application Passwords). All settings, custom tables, post meta, and term meta are preserved — reinstall starts with a clean handshake but keeps your work.
