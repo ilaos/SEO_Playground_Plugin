@@ -498,73 +498,30 @@ class Alma_Sitemap_Ajax_Handlers {
      */
     public static function handle_rebuild_static() {
         self::verify_ajax_nonce();
-        
-        // Check if already building
-        $lock = get_option('almaseo_sitemaps_build_lock');
-        if ($lock && isset($lock['expires']) && $lock['expires'] > time()) {
-            wp_send_json_error([
-                'message' => __('Build already in progress', 'almaseo-seo-playground'),
-                'lock' => $lock
-            ]);
-        }
-        
-        // Set build lock
-        update_option('almaseo_sitemaps_build_lock', [
-            'started' => time(),
-            'expires' => time() + 300, // 5 minute timeout
-            'process' => 'ajax'
-        ]);
-        
-        // Load required classes
+
+        // Delegate to the Manager's rebuild pipeline. It acquires the lock,
+        // iterates providers via generate_with_seek(), writes the index,
+        // calls finalize_build() (which is what writes
+        // almaseo_sitemap_settings.health.last_build_stats — the path
+        // helpers.php's almaseo_get_build_stats() reads from), and releases
+        // the lock even if a provider throws.
         require_once dirname(dirname(__FILE__)) . '/class-alma-sitemap-writer.php';
         require_once dirname(dirname(__FILE__)) . '/class-alma-sitemap-manager.php';
-        
-        try {
-            $manager = new Alma_Sitemap_Manager();
-            $writer = new Alma_Sitemap_Writer();
-            
-            // Get all providers
-            $providers = $manager->get_providers();
-            $stats = ['files' => 0, 'urls' => 0];
-            
-            // Build each sitemap
-            foreach ($providers as $provider) {
-                if (!$provider->is_enabled()) {
-                    continue;
-                }
-                
-                $result = $writer->write_provider_sitemap($provider);
-                if ($result) {
-                    $stats['files']++;
-                    $stats['urls'] += $result['url_count'];
-                }
-            }
-            
-            // Write index
-            $writer->write_index();
-            $stats['files']++;
-            
-            // Update last built time
-            update_option('almaseo_sitemap_last_built', current_time('mysql'));
-            update_option('almaseo_sitemap_stats', $stats);
-            
-            // Clear lock
-            delete_option('almaseo_sitemaps_build_lock');
-            
-            wp_send_json_success([
-                'message' => __('Sitemaps rebuilt successfully', 'almaseo-seo-playground'),
-                'stats' => $stats
-            ]);
-            
-        } catch (Exception $e) {
-            // Clear lock on error
-            delete_option('almaseo_sitemaps_build_lock');
-            
+
+        $manager = Alma_Sitemap_Manager::get_instance();
+        $result = $manager->rebuild_now();
+
+        if (is_wp_error($result)) {
             wp_send_json_error([
-                /* translators: %s: error message from the build process */
-                'message' => sprintf(__('Build failed: %s', 'almaseo-seo-playground'), $e->getMessage())
+                'message' => $result->get_error_message(),
+                'code'    => $result->get_error_code(),
             ]);
         }
+
+        wp_send_json_success([
+            'message' => __('Sitemaps rebuilt successfully', 'almaseo-seo-playground'),
+            'stats'   => $result,
+        ]);
     }
     
     /**

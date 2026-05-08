@@ -357,64 +357,82 @@ class Alma_Sitemap_Manager {
     }
     
     /**
-     * Cron rebuild handler
+     * Run a full sitemap rebuild now and return stats.
+     *
+     * Used by both the cron handler and the almaseo_rebuild_static AJAX handler.
+     * Acquires the build lock, iterates providers, writes the index, finalizes,
+     * and always releases the lock — even if a provider throws mid-way (which
+     * would otherwise orphan the lock for LOCK_EXPIRATION seconds).
+     *
+     * @return array|WP_Error Build stats on success, WP_Error on lock contention or failure.
      */
-    public function cron_rebuild() {
-        // Only rebuild if in static mode
-        if ($this->settings['perf']['storage_mode'] !== 'static') {
-            return;
-        }
-        
+    public function rebuild_now() {
         $writer = new Alma_Sitemap_Writer();
-        
-        // Check if already building
+
         if ($writer->is_locked()) {
-            return;
+            return new WP_Error('build_locked', __('Build already in progress', 'almaseo-seo-playground'));
         }
-        
-        // Start build
-        $result = $writer->start_build();
-        if (is_wp_error($result)) {
-            error_log('AlmaSEO Sitemap rebuild failed: ' . $result->get_error_message());
-            return;
+
+        $start = $writer->start_build();
+        if (is_wp_error($start)) {
+            return $start;
         }
-        
-        $sitemaps = array();
-        
-        // Generate for each provider
-        foreach ($this->providers as $name => $provider) {
-            $provider_class = get_class($provider);
-            $urls = $writer->generate_with_seek($provider_class, $name);
-            
-            if ($urls > 0) {
-                $manifest = $writer->get_manifest();
-                if ($manifest) {
-                    foreach ($manifest['files'] as $file) {
-                        if (strpos($file['url'], 'sitemap-' . $name) !== false) {
-                            $sitemaps[] = array(
-                                'loc' => $file['url'],
-                                'lastmod' => gmdate('c')
-                            );
+
+        try {
+            $sitemaps = array();
+
+            foreach ($this->providers as $name => $provider) {
+                $provider_class = get_class($provider);
+                $urls = $writer->generate_with_seek($provider_class, $name);
+
+                if ($urls > 0) {
+                    $manifest = $writer->get_manifest();
+                    if ($manifest) {
+                        foreach ($manifest['files'] as $file) {
+                            if (strpos($file['url'], 'sitemap-' . $name) !== false) {
+                                $sitemaps[] = array(
+                                    'loc' => $file['url'],
+                                    'lastmod' => gmdate('c'),
+                                );
+                            }
                         }
                     }
                 }
             }
+
+            $writer->write_index($sitemaps);
+
+            // finalize_build() releases the lock on the success path.
+            return $writer->finalize_build();
+        } catch (\Throwable $e) {
+            // Catch Throwable (not just Exception) so undefined-method/TypeError
+            // bugs still release the lock instead of stranding it for 15 minutes.
+            $writer->release_lock();
+            return new WP_Error('rebuild_failed', $e->getMessage());
         }
-        
-        // Write index
-        $writer->write_index($sitemaps);
-        
-        // Finalize
-        $stats = $writer->finalize_build();
-        
-        // Log if debugging
+    }
+
+    /**
+     * Cron rebuild handler — thin wrapper over rebuild_now() that gates on storage mode.
+     */
+    public function cron_rebuild() {
+        if ($this->settings['perf']['storage_mode'] !== 'static') {
+            return;
+        }
+
+        $result = $this->rebuild_now();
+
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log(sprintf(
-                'AlmaSEO Sitemap rebuild complete: %d files, %d URLs in %dms',
-                $stats['files'],
-                $stats['urls'],
-                $stats['duration_ms']
-            ));
+            if (is_wp_error($result)) {
+                error_log('AlmaSEO Sitemap rebuild failed: ' . $result->get_error_message());
+            } else {
+                error_log(sprintf(
+                    'AlmaSEO Sitemap rebuild complete: %d files, %d URLs in %dms',
+                    $result['files'],
+                    $result['urls'],
+                    $result['duration_ms']
+                ));
+            }
         }
     }
     
