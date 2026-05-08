@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
-Version: 1.9.1
+Version: 1.9.2
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -50,7 +50,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
     }
     if ( $almaseo_seo_conflict ) {
         // Define only the bare minimum constants, then stop loading.
-        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.9.1' );
+        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.9.2' );
         if ( ! defined( 'ALMASEO_PATH' ) )           define( 'ALMASEO_PATH', plugin_dir_path( __FILE__ ) );
         if ( ! defined( 'ALMASEO_URL' ) )            define( 'ALMASEO_URL', plugin_dir_url( __FILE__ ) );
         if ( ! defined( 'ALMASEO_MAIN_FILE' ) )      define( 'ALMASEO_MAIN_FILE', __FILE__ );
@@ -62,10 +62,11 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
 if (!defined('ALMASEO_MAIN_FILE'))       define('ALMASEO_MAIN_FILE', __FILE__);
 if (!defined('ALMASEO_PATH'))            define('ALMASEO_PATH', plugin_dir_path(__FILE__));
 if (!defined('ALMASEO_URL'))             define('ALMASEO_URL', plugin_dir_url(__FILE__));
-if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.9.0');
+if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.9.2');
 if (!defined('ALMASEO_VERSION'))         define('ALMASEO_VERSION', '6.5.0');
 if (!defined('ALMASEO_API_NAMESPACE'))   define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
 if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
+if (!defined('ALMASEO_DASHBOARD_URL'))   define('ALMASEO_DASHBOARD_URL', 'https://app.almaseo.com');
 
 // Legacy constants for backwards compatibility
 if (!defined('ALMASEO_PLUGIN_URL'))  define('ALMASEO_PLUGIN_URL', ALMASEO_URL);
@@ -389,6 +390,11 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/import/import-loader.php')
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/setup-wizard.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/admin/setup-wizard.php';
     AlmaSEO_Setup_Wizard::init();
+}
+
+// Include Connection Handoff (Scenario-4 deep-link, v1.9.0+)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/connection/connection-handoff.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/connection/connection-handoff.php';
 }
 
 // Include Gutenberg Blocks (v8.3.0+) - FAQ, Table of Contents
