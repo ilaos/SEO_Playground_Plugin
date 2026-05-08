@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.13.2
+Stable tag: 1.13.3
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,9 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.13.3 =
+* Fix: Sitemaps admin page no longer fatals with "Call to undefined function almaseo_get_index_urls()". The sitemap helpers file used a single top-of-file bail that checked only the singular `almaseo_get_index_url` — if that singular got declared first by anything else (Connector plugin coexistence, opcache, duplicate include path), the file returned before declaring the plural variant the Sitemaps screen actually calls. Replaced with per-function `function_exists()` guards on all eight helpers in the file so each one protects itself independently.
 
 = 1.13.2 =
 * Branding: User-facing copy across the plugin no longer leans on "AI" terminology. Plugin-owned features (autofill, rewrites, alt text, freshness scoring, refresh suggestions) are branded "Alma" or "Alma-powered". External LLM systems (ChatGPT, Gemini, Google AI Overviews) are referred to as "LLMs" instead of "AI" where the original phrasing was generic. Touched ~50 strings across the metabox panel, Welcome page, Documentation page, Bulk Meta page, Connection Settings, settings, Refresh Queue, Refresh Drafts, llms.txt editor, evergreen dashboard, image SEO settings, health UI, tier management modals, and the readme.
