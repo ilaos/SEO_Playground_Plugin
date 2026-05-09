@@ -34,8 +34,8 @@ class Alma_Provider_Tax {
      * Initialize supported taxonomies
      */
     private function init_taxonomies() {
-        $tax_settings = $this->settings['include']['tax'];
-        
+        $tax_settings = $this->settings['include']['tax'] ?? array();
+
         if (!is_array($tax_settings)) {
             return;
         }
@@ -314,8 +314,8 @@ class Alma_Provider_Tax {
      */
     private function get_enabled_taxonomies() {
         $taxonomies = array();
-        $tax_settings = $this->settings['include']['tax'];
-        
+        $tax_settings = $this->settings['include']['tax'] ?? array();
+
         if (is_array($tax_settings)) {
             foreach ($tax_settings as $tax => $enabled) {
                 if ($enabled) {
