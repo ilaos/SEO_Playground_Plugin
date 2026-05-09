@@ -577,3 +577,47 @@
     vertical-align: -3px;
     margin-right: 6px;
 }
+
+/* Auto-save status pill — anchored in the header next to Open / Copy / Rebuild.
+   Visible feedback for the auto-save flow: "Saving…" then "Saved" then fades. */
+#almaseo-admin .alma-save-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    margin-right: 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+    background: #eef2f7;
+    color: #475569;
+    transition: background 0.2s ease, color 0.2s ease, opacity 0.4s ease;
+}
+#almaseo-admin .alma-save-status.is-saving {
+    background: #fef3c7;
+    color: #78350f;
+}
+#almaseo-admin .alma-save-status.is-saving::before {
+    content: '';
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #d97706;
+    animation: alma-save-pulse 1s ease-in-out infinite;
+}
+#almaseo-admin .alma-save-status.is-saved {
+    background: #dcfce7;
+    color: #14532d;
+}
+#almaseo-admin .alma-save-status.is-saved::before {
+    content: '✓';
+    font-weight: 700;
+}
+#almaseo-admin .alma-save-status.is-error {
+    background: #fee2e2;
+    color: #991b1b;
+}
+@keyframes alma-save-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.4; transform: scale(0.7); }
+}

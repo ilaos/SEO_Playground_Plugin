@@ -10,62 +10,129 @@
     // Settings object
     let settings = window.almaseoSitemaps.settings || {};
     let hasChanges = false;
-    
+
     /**
-     * Show toast notification
+     * Show toast notification.
+     *
+     * Targets #almaseo-toast-container — the same container the tabs bundle
+     * uses, and the only one actually rendered by sitemaps-screen-v2.php.
+     * Previous code targeted #almaseo-toast which doesn't exist, so save
+     * success/error notifications were silently dropped.
      */
-    function showToast(message, type = 'success') {
-        const $toast = $('#almaseo-toast');
-        $toast.removeClass('success error').addClass(type);
-        $toast.html('<span class="dashicons dashicons-' + 
-            (type === 'success' ? 'yes' : 'warning') + '"></span>' + message);
-        $toast.addClass('show');
-        
+    function showToast(message, type) {
+        type = type || 'success';
+        let container = document.getElementById('almaseo-toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'almaseo-toast-container';
+            container.setAttribute('aria-live', 'polite');
+            container.setAttribute('aria-atomic', 'true');
+            document.body.appendChild(container);
+        }
+        const toast = document.createElement('div');
+        toast.className = 'almaseo-toast almaseo-toast-' + type;
+        const icon = type === 'success' ? 'yes' : (type === 'error' ? 'warning' : 'info');
+        toast.innerHTML = '<span class="dashicons dashicons-' + icon + '"></span> ' +
+            $('<span>').text(message).html();
+        container.appendChild(toast);
         setTimeout(function() {
-            $toast.removeClass('show');
+            toast.style.opacity = '0';
+            setTimeout(function() { toast.remove(); }, 300);
         }, 3000);
     }
-    
+
     /**
-     * Save settings via AJAX
+     * Render a small "Saving…" / "Saved" status indicator next to the
+     * Sitemaps screen title. The auto-save flow is intentional, but with
+     * no visible feedback users don't trust their changes are persisting.
+     * This pill makes the auto-save observable without adding a
+     * misleading explicit Save button.
      */
-    function saveSettings(showNotification = true) {
+    function setSaveStatus(state, message) {
+        let $pill = $('#almaseo-save-status');
+        if ($pill.length === 0) {
+            const $anchor = $('.alma-header .quick-actions, .alma-header').first();
+            if ($anchor.length === 0) return;
+            $pill = $('<span id="almaseo-save-status" class="alma-save-status" aria-live="polite"></span>');
+            $anchor.prepend($pill);
+        }
+        $pill.removeClass('is-saving is-saved is-error').addClass('is-' + state);
+        $pill.text(message);
+        if (state === 'saved') {
+            clearTimeout(window.almaseoSaveStatusTimeout);
+            window.almaseoSaveStatusTimeout = setTimeout(function() {
+                $pill.fadeOut(400, function() { $pill.text('').show(); });
+            }, 2000);
+        } else {
+            $pill.show();
+        }
+    }
+
+    /**
+     * Save settings via AJAX. Payload now includes every Types & Rules
+     * control: perf (storage_mode + gzip) and exclude (taxonomies / authors
+     * / older_than_years). The PHP handler reads them directly into
+     * almaseo_sitemap_settings; the posts/pages/cpts providers already
+     * apply exclude rules at the SQL level, so toggling the dropdowns
+     * actually changes which URLs get sitemapped.
+     */
+    function saveSettings(showNotification) {
+        if (showNotification === undefined) showNotification = true;
+
+        const excludeTax = $('#exclude-taxonomies').val() || [];
+        const excludeAuthors = $('#exclude-authors').val() || [];
+
         const data = {
             action: 'almaseo_save_settings',
             nonce: almaseoSitemaps.nonce,
-            enabled: $('#master-enable').prop('checked'),
+            enabled: $('#master-enable').prop('checked') ? 1 : 0,
             include: {
-                posts: $('.sitemap-type[data-type="posts"]').prop('checked'),
-                pages: $('.sitemap-type[data-type="pages"]').prop('checked'),
-                cpts: $('.sitemap-type[data-type="cpts"]').prop('checked'),
+                posts: $('.sitemap-type[data-type="posts"]').prop('checked') ? 1 : 0,
+                pages: $('.sitemap-type[data-type="pages"]').prop('checked') ? 1 : 0,
+                cpts: $('.sitemap-type[data-type="cpts"]').prop('checked') ? 1 : 0,
                 tax: {
-                    category: $('.sitemap-type[data-type="category"]').prop('checked'),
-                    post_tag: $('.sitemap-type[data-type="post_tag"]').prop('checked')
+                    category: $('.sitemap-type[data-type="category"]').prop('checked') ? 1 : 0,
+                    post_tag: $('.sitemap-type[data-type="post_tag"]').prop('checked') ? 1 : 0
                 },
-                users: $('.sitemap-type[data-type="users"]').prop('checked')
+                users: $('.sitemap-type[data-type="users"]').prop('checked') ? 1 : 0
             },
-            links_per_sitemap: $('#links-per-sitemap').val()
+            links_per_sitemap: $('#links-per-sitemap').val(),
+            perf: {
+                storage_mode: $('input[name="storage_mode"]:checked').val() || 'static',
+                gzip: $('#enable-gzip').prop('checked') ? 1 : 0
+            },
+            exclude: {
+                taxonomies: excludeTax,
+                authors: excludeAuthors,
+                older_than_years: parseInt($('#exclude-older-than').val() || '0', 10)
+            }
         };
-        
+
         if (showNotification) {
-            showToast(almaseoSitemaps.i18n.saving);
+            setSaveStatus('saving', almaseoSitemaps.i18n.saving || 'Saving…');
         }
-        
+
         $.post(almaseoSitemaps.ajaxUrl, data, function(response) {
-            if (response.success) {
+            if (response && response.success) {
                 settings = response.data.settings;
                 hasChanges = false;
                 $('.almaseo-save-all').fadeOut();
-                
+
                 if (showNotification) {
-                    showToast(response.data.message, 'success');
+                    setSaveStatus('saved', almaseoSitemaps.i18n.saved || 'Saved');
                 }
-                
-                // Update enabled chip
+
                 updateEnabledChip(settings.enabled);
             } else {
-                showToast(response.data || almaseoSitemaps.i18n.error, 'error');
+                const errMsg = (response && response.data && response.data.message)
+                    ? response.data.message
+                    : (response && typeof response.data === 'string' ? response.data : almaseoSitemaps.i18n.error);
+                setSaveStatus('error', errMsg || 'Save failed');
+                showToast(errMsg, 'error');
             }
+        }).fail(function() {
+            setSaveStatus('error', almaseoSitemaps.i18n.error || 'Save failed');
+            showToast(almaseoSitemaps.i18n.error || 'Save failed', 'error');
         });
     }
     
@@ -84,14 +151,14 @@
     }
     
     /**
-     * Mark settings as changed
+     * Mark settings as changed and schedule a debounced auto-save.
+     *
+     * The previous fadeIn of `.almaseo-save-all` was dead — that class
+     * is never rendered by any tab partial. Save status is now visible
+     * through the #almaseo-save-status pill set inside saveSettings().
      */
     function markChanged() {
-        if (!hasChanges) {
-            hasChanges = true;
-            $('.almaseo-save-all').fadeIn();
-        }
-        // Auto-save after 1 second of no changes
+        hasChanges = true;
         clearTimeout(window.autoSaveTimeout);
         window.autoSaveTimeout = setTimeout(function() {
             saveSettings(true);
@@ -1255,13 +1322,12 @@ jQuery(function($) {
     });
     
     /**
-     * Storage mode toggle
+     * Storage mode toggle. Replaced the dead .almaseo-save-all.show() call
+     * (no element by that class is rendered anywhere) with markChanged()
+     * so the auto-save debounce actually fires.
      */
     $('input[name="storage_mode"]').on('change', function() {
         const mode = $(this).val();
-        $('.almaseo-save-all').show();
-        
-        // Show/hide relevant controls
         if (mode === 'static') {
             $('#recalculate').hide();
             $('#rebuild-static').show();
@@ -1269,13 +1335,25 @@ jQuery(function($) {
             $('#rebuild-static').hide();
             $('#recalculate').show();
         }
+        markChanged();
     });
-    
+
     /**
-     * Gzip toggle
+     * Gzip toggle.
      */
     $('#enable-gzip').on('change', function() {
-        $('.almaseo-save-all').show();
+        markChanged();
+    });
+
+    /**
+     * Advanced exclusion rules — taxonomies, authors, older-than-years.
+     * Bind change events to the auto-save debounce. The posts/pages/cpts
+     * providers already apply these filters at the SQL level (see
+     * Alma_Provider_Posts::build_exclude_joins / build_exclude_where);
+     * what was missing was the JS save payload + PHP accept.
+     */
+    $('#exclude-taxonomies, #exclude-authors, #exclude-older-than').on('change', function() {
+        markChanged();
     });
     
     /**

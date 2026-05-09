@@ -281,6 +281,33 @@ class Alma_Sitemap_Ajax_Handlers {
             );
         }
         
+        // Exclude rules. Used by Alma_Provider_Posts / Pages / CPTs to filter
+        // sitemap output at the SQL level (see build_exclude_joins /
+        // build_exclude_where in those providers). Sanitize term IDs and
+        // author IDs to ints; clamp older_than_years to a reasonable range.
+        if (isset($post_data['exclude'])) {
+            $tax_in     = $post_data['exclude']['taxonomies'] ?? array();
+            $author_in  = $post_data['exclude']['authors'] ?? array();
+            $tax_ids    = is_array($tax_in) ? array_values(array_filter(array_map('absint', $tax_in))) : array();
+            $author_ids = is_array($author_in) ? array_values(array_filter(array_map('absint', $author_in))) : array();
+            $years      = absint($post_data['exclude']['older_than_years'] ?? 0);
+            if ($years > 50) {
+                $years = 50;
+            }
+
+            $settings['exclude'] = array(
+                'taxonomies'       => $tax_ids,
+                'authors'          => $author_ids,
+                'older_than_years' => $years,
+            );
+        } else {
+            $settings['exclude'] = $existing['exclude'] ?? array(
+                'taxonomies'       => array(),
+                'authors'          => array(),
+                'older_than_years' => 0,
+            );
+        }
+
         // Preserve health stats
         $settings['health'] = $existing['health'] ?? array();
         

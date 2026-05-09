@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.13.7
+Stable tag: 1.13.8
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.13.8 =
+* Fix: Sitemaps → Types & Rules tab now actually saves every control on the screen. The auto-save payload was missing `perf` (Static / Dynamic mode + Gzip) and `exclude` (Advanced Exclusion Rules — taxonomies, authors, older-than-years), so toggling those did nothing. Payload now includes them; the storage_mode and gzip change handlers were also calling a dead `.almaseo-save-all.show()` instead of triggering the debounced save — switched to the proper `markChanged()` path.
+* Fix: Save success and error toasts were targeting `#almaseo-toast` which doesn't exist in the rendered DOM (the actual container is `#almaseo-toast-container`, used by the tabs bundle). The Types & Rules auto-save was already firing successfully but the user had no visible confirmation, which is why "no save button" felt like nothing was working. Toast helper rewritten to match the existing container, and a small "Saving… / Saved" status pill is now shown next to the header actions (Open / Copy / Rebuild) on every change so the auto-save flow is observable without adding a misleading explicit Save button.
+* Fix: Advanced Exclusion Rules (taxonomies, authors, older-than-years) — the JS save and PHP `handle_save_settings` accept paths were both missing for these. The runtime side has been correctly implemented in `Alma_Provider_Posts` / `Alma_Provider_Pages` / `Alma_Provider_CPTs` for some time (`build_exclude_joins` and `build_exclude_where` apply the filters at the SQL level), so toggling the dropdowns now actually changes which URLs the sitemaps include.
 
 = 1.13.7 =
 * Fix: Sitemaps panel — foundation. The main `sitemaps-consolidated.js` bundle was throwing `TypeError: Cannot read properties of undefined` at module-load on every page view because PHP localized its data as `almaseo_sitemaps` (snake_case) while JS read `window.almaseoSitemaps` (camelCase) ~70 times. Renamed the localized variable to camelCase to match what JS expects (and to match the rest of the plugin's localize calls — `almaseoAdmin`, `almaseoWoo`, `almaseoInternalLinks`, `almaseoImport`, `almaseoHistory`, `almaseoDH`, `almaseoGSC`, `almaseoWizard`). Also reshaped the localized payload so JS field accesses (`.ajaxUrl`, `.sitemapUrl`, `.settings`, `.i18n.*`) actually find their data.
