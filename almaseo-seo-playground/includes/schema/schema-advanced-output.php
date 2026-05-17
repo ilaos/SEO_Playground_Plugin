@@ -107,6 +107,25 @@ function almaseo_output_advanced_schema() {
 } // end function_exists guard: almaseo_output_advanced_schema
 
 /**
+ * Whether the advanced schema system owns front-end JSON-LD output.
+ *
+ * The legacy emitter (schema-clean.php) calls this to decide whether to
+ * defer, so the two systems never both emit and collide. Mirrors the
+ * feature + global-toggle gates at the top of almaseo_output_advanced_schema().
+ *
+ * @return bool
+ */
+if (!function_exists('almaseo_advanced_schema_active')) {
+function almaseo_advanced_schema_active() {
+    if (!function_exists('almaseo_feature_available') || !almaseo_feature_available('schema_advanced')) {
+        return false;
+    }
+    $settings = get_option('almaseo_schema_advanced_settings', array());
+    return !empty($settings['enabled']);
+}
+} // end function_exists guard: almaseo_advanced_schema_active
+
+/**
  * Build Knowledge Graph node (Organization or Person)
  *
  * @param array $settings Advanced schema settings

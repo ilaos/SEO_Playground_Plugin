@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.14.6
+Stable tag: 1.14.7
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,9 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.14.7 =
+* Fix: Structured data for non-Article schema types (LocalBusiness, Product, Event, Recipe, Person, Organization, etc.) was invalid. The always-on legacy schema emitter stamped the chosen `@type` onto an Article-shaped body — so, for example, a page set to LocalBusiness emitted `headline`, `author`, and `publisher` but had no `name`, `address`, `telephone`, or `priceRange`. Validators flagged this as "Unnamed item" plus missing required fields, even when those fields were filled in and saved. The emitter now builds the node through the shared type-aware builder, so the JSON-LD body matches the selected type and includes the per-type detail fields (address, phone, price range, opening hours, Google Business Profile URL, and so on). It also defers to the Advanced Schema system when that is enabled, so the two never both emit and collide. Unknown types fall back to a valid basic Article.
 
 = 1.14.6 =
 * New: Schema & Meta tab — LocalBusiness schema now has a "Google Business Profile / Maps URL" field. The URL is emitted in the LocalBusiness JSON-LD `sameAs` array, which helps Google connect the page's business entity to your Google Business Profile listing. Available for every LocalBusiness subtype (restaurant, clinic, real-estate office, etc.).

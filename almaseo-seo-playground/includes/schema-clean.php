@@ -52,50 +52,63 @@ function almaseo_output_schema_jsonld() {
         return;
     }
     
+    // Defer to the advanced schema system when it is active — it emits a
+    // richer @graph (knowledge graph + typed node + multi-schema). This
+    // legacy emitter then only runs when advanced schema is switched off,
+    // so the two never both output and collide.
+    if ( function_exists('almaseo_advanced_schema_active')
+        && almaseo_advanced_schema_active()
+        && ! get_post_meta($post->ID, '_almaseo_schema_disable', true) ) {
+        return;
+    }
+
     // Get schema type
     $schema_type = get_post_meta($post->ID, '_almaseo_schema_type', true);
     if (empty($schema_type)) {
         $schema_type = 'Article'; // Default
     }
-    
-    // Build schema data
-    $schema = array(
-        '@context' => 'https://schema.org',
-        '@type' => $schema_type
-    );
-    
-    // Add common properties
-    $schema['headline'] = get_the_title($post->ID);
-    $schema['description'] = get_the_excerpt($post->ID);
-    $schema['datePublished'] = get_the_date('c', $post->ID);
-    $schema['dateModified'] = get_the_modified_date('c', $post->ID);
-    
-    // Add author
-    $author_id = $post->post_author;
-    $author_name = get_the_author_meta('display_name', $author_id);
-    $schema['author'] = array(
-        '@type' => 'Person',
-        'name' => $author_name
-    );
-    
-    // Add publisher (Organization)
-    $schema['publisher'] = array(
-        '@type' => 'Organization',
-        'name' => get_bloginfo('name'),
-        'url' => home_url()
-    );
-    
-    // Add image if available
-    if (has_post_thumbnail($post->ID)) {
-        $image_id = get_post_thumbnail_id($post->ID);
-        $image_url = wp_get_attachment_image_src($image_id, 'full');
-        if ($image_url) {
-            $schema['image'] = $image_url[0];
+
+    // Build the node via the shared, type-aware builder so the body matches
+    // the @type. The previous code stamped @type with the chosen type but
+    // ALWAYS built an Article-shaped body (headline/author/publisher) — which
+    // produced invalid markup for LocalBusiness, Product, Event, Recipe, etc.
+    // (e.g. a LocalBusiness node with no name/address/telephone/priceRange,
+    // which validators flag as "Unnamed item" plus missing required fields).
+    $schema = null;
+    if (function_exists('almaseo_build_schema_node_by_type')) {
+        $built = almaseo_build_schema_node_by_type($post, $schema_type);
+        if (is_array($built)) {
+            $schema = array_merge(array('@context' => 'https://schema.org'), $built);
         }
     }
-    
-    // Add URL
-    $schema['url'] = get_permalink($post->ID);
+
+    // Fallback for types the builder doesn't handle: a valid basic Article.
+    if (!is_array($schema)) {
+        $schema = array(
+            '@context'      => 'https://schema.org',
+            '@type'         => 'Article',
+            'headline'      => get_the_title($post->ID),
+            'description'   => get_the_excerpt($post->ID),
+            'datePublished' => get_the_date('c', $post->ID),
+            'dateModified'  => get_the_modified_date('c', $post->ID),
+            'author'        => array(
+                '@type' => 'Person',
+                'name'  => get_the_author_meta('display_name', $post->post_author),
+            ),
+            'publisher'     => array(
+                '@type' => 'Organization',
+                'name'  => get_bloginfo('name'),
+                'url'   => home_url(),
+            ),
+            'url'           => get_permalink($post->ID),
+        );
+        if (has_post_thumbnail($post->ID)) {
+            $image_url = wp_get_attachment_image_src(get_post_thumbnail_id($post->ID), 'full');
+            if ($image_url) {
+                $schema['image'] = $image_url[0];
+            }
+        }
+    }
     
     // Add custom schema data if set
     $custom_schema = get_post_meta($post->ID, '_almaseo_schema_custom', true);
