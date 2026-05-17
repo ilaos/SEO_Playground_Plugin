@@ -2604,7 +2604,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 <div style="margin-bottom: 12px; padding: 10px 12px; background: linear-gradient(135deg, #eef5ff 0%, #f5f0ff 100%); border: 1px solid #c7d7f0; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
                                     <span style="font-size: 12px; color: #475569; flex: 1; min-width: 200px;">
                                         <span class="dashicons dashicons-cloud" style="color: #2271b1; vertical-align: middle;"></span>
-                                        <?php esc_html_e('Pull this business\'s address, phone, email, service areas and Google Maps URL from its AlmaSEO dashboard profile.', 'almaseo-seo-playground'); ?>
+                                        <?php esc_html_e('Pull this business\'s address, phone, email, service areas, opening hours and Google Maps URL from its AlmaSEO dashboard profile (hours come from the connected Google Business Profile).', 'almaseo-seo-playground'); ?>
                                     </span>
                                     <button type="button" id="almaseo-lb-fill-btn" class="button button-secondary"
                                             data-nonce="<?php echo esc_attr( wp_create_nonce('almaseo_lb_fill') ); ?>">
@@ -2650,6 +2650,17 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                                 if (!fields[name]) { return; }
                                                 var el = document.querySelector('#almaseo-localbusiness-fields [name="' + name + '"]');
                                                 if (el) { el.value = fields[name]; filled++; }
+                                            });
+                                            // Opening hours -> the per-day time pickers
+                                            // (name="almaseo_lb_hours[day][open|close]").
+                                            var hours = res.data.hours || {};
+                                            Object.keys(hours).forEach(function(day){
+                                                var h = hours[day];
+                                                if (!h) { return; }
+                                                var o = document.querySelector('#almaseo-localbusiness-fields [name="almaseo_lb_hours[' + day + '][open]"]');
+                                                var c = document.querySelector('#almaseo-localbusiness-fields [name="almaseo_lb_hours[' + day + '][close]"]');
+                                                if (o && h.open)  { o.value = h.open;  filled++; }
+                                                if (c && h.close) { c.value = h.close; filled++; }
                                             });
                                             if (filled > 0) {
                                                 setStatus(filled + ' <?php echo esc_js( __('field(s) filled from the dashboard profile. Review them, then click Update to save.', 'almaseo-seo-playground') ); ?>', '#1e7e34');

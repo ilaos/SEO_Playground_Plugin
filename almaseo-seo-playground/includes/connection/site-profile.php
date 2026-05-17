@@ -206,6 +206,23 @@ class Site_Profile {
 			$out[ $field ] = array_values( array_filter( array_map( 'sanitize_text_field', $value ) ) );
 		}
 
+		// Opening hours: { day => { open, close } } with 24-hour HH:MM strings.
+		// Sourced from the connected Google Business Profile (regularHours) by
+		// the dashboard's /api/plugin/site-profile endpoint.
+		$hours_in  = isset( $raw['opening_hours'] ) && is_array( $raw['opening_hours'] ) ? $raw['opening_hours'] : array();
+		$hours_out = array();
+		foreach ( array( 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday' ) as $day ) {
+			if ( empty( $hours_in[ $day ] ) || ! is_array( $hours_in[ $day ] ) ) {
+				continue;
+			}
+			$open  = sanitize_text_field( (string) ( $hours_in[ $day ]['open'] ?? '' ) );
+			$close = sanitize_text_field( (string) ( $hours_in[ $day ]['close'] ?? '' ) );
+			if ( preg_match( '/^([01]?\d|2[0-3]):[0-5]\d$/', $open ) && preg_match( '/^([01]?\d|2[0-3]):[0-5]\d$/', $close ) ) {
+				$hours_out[ $day ] = array( 'open' => $open, 'close' => $close );
+			}
+		}
+		$out['opening_hours'] = $hours_out;
+
 		return $out;
 	}
 

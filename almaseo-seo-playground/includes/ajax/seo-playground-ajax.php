@@ -1826,10 +1826,16 @@ function almaseo_ajax_lb_fill_from_profile() {
         'almaseo_lb_area_served'    => $areas,
     );
 
-    if (!array_filter($fields)) {
-        wp_send_json_error(array('message' => 'The dashboard profile for this site has no address or contact details yet. Add them on the AlmaSEO dashboard, then try again.'));
+    // Opening hours, if the dashboard sourced them from Google Business Profile.
+    // Shape: { day => { open: 'HH:MM', close: 'HH:MM' } }.
+    $hours = (isset($profile['opening_hours']) && is_array($profile['opening_hours']))
+        ? $profile['opening_hours']
+        : array();
+
+    if (!array_filter($fields) && empty($hours)) {
+        wp_send_json_error(array('message' => 'The dashboard profile for this site has no address, contact details, or hours yet. Add them on the AlmaSEO dashboard, then try again.'));
     }
 
-    wp_send_json_success(array('fields' => $fields));
+    wp_send_json_success(array('fields' => $fields, 'hours' => $hours));
 }
 } // end function_exists guard: almaseo_ajax_lb_fill_from_profile

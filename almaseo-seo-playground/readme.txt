@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.15.0
+Stable tag: 1.15.1
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,9 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.15.1 =
+* Improvement: The LocalBusiness "Fill from AlmaSEO" button now also fills opening hours. When the client's Google Business Profile is connected on the AlmaSEO dashboard, the button populates the per-day open/close time pickers — sourced from the live Google Business Profile weekly hours — alongside the address, phone, email, Google Maps URL, and service areas. Saturday/Sunday are left blank when the business is closed those days. Hours still require review before saving like the rest of the fields. (Geo coordinates and price range remain manual.)
 
 = 1.15.0 =
 * New: LocalBusiness schema — "Fill from AlmaSEO" button. When the site is connected to the AlmaSEO dashboard, the LocalBusiness panel (Schema & Meta tab) shows a one-click button that populates the business address, city, state, ZIP, phone, email, Google Business Profile / Maps URL, and service areas from the client's dashboard business profile — so you no longer re-type details that already live on the dashboard. The values are filled into the fields for review; nothing is saved until you click Update. Uses the business profile the plugin already syncs from the dashboard (no new connection needed). Opening hours, geo coordinates, and price range are not yet auto-filled — that is planned for a follow-up that sources structured hours from the Google Business Profile integration.
