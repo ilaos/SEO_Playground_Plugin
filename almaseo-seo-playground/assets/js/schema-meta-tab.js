@@ -169,6 +169,11 @@ jQuery(document).ready(function($) {
             success: function(response) {
                 if (response.success && response.data.json) {
                     console.log('[AlmaSEO Preview] Successfully loaded schema from server');
+                    // Reflect the server-resolved schema type in the panel label
+                    // so the preview header isn't stuck on a hardcoded "Article".
+                    if (response.data.type) {
+                        $('#schema-preview-type-label').text(response.data.type);
+                    }
                     // Pretty-print the JSON
                     try {
                         var parsed = JSON.parse(response.data.json);
@@ -191,43 +196,17 @@ jQuery(document).ready(function($) {
         });
     }
     
-    // Local preview generation as fallback
+    // Fallback when the server preview call fails. The server endpoint builds
+    // the real, type-aware schema; this cannot faithfully rebuild non-Article
+    // types client-side. Rather than show a fabricated Article sample that
+    // would be wrong for LocalBusiness / Product / Event / etc. pages, show an
+    // honest message pointing the user at the validator buttons.
     function generateLocalPreview() {
-        var seoTitle = $('#almaseo_title').val() || $('#title').val() || 'Post Title';
-        var seoDesc = $('#almaseo_description').val() || 'Post description';
-        var ogImage = $('#almaseo_og_image').val() || '';
-        var canonical = window.location.origin + '/?p=' + $('#post_ID').val();
-        
-        var jsonLd = {
-            '@context': 'https://schema.org',
-            '@type': 'BlogPosting',
-            'url': canonical,
-            'mainEntityOfPage': {
-                '@type': 'WebPage',
-                '@id': canonical + '#webpage'
-            },
-            'headline': seoTitle,
-            'description': seoDesc.substring(0, 160) + (seoDesc.length > 160 ? '...' : ''),
-            'datePublished': new Date().toISOString(),
-            'dateModified': new Date().toISOString(),
-            'author': {
-                '@type': 'Person',
-                'name': 'Author Name',
-                'url': window.location.origin + '/author/'
-            },
-            'image': ogImage || window.location.origin + '/wp-content/plugins/almaseo-seo-playground-v4/assets/img/default-schema.jpg',
-            'publisher': {
-                '@type': 'Organization',
-                'name': 'Site Name',
-                'url': window.location.origin + '/',
-                'logo': {
-                    '@type': 'ImageObject',
-                    'url': window.location.origin + '/wp-content/plugins/almaseo-seo-playground-v4/assets/img/default-schema.jpg'
-                }
-            }
-        };
-        
-        $('#schema-json-preview').text(JSON.stringify(jsonLd, null, 2));
+        $('#schema-json-preview').text(
+            'Live preview is temporarily unavailable.\n\n' +
+            'Save the page (click Update), then use the "Test in Google Rich Results" ' +
+            'button above to verify the structured data on the published URL.'
+        );
     }
     
     // Update Social Tags Preview

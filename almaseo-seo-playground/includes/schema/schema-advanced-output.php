@@ -566,6 +566,15 @@ function almaseo_build_localbusiness_node($post) {
     $payment = get_post_meta($post->ID, '_almaseo_lb_payment', true);
     if ( $payment ) $node['paymentAccepted'] = $payment;
 
+    // Google Business Profile / Maps URL — emitted in sameAs so Google can
+    // tie this page's LocalBusiness entity to the Business Profile listing.
+    // Kept as an array for parity with the Person/Org/MusicGroup nodes and so
+    // additional sameAs sources can be appended later without a shape change.
+    $google_profile = get_post_meta($post->ID, '_almaseo_lb_google_profile', true);
+    if ( $google_profile ) {
+        $node['sameAs'] = array( $google_profile );
+    }
+
     return $node;
 }
 } // end function_exists guard: almaseo_build_localbusiness_node

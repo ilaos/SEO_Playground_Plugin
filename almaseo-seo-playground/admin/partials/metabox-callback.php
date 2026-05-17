@@ -2471,39 +2471,56 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         <?php endif; // $multi_schema_unlocked ?>
                     </div>
 
-                    <!-- Validator buttons — open this page's URL in Google's Rich Results Test
-                         and Schema.org's validator. Disabled before publish (no public URL). -->
+                    <!-- Validator callout — a prominent card (not plain buttons) so
+                         users actually notice they can test. Both tools fetch the
+                         live public URL, so the notice tells users to publish/save
+                         first; the validators check what's deployed, not the editor. -->
                     <?php
                     $perma = get_permalink($post->ID);
                     $is_published = ($post->post_status === 'publish' && !empty($perma));
                     $rr_url  = 'https://search.google.com/test/rich-results?url=' . rawurlencode($perma);
                     $sch_url = 'https://validator.schema.org/?url=' . rawurlencode($perma);
                     ?>
-                    <div style="margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap;">
-                        <a href="<?php echo $is_published ? esc_url($rr_url) : '#'; ?>"
-                           target="_blank" rel="noopener noreferrer"
-                           class="button button-secondary"
-                           <?php echo $is_published ? '' : 'aria-disabled="true" style="pointer-events:none; opacity:0.5;"'; ?>>
-                            🔍 <?php esc_html_e('Test in Google Rich Results', 'almaseo-seo-playground'); ?>
-                        </a>
-                        <a href="<?php echo $is_published ? esc_url($sch_url) : '#'; ?>"
-                           target="_blank" rel="noopener noreferrer"
-                           class="button button-secondary"
-                           <?php echo $is_published ? '' : 'aria-disabled="true" style="pointer-events:none; opacity:0.5;"'; ?>>
-                            ✓ <?php esc_html_e('Validate on Schema.org', 'almaseo-seo-playground'); ?>
-                        </a>
-                        <?php if (!$is_published): ?>
-                        <span style="font-size: 11px; color: #94a3b8; align-self: center;">
-                            <?php esc_html_e('Publish the page first to enable validators.', 'almaseo-seo-playground'); ?>
-                        </span>
-                        <?php endif; ?>
+                    <div class="almaseo-schema-validator" style="margin-top: 20px; padding: 16px; background: linear-gradient(135deg, #eef5ff 0%, #f5f0ff 100%); border: 1px solid #c7d7f0; border-radius: 8px;">
+                        <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 700; color: #1d2327; display: flex; align-items: center; gap: 6px;">
+                            <span class="dashicons dashicons-search" style="color: #2271b1;"></span>
+                            <?php esc_html_e('Test your structured data', 'almaseo-seo-playground'); ?>
+                        </h4>
+                        <p style="margin: 0 0 12px 0; font-size: 12px; color: #50575e; line-height: 1.5;">
+                            <?php esc_html_e('Run this page through the official Google and Schema.org validators to confirm the markup is valid and eligible for rich results.', 'almaseo-seo-playground'); ?>
+                        </p>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="<?php echo $is_published ? esc_url($rr_url) : '#'; ?>"
+                               target="_blank" rel="noopener noreferrer"
+                               class="button button-primary button-hero"
+                               style="<?php echo $is_published ? '' : 'pointer-events:none; opacity:0.5;'; ?>"
+                               <?php echo $is_published ? '' : 'aria-disabled="true"'; ?>>
+                                🔍 <?php esc_html_e('Test in Google Rich Results', 'almaseo-seo-playground'); ?>
+                            </a>
+                            <a href="<?php echo $is_published ? esc_url($sch_url) : '#'; ?>"
+                               target="_blank" rel="noopener noreferrer"
+                               class="button button-secondary button-hero"
+                               style="<?php echo $is_published ? '' : 'pointer-events:none; opacity:0.5;'; ?>"
+                               <?php echo $is_published ? '' : 'aria-disabled="true"'; ?>>
+                                ✓ <?php esc_html_e('Validate on Schema.org', 'almaseo-seo-playground'); ?>
+                            </a>
+                        </div>
+                        <p style="margin: 12px 0 0 0; padding: 8px 10px; background: #fffbe6; border: 1px solid #f5d76e; border-radius: 4px; font-size: 11px; color: #5c4a00; line-height: 1.5;">
+                            <?php if (!$is_published): ?>
+                                <strong>⚠ <?php esc_html_e('Publish this page first.', 'almaseo-seo-playground'); ?></strong>
+                                <?php esc_html_e('The validators load the page\'s live public URL, which does not exist until the page is published.', 'almaseo-seo-playground'); ?>
+                            <?php else: ?>
+                                <strong>💾 <?php esc_html_e('Save your changes before testing.', 'almaseo-seo-playground'); ?></strong>
+                                <?php esc_html_e('These tools fetch the live published page — they validate what is currently public, not unsaved edits in this editor. Click Update first, then test.', 'almaseo-seo-playground'); ?>
+                            <?php endif; ?>
+                        </p>
                     </div>
 
                     <!-- Collapsible Schema Preview -->
                     <div class="almaseo-collapsible" style="margin-top: 20px;">
                         <button type="button" class="almaseo-collapsible-toggle" data-target="schema-jsonld-preview" style="width: 100%; text-align: left; padding: 10px; background: #f6f7f7; border: 1px solid #c3c4c7; border-radius: 3px; cursor: pointer;">
                             <span class="dashicons dashicons-arrow-down-alt2" style="margin-right: 5px;"></span>
-                            Preview: Article JSON-LD
+                            Preview: <span id="schema-preview-type-label">Schema</span> JSON-LD
                         </button>
                         <div id="schema-jsonld-preview" class="almaseo-collapsible-content" style="display: none; margin-top: 10px; padding: 15px; background: #2c3338; border-radius: 3px;">
                             <div style="position: relative;">
@@ -2570,6 +2587,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             $lb_lng        = get_post_meta($post->ID, '_almaseo_lb_lng', true);
                             $lb_area       = get_post_meta($post->ID, '_almaseo_lb_area_served', true);
                             $lb_payment    = get_post_meta($post->ID, '_almaseo_lb_payment', true);
+                            $lb_google_profile = get_post_meta($post->ID, '_almaseo_lb_google_profile', true);
                             $lb_hours_raw  = get_post_meta($post->ID, '_almaseo_lb_hours', true);
                             $lb_hours      = is_array($lb_hours_raw) ? $lb_hours_raw : ( $lb_hours_raw ? json_decode($lb_hours_raw, true) : array() );
                             if ( ! is_array($lb_hours) ) $lb_hours = array();
@@ -2646,6 +2664,12 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 <div style="margin-bottom: 10px;">
                                     <label style="font-size: 11px; font-weight: 600; display: block; margin-bottom: 3px;">Payment Accepted</label>
                                     <input type="text" name="almaseo_lb_payment" value="<?php echo esc_attr($lb_payment); ?>" placeholder="Cash, Credit Card, Bitcoin" class="almaseo-input" style="width: 100%;" />
+                                </div>
+
+                                <div style="margin-bottom: 10px;">
+                                    <label for="almaseo_lb_google_profile" style="font-size: 11px; font-weight: 600; display: block; margin-bottom: 3px;">Google Business Profile / Maps URL</label>
+                                    <input type="url" id="almaseo_lb_google_profile" name="almaseo_lb_google_profile" value="<?php echo esc_attr($lb_google_profile); ?>" placeholder="https://maps.google.com/?cid=1234567890" class="almaseo-input" style="width: 100%;" />
+                                    <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;">Your Google Maps listing URL. Emitted in the schema's <code>sameAs</code> so Google can connect this page to your Business Profile.</p>
                                 </div>
 
                                 <fieldset style="border: 1px solid #dcdcde; border-radius: 4px; padding: 10px;">

@@ -221,6 +221,9 @@ function almaseo_save_seo_playground_meta($post_id) {
     if (isset($_POST['almaseo_lb_email'])) {
         update_post_meta($post_id, '_almaseo_lb_email', sanitize_email(wp_unslash($_POST['almaseo_lb_email'])));
     }
+    if (isset($_POST['almaseo_lb_google_profile'])) {
+        update_post_meta($post_id, '_almaseo_lb_google_profile', esc_url_raw(wp_unslash($_POST['almaseo_lb_google_profile'])));
+    }
     if (isset($_POST['almaseo_lb_lat'])) {
         update_post_meta($post_id, '_almaseo_lb_lat', sanitize_text_field(wp_unslash($_POST['almaseo_lb_lat'])));
     }

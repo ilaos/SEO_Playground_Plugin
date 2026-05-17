@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.14.5
+Stable tag: 1.14.6
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.14.6 =
+* New: Schema & Meta tab — LocalBusiness schema now has a "Google Business Profile / Maps URL" field. The URL is emitted in the LocalBusiness JSON-LD `sameAs` array, which helps Google connect the page's business entity to your Google Business Profile listing. Available for every LocalBusiness subtype (restaurant, clinic, real-estate office, etc.).
+* Improvement: The schema validator links (Google Rich Results Test, Schema.org validator) are now a prominent callout card instead of two easy-to-miss grey buttons, with a clear reminder that the validators fetch the live published URL — so changes must be saved/published before testing. Before publish, the notice explains the validators need a public URL.
+* Fix: The schema JSON-LD preview panel no longer hardcodes the label "Article" — it now shows the actual schema type being previewed (LocalBusiness, Product, Event, etc.). When the live preview can't be generated, it shows an honest "save and use the validators" message instead of fabricating a misleading Article sample.
 
 = 1.14.5 =
 * Fix: Sitemap pages (`/sitemap.xml` and the child sitemaps) showed a blank page in the browser. Every sitemap file references an XSL stylesheet at `/sitemap.xsl` via an `xml-stylesheet` instruction, but that stylesheet was never served — the URL returned the site's HTML 404 page, so the browser's XSLT transform failed and rendered nothing. (This was masked until 1.14.4, when the sitemap stopped downloading and started rendering in-browser.) The plugin now serves `/sitemap.xsl` — a clean, human-readable styled view of the sitemap, the same approach Yoast, Rank Math, AIOSEO, and WordPress core use. Existing sites are fixed as soon as they update; no sitemap rebuild is required. The dynamic (non-static) sitemap output now emits the stylesheet reference too, so both storage modes render consistently.
