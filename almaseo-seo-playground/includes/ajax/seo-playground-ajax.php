@@ -1779,3 +1779,57 @@ function almaseo_ajax_get_schema_preview() {
     ));
 }
 } // end function_exists guard: almaseo_ajax_get_schema_preview
+
+/* ────────────────────────────────────────────────────────────────────────
+ * LocalBusiness schema — "Fill from AlmaSEO" support.
+ *
+ * Returns the connected site's business profile (already cached locally by
+ * AlmaSEO\Connection\Site_Profile, pulled from the dashboard) mapped onto the
+ * LocalBusiness metabox field names, so the editor can one-click populate
+ * name/address/phone/email/Google Maps URL instead of re-typing data that
+ * already lives on the client's AlmaSEO dashboard profile.
+ * ──────────────────────────────────────────────────────────────────────── */
+add_action('wp_ajax_almaseo_lb_fill_from_profile', 'almaseo_ajax_lb_fill_from_profile');
+if (!function_exists('almaseo_ajax_lb_fill_from_profile')) {
+function almaseo_ajax_lb_fill_from_profile() {
+    if (!current_user_can('edit_posts')) {
+        wp_send_json_error(array('message' => 'Insufficient permissions.'));
+    }
+    check_ajax_referer('almaseo_lb_fill', 'nonce');
+
+    if (!class_exists('AlmaSEO\\Connection\\Site_Profile')) {
+        wp_send_json_error(array('message' => 'The AlmaSEO connection module is unavailable.'));
+    }
+
+    // Refresh the cached profile if it's stale, then read it.
+    \AlmaSEO\Connection\Site_Profile::ensure_fresh();
+    $profile = \AlmaSEO\Connection\Site_Profile::profile_data();
+
+    if (empty($profile) || !is_array($profile)) {
+        wp_send_json_error(array('message' => 'No business profile is available from the AlmaSEO dashboard for this site.'));
+    }
+
+    $areas = '';
+    if (!empty($profile['service_areas']) && is_array($profile['service_areas'])) {
+        $areas = implode(', ', $profile['service_areas']);
+    }
+
+    // Keys are the LocalBusiness metabox input name="" attributes.
+    $fields = array(
+        'almaseo_lb_phone'          => isset($profile['phone']) ? $profile['phone'] : '',
+        'almaseo_lb_email'          => isset($profile['email']) ? $profile['email'] : '',
+        'almaseo_lb_street'         => isset($profile['street_address']) ? $profile['street_address'] : '',
+        'almaseo_lb_city'           => isset($profile['city']) ? $profile['city'] : '',
+        'almaseo_lb_state'          => isset($profile['state']) ? $profile['state'] : '',
+        'almaseo_lb_zip'            => isset($profile['zip_code']) ? $profile['zip_code'] : '',
+        'almaseo_lb_google_profile' => isset($profile['google_maps_url']) ? $profile['google_maps_url'] : '',
+        'almaseo_lb_area_served'    => $areas,
+    );
+
+    if (!array_filter($fields)) {
+        wp_send_json_error(array('message' => 'The dashboard profile for this site has no address or contact details yet. Add them on the AlmaSEO dashboard, then try again.'));
+    }
+
+    wp_send_json_success(array('fields' => $fields));
+}
+} // end function_exists guard: almaseo_ajax_lb_fill_from_profile

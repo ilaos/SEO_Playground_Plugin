@@ -2596,6 +2596,76 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             <div id="almaseo-localbusiness-fields" style="<?php echo esc_attr(($show_lb ? '' : 'display:none; ') . 'margin-top: 15px; padding: 15px; background: #f9fafb; border: 1px solid #e2e4e7; border-radius: 6px;'); ?>">
                                 <h4 style="margin: 0 0 12px 0; font-size: 13px; font-weight: 600; color: #1d2327;">Local Business Details</h4>
 
+                                <?php if ( $is_connected ) : ?>
+                                <!-- One-click fill from the client's AlmaSEO dashboard profile.
+                                     Pulls name/address/phone/email/Google Maps URL/service areas
+                                     so the agency doesn't re-type data that already lives on the
+                                     dashboard. Hours/geo/price stay manual (see Fill follow-up). -->
+                                <div style="margin-bottom: 12px; padding: 10px 12px; background: linear-gradient(135deg, #eef5ff 0%, #f5f0ff 100%); border: 1px solid #c7d7f0; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                                    <span style="font-size: 12px; color: #475569; flex: 1; min-width: 200px;">
+                                        <span class="dashicons dashicons-cloud" style="color: #2271b1; vertical-align: middle;"></span>
+                                        <?php esc_html_e('Pull this business\'s address, phone, email, service areas and Google Maps URL from its AlmaSEO dashboard profile.', 'almaseo-seo-playground'); ?>
+                                    </span>
+                                    <button type="button" id="almaseo-lb-fill-btn" class="button button-secondary"
+                                            data-nonce="<?php echo esc_attr( wp_create_nonce('almaseo_lb_fill') ); ?>">
+                                        <span class="dashicons dashicons-update" style="vertical-align: middle;"></span>
+                                        <?php esc_html_e('Fill from AlmaSEO', 'almaseo-seo-playground'); ?>
+                                    </button>
+                                </div>
+                                <p id="almaseo-lb-fill-status" style="display:none; margin: -4px 0 12px 0; font-size: 11px; line-height: 1.5;"></p>
+                                <script>
+                                (function(){
+                                    var btn = document.getElementById('almaseo-lb-fill-btn');
+                                    if (!btn || btn.dataset.bound) { return; }
+                                    btn.dataset.bound = '1';
+                                    var statusEl = document.getElementById('almaseo-lb-fill-status');
+                                    function setStatus(msg, color){
+                                        if (!statusEl) { return; }
+                                        statusEl.textContent = msg;
+                                        statusEl.style.color = color;
+                                        statusEl.style.display = '';
+                                    }
+                                    btn.addEventListener('click', function(){
+                                        var orig = btn.innerHTML;
+                                        btn.disabled = true;
+                                        setStatus('<?php echo esc_js( __('Fetching from AlmaSEO…', 'almaseo-seo-playground') ); ?>', '#475569');
+                                        fetch(ajaxurl, {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                                            body: new URLSearchParams({
+                                                action: 'almaseo_lb_fill_from_profile',
+                                                nonce: btn.dataset.nonce
+                                            })
+                                        })
+                                        .then(function(r){ return r.json(); })
+                                        .then(function(res){
+                                            btn.disabled = false; btn.innerHTML = orig;
+                                            if (!res || !res.success) {
+                                                setStatus((res && res.data && res.data.message) ? res.data.message : 'Could not load the dashboard profile.', '#b32d2e');
+                                                return;
+                                            }
+                                            var fields = res.data.fields || {};
+                                            var filled = 0;
+                                            Object.keys(fields).forEach(function(name){
+                                                if (!fields[name]) { return; }
+                                                var el = document.querySelector('#almaseo-localbusiness-fields [name="' + name + '"]');
+                                                if (el) { el.value = fields[name]; filled++; }
+                                            });
+                                            if (filled > 0) {
+                                                setStatus(filled + ' <?php echo esc_js( __('field(s) filled from the dashboard profile. Review them, then click Update to save.', 'almaseo-seo-playground') ); ?>', '#1e7e34');
+                                            } else {
+                                                setStatus('<?php echo esc_js( __('No address or contact details found on the dashboard profile for this site.', 'almaseo-seo-playground') ); ?>', '#b3801e');
+                                            }
+                                        })
+                                        .catch(function(){
+                                            btn.disabled = false; btn.innerHTML = orig;
+                                            setStatus('<?php echo esc_js( __('Network error contacting AlmaSEO.', 'almaseo-seo-playground') ); ?>', '#b32d2e');
+                                        });
+                                    });
+                                })();
+                                </script>
+                                <?php endif; ?>
+
                                 <div class="almaseo-field-group" style="margin-bottom: 10px;">
                                     <label for="almaseo_lb_subtype" style="font-size: 12px; font-weight: 600;">Business Type</label>
                                     <select id="almaseo_lb_subtype" name="almaseo_lb_subtype" class="almaseo-select" style="width: 100%;">
