@@ -21,9 +21,20 @@ class AI_Autofill_Generator {
     /**
      * Check whether AI autofill is available (site connected to AlmaSEO dashboard).
      *
+     * Defers to the canonical connection helper so JWT-host sites (where
+     * `almaseo_app_password` holds a JWT instead of an app password) are
+     * treated as connected. The dashboard's outbound auth accepts either
+     * credential via Basic Auth.
+     *
      * @return bool
      */
     public static function is_available() {
+        if ( function_exists( 'seo_playground_is_alma_connected' ) ) {
+            if ( ! seo_playground_is_alma_connected() ) {
+                return false;
+            }
+        }
+        // Outbound calls still need a credential in the password slot.
         $user = get_option( 'almaseo_connected_user', '' );
         $pass = get_option( 'almaseo_app_password', '' );
         return ! empty( $user ) && ! empty( $pass );
@@ -159,75 +170,4 @@ class AI_Autofill_Generator {
         return $result;
     }
 
-    /**
-     * Apply AI-generated metadata to a post, falling back to local generation.
-     *
-     * @param int   $post_id   The post ID.
-     * @param array $fields    Optional specific fields to fill.
-     * @param bool  $overwrite Whether to overwrite existing values.
-     * @return array The generated/existing values for each field.
-     */
-    public static function apply( $post_id, $fields = array(), $overwrite = false ) {
-        require_once __DIR__ . '/autofill-generator.php';
-
-        // Try AI first
-        $ai_result = self::generate_single( $post_id );
-
-        if ( ! $ai_result ) {
-            // Fall back to local generator
-            return Autofill_Generator::apply( $post_id, $fields, $overwrite );
-        }
-
-        // Apply AI results using the same meta key map as Autofill_Generator
-        $meta_map = array(
-            'meta_title'       => array( '_almaseo_title', '_almaseo_meta_title' ),
-            'meta_description' => array( '_almaseo_description', '_almaseo_meta_description' ),
-            'focus_keyword'    => array( '_almaseo_focus_keyword' ),
-            'og_title'         => array( '_almaseo_og_title' ),
-            'og_description'   => array( '_almaseo_og_description' ),
-        );
-
-        $result = array();
-        foreach ( $meta_map as $key => $meta_keys ) {
-            if ( ! empty( $fields ) && ! in_array( $key, $fields, true ) ) {
-                // Read existing value
-                foreach ( $meta_keys as $mk ) {
-                    $val = (string) get_post_meta( $post_id, $mk, true );
-                    if ( ! empty( $val ) ) {
-                        $result[ $key ] = $val;
-                        break;
-                    }
-                }
-                if ( ! isset( $result[ $key ] ) ) {
-                    $result[ $key ] = '';
-                }
-                continue;
-            }
-
-            $current = '';
-            foreach ( $meta_keys as $mk ) {
-                $val = (string) get_post_meta( $post_id, $mk, true );
-                if ( ! empty( $val ) ) {
-                    $current = $val;
-                    break;
-                }
-            }
-
-            if ( $overwrite || empty( $current ) ) {
-                $value = isset( $ai_result[ $key ] ) ? $ai_result[ $key ] : '';
-                if ( ! empty( $value ) ) {
-                    foreach ( $meta_keys as $mk ) {
-                        update_post_meta( $post_id, $mk, sanitize_text_field( $value ) );
-                    }
-                    $result[ $key ] = $value;
-                } else {
-                    $result[ $key ] = $current;
-                }
-            } else {
-                $result[ $key ] = $current;
-            }
-        }
-
-        return $result;
-    }
 }

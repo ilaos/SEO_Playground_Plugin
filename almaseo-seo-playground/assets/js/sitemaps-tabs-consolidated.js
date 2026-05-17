@@ -196,29 +196,39 @@ jQuery(function($) {
                 }
             });
         
-        // Fetch live stats
+        // Fetch live stats. The chips rendered by sitemaps-screen-v2.php use
+        // `.num` inside `[data-live-stat="…"]`, not `.stat-number` — the
+        // previous selector found nothing and the poll silently no-op'd.
         fetch(ajaxUrl + '?action=almaseo_get_live_stats&_wpnonce=' + nonce)
             .then(response => response.json())
             .then(data => {
-                if (data.success && data.data) {
-                    // Update file count
-                    const filesChip = qs('[data-live-stat="files"]');
-                    if (filesChip) {
-                        const number = qs('.stat-number', filesChip);
-                        if (number) number.textContent = data.data.files || '0';
-                    }
-                    
-                    // Update URL count
-                    const urlsChip = qs('[data-live-stat="urls"]');
-                    if (urlsChip) {
-                        const number = qs('.stat-number', urlsChip);
-                        if (number) number.textContent = data.data.urls || '0';
-                    }
+                if (!data.success || !data.data) return;
+                setChip('files', formatNumber(data.data.files));
+                setChip('urls',  formatNumber(data.data.urls));
+                if (data.data.last_built) {
+                    setChip('last-built', data.data.last_built);
+                    const lastBuiltChip = qs('[data-live-stat="last-built"]');
+                    if (lastBuiltChip) lastBuiltChip.hidden = false;
                 }
             })
             .catch(error => {
                 console.error('Failed to update stats:', error);
             });
+    }
+
+    /**
+     * Update the `.num` text inside a [data-live-stat="<key>"] chip.
+     */
+    function setChip(key, text) {
+        const chip = qs('[data-live-stat="' + key + '"]');
+        if (!chip) return;
+        const num = qs('.num', chip);
+        if (num) num.textContent = text;
+    }
+
+    function formatNumber(v) {
+        const n = Number(v || 0);
+        return Number.isFinite(n) ? n.toLocaleString() : '0';
     }
     
     /**
@@ -246,26 +256,26 @@ jQuery(function($) {
             if (data.success) {
                 showToast('Sitemap rebuilt successfully', 'success');
 
-                // Reflect the new Last Built timestamp in the stats card
-                // immediately; updateLiveStats() only touches the live-stat
-                // chips, not the data-stat="last-built" cell, so without this
-                // the user has to hard-refresh to see the timestamp move off
-                // "Never" or its previous value.
-                const lastBuilt = qs('[data-stat="last-built"]');
-                if (lastBuilt) lastBuilt.textContent = 'Just now';
-
-                // Update files/urls counts from the response payload directly
-                // rather than waiting on the polling tick.
+                // Update the header chips directly from the rebuild response
+                // payload so the user sees fresh numbers immediately. The
+                // earlier `[data-stat="…"]` selectors targeted attributes that
+                // don't exist in the rendered markup — the chips are written
+                // as `[data-live-stat="…"] .num`. Without these the header
+                // stayed at 0/0 right after a successful build.
                 if (data.data && data.data.stats) {
-                    const filesNum = qs('[data-stat="files"]');
-                    if (filesNum && typeof data.data.stats.files === 'number') {
-                        filesNum.textContent = data.data.stats.files.toLocaleString();
+                    if (typeof data.data.stats.files === 'number') {
+                        setChip('files', data.data.stats.files.toLocaleString());
                     }
-                    const urlsNum = qs('[data-stat="urls"]');
-                    if (urlsNum && typeof data.data.stats.urls === 'number') {
-                        urlsNum.textContent = data.data.stats.urls.toLocaleString();
+                    if (typeof data.data.stats.urls === 'number') {
+                        setChip('urls',  data.data.stats.urls.toLocaleString());
                     }
                 }
+                // The live-stats refresh below picks up the human_time_diff
+                // text for last-built from the same source the page-render
+                // helper uses, so the chip text stays consistent with the
+                // rest of the i18n.
+                const lastBuiltChip = qs('[data-live-stat="last-built"]');
+                if (lastBuiltChip) lastBuiltChip.hidden = false;
 
                 setTimeout(updateLiveStats, 1000);
             } else {

@@ -44,7 +44,6 @@ class AlmaSEO_Tier_Labels {
         'almaseo-eeat'               => 'pro',
         'almaseo-gsc-monitor'        => 'pro',
         'almaseo-schema-drift'       => 'pro',
-        'almaseo-snippet-targets'    => 'pro',
         'seo-playground-woocommerce' => 'pro',
     );
 

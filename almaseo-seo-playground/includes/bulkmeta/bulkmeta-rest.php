@@ -128,7 +128,7 @@ class BulkMeta_REST {
             )
         ));
         
-        // Bulk operations endpoint
+        // Bulk operations endpoint — operates on an explicit ID list.
         register_rest_route($namespace, '/bulkmeta/bulk', array(
             'methods' => \WP_REST_Server::CREATABLE,
             'callback' => array(__CLASS__, 'bulk_operation'),
@@ -137,25 +137,44 @@ class BulkMeta_REST {
                 'ids' => array(
                     'type' => 'array',
                     'required' => true,
-                    'items' => array(
-                        'type' => 'integer'
-                    )
+                    'items' => array('type' => 'integer'),
                 ),
                 'op' => array(
                     'type' => 'string',
                     'required' => true,
                     'enum' => array('reset', 'append', 'prepend', 'replace'),
-                    'sanitize_callback' => 'sanitize_text_field'
+                    'sanitize_callback' => 'sanitize_text_field',
                 ),
                 'field' => array(
                     'type' => 'string',
                     'enum' => array('title', 'description'),
-                    'sanitize_callback' => 'sanitize_text_field'
+                    'sanitize_callback' => 'sanitize_text_field',
                 ),
-                'args' => array(
-                    'type' => 'object'
-                )
-            )
+                'args' => array('type' => 'object'),
+            ),
+        ));
+
+        // Bulk-all — server-side operation across every post matching a
+        // filter spec. Filter shape mirrors the list endpoint.
+        register_rest_route($namespace, '/bulkmeta/bulk-all', array(
+            'methods'             => \WP_REST_Server::CREATABLE,
+            'callback'            => array(__CLASS__, 'bulk_all'),
+            'permission_callback' => array(__CLASS__, 'check_permission'),
+            'args' => array(
+                'op' => array(
+                    'type' => 'string',
+                    'required' => true,
+                    'enum' => array('reset', 'append', 'prepend', 'replace'),
+                    'sanitize_callback' => 'sanitize_text_field',
+                ),
+                'field' => array(
+                    'type' => 'string',
+                    'enum' => array('title', 'description'),
+                    'sanitize_callback' => 'sanitize_text_field',
+                ),
+                'args'    => array('type' => 'object'),
+                'filters' => array('type' => 'object'),
+            ),
         ));
         
         // Get post types endpoint
@@ -249,185 +268,90 @@ class BulkMeta_REST {
             )
         ));
 
-        // Test endpoint for debugging
-        register_rest_route($namespace, '/bulkmeta/test', array(
-            'methods' => \WP_REST_Server::READABLE,
-            'callback' => array(__CLASS__, 'test_endpoint'),
-            'permission_callback' => array(__CLASS__, 'check_permission')
-        ));
     }
-    
+
     /**
-     * Check permission for REST requests
+     * Check permission for REST requests.
+     *
+     * Mirrors the page render gate (almaseo_feature_available('bulkmeta'))
+     * so REST and UI agree on access. Also requires manage_options.
      */
     public static function check_permission() {
-        if (!almaseo_is_pro()) {
+        if ( function_exists( 'almaseo_feature_available' ) && ! almaseo_feature_available( 'bulkmeta' ) ) {
             return new \WP_Error(
-                'pro_required',
-                __('This feature requires AlmaSEO Pro.', 'almaseo-seo-playground'),
-                array('status' => 403)
+                'feature_locked',
+                __( 'This feature requires AlmaSEO Pro.', 'almaseo-seo-playground' ),
+                array( 'status' => 403 )
             );
         }
-        
-        return current_user_can('manage_options');
+        return current_user_can( 'manage_options' );
     }
     
     /**
      * Get posts endpoint
      */
     public static function get_posts($request) {
-        // Parse type parameter safely with defaults
-        $types = $request->get_param('type');
-        $types = $types ? array_map('sanitize_key', wp_parse_list($types)) : array('post', 'page');
-        
-        // Parse status parameter safely with defaults
-        $status = $request->get_param('status');
-        $status = $status ? array_map('sanitize_key', wp_parse_list($status)) : array('publish', 'draft');
-        
-        // Debug logging
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('BulkMeta REST: Types: ' . implode(',', $types) . ', Status: ' . implode(',', $status));
-        }
-        
-        // Build WP_Query args directly
-        $args = array(
-            'post_type' => $types,
-            'post_status' => $status,
-            'posts_per_page' => max(1, (int) $request->get_param('per_page') ?: 20),
-            'paged' => max(1, (int) $request->get_param('page') ?: 1),
-            'orderby' => $request->get_param('orderby') ?: 'modified',
-            'order' => $request->get_param('order') ?: 'DESC',
-            'no_found_rows' => false, // Important: we need pagination info
-            'fields' => 'ids' // Get IDs only for performance
+        // Build filter spec from request, then translate via the shared
+        // helper so the list endpoint and /bulk-all use identical query
+        // logic. Pagination + sort are list-only and layered on after.
+        $filters = array(
+            'type'     => $request->get_param('type'),
+            'status'   => $request->get_param('status'),
+            'search'   => $request->get_param('search'),
+            'taxonomy' => $request->get_param('taxonomy'),
+            'term'     => $request->get_param('term'),
+            'from'     => $request->get_param('from'),
+            'to'       => $request->get_param('to'),
+            'missing'  => $request->get_param('missing'),
         );
-        
-        // Handle search
-        $search = $request->get_param('search');
-        if (!empty($search)) {
-            $args['s'] = $search;
-        }
-        
-        // Handle taxonomy/term filter
-        $taxonomy = $request->get_param('taxonomy');
-        $term = $request->get_param('term');
-        if (!empty($taxonomy) && !empty($term)) {
-            $args['tax_query'] = array(
-                array(
-                    'taxonomy' => $taxonomy,
-                    'field' => 'term_id',
-                    'terms' => $term
-                )
-            );
-        }
-        
-        // Handle date range
-        $from = $request->get_param('from');
-        $to = $request->get_param('to');
-        if (!empty($from) || !empty($to)) {
-            $date_query = array();
-            if (!empty($from)) {
-                $date_query['after'] = $from;
+        $args = BulkMeta_Controller::build_query_args($filters);
+        $args['posts_per_page'] = max(1, (int) $request->get_param('per_page') ?: 20);
+        $args['paged']          = max(1, (int) $request->get_param('page') ?: 1);
+        $args['orderby']        = $request->get_param('orderby') ?: 'modified';
+        $args['order']          = $request->get_param('order') ?: 'DESC';
+        $args['no_found_rows']  = false;
+
+        $query = new \WP_Query( $args );
+
+        // Build response items from the primed post objects.
+        $items = array_map( function( $post ) {
+            $pid = (int) $post->ID;
+
+            // Get metadata — check both possible meta keys
+            $t = (string) get_post_meta( $pid, '_almaseo_meta_title', true );
+            if ( $t === '' ) {
+                $t = (string) get_post_meta( $pid, '_almaseo_title', true );
             }
-            if (!empty($to)) {
-                $date_query['before'] = $to;
+            $d = (string) get_post_meta( $pid, '_almaseo_meta_description', true );
+            if ( $d === '' ) {
+                $d = (string) get_post_meta( $pid, '_almaseo_desc', true );
             }
-            $args['date_query'] = array($date_query);
-        }
-        
-        // Handle missing metadata filter
-        // A post is "missing" if BOTH the primary AND fallback meta keys are empty/absent.
-        // We use a nested meta_query: (title primary empty AND title fallback empty) OR (desc primary empty AND desc fallback empty)
-        $missing = $request->get_param('missing');
-        if (!empty($missing)) {
-            $args['meta_query'] = array(
-                'relation' => 'OR',
-                // Title missing: both _almaseo_meta_title AND _almaseo_title are empty/absent
-                array(
-                    'relation' => 'AND',
-                    array(
-                        'relation' => 'OR',
-                        array( 'key' => '_almaseo_meta_title', 'compare' => 'NOT EXISTS' ),
-                        array( 'key' => '_almaseo_meta_title', 'value' => '', 'compare' => '=' ),
-                    ),
-                    array(
-                        'relation' => 'OR',
-                        array( 'key' => '_almaseo_title', 'compare' => 'NOT EXISTS' ),
-                        array( 'key' => '_almaseo_title', 'value' => '', 'compare' => '=' ),
-                    ),
-                ),
-                // Description missing: both _almaseo_meta_description AND _almaseo_desc are empty/absent
-                array(
-                    'relation' => 'AND',
-                    array(
-                        'relation' => 'OR',
-                        array( 'key' => '_almaseo_meta_description', 'compare' => 'NOT EXISTS' ),
-                        array( 'key' => '_almaseo_meta_description', 'value' => '', 'compare' => '=' ),
-                    ),
-                    array(
-                        'relation' => 'OR',
-                        array( 'key' => '_almaseo_desc', 'compare' => 'NOT EXISTS' ),
-                        array( 'key' => '_almaseo_desc', 'value' => '', 'compare' => '=' ),
-                    ),
-                ),
-            );
-        }
-        
-        // Execute query
-        $query = new \WP_Query($args);
-        
-        // Debug logging
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('BulkMeta REST: Query found ' . $query->found_posts . ' posts');
-            error_log('BulkMeta REST: Post IDs: ' . implode(', ', $query->posts));
-        }
-        
-        // Build response items using array_map for cleaner code
-        $items = array_map(function($post_id) {
-            // Get metadata - check both possible meta keys
-            $t = (string) get_post_meta($post_id, '_almaseo_meta_title', true);
-            if (empty($t)) {
-                $t = (string) get_post_meta($post_id, '_almaseo_title', true);
-            }
-            
-            $d = (string) get_post_meta($post_id, '_almaseo_meta_description', true);
-            if (empty($d)) {
-                $d = (string) get_post_meta($post_id, '_almaseo_desc', true);
-            }
-            
-            // Get post object for additional data
-            $post = get_post($post_id);
-            $post_type_obj = get_post_type_object(get_post_type($post_id));
-            
+
+            $post_type_obj = get_post_type_object( $post->post_type );
+
             return array(
-                'id' => $post_id,
-                'title' => get_the_title($post_id),
-                'type' => get_post_type($post_id),
-                'type_label' => $post_type_obj ? $post_type_obj->labels->singular_name : get_post_type($post_id),
-                'status' => get_post_status($post_id),
-                'updated' => get_post_modified_time('c', true, $post_id),
-                'seo_title' => $t,
-                'meta_title' => $t, // Alias for compatibility
-                'meta_desc' => $d,
-                'meta_description' => $d, // Alias for compatibility  
-                'title_chars' => mb_strlen(wp_strip_all_tags($t)),
-                'desc_chars' => mb_strlen(wp_strip_all_tags($d)),
-                'title_fallback' => empty($t) ? $post->post_title : '',
-                'desc_fallback' => empty($d) ? wp_trim_words(strip_shortcodes($post->post_content ?? ''), 30, '...') : '',
-                'edit_link' => get_edit_post_link($post_id, 'raw'),
-                'view_link' => get_permalink($post_id)
+                'id'               => $pid,
+                'title'            => get_the_title( $post ),
+                'type'             => $post->post_type,
+                'type_label'       => $post_type_obj ? $post_type_obj->labels->singular_name : $post->post_type,
+                'status'           => $post->post_status,
+                'updated'          => mysql2date( 'c', $post->post_modified_gmt, false ),
+                'seo_title'        => $t,
+                'meta_title'       => $t,
+                'meta_desc'        => $d,
+                'meta_description' => $d,
+                'title_chars'      => mb_strlen( wp_strip_all_tags( $t ) ),
+                'desc_chars'       => mb_strlen( wp_strip_all_tags( $d ) ),
+                'title_fallback'   => $t === '' ? $post->post_title : '',
+                'desc_fallback'    => $d === '' ? wp_trim_words( strip_shortcodes( $post->post_content ?? '' ), 30, '...' ) : '',
+                'edit_link'        => get_edit_post_link( $pid, 'raw' ),
+                'view_link'        => get_permalink( $post ),
             );
-        }, $query->posts);
-        
-        // Debug final response
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('BulkMeta REST: Returning ' . count($items) . ' items');
-        }
-        
-        // Return items directly as array with headers for pagination
-        $response = rest_ensure_response($items);
-        $response->header('X-WP-Total', (int) $query->found_posts);
-        $response->header('X-WP-TotalPages', (int) $query->max_num_pages);
-        
+        }, $query->posts );
+
+        $response = rest_ensure_response( $items );
+        $response->header( 'X-WP-Total', (int) $query->found_posts );
+        $response->header( 'X-WP-TotalPages', (int) $query->max_num_pages );
         return $response;
     }
     
@@ -482,21 +406,39 @@ class BulkMeta_REST {
      */
     public static function bulk_operation($request) {
         $data = array(
-            'ids' => $request->get_param('ids'),
-            'op' => $request->get_param('op'),
+            'ids'   => $request->get_param('ids'),
+            'op'    => $request->get_param('op'),
             'field' => $request->get_param('field'),
-            'args' => $request->get_param('args')
+            'args'  => $request->get_param('args'),
         );
-        
+
         $result = BulkMeta_Controller::bulk_operation($data);
-        
+
         if (is_wp_error($result)) {
             return $result;
         }
-        
+
         return new \WP_REST_Response($result, 200);
     }
-    
+
+    /**
+     * Bulk-all handler — operate on every post matching a filter spec.
+     */
+    public static function bulk_all($request) {
+        $data = array(
+            'op'      => $request->get_param('op'),
+            'field'   => $request->get_param('field'),
+            'args'    => $request->get_param('args'),
+            'filters' => $request->get_param('filters'),
+        );
+
+        $result = BulkMeta_Controller::bulk_all_operation($data);
+        if (is_wp_error($result)) {
+            return $result;
+        }
+        return new \WP_REST_Response($result, 200);
+    }
+
     /**
      * Get post types
      */
@@ -737,35 +679,6 @@ class BulkMeta_REST {
         return $result;
     }
 
-    /**
-     * Test endpoint for debugging
-     */
-    public static function test_endpoint($request) {
-        // Simple test query to verify database access
-        $test_query = new \WP_Query(array(
-            'post_type' => 'post',
-            'posts_per_page' => 5,
-            'post_status' => 'any'
-        ));
-        
-        $test_data = array(
-            'message' => 'BulkMeta REST API is working',
-            'timestamp' => current_time('c'),
-            'user_can_manage' => current_user_can('manage_options'),
-            'test_posts' => array(
-                'found' => $test_query->found_posts,
-                'sample_ids' => $test_query->posts
-            ),
-            'meta_keys_check' => array(
-                '_almaseo_meta_title' => 'Primary meta title key',
-                '_almaseo_title' => 'Fallback meta title key',
-                '_almaseo_meta_description' => 'Primary meta description key',
-                '_almaseo_desc' => 'Fallback meta description key'
-            )
-        );
-        
-        return rest_ensure_response($test_data);
-    }
 }
 
 // Initialize

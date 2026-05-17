@@ -233,19 +233,11 @@ class Alma_IndexNow {
             $urls = $this->get_queue();
         }
         
-        // Always include sitemap index
-        $sitemap_url = home_url('/almaseo-sitemap.xml');
+        // Always include sitemap index. Takeover branch retired — /sitemap.xml
+        // is the canonical URL and the only one served.
+        $sitemap_url = home_url('/sitemap.xml');
         if (!in_array($sitemap_url, $urls)) {
             array_unshift($urls, $sitemap_url);
-        }
-        
-        // Also check for takeover sitemap
-        $sitemap_settings = get_option('almaseo_sitemap_settings', array());
-        if (!empty($sitemap_settings['takeover'])) {
-            $takeover_url = home_url('/sitemap.xml');
-            if (!in_array($takeover_url, $urls)) {
-                $urls[] = $takeover_url;
-            }
         }
         
         // Limit to 10000 URLs per IndexNow spec

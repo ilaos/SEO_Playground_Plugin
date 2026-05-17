@@ -167,7 +167,7 @@ class Alma_Sitemap_CLI {
      * ## EXAMPLES
      * 
      *     wp almaseo sitemaps validate
-     *     wp almaseo sitemaps validate --url=https://example.com/almaseo-sitemap.xml
+     *     wp almaseo sitemaps validate --url=https://example.com/sitemap.xml
      * 
      * @when after_wp_load
      */
@@ -181,7 +181,7 @@ class Alma_Sitemap_CLI {
         if (isset($assoc_args['url'])) {
             $url = $assoc_args['url'];
         } else {
-            $url = home_url('/almaseo-sitemap.xml');
+            $url = home_url('/sitemap.xml');
         }
         
         WP_CLI::log('Validating: ' . $url);
@@ -305,7 +305,7 @@ class Alma_Sitemap_CLI {
     public function submit($args, $assoc_args) {
         WP_CLI::log('Submitting sitemaps...');
         
-        $sitemap_url = home_url('/almaseo-sitemap.xml');
+        $sitemap_url = home_url('/sitemap.xml');
         
         if (isset($assoc_args['indexnow'])) {
             $this->submit_indexnow($sitemap_url);

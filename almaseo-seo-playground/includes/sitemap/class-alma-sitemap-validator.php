@@ -40,7 +40,7 @@ class Alma_Sitemap_Validator {
      * Validate sitemap index
      */
     private static function validate_index() {
-        $index_url = home_url('/almaseo-sitemap.xml');
+        $index_url = home_url('/sitemap.xml');
         $manager = Alma_Sitemap_Manager::get_instance();
         $providers = $manager->get_providers();
         

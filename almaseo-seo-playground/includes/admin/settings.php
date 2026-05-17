@@ -141,6 +141,9 @@ class AlmaSEO_Settings {
             'sanitize_callback' => array('AlmaSEO_RSS_Controls', 'sanitize')
         ));
 
+        // Tag Manager registers its own option group via AlmaSEO_Tag_Manager::register_setting()
+        // because it lives on its own admin page; no registration here.
+
         // Role Manager Capabilities (v8.0.0)
         register_setting('almaseo_settings', 'almaseo_role_capabilities', array(
             'type' => 'array',

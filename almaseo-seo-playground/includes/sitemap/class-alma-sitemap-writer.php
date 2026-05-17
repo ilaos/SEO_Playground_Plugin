@@ -192,7 +192,7 @@ class Alma_Sitemap_Writer {
      * Write sitemap index
      */
     public function write_index($sitemaps) {
-        $filename = 'almaseo-sitemap.xml';
+        $filename = 'sitemap.xml';
         $filepath = $this->build_dir . $filename;
         
         $handle = fopen($filepath, 'w');
@@ -202,7 +202,7 @@ class Alma_Sitemap_Writer {
         
         // Write XML header
         fwrite($handle, '<?xml version="1.0" encoding="UTF-8"?>' . "\n");
-        fwrite($handle, '<?xml-stylesheet type="text/xsl" href="' . esc_url(home_url('/almaseo-sitemap.xsl')) . '"?>' . "\n");
+        fwrite($handle, '<?xml-stylesheet type="text/xsl" href="' . esc_url(home_url('/sitemap.xsl')) . '"?>' . "\n");
         fwrite($handle, '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n");
         
         // Write sitemap entries
@@ -231,7 +231,7 @@ class Alma_Sitemap_Writer {
      * Start writing a child sitemap
      */
     public function start_sitemap($name, $provider = null) {
-        $filename = 'almaseo-sitemap-' . $name . '-1.xml';
+        $filename = 'sitemap-' . $name . '-1.xml';
         $filepath = $this->build_dir . $filename;
         
         $handle = fopen($filepath, 'w');
@@ -252,7 +252,7 @@ class Alma_Sitemap_Writer {
         
         // Write XML header
         fwrite($handle, '<?xml version="1.0" encoding="UTF-8"?>' . "\n");
-        fwrite($handle, '<?xml-stylesheet type="text/xsl" href="' . esc_url(home_url('/almaseo-sitemap.xsl')) . '"?>' . "\n");
+        fwrite($handle, '<?xml-stylesheet type="text/xsl" href="' . esc_url(home_url('/sitemap.xsl')) . '"?>' . "\n");
         fwrite($handle, '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"');
         fwrite($handle, ' xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">' . "\n");
         
@@ -277,7 +277,7 @@ class Alma_Sitemap_Writer {
             
             // Start new part
             $info['part']++;
-            $filename = 'almaseo-sitemap-' . $name . '-' . $info['part'] . '.xml';
+            $filename = 'sitemap-' . $name . '-' . $info['part'] . '.xml';
             $filepath = $this->build_dir . $filename;
             
             $handle = fopen($filepath, 'w');
@@ -295,7 +295,7 @@ class Alma_Sitemap_Writer {
             
             // Write header for new file
             fwrite($handle, '<?xml version="1.0" encoding="UTF-8"?>' . "\n");
-            fwrite($handle, '<?xml-stylesheet type="text/xsl" href="' . esc_url(home_url('/almaseo-sitemap.xsl')) . '"?>' . "\n");
+            fwrite($handle, '<?xml-stylesheet type="text/xsl" href="' . esc_url(home_url('/sitemap.xsl')) . '"?>' . "\n");
             fwrite($handle, '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"');
             fwrite($handle, ' xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">' . "\n");
         }
@@ -306,18 +306,27 @@ class Alma_Sitemap_Writer {
         $xml = "\t<url>\n";
         $xml .= "\t\t<loc>" . esc_url($url_data['loc']) . "</loc>\n";
         
-        if (!empty($url_data['lastmod'])) {
-            $xml .= "\t\t<lastmod>" . esc_html($url_data['lastmod']) . "</lastmod>\n";
+        // Normalize to W3C datetime (ISO 8601) via the shared helper.
+        // Providers pass post_modified_gmt which is MySQL datetime — emitting
+        // that verbatim ("2026-04-09 22:29:38") is non-spec; sitemap.org and
+        // Bing reject it, even though Google parses leniently.
+        if (!empty($url_data['lastmod']) && function_exists('almaseo_format_lastmod')) {
+            $lastmod = almaseo_format_lastmod($url_data['lastmod']);
+            if ($lastmod !== '') {
+                $xml .= "\t\t<lastmod>" . esc_html($lastmod) . "</lastmod>\n";
+            }
         }
         
         if (!empty($url_data['changefreq'])) {
             $xml .= "\t\t<changefreq>" . esc_html($url_data['changefreq']) . "</changefreq>\n";
         }
-        
-        if (isset($url_data['priority'])) {
-            $xml .= "\t\t<priority>" . number_format($url_data['priority'], 1) . "</priority>\n";
-        }
-        
+
+        // <priority> is intentionally not emitted. Google has effectively
+        // ignored sitemap priority for years, and the value here was always
+        // a heuristic (post type / page hierarchy / recency) rather than
+        // user-set, so emitting it just added noise. Providers may still
+        // pass `priority` in $url_data — it's silently dropped.
+
         // Add images if present and track count
         if (!empty($url_data['images'])) {
             if (!isset($info['image_count'])) {
@@ -474,16 +483,18 @@ class Alma_Sitemap_Writer {
         $manifest_path = $this->build_dir . 'manifest.json';
         file_put_contents($manifest_path, json_encode($this->manifest, JSON_PRETTY_PRINT));
         
-        // Update symlink to current build
-        $current_link = $this->storage_path . 'current';
-        if (is_link($current_link) || file_exists($current_link)) {
-            if (is_link($current_link)) {
-                unlink($current_link);
-            } else {
-                $this->recursive_rmdir($current_link);
-            }
+        // Promote this build to current/. We used to symlink build_dir → current,
+        // but symlink() requires admin/developer-mode on Windows and fails silently
+        // from PHP — leaving current/ empty and the sitemap permanently unservable.
+        // Recursive copy works on every platform and survives WP auto-updates.
+        $current_dir = rtrim($this->storage_path, '/\\') . '/current';
+        if (is_link($current_dir)) {
+            @unlink($current_dir);
+        } elseif (is_dir($current_dir)) {
+            $this->recursive_rmdir($current_dir);
         }
-        symlink($this->build_dir, $current_link);
+        wp_mkdir_p($current_dir);
+        $this->recursive_copy($this->build_dir, $current_dir);
         
         // Clean old builds (keep last 3)
         $this->cleanup_old_builds();
@@ -538,6 +549,32 @@ class Alma_Sitemap_Writer {
             }
             rmdir($dir);
         }
+    }
+
+    /**
+     * Recursively copy a directory tree.
+     */
+    private function recursive_copy($src, $dst) {
+        if (!is_dir($src)) {
+            return false;
+        }
+        if (!is_dir($dst)) {
+            wp_mkdir_p($dst);
+        }
+        $entries = scandir($src);
+        foreach ($entries as $entry) {
+            if ($entry === '.' || $entry === '..') {
+                continue;
+            }
+            $from = $src . '/' . $entry;
+            $to   = $dst . '/' . $entry;
+            if (is_dir($from)) {
+                $this->recursive_copy($from, $to);
+            } else {
+                copy($from, $to);
+            }
+        }
+        return true;
     }
     
     /**
@@ -659,16 +696,17 @@ class Alma_Sitemap_Writer {
     }
     
     /**
-     * Get current manifest
+     * Get current manifest.
+     *
+     * Returns the in-memory manifest of the build currently in progress so the
+     * sitemap index can be assembled from the just-written child sitemaps. The
+     * previous implementation read from current/manifest.json, which is the
+     * *previous* build's manifest (and on Windows is permanently empty because
+     * the finalize-step symlink fails silently), so write_index() always
+     * received an empty list and produced an empty <sitemapindex>.
      */
     public function get_manifest() {
-        $manifest_path = $this->storage_path . 'current/manifest.json';
-        
-        if (file_exists($manifest_path)) {
-            return json_decode(file_get_contents($manifest_path), true);
-        }
-        
-        return null;
+        return $this->manifest;
     }
     
     /**

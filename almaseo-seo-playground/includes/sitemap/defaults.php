@@ -11,6 +11,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Per-function guard for safe coexistence with the AlmaSEO Connector or any
+// other plugin that may already declare this helper.
+if (!function_exists('almaseo_get_default_settings')) {
 function almaseo_get_default_settings() {
     return array(
         'enabled' => true,
@@ -43,8 +46,12 @@ function almaseo_get_default_settings() {
             'retention_days' => 14
         ),
         'hreflang' => array(
-            'enabled' => false,  // Require multilingual setup
-            'source' => 'auto'
+            'enabled'       => false,  // Require multilingual setup
+            'source'        => 'auto',
+            'default'       => '',
+            'x_default_url' => '',
+            'map'           => array(),
+            'locales'       => array(),
         ),
         'media' => array(
             'image' => array(
@@ -55,7 +62,9 @@ function almaseo_get_default_settings() {
             'video' => array(
                 'enabled' => true,  // Include videos
                 'max_per_url' => 10,
-                'fetch_oembed' => true
+                // Key matches what the save handler and media partial read
+                // (was `fetch_oembed` previously, which nothing else touched).
+                'oembed_cache' => true,
             )
         ),
         'news' => array(
@@ -63,8 +72,19 @@ function almaseo_get_default_settings() {
             'window_hours' => 48,
             'max_items' => 1000,
             'post_types' => array('post'),
+            'categories' => array(),
+            'genres' => array(),
+            'keywords_source' => 'tags',
+            'manual_keywords' => '',
             'publisher_name' => get_bloginfo('name'),
             'language' => substr(get_locale(), 0, 2)
-        )
+        ),
+        'exclude' => array(
+            'taxonomies'       => array(),
+            'authors'          => array(),
+            'older_than_years' => 0,
+        ),
+        'health' => array(),
     );
 }
+} // end function_exists guard

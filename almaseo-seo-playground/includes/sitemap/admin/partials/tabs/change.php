@@ -96,7 +96,7 @@ try {
         <div class="almaseo-sitemap-url">
             <label><?php esc_html_e('Delta Sitemap URL:', 'almaseo-seo-playground'); ?></label>
             <div class="almaseo-input-group">
-                <input type="text" readonly value="<?php echo esc_url(home_url('/almaseo-sitemap-delta.xml')); ?>" class="almaseo-input" id="delta-url">
+                <input type="text" readonly value="<?php echo esc_url(home_url('/sitemap-delta.xml')); ?>" class="almaseo-input" id="delta-url">
                 <div class="almaseo-button-group">
                     <button type="button" class="button almaseo-button-secondary" id="open-delta">
                         <span class="dashicons dashicons-external"></span>
@@ -155,9 +155,15 @@ try {
     <div class="almaseo-card-header">
         <h2><?php esc_html_e('IndexNow Integration', 'almaseo-seo-playground'); ?></h2>
         <div class="almaseo-chips">
-            <?php 
-            $indexnow_enabled = get_option('almaseo_indexnow_enabled', false);
-            $indexnow_key = get_option('almaseo_indexnow_key', '');
+            <?php
+            // Canonical storage is almaseo_sitemap_settings['indexnow'] — the
+            // same place Alma_IndexNow reads at runtime. The old standalone
+            // almaseo_indexnow_* options were never written by this UI.
+            $almaseo_sm        = get_option('almaseo_sitemap_settings', array());
+            $indexnow_cfg      = (isset($almaseo_sm['indexnow']) && is_array($almaseo_sm['indexnow'])) ? $almaseo_sm['indexnow'] : array();
+            $indexnow_enabled  = !empty($indexnow_cfg['enabled']);
+            $indexnow_key      = isset($indexnow_cfg['key']) ? $indexnow_cfg['key'] : '';
+            $indexnow_endpoint = !empty($indexnow_cfg['endpoint']) ? $indexnow_cfg['endpoint'] : 'https://api.indexnow.org/indexnow';
             ?>
             <span class="almaseo-chip <?php echo esc_attr($indexnow_enabled ? 'almaseo-chip-success' : ''); ?>">
                 <?php echo $indexnow_enabled ? esc_html__('Active', 'almaseo-seo-playground') : esc_html__('Inactive', 'almaseo-seo-playground'); ?>
@@ -198,20 +204,14 @@ try {
             <div class="almaseo-form-group">
                 <label for="indexnow-endpoint"><?php esc_html_e('Endpoint:', 'almaseo-seo-playground'); ?></label>
                 <select id="indexnow-endpoint" class="almaseo-input">
-                    <option value="bing" <?php selected(get_option('almaseo_indexnow_endpoint', 'bing'), 'bing'); ?>>
-                        <?php esc_html_e('Bing (api.indexnow.org)', 'almaseo-seo-playground'); ?>
+                    <option value="https://api.indexnow.org/indexnow" <?php selected($indexnow_endpoint, 'https://api.indexnow.org/indexnow'); ?>>
+                        <?php esc_html_e('IndexNow (api.indexnow.org — shared by Bing, Seznam, Naver)', 'almaseo-seo-playground'); ?>
                     </option>
-                    <option value="yandex" <?php selected(get_option('almaseo_indexnow_endpoint', 'bing'), 'yandex'); ?>>
+                    <option value="https://yandex.com/indexnow" <?php selected($indexnow_endpoint, 'https://yandex.com/indexnow'); ?>>
                         <?php esc_html_e('Yandex (yandex.com)', 'almaseo-seo-playground'); ?>
                     </option>
                 </select>
-            </div>
-            <div class="almaseo-form-group">
-                <label for="indexnow-batch-size"><?php esc_html_e('Batch Size:', 'almaseo-seo-playground'); ?></label>
-                <input type="number" id="indexnow-batch-size" 
-                       value="<?php echo esc_attr(get_option('almaseo_indexnow_batch_size', 100)); ?>"
-                       min="1" max="10000" class="almaseo-input almaseo-input-small">
-                <p class="description"><?php esc_html_e('URLs per request (1-10000)', 'almaseo-seo-playground'); ?></p>
+                <p class="description"><?php esc_html_e('Submitting to any one IndexNow endpoint shares the URLs with all participating engines.', 'almaseo-seo-playground'); ?></p>
             </div>
         </div>
         

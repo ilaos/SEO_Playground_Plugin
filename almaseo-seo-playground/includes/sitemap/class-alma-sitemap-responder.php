@@ -31,11 +31,19 @@ class Alma_Sitemap_Responder {
      */
     public function handle_request() {
         $sitemap_type = get_query_var('almaseo_sitemap');
-        
+
         if (empty($sitemap_type)) {
             return;
         }
-        
+
+        // The XSL stylesheet every sitemap file points at. Served here so
+        // /sitemap.xsl resolves without a physical file — must come before
+        // the static-file and XML-header paths below.
+        if ($sitemap_type === 'xsl') {
+            $this->render_xsl();
+            exit;
+        }
+
         // Phase 4: Check for static file first
         if ($this->manager->get_storage_mode() === 'static') {
             if ($this->serve_static($sitemap_type)) {
@@ -58,11 +66,28 @@ class Alma_Sitemap_Responder {
     
     /**
      * Send XML headers
+     *
+     * Three distinct response shapes:
+     *  - 'xml'         Plain XML body. Browser renders it inline.
+     *  - 'xml-gzipped' XML body sent gzip-compressed purely to save bandwidth.
+     *                  Content-Encoding tells the browser to transparently
+     *                  decompress, so Content-Type must describe the
+     *                  *decompressed* payload (application/xml). Sending
+     *                  application/gzip here makes the browser treat the
+     *                  response as a file and download it instead of showing
+     *                  it — that was the long-standing bug.
+     *  - 'gzip-file'   An explicit .xml.gz request. The gzip archive *is* the
+     *                  payload, served verbatim with no Content-Encoding.
+     *
+     * @param string $mode One of 'xml', 'xml-gzipped', 'gzip-file'.
      */
-    private function send_headers($is_gzip = false) {
-        if ($is_gzip) {
-            header('Content-Type: application/gzip');
+    private function send_headers($mode = 'xml') {
+        if ($mode === 'xml-gzipped') {
+            header('Content-Type: application/xml; charset=UTF-8');
             header('Content-Encoding: gzip');
+            header('Vary: Accept-Encoding');
+        } elseif ($mode === 'gzip-file') {
+            header('Content-Type: application/gzip');
         } else {
             header('Content-Type: application/xml; charset=UTF-8');
         }
@@ -85,10 +110,10 @@ class Alma_Sitemap_Responder {
         
         // Build filename
         if ($sitemap_type === 'index') {
-            $filename = 'almaseo-sitemap.xml';
+            $filename = 'sitemap.xml';
         } else {
             $page = absint(get_query_var('sitemap_page', 1));
-            $filename = 'almaseo-sitemap-' . $sitemap_type . '-' . $page . '.xml';
+            $filename = 'sitemap-' . $sitemap_type . '-' . $page . '.xml';
         }
         
         // Check if gzip version requested
@@ -99,7 +124,8 @@ class Alma_Sitemap_Responder {
         if ($wants_gzip && $this->manager->is_gzip_enabled()) {
             $filepath = $storage_path . $filename . '.gz';
             if (file_exists($filepath)) {
-                $this->send_headers(true);
+                // Explicit .xml.gz URL — hand back the gzip archive itself.
+                $this->send_headers('gzip-file');
                 readfile($filepath);
                 return true;
             }
@@ -110,15 +136,16 @@ class Alma_Sitemap_Responder {
         if (file_exists($filepath)) {
             // Check if client accepts gzip and we have a gzip version
             $accept_encoding = isset($_SERVER['HTTP_ACCEPT_ENCODING']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_ACCEPT_ENCODING'])) : '';
-            if (strpos($accept_encoding, 'gzip') !== false && 
-                $this->manager->is_gzip_enabled() && 
+            if (strpos($accept_encoding, 'gzip') !== false &&
+                $this->manager->is_gzip_enabled() &&
                 file_exists($filepath . '.gz')) {
-                // Serve gzip version
-                $this->send_headers(true);
+                // Transparently compressed XML — browser decompresses and
+                // renders it inline because Content-Type stays application/xml.
+                $this->send_headers('xml-gzipped');
                 readfile($filepath . '.gz');
             } else {
                 // Serve regular XML
-                $this->send_headers(false);
+                $this->send_headers('xml');
                 readfile($filepath);
             }
             return true;
@@ -128,7 +155,7 @@ class Alma_Sitemap_Responder {
         $lock = get_option('almaseo_sitemaps_build_lock');
         if ($lock && isset($lock['expires']) && $lock['expires'] > time()) {
             // Show building message
-            $this->send_headers(false);
+            $this->send_headers('xml');
             echo '<?xml version="1.0" encoding="UTF-8"?>';
             echo '<!-- Sitemap is currently being rebuilt. Please check back in a few minutes. -->';
             if ($sitemap_type === 'index') {
@@ -148,6 +175,8 @@ class Alma_Sitemap_Responder {
      */
     private function render_index() {
         echo '<?xml version="1.0" encoding="UTF-8"?>';
+        echo "\n";
+        echo '<?xml-stylesheet type="text/xsl" href="' . esc_url(home_url('/sitemap.xsl')) . '"?>';
         echo "\n";
         echo '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
         echo "\n";
@@ -194,6 +223,8 @@ class Alma_Sitemap_Responder {
         
         echo '<?xml version="1.0" encoding="UTF-8"?>';
         echo "\n";
+        echo '<?xml-stylesheet type="text/xsl" href="' . esc_url(home_url('/sitemap.xsl')) . '"?>';
+        echo "\n";
         echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"';
         echo ' xmlns:xhtml="http://www.w3.org/1999/xhtml"';
         
@@ -233,21 +264,23 @@ class Alma_Sitemap_Responder {
         // Required: loc
         echo "\t\t<loc>" . esc_url($url_data['loc']) . "</loc>\n";
         
-        // Optional: lastmod
-        if (!empty($url_data['lastmod'])) {
-            echo "\t\t<lastmod>" . esc_xml($this->format_date($url_data['lastmod'])) . "</lastmod>\n";
+        // Optional: lastmod — normalize via the shared helper. Matches the
+        // static writer's output exactly so the two paths can't drift.
+        if (!empty($url_data['lastmod']) && function_exists('almaseo_format_lastmod')) {
+            $lastmod = almaseo_format_lastmod($url_data['lastmod']);
+            if ($lastmod !== '') {
+                echo "\t\t<lastmod>" . esc_xml($lastmod) . "</lastmod>\n";
+            }
         }
         
         // Optional: changefreq
         if (!empty($url_data['changefreq'])) {
             echo "\t\t<changefreq>" . esc_xml($url_data['changefreq']) . "</changefreq>\n";
         }
-        
-        // Optional: priority
-        if (isset($url_data['priority'])) {
-            echo "\t\t<priority>" . esc_xml(number_format($url_data['priority'], 1)) . "</priority>\n";
-        }
-        
+
+        // <priority> intentionally omitted — see matching note in
+        // Alma_Sitemap_Writer::write_url(). Google ignores the field.
+
         // Optional: images
         if (!empty($url_data['images'])) {
             foreach ($url_data['images'] as $image) {
@@ -382,6 +415,89 @@ class Alma_Sitemap_Responder {
     }
     
     /**
+     * Render the XSL stylesheet that styles sitemap output in the browser.
+     *
+     * Both the sitemap index (<sitemapindex>) and the per-provider sitemaps
+     * (<urlset>) reference this same /sitemap.xsl, so the stylesheet handles
+     * both root elements. It is pure, static XSLT 1.0 with inline CSS — no
+     * PHP values are interpolated, hence the NOWDOC block.
+     */
+    private function render_xsl() {
+        header('Content-Type: text/xsl; charset=UTF-8');
+        header('X-Robots-Tag: noindex, follow');
+
+        echo <<<'XSL'
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="1.0"
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns:sitemap="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <xsl:output method="html" version="1.0" encoding="UTF-8" indent="yes"/>
+
+  <xsl:template match="/">
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <meta name="robots" content="noindex,follow"/>
+        <title>XML Sitemap</title>
+        <style type="text/css">
+          body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#1e1e1e;margin:0;background:#f6f7f7;}
+          .wrap{max-width:1000px;margin:0 auto;padding:32px 20px;}
+          h1{font-size:23px;margin:0 0 6px;}
+          .intro{color:#50575e;font-size:13px;margin:0 0 22px;line-height:1.6;}
+          .intro a{color:#2271b1;}
+          .count{font-weight:600;}
+          table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #dcdcde;border-radius:6px;overflow:hidden;font-size:13px;}
+          th{text-align:left;background:#f0f0f1;padding:10px 14px;font-weight:600;border-bottom:1px solid #dcdcde;}
+          td{padding:9px 14px;border-bottom:1px solid #f0f0f1;word-break:break-all;vertical-align:top;}
+          tr:last-child td{border-bottom:0;}
+          tr:hover td{background:#f6f7f7;}
+          a{color:#2271b1;text-decoration:none;}
+          a:hover{text-decoration:underline;}
+        </style>
+      </head>
+      <body>
+        <div class="wrap">
+          <h1>XML Sitemap</h1>
+          <p class="intro">This XML sitemap is generated by <a href="https://almaseo.com">AlmaSEO</a> to help search engines crawl and index this site. It is not meant for human visitors.</p>
+          <xsl:apply-templates select="sitemap:sitemapindex"/>
+          <xsl:apply-templates select="sitemap:urlset"/>
+        </div>
+      </body>
+    </html>
+  </xsl:template>
+
+  <xsl:template match="sitemap:sitemapindex">
+    <p class="intro">This index references <span class="count"><xsl:value-of select="count(sitemap:sitemap)"/></span> sitemap(s).</p>
+    <table>
+      <tr><th>Sitemap</th><th>Last Modified</th></tr>
+      <xsl:for-each select="sitemap:sitemap">
+        <tr>
+          <td><a href="{sitemap:loc}"><xsl:value-of select="sitemap:loc"/></a></td>
+          <td><xsl:value-of select="sitemap:lastmod"/></td>
+        </tr>
+      </xsl:for-each>
+    </table>
+  </xsl:template>
+
+  <xsl:template match="sitemap:urlset">
+    <p class="intro">This sitemap contains <span class="count"><xsl:value-of select="count(sitemap:url)"/></span> URL(s).</p>
+    <table>
+      <tr><th>URL</th><th>Last Modified</th><th>Change Frequency</th></tr>
+      <xsl:for-each select="sitemap:url">
+        <tr>
+          <td><a href="{sitemap:loc}"><xsl:value-of select="sitemap:loc"/></a></td>
+          <td><xsl:value-of select="sitemap:lastmod"/></td>
+          <td><xsl:value-of select="sitemap:changefreq"/></td>
+        </tr>
+      </xsl:for-each>
+    </table>
+  </xsl:template>
+</xsl:stylesheet>
+XSL;
+    }
+
+    /**
      * Render 404 response
      */
     private function render_404() {
@@ -395,21 +511,10 @@ class Alma_Sitemap_Responder {
      * Get sitemap URL for provider and page
      */
     private function get_sitemap_url($provider_name, $page = 1) {
-        return home_url(sprintf('/almaseo-sitemap-%s-%d.xml', $provider_name, $page));
+        return home_url(sprintf('/sitemap-%s-%d.xml', $provider_name, $page));
     }
     
-    /**
-     * Format date for sitemap
-     */
-    private function format_date($date) {
-        if (is_numeric($date)) {
-            $date = gmdate('Y-m-d\TH:i:s\Z', $date);
-        } else {
-            $timestamp = strtotime($date);
-            if ($timestamp) {
-                $date = gmdate('c', $timestamp);
-            }
-        }
-        return $date;
-    }
+    // Note: the private format_date() helper that used to live here was
+    // lifted to includes/sitemap/helpers.php as almaseo_format_lastmod() in
+    // 1.13.15 so both static and dynamic emission paths share one formatter.
 }

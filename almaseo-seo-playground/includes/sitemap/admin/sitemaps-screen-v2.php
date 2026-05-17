@@ -81,8 +81,19 @@ class Alma_Sitemaps_Screen_V2 {
         $primary_url = $urls['primary'];
         $direct_url = $urls['direct'];
         
-        $settings = get_option('almaseo_sitemap_settings', []);
-        $generation_mode = $settings['generation_mode'] ?? 'static';
+        // See the matching block in handle_load_tab_v2() for the rationale.
+        // Partials access deeply-nested keys without guarding intermediate
+        // levels, so merge stored settings on top of the canonical defaults
+        // tree to keep PHP 8+ silent on a fresh install or partial save.
+        $stored = get_option('almaseo_sitemap_settings', []);
+        if (!is_array($stored)) {
+            $stored = [];
+        }
+        $defaults = function_exists('almaseo_get_default_settings')
+            ? almaseo_get_default_settings()
+            : [];
+        $settings = array_replace_recursive($defaults, $stored);
+        $generation_mode = $settings['perf']['storage_mode'] ?? 'static';
         
         // Get stats
         $stats = $this->get_sitemap_stats();
@@ -144,11 +155,16 @@ class Alma_Sitemaps_Screen_V2 {
                 <span class="chip chip-default" data-live-stat="urls">
                     <span class="num"><?php echo esc_html(number_format($stats['total_urls'])); ?></span> <?php esc_html_e('URLs', 'almaseo-seo-playground'); ?>
                 </span>
-                <?php if (!empty($stats['last_built'])): ?>
-                <span class="chip chip-muted">
-                    <?php esc_html_e('Built', 'almaseo-seo-playground'); ?> <?php echo esc_html(human_time_diff(strtotime($stats['last_built']))); ?> <?php esc_html_e('ago', 'almaseo-seo-playground'); ?>
+                <span class="chip chip-muted" data-live-stat="last-built"
+                      <?php echo empty($stats['last_built']) ? 'hidden' : ''; ?>>
+                    <?php esc_html_e('Built', 'almaseo-seo-playground'); ?>
+                    <span class="num"><?php
+                        echo !empty($stats['last_built'])
+                            ? esc_html(human_time_diff(strtotime($stats['last_built'])))
+                            : '';
+                    ?></span>
+                    <?php esc_html_e('ago', 'almaseo-seo-playground'); ?>
                 </span>
-                <?php endif; ?>
             </div>
             
             <!-- Tabs Navigation -->
@@ -227,14 +243,28 @@ class Alma_Sitemaps_Screen_V2 {
     }
     
     /**
-     * Get sitemap statistics
+     * Get sitemap statistics.
+     *
+     * Pulls from the same option path that Alma_Sitemap_Writer::finalize_build()
+     * writes to (almaseo_sitemap_settings.health.last_build_stats) via the
+     * shared almaseo_get_build_stats() helper. The previous implementation
+     * returned hardcoded zeros and read a 'almaseo_sitemap_last_built' option
+     * that nothing in the codebase ever writes — so the header chips always
+     * showed "0 Files / 0 URLs" no matter how many times the user clicked
+     * Rebuild.
      */
     private function get_sitemap_stats() {
-        // Simple stats for now
+        $stats = function_exists('almaseo_get_build_stats')
+            ? almaseo_get_build_stats()
+            : ['files' => 0, 'urls' => 0, 'last_built' => 0];
+
+        $last_built_ts = (int) ($stats['last_built'] ?? 0);
         return [
-            'total_files' => 0,
-            'total_urls' => 0,
-            'last_built' => get_option('almaseo_sitemap_last_built', null)
+            'total_files' => (int) ($stats['files'] ?? 0),
+            'total_urls'  => (int) ($stats['urls'] ?? 0),
+            // The helper returns a Unix timestamp; the existing render uses
+            // strtotime() on this value, so pass a parseable string back.
+            'last_built'  => $last_built_ts > 0 ? gmdate('c', $last_built_ts) : null,
         ];
     }
 }

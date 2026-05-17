@@ -208,7 +208,7 @@ class AlmaSEO_Sitemaps_Command {
      *     wp almaseo sitemaps validate --fix
      */
     public function validate($args, $assoc_args) {
-        $url = isset($assoc_args['url']) ? $assoc_args['url'] : home_url('/almaseo-sitemap.xml');
+        $url = isset($assoc_args['url']) ? $assoc_args['url'] : home_url('/sitemap.xml');
         $fix = isset($assoc_args['fix']);
         
         WP_CLI::log('Validating sitemap...');
@@ -367,7 +367,7 @@ class AlmaSEO_Sitemaps_Command {
      */
     public function ping($args, $assoc_args) {
         $engines = isset($assoc_args['engines']) ? explode(',', $assoc_args['engines']) : ['google', 'bing'];
-        $sitemap_url = home_url('/almaseo-sitemap.xml');
+        $sitemap_url = home_url('/sitemap.xml');
         
         WP_CLI::log('Pinging search engines...');
         

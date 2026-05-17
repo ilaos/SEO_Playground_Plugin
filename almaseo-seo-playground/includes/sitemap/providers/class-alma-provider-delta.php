@@ -398,8 +398,8 @@ class Alma_Provider_Delta {
         }
         
         // Also add sitemap index
-        array_unshift($urls, home_url('/almaseo-sitemap.xml'));
-        array_unshift($urls, home_url('/almaseo-sitemap-delta.xml'));
+        array_unshift($urls, home_url('/sitemap.xml'));
+        array_unshift($urls, home_url('/sitemap-delta.xml'));
         
         // Submit via IndexNow
         require_once dirname(dirname(__FILE__)) . '/class-alma-indexnow.php';

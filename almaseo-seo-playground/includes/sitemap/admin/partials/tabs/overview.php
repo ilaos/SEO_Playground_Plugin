@@ -20,14 +20,29 @@ $takeover = $urls['takeover'];
 $build_stats = almaseo_get_build_stats();
 $indexnow_key = almaseo_get_indexnow_key();
 
-// Get settings for additional data
+// Get settings for additional data.
 $settings = get_option('almaseo_sitemap_settings', []);
-$generation_mode = $settings['generation_mode'] ?? 'static';
+// generation_mode lived at the top level historically but the real key is
+// perf.storage_mode — nothing in the codebase writes a top-level
+// `generation_mode`, so the "Mode" stat always showed 'static' as a fallback.
+$generation_mode = ($settings['perf']['storage_mode'] ?? 'static');
 
-// Health data
-$last_validate = get_option('almaseo_last_validate_time', 0);
-$conflict_count = get_option('almaseo_conflict_count', 0);
-$last_indexnow = get_option('almaseo_last_indexnow_time', 0);
+// Health data. Previously read three orphaned option keys
+// (almaseo_last_validate_time, almaseo_conflict_count,
+// almaseo_last_indexnow_time) that no code writes. The real data lives
+// under almaseo_sitemap_settings.health.* and is surfaced by the shared
+// almaseo_get_health_summary() helper, which returns Unix timestamps for
+// validated_at / indexnow_at and an int for conflicts.
+if (function_exists('almaseo_get_health_summary')) {
+    $health         = almaseo_get_health_summary();
+    $last_validate  = (int) ($health['validated_at'] ?? 0);
+    $conflict_count = (int) ($health['conflicts'] ?? 0);
+    $last_indexnow  = (int) ($health['indexnow_at'] ?? 0);
+} else {
+    $last_validate  = 0;
+    $conflict_count = 0;
+    $last_indexnow  = 0;
+}
 
 ?>
 
@@ -454,14 +469,14 @@ jQuery(document).ready(function($) {
         $.post(ajaxurl, {
             action: 'almaseo_toggle_sitemaps',
             enabled: true,
-            nonce: '<?php echo esc_js(wp_create_nonce('almaseo_sitemaps_nonce')); ?>'
+            nonce: (window.almaseoSitemaps && window.almaseoSitemaps.nonce) || (window.__ALMA_BOOT && window.__ALMA_BOOT.nonce) || ''
         })
         .done(function(response) {
             if (response.success) {
                 // Step 2: Queue rebuild
                 $.post(ajaxurl, {
                     action: 'almaseo_rebuild_static',
-                    nonce: '<?php echo esc_js(wp_create_nonce('almaseo_sitemaps_nonce')); ?>'
+                    nonce: (window.almaseoSitemaps && window.almaseoSitemaps.nonce) || (window.__ALMA_BOOT && window.__ALMA_BOOT.nonce) || ''
                 })
                 .done(function(rebuildResponse) {
                     // Step 3: Refresh stats and UI
@@ -538,18 +553,11 @@ jQuery(document).ready(function($) {
         }
     });
     
-    // Quick Tools buttons
-    $('#validate-sitemap').on('click', function() {
-        const $button = $(this);
-        $button.prop('disabled', true).html('<span class="spinner is-active"></span> Validating...');
-        
-        // Simulate validation (you can add actual AJAX call here)
-        setTimeout(function() {
-            showToast('Sitemap validation complete', 'success');
-            $button.prop('disabled', false).html('<span class="dashicons dashicons-yes-alt"></span> Validate');
-        }, 2000);
-    });
-    
+    // #validate-sitemap is now wired centrally in sitemaps-consolidated.js
+    // (delegated) so the same handler also picks up the Health & Scan tab's
+    // copy of the button. Previously this inline handler faked success with
+    // setTimeout and didn't call any backend.
+
     $('#submit-to-search-console').on('click', function() {
         const sitemapUrl = $('#primary-sitemap-url').text();
         window.open('https://search.google.com/search-console/sitemaps?resource=' + encodeURIComponent(window.location.origin), '_blank');
@@ -561,7 +569,7 @@ jQuery(document).ready(function($) {
         
         $.post(ajaxurl, {
             action: 'almaseo_force_delta_ping',
-            nonce: '<?php echo esc_js(wp_create_nonce('almaseo_sitemaps_nonce')); ?>'
+            nonce: (window.almaseoSitemaps && window.almaseoSitemaps.nonce) || (window.__ALMA_BOOT && window.__ALMA_BOOT.nonce) || ''
         })
         .done(function(response) {
             if (response.success) {
@@ -582,7 +590,7 @@ jQuery(document).ready(function($) {
         // Clear transients
         $.post(ajaxurl, {
             action: 'almaseo_recalculate',
-            nonce: '<?php echo esc_js(wp_create_nonce('almaseo_sitemaps_nonce')); ?>'
+            nonce: (window.almaseoSitemaps && window.almaseoSitemaps.nonce) || (window.__ALMA_BOOT && window.__ALMA_BOOT.nonce) || ''
         })
         .done(function(response) {
             showToast('Cache cleared successfully', 'success');
@@ -598,7 +606,7 @@ jQuery(document).ready(function($) {
         
         $.post(ajaxurl, {
             action: 'almaseo_copy_all_urls',
-            nonce: '<?php echo esc_js(wp_create_nonce('almaseo_sitemaps_nonce')); ?>'
+            nonce: (window.almaseoSitemaps && window.almaseoSitemaps.nonce) || (window.__ALMA_BOOT && window.__ALMA_BOOT.nonce) || ''
         })
         .done(function(response) {
             if (response.success && response.data.urls) {

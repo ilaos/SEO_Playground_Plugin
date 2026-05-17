@@ -243,6 +243,30 @@
     position: relative;
 }
 
+/* Clamp meta-value display so a long SEO title or description can't
+ * stretch the row height to 5+ lines and leave shorter cells looking
+ * empty. Full text remains available via hover (browser tooltip) and
+ * via inline edit. SEO title: one line. Meta description: three lines
+ * (a 160-char description fits in three on most screens; anything
+ * longer is past the SERP cutoff anyway). */
+.almaseo-bulk-meta .column-seo-title .meta-field {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.4;
+    max-width: 100%;
+}
+.almaseo-bulk-meta .column-meta-desc .meta-field,
+.almaseo-bulk-meta .column-meta-description .meta-field {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+    line-height: 1.4;
+    max-height: 4.2em; /* 3 lines × 1.4 line-height, fallback for non-webkit */
+}
+
 .cell-value {
     display: flex;
     align-items: center;

@@ -64,7 +64,6 @@ function almaseo_is_pro_active() {
  * - 'gsc_monitor': GSC Monitor
  * - 'orphan_detection': Orphan page detection
  * - 'schema_drift': Schema drift monitor
- * - 'snippet_targeting': Featured snippet targeting
  *
  * Free tier features (available to all):
  * - Redirect manager (301/302)
@@ -101,7 +100,6 @@ function almaseo_feature_available( $feature ) {
         'gsc_monitor',            // GSC Monitor
         'orphan_detection',       // Orphan page detection
         'schema_drift',           // Schema drift monitor
-        'snippet_targeting',      // Featured snippet targeting
         'meta_autogen',           // Profile-aware title/description generation (per-post button)
     );
 
@@ -222,7 +220,6 @@ function almaseo_get_pro_features() {
         'gsc_monitor',
         'orphan_detection',
         'schema_drift',
-        'snippet_targeting',
     );
 }
 } // end function_exists guard: almaseo_get_pro_features

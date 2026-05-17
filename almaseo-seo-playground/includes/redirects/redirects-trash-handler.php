@@ -42,14 +42,49 @@ class AlmaSEO_Redirects_Trash_Handler {
     }
 
     /**
+     * Detect WordPress's bulk-trash flow.
+     *
+     * On the list screen, both "Bulk Actions → Move to Trash" and the row-hover
+     * "Trash" link post the selected IDs as `$_REQUEST['post']`. Single trash
+     * sends a scalar (`post=123`); bulk trash sends an array (`post[]=N&post[]=M&…`).
+     * If we see two or more IDs in one PHP request, treat it as a bulk operation
+     * and bail out of the capture path entirely — see the docblock on
+     * capture_trashed_post() for why.
+     *
+     * @return bool
+     */
+    private static function is_bulk_trash_request() {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only check, not acting on the value
+        if (empty($_REQUEST['post'])) {
+            return false;
+        }
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $posts = wp_unslash($_REQUEST['post']);
+        return is_array($posts) && count($posts) >= 2;
+    }
+
+    /**
      * Capture post data before it is trashed.
      *
      * Stores the post's permalink, title, and ID in a short-lived transient
      * keyed to the current user so it survives the redirect to the list screen.
      *
+     * Bail early when the request is a bulk trash (≥2 post IDs in one go).
+     * Rationale: rendering 50–100 inline redirect-creation rows is hostile UX,
+     * and our per-post transient-rewrite is quadratic — by post #99 each write
+     * is serializing a 99-entry array, which compounds with every other
+     * `save_post` / `transition_post_status` handler the plugin runs during
+     * trash and pushes the PHP request past `max_execution_time`. Users
+     * bulk-deleting can still add any needed redirects from the Redirects
+     * panel afterwards.
+     *
      * @param int $post_id
      */
     public static function capture_trashed_post($post_id) {
+        if (self::is_bulk_trash_request()) {
+            return;
+        }
+
         $post = get_post($post_id);
         if (!$post) {
             return;

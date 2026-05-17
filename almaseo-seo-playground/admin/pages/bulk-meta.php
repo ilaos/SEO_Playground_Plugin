@@ -13,7 +13,8 @@ if (!defined('ABSPATH')) {
 // Get post types
 $post_types = get_post_types(array('public' => true), 'objects');
 
-// Check AI availability
+// Check AI availability. The same value is mirrored to JS via
+// AlmaBulkMeta.aiAvailable (localized in BulkMeta_Controller::enqueue_assets).
 $ai_autofill_available = false;
 $autofill_ai_file = dirname(__DIR__, 2) . '/includes/bulkmeta/ai-autofill-generator.php';
 if ( file_exists( $autofill_ai_file ) ) {
@@ -21,7 +22,6 @@ if ( file_exists( $autofill_ai_file ) ) {
     $ai_autofill_available = \AlmaSEO\BulkMeta\AI_Autofill_Generator::is_available();
 }
 ?>
-<script>var almaseoAutofillAi = <?php echo esc_js($ai_autofill_available ? 'true' : 'false'); ?>;</script>
 
 <div class="wrap almaseo-bulk-meta">
     <h1>
@@ -152,6 +152,18 @@ if ( file_exists( $autofill_ai_file ) ) {
                 <?php echo esc_html__('Preview', 'almaseo-seo-playground'); ?>
             </button>
 
+            <label for="autofill-mode" style="font-size: 12px; color: #50575e; margin-left: 6px;">
+                <?php esc_html_e('Mode:', 'almaseo-seo-playground'); ?>
+            </label>
+            <select id="autofill-mode" style="font-size: 12px;" <?php if ( ! $ai_autofill_available ) echo 'disabled'; ?> title="<?php echo esc_attr( $ai_autofill_available ? __('Choose Alma mode for AI-quality output, or Basic to use the local generator.', 'almaseo-seo-playground') : __('Connect to AlmaSEO to unlock Alma mode.', 'almaseo-seo-playground') ); ?>">
+                <?php if ( $ai_autofill_available ) : ?>
+                    <option value="auto" selected><?php esc_html_e('Auto (Alma)', 'almaseo-seo-playground'); ?></option>
+                    <option value="basic"><?php esc_html_e('Basic (Local)', 'almaseo-seo-playground'); ?></option>
+                <?php else : ?>
+                    <option value="basic" selected><?php esc_html_e('Basic (Local)', 'almaseo-seo-playground'); ?></option>
+                <?php endif; ?>
+            </select>
+
             <span class="autofill-status" id="autofill-status" style="font-size: 12px; color: #646970;"></span>
         </div>
         <p class="description" style="margin: 6px 0 0 32px; font-size: 12px; color: #646970;">
@@ -220,7 +232,7 @@ if ( file_exists( $autofill_ai_file ) ) {
     </div>
 
     <!-- Bulk Actions -->
-    <div class="bulk-actions-wrapper" style="display:none;">
+    <div class="bulk-actions-wrapper">
         <div class="bulk-actions">
             <select id="bulk-action">
                 <option value=""><?php echo esc_html__('Bulk Actions', 'almaseo-seo-playground'); ?></option>
@@ -242,7 +254,7 @@ if ( file_exists( $autofill_ai_file ) ) {
                 <input type="text" id="bulk-replace" placeholder="<?php echo esc_attr__('Replace with', 'almaseo-seo-playground'); ?>" style="display:none;">
                 
                 <span class="bulk-help">
-                    <?php echo esc_html__('Available placeholders: {site}, {category}, {year}', 'almaseo-seo-playground'); ?>
+                    <?php echo esc_html__('Available placeholders: {site}, {category}, {year}, {month}, {day}', 'almaseo-seo-playground'); ?>
                 </span>
             </div>
             
@@ -277,9 +289,12 @@ if ( file_exists( $autofill_ai_file ) ) {
                         <?php echo esc_html__('SEO Title', 'almaseo-seo-playground'); ?>
                         <span class="dashicons dashicons-info" title="<?php echo esc_attr__('Recommended: ~65 characters', 'almaseo-seo-playground'); ?>"></span>
                     </th>
-                    <th class="manage-column column-meta-description">
+                    <th class="manage-column column-meta-desc">
                         <?php echo esc_html__('Meta Description', 'almaseo-seo-playground'); ?>
                         <span class="dashicons dashicons-info" title="<?php echo esc_attr__('Recommended: ~160 characters', 'almaseo-seo-playground'); ?>"></span>
+                    </th>
+                    <th class="manage-column column-updated">
+                        <?php echo esc_html__('Updated', 'almaseo-seo-playground'); ?>
                     </th>
                     <th class="manage-column column-actions">
                         <?php echo esc_html__('Actions', 'almaseo-seo-playground'); ?>
@@ -288,7 +303,7 @@ if ( file_exists( $autofill_ai_file ) ) {
             </thead>
             <tbody id="bulkmeta-table-body">
                 <tr class="no-items">
-                    <td colspan="7" class="colspanchange">
+                    <td colspan="8" class="colspanchange">
                         <?php echo esc_html__('Loading posts...', 'almaseo-seo-playground'); ?>
                     </td>
                 </tr>
@@ -354,70 +369,3 @@ if ( file_exists( $autofill_ai_file ) ) {
     </div>
 </div>
 
-<!-- Post Row Template -->
-<script type="text/html" id="post-row-template">
-    <tr data-id="{{id}}">
-        <th scope="row" class="check-column">
-            <input type="checkbox" class="post-checkbox" value="{{id}}">
-        </th>
-        <td class="column-title">
-            <strong>
-                <a href="{{edit_link}}" target="_blank">{{title}}</a>
-            </strong>
-            <div class="row-actions">
-                <span class="view">
-                    <a href="{{view_link}}" target="_blank"><?php echo esc_html__('View', 'almaseo-seo-playground'); ?></a>
-                </span>
-            </div>
-        </td>
-        <td class="column-type">
-            {{type_label}}
-        </td>
-        <td class="column-seo-title">
-            <div class="editable-cell" data-field="meta_title">
-                <div class="cell-value">
-                    <span class="value-text">{{meta_title_display}}</span>
-                    <button class="edit-button dashicons dashicons-edit" title="<?php echo esc_attr__('Edit', 'almaseo-seo-playground'); ?>"></button>
-                </div>
-                <div class="cell-editor" style="display:none;">
-                    <input type="text" class="meta-title-input" value="{{meta_title}}" 
-                           placeholder="{{title_fallback}}" maxlength="200">
-                    <div class="field-counter">
-                        <span class="char-count">0</span> <?php echo esc_html__('chars', 'almaseo-seo-playground'); ?> | 
-                        <span class="pixel-count">0</span> <?php echo esc_html__('px', 'almaseo-seo-playground'); ?>
-                    </div>
-                </div>
-            </div>
-        </td>
-        <td class="column-meta-description">
-            <div class="editable-cell" data-field="meta_description">
-                <div class="cell-value">
-                    <span class="value-text">{{meta_desc_display}}</span>
-                    <button class="edit-button dashicons dashicons-edit" title="<?php echo esc_attr__('Edit', 'almaseo-seo-playground'); ?>"></button>
-                </div>
-                <div class="cell-editor" style="display:none;">
-                    <textarea class="meta-description-input" rows="3" maxlength="500"
-                              placeholder="{{desc_fallback}}">{{meta_description}}</textarea>
-                    <div class="field-counter">
-                        <span class="char-count">0</span> <?php echo esc_html__('chars', 'almaseo-seo-playground'); ?> | 
-                        <span class="pixel-count">0</span> <?php echo esc_html__('px', 'almaseo-seo-playground'); ?>
-                    </div>
-                </div>
-            </div>
-        </td>
-        <td class="column-status">
-            <span class="post-status status-{{status}}">{{status}}</span>
-        </td>
-        <td class="column-updated">
-            <span title="{{updated}}">{{updated_relative}}</span>
-        </td>
-        <td class="column-actions">
-            <button class="button button-small open-editor" data-link="{{edit_link}}">
-                <?php echo esc_html__('Edit', 'almaseo-seo-playground'); ?>
-            </button>
-            <button class="button button-small reset-meta" data-id="{{id}}">
-                <?php echo esc_html__('Reset', 'almaseo-seo-playground'); ?>
-            </button>
-        </td>
-    </tr>
-</script>

@@ -75,6 +75,7 @@ class Alma_Sitemap_Ajax_Handlers {
             'rebuild_static',
             'force_delta_ping',
             'purge_old_delta',
+            'validate_sitemap',
             'validate_hreflang',
             'export_hreflang_issues',
             'scan_media',
@@ -92,7 +93,11 @@ class Alma_Sitemap_Ajax_Handlers {
             'toggle_sitemaps',
             'get_live_stats',
             'check_build_lock',
-            'copy_all_urls'
+            'copy_all_urls',
+            'clear_all_urls',
+            'preview_robots',
+            'save_auto_update_settings',
+            'ping_search_engines',
         ];
         
         foreach ($actions as $action) {
@@ -155,21 +160,47 @@ class Alma_Sitemap_Ajax_Handlers {
         $post_data = wp_unslash( $_POST );
         // phpcs:enable
 
-        $settings = array(
-            'enabled' => !empty($post_data['enabled']),
-            'takeover' => !empty($post_data['takeover']),
-            'include' => array(
-                'posts' => !empty($post_data['include']['posts']),
-                'pages' => !empty($post_data['include']['pages']),
-                'cpts' => !empty($post_data['include']['cpts']) ? 'all' : array(),
-                'tax' => array(
-                    'category' => !empty($post_data['include']['tax']['category']),
-                    'post_tag' => !empty($post_data['include']['tax']['post_tag'])
-                ),
-                'users' => !empty($post_data['include']['users'])
-            ),
-            'links_per_sitemap' => absint($post_data['links_per_sitemap'] ?? 1000)
+        // The admin panel's tabs are lazy-loaded, so the JS only sends the
+        // section it actually has DOM for. If we treat a missing `enabled` /
+        // `include` / `links_per_sitemap` as "user set them to false / 1000",
+        // saving any non-Types-tab silently disables sitemaps and clears the
+        // include rules. Per-section: when keys aren't in POST, preserve
+        // what's already stored (same pattern the perf / delta / hreflang /
+        // media / news branches below already use).
+        $existing_include = $existing['include'] ?? array(
+            'posts' => true, 'pages' => true, 'cpts' => 'all',
+            'tax' => array('category' => true, 'post_tag' => true),
+            'users' => false,
         );
+
+        $settings = array(
+            'enabled'  => isset($post_data['enabled'])
+                ? !empty($post_data['enabled'])
+                : (isset($existing['enabled']) ? (bool) $existing['enabled'] : true),
+            'takeover' => isset($post_data['takeover'])
+                ? !empty($post_data['takeover'])
+                : (isset($existing['takeover']) ? (bool) $existing['takeover'] : false),
+        );
+
+        if (isset($post_data['include'])) {
+            $inc = $post_data['include'];
+            $settings['include'] = array(
+                'posts' => !empty($inc['posts']),
+                'pages' => !empty($inc['pages']),
+                'cpts'  => !empty($inc['cpts']) ? 'all' : array(),
+                'tax'   => array(
+                    'category' => !empty($inc['tax']['category']),
+                    'post_tag' => !empty($inc['tax']['post_tag']),
+                ),
+                'users' => !empty($inc['users']),
+            );
+        } else {
+            $settings['include'] = $existing_include;
+        }
+
+        $settings['links_per_sitemap'] = isset($post_data['links_per_sitemap'])
+            ? absint($post_data['links_per_sitemap'])
+            : (int) ($existing['links_per_sitemap'] ?? 1000);
 
         // Performance settings
         if (isset($post_data['perf'])) {
@@ -310,6 +341,53 @@ class Alma_Sitemap_Ajax_Handlers {
 
         // Preserve health stats
         $settings['health'] = $existing['health'] ?? array();
+
+        // IndexNow settings. Canonical storage — Alma_IndexNow reads
+        // almaseo_sitemap_settings['indexnow'] at runtime. The Change tab's
+        // IndexNow card posts these; other tabs don't, so when the key is
+        // absent we preserve whatever is already stored (same per-section
+        // pattern as delta / media / news above). Without an explicit branch
+        // here, update_option() below would wipe the sub-array on every save.
+        $indexnow_default = array(
+            'enabled'  => false,
+            'key'      => '',
+            'endpoint' => 'https://api.indexnow.org/indexnow',
+        );
+        if (isset($post_data['indexnow'])) {
+            $in = $post_data['indexnow'];
+            // IndexNow keys are alphanumeric (+ dashes), 8–128 chars.
+            $key = preg_replace('/[^A-Za-z0-9\-]/', '', sanitize_text_field($in['key'] ?? ''));
+            // Only the two endpoints the UI offers are accepted.
+            $endpoint = esc_url_raw($in['endpoint'] ?? '');
+            $allowed_endpoints = array(
+                'https://api.indexnow.org/indexnow',
+                'https://yandex.com/indexnow',
+            );
+            if (!in_array($endpoint, $allowed_endpoints, true)) {
+                $endpoint = $indexnow_default['endpoint'];
+            }
+            $settings['indexnow'] = array(
+                'enabled'  => !empty($in['enabled']),
+                'key'      => $key,
+                'endpoint' => $endpoint,
+            );
+
+            // Drop the site-root verification file (<key>.txt) so the URL
+            // shown in the Change tab is reachable. Alma_IndexNow also
+            // recreates it on submit, but doing it now keeps the UI honest.
+            if ($key !== '') {
+                $indexnow_file = dirname(dirname(__FILE__)) . '/class-alma-indexnow.php';
+                if (!class_exists('Alma_IndexNow') && file_exists($indexnow_file)) {
+                    require_once $indexnow_file;
+                }
+                if (class_exists('Alma_IndexNow')) {
+                    update_option('almaseo_sitemap_settings', $settings, false);
+                    ( new Alma_IndexNow() )->create_key_file();
+                }
+            }
+        } else {
+            $settings['indexnow'] = $existing['indexnow'] ?? $indexnow_default;
+        }
         
         // Validate links_per_sitemap
         if ($settings['links_per_sitemap'] < 1) {
@@ -604,6 +682,183 @@ class Alma_Sitemap_Ajax_Handlers {
         ));
     }
     
+    /**
+     * Handle "Clear All" for Additional URLs.
+     */
+    public static function handle_clear_all_urls() {
+        self::verify_ajax_nonce();
+        if (!class_exists('Alma_Additional_URLs_Storage')) {
+            wp_send_json_error(['message' => __('Additional URLs storage not available', 'almaseo-seo-playground')]);
+        }
+        $count = Alma_Additional_URLs_Storage::clear_all();
+        wp_send_json_success([
+            'deleted' => $count,
+            'message' => sprintf(
+                /* translators: %d: number of additional URLs that were removed */
+                _n('%d URL removed', '%d URLs removed', $count, 'almaseo-seo-playground'),
+                $count
+            ),
+        ]);
+    }
+
+    /**
+     * Handle robots.txt preview request.
+     */
+    public static function handle_preview_robots() {
+        self::verify_ajax_nonce();
+        if (!class_exists('Alma_Robots_Integration')) {
+            $robots_file = dirname(dirname(__FILE__)) . '/class-alma-robots-integration.php';
+            if (file_exists($robots_file)) {
+                require_once $robots_file;
+            }
+        }
+        if (!class_exists('Alma_Robots_Integration')) {
+            wp_send_json_error(['message' => __('Robots integration not available', 'almaseo-seo-playground')]);
+        }
+        $preview = Alma_Robots_Integration::get_robots_preview();
+        $sitemap_lines = [];
+        if (preg_match_all('/^Sitemap:.*$/m', $preview, $m)) {
+            $sitemap_lines = $m[0];
+        }
+        wp_send_json_success([
+            'preview'       => $preview,
+            'sitemap_lines' => $sitemap_lines,
+        ]);
+    }
+
+    /**
+     * Persist the two auto-update preference toggles from the Updates & I/O
+     * tab. The partial reads these options directly; nothing was writing
+     * them, so the checkboxes always reverted on reload.
+     */
+    public static function handle_save_auto_update_settings() {
+        self::verify_ajax_nonce();
+        // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- only !empty() checks below
+        $post_data = wp_unslash($_POST);
+        $enabled = !empty($post_data['enabled']);
+        $beta    = !empty($post_data['beta']);
+        update_option('almaseo_auto_updates_enabled', $enabled, false);
+        update_option('almaseo_auto_updates_beta', $beta, false);
+        wp_send_json_success([
+            'enabled' => $enabled,
+            'beta'    => $beta,
+            'message' => __('Auto-update preferences saved', 'almaseo-seo-playground'),
+        ]);
+    }
+
+    /**
+     * Submit the sitemap index URL to IndexNow-supporting search engines
+     * (Bing / Yandex / Naver depending on user config). Distinct from the
+     * delta ping, which submits a rolling window of recently-changed URLs;
+     * this one announces the full sitemap so engines re-crawl it.
+     */
+    public static function handle_ping_search_engines() {
+        self::verify_ajax_nonce();
+        $indexnow_file = dirname(dirname(__FILE__)) . '/class-alma-indexnow.php';
+        if (!class_exists('Alma_IndexNow') && file_exists($indexnow_file)) {
+            require_once $indexnow_file;
+        }
+        if (!class_exists('Alma_IndexNow')) {
+            wp_send_json_error(['message' => __('IndexNow not available', 'almaseo-seo-playground')]);
+        }
+
+        // mode 'test' submits only the sitemap index as a connectivity check;
+        // any other mode submits the full queue of changed URLs. Either way
+        // Alma_IndexNow::submit() prepends the sitemap index itself.
+        $mode = isset($_POST['mode']) ? sanitize_key(wp_unslash($_POST['mode'])) : 'all';
+
+        $indexnow = new Alma_IndexNow();
+        $result = ($mode === 'test')
+            ? $indexnow->submit([home_url('/sitemap.xml')])
+            : $indexnow->submit();
+
+        if (!empty($result['success'])) {
+            wp_send_json_success([
+                'message' => !empty($result['message'])
+                    ? $result['message']
+                    : __('Submitted to IndexNow', 'almaseo-seo-playground'),
+                'count'   => isset($result['count']) ? (int) $result['count'] : 0,
+            ]);
+        }
+
+        wp_send_json_error([
+            'message' => !empty($result['message'])
+                ? $result['message']
+                : __('IndexNow submission failed', 'almaseo-seo-playground'),
+        ]);
+    }
+
+    /**
+     * Handle validate sitemap AJAX.
+     *
+     * Runs the full validation suite via Alma_Sitemap_Validator::run() and
+     * returns an aggregate summary the JS can render as a single toast plus
+     * per-check details. Previously the Overview tab's "Validate" button was
+     * faked with setTimeout — clicking it did nothing real, just showed a
+     * lying success toast after 2 seconds.
+     */
+    public static function handle_validate_sitemap() {
+        self::verify_ajax_nonce();
+
+        if (!class_exists('Alma_Sitemap_Validator')) {
+            $validator_file = dirname(dirname(__FILE__)) . '/class-alma-sitemap-validator.php';
+            if (file_exists($validator_file)) {
+                require_once $validator_file;
+            }
+        }
+
+        if (!class_exists('Alma_Sitemap_Validator')) {
+            wp_send_json_error(['message' => __('Validator not available', 'almaseo-seo-playground')]);
+        }
+
+        try {
+            $results = Alma_Sitemap_Validator::run();
+        } catch (\Throwable $e) {
+            wp_send_json_error([
+                'message' => sprintf(
+                    /* translators: %s: error message from the validator */
+                    __('Validation failed: %s', 'almaseo-seo-playground'),
+                    $e->getMessage()
+                ),
+            ]);
+        }
+
+        // Roll up status across every sub-check so the JS toast can say
+        // "Valid" / "N issues" without re-walking the result tree.
+        $issue_count = 0;
+        foreach (['index_status', 'urlset_checks', 'media_checks', 'news_checks'] as $section) {
+            $node = $results[$section] ?? [];
+            if (isset($node['issues']) && is_array($node['issues'])) {
+                $issue_count += count($node['issues']);
+            } elseif (is_array($node)) {
+                foreach ($node as $sub) {
+                    if (isset($sub['issues']) && is_array($sub['issues'])) {
+                        $issue_count += count($sub['issues']);
+                    }
+                }
+            }
+        }
+        $conflict_count = isset($results['conflicts']) && is_array($results['conflicts'])
+            ? count($results['conflicts'])
+            : 0;
+
+        $ok = ($issue_count === 0 && $conflict_count === 0);
+
+        wp_send_json_success([
+            'ok'             => $ok,
+            'issue_count'    => $issue_count,
+            'conflict_count' => $conflict_count,
+            'results'        => $results,
+            'message'        => $ok
+                ? __('Sitemap is valid', 'almaseo-seo-playground')
+                : sprintf(
+                    /* translators: %d: total number of issues + conflicts found */
+                    _n('%d issue found', '%d issues found', $issue_count + $conflict_count, 'almaseo-seo-playground'),
+                    $issue_count + $conflict_count
+                ),
+        ]);
+    }
+
     /**
      * Handle validate hreflang AJAX
      */
@@ -905,19 +1160,21 @@ class Alma_Sitemap_Ajax_Handlers {
         // and `almaseo_sitemap_last_built` always returned defaults — those
         // option keys are not written by anything in this codebase.
         $settings = get_option('almaseo_sitemap_settings', []);
-        $build    = $settings['health']['last_build_stats'] ?? [];
+        $build    = ($settings['health'] ?? [])['last_build_stats'] ?? [];
 
-        $files     = (int) ($build['files'] ?? 0);
-        $urls      = (int) ($build['urls'] ?? 0);
-        $finished  = (int) ($build['finished'] ?? 0);
+        $files    = (int) ($build['files'] ?? 0);
+        $urls     = (int) ($build['urls'] ?? 0);
+        $finished = (int) ($build['finished'] ?? 0);
 
+        // The header chip is rendered as: Built <span class="num">{X}</span> ago.
+        // So the JS-facing duration must NOT include "ago" or the chip reads
+        // "Built 5 minutes ago ago". last_built_ts is also returned so callers
+        // can do their own formatting if they prefer.
         wp_send_json_success([
-            'files'      => $files,
-            'urls'       => $urls,
-            /* translators: %s: human-readable time difference (e.g. "2 hours") */
-            'last_built' => $finished > 0
-                ? sprintf(__('%s ago', 'almaseo-seo-playground'), human_time_diff($finished))
-                : __('Never', 'almaseo-seo-playground'),
+            'files'         => $files,
+            'urls'          => $urls,
+            'last_built'    => $finished > 0 ? human_time_diff($finished) : '',
+            'last_built_ts' => $finished,
         ]);
     }
     
@@ -943,45 +1200,48 @@ class Alma_Sitemap_Ajax_Handlers {
         $settings = get_option('almaseo_sitemap_settings', []);
         
         // Index URL
-        $urls[] = home_url('/almaseo-sitemap.xml');
-        
+        $urls[] = home_url('/sitemap.xml');
+
         // Individual sitemaps
         $types = ['posts', 'pages', 'users'];
         foreach ($types as $type) {
             if (!empty($settings['include'][$type])) {
-                $urls[] = home_url('/almaseo-sitemap-' . $type . '.xml');
+                $urls[] = home_url('/sitemap-' . $type . '-1.xml');
             }
         }
-        
-        // Custom post types
+
+        // Custom post types — served as one combined sitemap by
+        // Alma_Provider_CPTs (provider key 'cpts'), not per-type files. The
+        // setting is the string 'all' or an empty array, never a list, so the
+        // old `foreach ($settings['include']['cpts'] as $cpt)` iterated a
+        // string and emitted a PHP 8 warning.
         if (!empty($settings['include']['cpts'])) {
-            foreach ($settings['include']['cpts'] as $cpt) {
-                $urls[] = home_url('/almaseo-sitemap-cpt-' . $cpt . '.xml');
-            }
+            $urls[] = home_url('/sitemap-cpts-1.xml');
         }
-        
-        // Taxonomies
-        if (!empty($settings['include']['taxonomies'])) {
-            foreach ($settings['include']['taxonomies'] as $tax) {
-                $urls[] = home_url('/almaseo-sitemap-tax-' . $tax . '.xml');
-            }
+
+        // Taxonomies — one combined sitemap from Alma_Provider_Tax. The
+        // setting key is 'tax' (not 'taxonomies', which nothing writes) and
+        // holds per-taxonomy booleans; the provider is registered whenever
+        // that array exists.
+        if (!empty($settings['include']['tax'])) {
+            $urls[] = home_url('/sitemap-tax-1.xml');
         }
-        
+
         // Special sitemaps
         if (!empty($settings['delta']['enabled'])) {
-            $urls[] = home_url('/almaseo-sitemap-delta.xml');
+            $urls[] = home_url('/sitemap-delta.xml');
         }
-        
+
         if (!empty($settings['media']['image']['enabled'])) {
-            $urls[] = home_url('/almaseo-sitemap-images.xml');
+            $urls[] = home_url('/sitemap-image-1.xml');
         }
-        
+
         if (!empty($settings['media']['video']['enabled'])) {
-            $urls[] = home_url('/almaseo-sitemap-videos.xml');
+            $urls[] = home_url('/sitemap-video-1.xml');
         }
-        
+
         if (!empty($settings['news']['enabled'])) {
-            $urls[] = home_url('/almaseo-sitemap-news.xml');
+            $urls[] = home_url('/sitemap-news-1.xml');
         }
         
         wp_send_json_success(['urls' => $urls]);
@@ -1019,15 +1279,22 @@ class Alma_Sitemap_Ajax_Handlers {
             wp_send_json_error(['message' => __('Tab not found', 'almaseo-seo-playground')]);
         }
         
-        // Get settings for the tab
-        $settings = get_option('almaseo_sitemap_settings', []);
-        
-        // Ensure default structure
-        if (!isset($settings['enabled'])) $settings['enabled'] = false;
-        if (!isset($settings['include'])) $settings['include'] = [];
-        if (!isset($settings['perf'])) $settings['perf'] = [];
-        if (!isset($settings['health'])) $settings['health'] = [];
-        
+        // Get settings for the tab and recursively merge against the canonical
+        // defaults. The partials read deeply-nested keys like
+        // $settings['include']['tax']['category'] and $settings['perf']['gzip']
+        // without their own guards — shallow init like `$settings['include'] = []`
+        // leaves those inner accesses warning under PHP 8+. array_replace_recursive
+        // fills in every missing key from the defaults tree without overwriting
+        // anything the user has actually set.
+        $stored = get_option('almaseo_sitemap_settings', []);
+        if (!is_array($stored)) {
+            $stored = [];
+        }
+        $defaults = function_exists('almaseo_get_default_settings')
+            ? almaseo_get_default_settings()
+            : [];
+        $settings = array_replace_recursive($defaults, $stored);
+
         ob_start();
         include $partial_file;
         $content = ob_get_clean();

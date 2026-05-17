@@ -42,6 +42,102 @@
     }
 
     /**
+     * Run a button-driven AJAX action with consistent UX:
+     * disable + spinner while in flight, success/error toast, and always
+     * restore the button at the end. Returns the jqXHR so callers can chain.
+     *
+     * Options:
+     *   loadingText    — replaces button label while in flight
+     *   successMessage — shown on success when handler didn't return one
+     *   onSuccess(data)→ optional string|void: callback for custom DOM work.
+     *                    May return a string to override the success toast.
+     *   onError(resp)  — optional callback when response.success is false.
+     */
+    function runAction($btn, action, extraData, opts) {
+        opts = opts || {};
+        if (!$btn || $btn.length === 0) return null;
+        const origHtml = $btn.html();
+        const loadingText = opts.loadingText
+            || (almaseoSitemaps.i18n && almaseoSitemaps.i18n.processing)
+            || 'Processing…';
+
+        $btn.prop('disabled', true).html(
+            '<span class="spinner is-active" style="vertical-align:middle;margin:0 6px 0 0;float:none;"></span>'
+            + $('<span>').text(loadingText).html()
+        );
+
+        return $.post(
+            almaseoSitemaps.ajaxUrl,
+            $.extend({
+                action: 'almaseo_' + action,
+                nonce: almaseoSitemaps.nonce
+            }, extraData || {})
+        )
+        .done(function(response) {
+            if (response && response.success) {
+                let msg;
+                if (typeof opts.onSuccess === 'function') {
+                    msg = opts.onSuccess(response.data || {});
+                }
+                if (!msg) {
+                    msg = (response.data && response.data.message)
+                        || opts.successMessage
+                        || (almaseoSitemaps.i18n && almaseoSitemaps.i18n.success)
+                        || 'Done';
+                }
+                showToast(msg, 'success');
+            } else {
+                const msg = (response && response.data && response.data.message)
+                    || (almaseoSitemaps.i18n && almaseoSitemaps.i18n.error)
+                    || 'Action failed';
+                showToast(msg, 'error');
+                if (typeof opts.onError === 'function') opts.onError(response);
+            }
+        })
+        .fail(function() {
+            showToast(
+                (almaseoSitemaps.i18n && almaseoSitemaps.i18n.network) || 'Network error',
+                'error'
+            );
+        })
+        .always(function() {
+            $btn.prop('disabled', false).html(origHtml);
+        });
+    }
+
+    /**
+     * Trigger a browser download from an AJAX response. The export_* PHP
+     * handlers all return `{ content, filename }` (some also `mime_type`).
+     * Rather than scattering Blob/URL.createObjectURL plumbing across each
+     * button handler, route everything through this.
+     */
+    function runDownload($btn, action, extraData, opts) {
+        opts = opts || {};
+        return runAction($btn, action, extraData || {}, {
+            loadingText: opts.loadingText || 'Preparing download…',
+            onSuccess: function(d) {
+                const content  = d.content || d.csv || d.json || '';
+                const filename = d.filename || opts.fallbackFilename || 'download.txt';
+                const mime     = d.mime_type || opts.mime || 'text/plain;charset=utf-8';
+                try {
+                    const blob = new Blob([content], { type: mime });
+                    const url  = URL.createObjectURL(blob);
+                    const a    = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    setTimeout(function() { URL.revokeObjectURL(url); }, 1500);
+                } catch (e) {
+                    return 'Download failed: ' + e.message;
+                }
+                return 'Downloaded ' + filename;
+            }
+        });
+    }
+
+    /**
      * Render a small "Saving…" / "Saved" status indicator next to the
      * Sitemaps screen title. The auto-save flow is intentional, but with
      * no visible feedback users don't trust their changes are persisting.
@@ -69,27 +165,24 @@
     }
 
     /**
-     * Save settings via AJAX. Payload now includes every Types & Rules
-     * control: perf (storage_mode + gzip) and exclude (taxonomies / authors
-     * / older_than_years). The PHP handler reads them directly into
-     * almaseo_sitemap_settings; the posts/pages/cpts providers already
-     * apply exclude rules at the SQL level, so toggling the dropdowns
-     * actually changes which URLs get sitemapped.
+     * Build the base payload from Types & Rules controls.
+     *
+     * Tabs in this panel are lazy-loaded: controls only exist in the DOM
+     * after the user opens their tab. Each `read*` helper below returns
+     * null when its controls are missing, and saveSettings() only includes
+     * sections that returned a payload — so saving from one tab never
+     * clobbers settings for a tab the user never opened (the PHP handler
+     * preserves `$existing[$section]` when a key is absent from POST).
      */
-    function saveSettings(showNotification) {
-        if (showNotification === undefined) showNotification = true;
+    function readTypesPayload() {
+        if ($('#master-enable').length === 0) return null;
 
-        const excludeTax = $('#exclude-taxonomies').val() || [];
-        const excludeAuthors = $('#exclude-authors').val() || [];
-
-        const data = {
-            action: 'almaseo_save_settings',
-            nonce: almaseoSitemaps.nonce,
+        return {
             enabled: $('#master-enable').prop('checked') ? 1 : 0,
             include: {
                 posts: $('.sitemap-type[data-type="posts"]').prop('checked') ? 1 : 0,
                 pages: $('.sitemap-type[data-type="pages"]').prop('checked') ? 1 : 0,
-                cpts: $('.sitemap-type[data-type="cpts"]').prop('checked') ? 1 : 0,
+                cpts:  $('.sitemap-type[data-type="cpts"]').prop('checked') ? 1 : 0,
                 tax: {
                     category: $('.sitemap-type[data-type="category"]').prop('checked') ? 1 : 0,
                     post_tag: $('.sitemap-type[data-type="post_tag"]').prop('checked') ? 1 : 0
@@ -102,11 +195,110 @@
                 gzip: $('#enable-gzip').prop('checked') ? 1 : 0
             },
             exclude: {
-                taxonomies: excludeTax,
-                authors: excludeAuthors,
+                taxonomies:       $('#exclude-taxonomies').val() || [],
+                authors:          $('#exclude-authors').val() || [],
                 older_than_years: parseInt($('#exclude-older-than').val() || '0', 10)
             }
         };
+    }
+
+    function readMediaPayload() {
+        if ($('#media-image-enabled').length === 0 &&
+            $('#media-video-enabled').length === 0) return null;
+        return {
+            image: {
+                enabled:     $('#media-image-enabled').prop('checked') ? 1 : 0,
+                max_per_url: parseInt($('#media-image-max').val() || '20', 10),
+                dedupe_cdn:  $('#media-image-dedupe').prop('checked') ? 1 : 0
+            },
+            video: {
+                enabled:      $('#media-video-enabled').prop('checked') ? 1 : 0,
+                max_per_url:  parseInt($('#media-video-max').val() || '10', 10),
+                oembed_cache: $('#media-video-oembed').prop('checked') ? 1 : 0
+            }
+        };
+    }
+
+    function readNewsPayload() {
+        if ($('#news-enabled').length === 0) return null;
+        const postTypes  = $('input[name="news[post_types][]"]:checked')
+            .map(function() { return this.value; }).get();
+        const categories = $('input[name="news[categories][]"]:checked')
+            .map(function() { return parseInt(this.value, 10); }).get();
+        const genres     = $('input[name="news[genres][]"]:checked')
+            .map(function() { return this.value; }).get();
+
+        return {
+            enabled:         $('#news-enabled').prop('checked') ? 1 : 0,
+            publisher_name:  $('#news-publisher').val() || '',
+            language:        $('#news-language').val() || 'en',
+            post_types:      postTypes,
+            categories:      categories,
+            genres:          genres,
+            keywords_source: $('input[name="news[keywords_source]"]:checked').val() || 'tags',
+            manual_keywords: $('#news-manual-keywords').val() || '',
+            window_hours:    parseInt($('#news-window').val() || '48', 10),
+            max_items:       parseInt($('#news-max-items').val() || '1000', 10)
+        };
+    }
+
+    function readHreflangPayload() {
+        if ($('#hreflang-enabled').length === 0) return null;
+        const locales = {};
+        $('.hreflang-locale-map').each(function() {
+            const $i = $(this);
+            const loc = $i.data('locale');
+            if (loc) locales[loc] = $i.val();
+        });
+        return {
+            enabled:       $('#hreflang-enabled').prop('checked') ? 1 : 0,
+            source:        $('#hreflang-source').val() || 'auto',
+            default:       $('#hreflang-default').val() || '',
+            x_default_url: $('#hreflang-x-default').val() || '',
+            locales:       locales
+        };
+    }
+
+    function readDeltaPayload() {
+        if ($('#delta-enabled').length === 0) return null;
+        return {
+            enabled:        $('#delta-enabled').prop('checked') ? 1 : 0,
+            max_urls:       parseInt($('#delta-max-urls').val() || '500', 10),
+            retention_days: parseInt($('#delta-retention').val() || '14', 10)
+        };
+    }
+
+    function readIndexNowPayload() {
+        if ($('#indexnow-enabled').length === 0) return null;
+        return {
+            enabled:  $('#indexnow-enabled').prop('checked') ? 1 : 0,
+            key:      $('#indexnow-key').val() || '',
+            endpoint: $('#indexnow-endpoint').val() || 'https://api.indexnow.org/indexnow'
+        };
+    }
+
+    /**
+     * Save settings via AJAX. Each section payload is included only when
+     * its tab is currently loaded — see the read* helpers above for why.
+     */
+    function saveSettings(showNotification) {
+        if (showNotification === undefined) showNotification = true;
+
+        const data = $.extend(
+            { action: 'almaseo_save_settings', nonce: almaseoSitemaps.nonce },
+            readTypesPayload() || {}
+        );
+
+        const media    = readMediaPayload();
+        const news     = readNewsPayload();
+        const hreflang = readHreflangPayload();
+        const delta    = readDeltaPayload();
+        const indexnow = readIndexNowPayload();
+        if (media)    data.media    = media;
+        if (news)     data.news     = news;
+        if (hreflang) data.hreflang = hreflang;
+        if (delta)    data.delta    = delta;
+        if (indexnow) data.indexnow = indexnow;
 
         if (showNotification) {
             setSaveStatus('saving', almaseoSitemaps.i18n.saving || 'Saving…');
@@ -169,31 +361,597 @@
      * Initialize on document ready
      */
     $(document).ready(function() {
-        
-        // Master enable toggle
-        $('#master-enable').on('change', function() {
+
+        // Every change handler below is delegated on `document` so it survives
+        // the tab lazy-loader replacing panel HTML. Previously these were
+        // direct bindings at document.ready, which meant they only worked if
+        // the user landed on the panel with that tab already rendered
+        // server-side (e.g. ?tab=types); switching tabs in-session left the
+        // controls unwired and saves silently dropped.
+
+        // --- Types & Rules tab ---
+        $(document).on('change', '#master-enable', function() {
             const enabled = $(this).prop('checked');
             $('.almaseo-sitemap-types').toggleClass('disabled', !enabled);
-            if (!enabled) {
-                $('.sitemap-type').prop('disabled', true);
-            } else {
-                $('.sitemap-type').prop('disabled', false);
-            }
+            $('.sitemap-type').prop('disabled', !enabled);
             markChanged();
         });
-        
-        // Sitemap type toggles
-        $('.sitemap-type').on('change', function() {
-            markChanged();
-        });
-        
-        // Links per sitemap
-        $('#links-per-sitemap').on('change', function() {
-            let val = parseInt($(this).val());
-            if (val < 1) val = 1;
+        $(document).on('change', '.sitemap-type', markChanged);
+        $(document).on('change', '#links-per-sitemap', function() {
+            let val = parseInt($(this).val(), 10);
+            if (isNaN(val) || val < 1) val = 1;
             if (val > 50000) val = 50000;
             $(this).val(val);
             markChanged();
+        });
+        $(document).on('change', 'input[name="storage_mode"]', markChanged);
+        $(document).on('change', '#enable-gzip', markChanged);
+
+        // Exclude filters — the 1.13.8 changelog claimed full save coverage
+        // for these, but only the saveSettings payload was updated; the
+        // change listeners were never added, so the dropdowns never fired
+        // an auto-save. Wire them now.
+        $(document).on('change', '#exclude-taxonomies, #exclude-authors, #exclude-older-than', markChanged);
+
+        // --- Media tab ---
+        $(document).on(
+            'change',
+            '#media-image-enabled, #media-image-max, #media-image-dedupe, ' +
+            '#media-video-enabled, #media-video-max, #media-video-oembed',
+            markChanged
+        );
+
+        // --- News tab ---
+        $(document).on(
+            'change',
+            '#news-enabled, #news-publisher, #news-language, ' +
+            '#news-window, #news-max-items, #news-manual-keywords, ' +
+            'input[name="news[post_types][]"], ' +
+            'input[name="news[categories][]"], ' +
+            'input[name="news[genres][]"]',
+            markChanged
+        );
+        // Manual-keywords source radio: toggle the visibility of the manual
+        // input group AND mark dirty. Previously inline CSS controlled the
+        // initial state but no JS reacted to changes, so flipping the radio
+        // appeared to do nothing.
+        $(document).on('change', 'input[name="news[keywords_source]"]', function() {
+            const isManual = $(this).val() === 'manual';
+            $('#news-manual-keywords-group').css('display', isManual ? '' : 'none');
+            markChanged();
+        });
+
+        // --- International (hreflang) tab ---
+        $(document).on(
+            'change',
+            '#hreflang-enabled, #hreflang-source, #hreflang-default, #hreflang-x-default, .hreflang-locale-map',
+            markChanged
+        );
+
+        // --- Change Detection (delta) tab ---
+        $(document).on('change', '#delta-enabled, #delta-max-urls, #delta-retention', markChanged);
+
+        // --- Change tab: IndexNow ---
+        $(document).on('change', '#indexnow-enabled, #indexnow-key, #indexnow-endpoint', markChanged);
+        // Keep "Ping All URLs" enablement in sync with the toggle — the tab
+        // partial isn't re-rendered after a debounced auto-save.
+        $(document).on('change', '#indexnow-enabled', function() {
+            $('#ping-all-indexnow').prop('disabled', !$(this).prop('checked'));
+        });
+
+        // --- Action buttons: tabs that were previously unwired ---
+        // All of these have real PHP handlers (see handle_* methods in
+        // class-sitemap-ajax-handlers.php). The buttons rendered fine but
+        // clicking did nothing because no JS bound to them.
+
+        // Media tab
+        $(document).on('click', '#scan-media', function() {
+            runAction($(this), 'scan_media', {}, {
+                loadingText: 'Scanning…',
+                onSuccess: function(d) {
+                    if (d && (d.images >= 0 || d.videos >= 0)) {
+                        return 'Scan complete — ' + (d.images || 0) + ' images, ' + (d.videos || 0) + ' videos';
+                    }
+                }
+            });
+        });
+        $(document).on('click', '#validate-media', function() {
+            runAction($(this), 'validate_media', {}, {
+                loadingText: 'Validating…',
+                onSuccess: function(d) {
+                    const issues = (d && d.issues) || [];
+                    return issues.length === 0
+                        ? 'Media looks good — no issues found'
+                        : issues.length + ' media issue(s) found';
+                }
+            });
+        });
+        $(document).on('click', '#rebuild-media', function() {
+            runAction($(this), 'rebuild_media', {}, {
+                loadingText: 'Rebuilding…',
+                successMessage: 'Media sitemaps rebuilt'
+            });
+        });
+
+        // News tab
+        $(document).on('click', '#validate-news', function() {
+            runAction($(this), 'validate_news', {}, {
+                loadingText: 'Validating…',
+                onSuccess: function(d) {
+                    return (d && d.ok)
+                        ? 'News sitemap is valid'
+                        : ((d && d.issues && d.issues.length) ? d.issues.length + ' issue(s) found' : 'News validation complete');
+                }
+            });
+        });
+        $(document).on('click', '#rebuild-news', function() {
+            runAction($(this), 'rebuild_news', {}, {
+                loadingText: 'Rebuilding…',
+                successMessage: 'News sitemap rebuilt'
+            });
+        });
+
+        // International (hreflang) tab
+        $(document).on('click', '#validate-hreflang', function() {
+            runAction($(this), 'validate_hreflang', {}, {
+                loadingText: 'Validating…',
+                onSuccess: function(d) {
+                    return (d && d.ok) ? 'Hreflang is valid' : 'Hreflang issues detected';
+                }
+            });
+        });
+
+        // Validate sitemap — real now, not faked. Wires both the Overview
+        // tab's Quick Tool button AND the Health & Scan tab's button. The
+        // backend runs the full Alma_Sitemap_Validator suite.
+        $(document).on('click', '#validate-sitemap, #validate-all', function() {
+            runAction($(this), 'validate_sitemap', {}, {
+                loadingText: 'Validating…',
+                onSuccess: function(d) {
+                    // The handler returns an aggregate `message` and detailed
+                    // `results` — let it set the toast text by default.
+                    return d && d.message;
+                }
+            });
+        });
+
+        // --- Health & Scan tab: conflict scanner, snapshots, log management ---
+        $(document).on('click', '#scan-conflicts-btn, #rescan-conflicts', function() {
+            runAction($(this), 'start_scan', {}, {
+                loadingText: 'Starting scan…',
+                successMessage: 'Conflict scan started — refresh in a moment to see results'
+            });
+        });
+        $(document).on('click', '#view-conflicts-btn', function() {
+            const $table = $('#conflicts-table');
+            $table.toggle();
+            // Lazy-fetch the rows the first time the table is shown.
+            if ($table.is(':visible') && $table.data('loaded') !== true) {
+                $.post(almaseoSitemaps.ajaxUrl, {
+                    action: 'almaseo_get_scan_results',
+                    nonce: almaseoSitemaps.nonce
+                }, function(r) {
+                    if (r && r.success && r.data && r.data.conflicts) {
+                        const $tb = $('#conflicts-tbody').empty();
+                        r.data.conflicts.forEach(function(c) {
+                            $tb.append(
+                                $('<tr>')
+                                    .append($('<td>').text(c.type || ''))
+                                    .append($('<td>').text(c.description || ''))
+                                    .append($('<td>').text(c.plugin || c.theme || ''))
+                                    .append($('<td>').text(c.impact || ''))
+                            );
+                        });
+                        $table.data('loaded', true);
+                    }
+                });
+            }
+        });
+        $(document).on('click', '#create-snapshot-btn', function() {
+            const name = window.prompt('Snapshot name:', 'snapshot-' + new Date().toISOString().slice(0, 10));
+            if (!name) return;
+            runAction($(this), 'create_snapshot', { name: name }, {
+                loadingText: 'Snapshotting…'
+            });
+        });
+        $(document).on('click', '#compare-snapshots-btn', function() {
+            runAction($(this), 'compare_snapshots', {}, {
+                loadingText: 'Comparing…',
+                onSuccess: function(d) {
+                    if (d && d.summary) {
+                        return 'Diff: +' + (d.summary.added || 0)
+                            + ' / -' + (d.summary.removed || 0)
+                            + ' / ~' + (d.summary.changed || 0);
+                    }
+                }
+            });
+        });
+        $(document).on('click', '#clear-logs-btn', function() {
+            if (!window.confirm('Clear all health log entries? This cannot be undone.')) return;
+            runAction($(this), 'clear_logs', {}, {
+                loadingText: 'Clearing…',
+                successMessage: 'Health logs cleared'
+            }).done(function(r) {
+                if (r && r.success) {
+                    $('#health-log-tbody').empty();
+                }
+            });
+        });
+        $(document).on('click', '#refresh-logs-btn', function() {
+            // Cheap path: reload the page. A focused log-fetch endpoint would
+            // be nicer but doesn't exist yet, and avoiding scope creep here.
+            window.location.reload();
+        });
+
+        // --- Export buttons across all tabs (consistent download flow) ---
+        $(document).on('click', '#export-conflicts-csv', function() {
+            runDownload($(this), 'export_conflicts', {}, {
+                mime: 'text/csv;charset=utf-8',
+                fallbackFilename: 'almaseo-conflicts.csv'
+            });
+        });
+        $(document).on('click', '#export-diff-csv', function() {
+            runDownload($(this), 'export_diff', {}, {
+                mime: 'text/csv;charset=utf-8',
+                fallbackFilename: 'almaseo-diff.csv'
+            });
+        });
+        $(document).on('click', '#export-hreflang-issues', function() {
+            runDownload($(this), 'export_hreflang_issues', {}, {
+                mime: 'text/csv;charset=utf-8',
+                fallbackFilename: 'almaseo-hreflang-issues.csv'
+            });
+        });
+        $(document).on('click', '#export-logs-btn', function() {
+            runDownload($(this), 'export_logs', {}, {
+                mime: 'text/csv;charset=utf-8',
+                fallbackFilename: 'almaseo-logs.csv'
+            });
+        });
+        $(document).on('click', '#export-settings-btn', function() {
+            runDownload($(this), 'export_settings', {}, {
+                mime: 'application/json',
+                fallbackFilename: 'almaseo-sitemap-settings.json'
+            });
+        });
+        $(document).on('click', '#export-csv-btn', function() {
+            // Types & Rules → Additional URLs → Export CSV
+            runDownload($(this), 'export_csv', {}, {
+                mime: 'text/csv;charset=utf-8',
+                fallbackFilename: 'almaseo-additional-urls.csv'
+            });
+        });
+
+        // --- Types & Rules → Additional URLs → Add URL ---
+        // Minimal prompt-based UX. The Alma_Provider_Extra::add_url() handler
+        // still accepts priority as a parameter (the DB column hangs around
+        // for backward compat) — we just no longer ask for it, since the
+        // sitemap writer dropped <priority> from the output.
+        $(document).on('click', '#add-url-btn', function() {
+            const url = window.prompt('URL to add to sitemap:', '');
+            if (!url) return;
+            const changefreq = window.prompt(
+                'Change frequency (always, hourly, daily, weekly, monthly, yearly, never):',
+                'weekly'
+            );
+            if (changefreq === null) return;
+            runAction($(this), 'add_url', {
+                url: url,
+                changefreq: changefreq
+            }, {
+                loadingText: 'Adding…',
+                successMessage: 'URL added'
+            }).done(function(r) {
+                if (r && r.success) {
+                    setTimeout(function() { window.location.reload(); }, 600);
+                }
+            });
+        });
+
+        // --- Updates & I/O tab: misc helpers ---
+        $(document).on('click', '#copy-all-urls-btn', function() {
+            const $btn = $(this);
+            runAction($btn, 'copy_all_urls', {}, {
+                loadingText: 'Loading…',
+                onSuccess: function(d) {
+                    if (!d || !d.urls || !d.urls.length) return;
+                    const text = d.urls.join('\n');
+                    const $ta = $('#sitemap-urls-list textarea').val(text);
+                    $('#sitemap-urls-list').show();
+                    try {
+                        $ta.select();
+                        document.execCommand('copy');
+                        return 'Copied ' + d.urls.length + ' URLs to clipboard';
+                    } catch (e) {
+                        return 'URLs listed below — copy manually';
+                    }
+                }
+            });
+        });
+        $(document).on('click', '#copy-shortcode-btn', function() {
+            const $btn = $(this);
+            const $input = $('#generated-shortcode');
+            $input.select();
+            try {
+                document.execCommand('copy');
+                showToast('Shortcode copied', 'success');
+            } catch (e) {
+                showToast('Copy failed — please copy manually', 'error');
+            }
+        });
+        // Live-update the generated shortcode as the user tweaks the builder.
+        $(document).on('change', '.almaseo-shortcode-builder input[type="checkbox"], #shortcode-columns', function() {
+            const types = $('.almaseo-shortcode-builder input[type="checkbox"]:checked')
+                .map(function() { return this.value; }).get();
+            const cols = parseInt($('#shortcode-columns').val(), 10) || 2;
+            const sc = '[almaseo_html_sitemap types="' + types.join(',') + '" columns="' + cols + '"]';
+            $('#generated-shortcode').val(sc);
+        });
+
+        // --- Clear All Additional URLs (Types & Rules) ---
+        $(document).on('click', '#clear-all-urls-btn', function() {
+            if (!window.confirm('Remove all additional URLs? This cannot be undone.')) return;
+            runAction($(this), 'clear_all_urls', {}, {
+                loadingText: 'Clearing…'
+            }).done(function(r) {
+                if (r && r.success) {
+                    setTimeout(function() { window.location.reload(); }, 600);
+                }
+            });
+        });
+
+        // --- Updates & I/O: System information copy ---
+        $(document).on('click', '#copy-system-info', function() {
+            const lines = [];
+            $('.almaseo-info-item').each(function() {
+                const label = $(this).find('strong').text().trim();
+                const value = $(this).clone().children('strong').remove().end().text().trim();
+                if (label) lines.push(label + ' ' + value);
+            });
+            // Include active plugins detail block if present
+            $('.almaseo-plugin-item').each(function() {
+                const name = $(this).find('strong').text().trim();
+                const ver  = $(this).find('.version').text().trim();
+                if (name) lines.push('Plugin: ' + name + (ver ? ' (' + ver + ')' : ''));
+            });
+            if (lines.length === 0) {
+                showToast('Nothing to copy', 'error');
+                return;
+            }
+            const text = lines.join('\n');
+            const $temp = $('<textarea>').css({ position: 'fixed', top: '-9999px' }).val(text);
+            $('body').append($temp);
+            $temp.select();
+            try {
+                document.execCommand('copy');
+                showToast('System info copied (' + lines.length + ' lines)', 'success');
+            } catch (e) {
+                showToast('Copy failed — please copy manually', 'error');
+            }
+            $temp.remove();
+        });
+
+        // --- Updates & I/O: Bulk operations ---
+        $(document).on('click', '#validate-all-sitemaps', function() {
+            // Same backend as the header Validate buttons — runs the full
+            // Alma_Sitemap_Validator suite which already covers every
+            // provider sitemap.
+            runAction($(this), 'validate_sitemap', {}, {
+                loadingText: 'Validating…',
+                onSuccess: function(d) { return d && d.message; }
+            });
+        });
+        $(document).on('click', '#rebuild-all-sitemaps', function() {
+            // rebuild_static rebuilds the index plus every provider's child
+            // sitemaps in one pass — there's no notion of "some sitemaps"
+            // so the "all" semantics are accurate.
+            runAction($(this), 'rebuild_static', {}, {
+                loadingText: 'Rebuilding all sitemaps…',
+                successMessage: 'All sitemaps rebuilt'
+            });
+        });
+        $(document).on('click', '#ping-all-search-engines', function() {
+            runAction($(this), 'ping_search_engines', {}, {
+                loadingText: 'Pinging…'
+            });
+        });
+
+        // --- Robots.txt preview / copy / download ---
+        $(document).on('click', '#preview-robots-btn', function() {
+            const $btn = $(this);
+            runAction($btn, 'preview_robots', {}, {
+                loadingText: 'Loading…',
+                onSuccess: function(d) {
+                    const preview = (d && d.preview) || '';
+                    $('#robots-preview pre.almaseo-code-preview').text(preview);
+                    $('#robots-preview').show().data('lines', (d && d.sitemap_lines) || []);
+                    return 'robots.txt loaded';
+                }
+            });
+        });
+        $(document).on('click', '#copy-robots-entries', function() {
+            const lines = $('#robots-preview').data('lines') || [];
+            if (!lines.length) {
+                showToast('Open Preview first', 'error');
+                return;
+            }
+            const $temp = $('<textarea>').css({ position: 'fixed', top: '-9999px' }).val(lines.join('\n'));
+            $('body').append($temp);
+            $temp.select();
+            try {
+                document.execCommand('copy');
+                showToast('Sitemap lines copied (' + lines.length + ')', 'success');
+            } catch (e) {
+                showToast('Copy failed', 'error');
+            }
+            $temp.remove();
+        });
+        $(document).on('click', '#download-robots', function() {
+            const preview = $('#robots-preview pre.almaseo-code-preview').text();
+            if (!preview) {
+                showToast('Open Preview first', 'error');
+                return;
+            }
+            const blob = new Blob([preview], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = 'robots.txt';
+            document.body.appendChild(a); a.click(); a.remove();
+            setTimeout(function() { URL.revokeObjectURL(url); }, 1500);
+            showToast('robots.txt downloaded', 'success');
+        });
+
+        // --- Auto-update toggles persistence ---
+        function saveAutoUpdateSettings() {
+            $.post(almaseoSitemaps.ajaxUrl, {
+                action: 'almaseo_save_auto_update_settings',
+                nonce: almaseoSitemaps.nonce,
+                enabled: $('#auto-updates-enabled').prop('checked') ? 1 : 0,
+                beta:    $('#auto-updates-beta').prop('checked') ? 1 : 0
+            }, function(r) {
+                if (r && r.success) {
+                    showToast(r.data.message || 'Saved', 'success');
+                } else {
+                    showToast((r && r.data && r.data.message) || 'Save failed', 'error');
+                }
+            }).fail(function() {
+                showToast('Network error', 'error');
+            });
+        }
+        $(document).on('change', '#auto-updates-enabled, #auto-updates-beta', saveAutoUpdateSettings);
+
+        // --- Import Settings flow (Updates & I/O tab) ---
+        // The drop zone is rendered statically in updates-io.php with a hidden
+        // <input type="file" id="import-settings-file" accept=".json">. We
+        // own all the click + drop wiring here. State held in a module-scoped
+        // `pendingImport` var: { content, filename }.
+        let pendingImport = null;
+        function setImportFileInfo(file) {
+            $('#import-file-name').text(file.name);
+            $('#import-file-size').text('(' + Math.ceil(file.size / 1024) + ' KB)');
+            $('#import-file-info').show();
+            $('#import-options').show();
+            $('#import-confirm-btn').prop('disabled', false);
+        }
+        function readImportFile(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                pendingImport = { content: e.target.result, filename: file.name };
+                setImportFileInfo(file);
+            };
+            reader.onerror = function() {
+                showToast('Failed to read file', 'error');
+            };
+            reader.readAsText(file);
+        }
+        $(document).on('click', '#import-settings-btn, #import-drop-zone', function(e) {
+            // Avoid double-firing when the drop zone is clicked and bubbles
+            // up to the button or vice versa.
+            if (e.target.id === 'import-confirm-btn') return;
+            $('#import-settings-file').trigger('click');
+        });
+        $(document).on('change', '#import-settings-file', function() {
+            const f = this.files && this.files[0];
+            if (f) readImportFile(f);
+        });
+        $(document).on('dragover', '#import-drop-zone', function(e) {
+            e.preventDefault();
+            $(this).addClass('is-dragover');
+        });
+        $(document).on('dragleave drop', '#import-drop-zone', function(e) {
+            $(this).removeClass('is-dragover');
+        });
+        $(document).on('drop', '#import-drop-zone', function(e) {
+            e.preventDefault();
+            const dt = e.originalEvent && e.originalEvent.dataTransfer;
+            const f = dt && dt.files && dt.files[0];
+            if (f) readImportFile(f);
+        });
+        $(document).on('click', '#import-confirm-btn', function() {
+            if (!pendingImport) {
+                showToast('Choose a settings file first', 'error');
+                return;
+            }
+            const merge = $('#import-merge-settings').prop('checked') ? 1 : 0;
+            const backup = $('#import-create-backup').prop('checked') ? 1 : 0;
+            // If user wants a pre-import backup, trigger settings export first.
+            const proceed = function() {
+                runAction($('#import-confirm-btn'), 'import_settings', {
+                    settings: pendingImport.content,
+                    merge: merge
+                }, {
+                    loadingText: 'Importing…',
+                    successMessage: 'Settings imported — reloading'
+                }).done(function(r) {
+                    if (r && r.success) {
+                        setTimeout(function() { window.location.reload(); }, 900);
+                    }
+                });
+            };
+            if (backup) {
+                runDownload($('#import-confirm-btn'), 'export_settings', {}, {
+                    mime: 'application/json',
+                    fallbackFilename: 'almaseo-settings-backup.json'
+                }).always(proceed);
+            } else {
+                proceed();
+            }
+        });
+
+        // --- Import CSV (Types & Rules → Additional URLs) ---
+        // The partial only has a button — we synthesize the file input.
+        let csvFileInput = null;
+        function getCsvFileInput() {
+            if (csvFileInput) return csvFileInput;
+            csvFileInput = $('<input type="file" accept=".csv,text/csv" style="display:none;">')
+                .appendTo('body')
+                .on('change', function() {
+                    const f = this.files && this.files[0];
+                    if (!f) return;
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        runAction($('#import-csv-btn'), 'import_csv', {
+                            csv: e.target.result
+                        }, {
+                            loadingText: 'Importing CSV…',
+                            onSuccess: function(d) {
+                                const n = (d && d.imported) || 0;
+                                return n + ' URL(s) imported';
+                            }
+                        }).done(function(r) {
+                            if (r && r.success) {
+                                setTimeout(function() { window.location.reload(); }, 800);
+                            }
+                        });
+                    };
+                    reader.readAsText(f);
+                    // Reset so re-selecting the same file fires change again.
+                    this.value = '';
+                });
+            return csvFileInput;
+        }
+        $(document).on('click', '#import-csv-btn', function() {
+            getCsvFileInput().trigger('click');
+        });
+
+        // Open/Copy buttons in tabs — pure DOM, no AJAX needed
+        $(document).on('click', '#open-image-sitemap, #open-video-sitemap, #open-news-sitemap, #open-delta', function() {
+            const $input = $(this).closest('.almaseo-input-group').find('input[type="text"]').first();
+            const url = $input.val();
+            if (url) window.open(url, '_blank');
+        });
+        $(document).on('click', '#copy-image-url, #copy-video-url, #copy-news-url, #copy-delta-url', function() {
+            const $btn = $(this);
+            const $input = $btn.closest('.almaseo-input-group').find('input[type="text"]').first();
+            if (!$input.val()) return;
+            $input.select();
+            try {
+                document.execCommand('copy');
+                showToast('URL copied to clipboard', 'success');
+            } catch (e) {
+                showToast('Copy failed — please copy manually', 'error');
+            }
         });
         
         // Open sitemap button
@@ -237,26 +995,14 @@
                 nonce: almaseoSitemaps.nonce
             }, function(response) {
                 if (response.success) {
-                    // Update UI
                     $btn.html('<span class="dashicons dashicons-yes"></span> ' +
                              '<span class="button-text">' + almaseoSitemaps.i18n.recalculated + '</span>');
-                    
-                    // Update chips
-                    $('.almaseo-chip:contains("Last built")').html(
-                        almaseoSitemaps.i18n.lastBuilt + ' <strong>' + response.data.last_built + '</strong>'
-                    );
-                    $('.almaseo-chip:contains("Files")').html(
-                        almaseoSitemaps.i18n.files + ' <strong>' + response.data.stats.files + '</strong>'
-                    );
-                    $('.almaseo-chip:contains("URLs")').html(
-                        almaseoSitemaps.i18n.urls + ' <strong>' + response.data.stats.urls + '</strong>'
-                    );
-                    
-                    // Reset button after 2 seconds
-                    setTimeout(function() {
-                        $btn.html(originalHtml);
-                        $btn.prop('disabled', false);
-                    }, 2000);
+                    // handle_recalculate only clears the stat transients — it
+                    // returns no stats payload. Reload so the server-rendered
+                    // chips show the freshly recomputed values. (Previously
+                    // this read response.data.stats.files, which is undefined,
+                    // throwing a TypeError that left the button stuck.)
+                    setTimeout(function() { window.location.reload(); }, 600);
                 } else {
                     showToast(almaseoSitemaps.i18n.error, 'error');
                     $btn.html(originalHtml);
@@ -627,26 +1373,27 @@ jQuery(function($) {
     }
 
     /**
-     * IndexNow submission
+     * Ping IndexNow. mode 'test' submits only the sitemap index as a
+     * connectivity check; any other mode submits the full queue of changed
+     * URLs (Alma_IndexNow prepends the sitemap index either way).
      */
-    function submitIndexNow(urls) {
+    function pingIndexNow($btn, mode) {
+        const original = $btn.html();
+        $btn.prop('disabled', true);
         $.post(almaseoSitemaps.ajaxUrl, {
-            action: 'almaseo_indexnow_submit',
+            action: 'almaseo_ping_search_engines',
             nonce: almaseoSitemaps.nonce,
-            urls: urls
-        })
-        .done(function(response) {
-            if (response.success) {
-                showNotice(response.data.message, 'success');
-                
-                // Update IndexNow stats
-                if (response.data.stats) {
-                    $('#indexnow-submissions').text(response.data.stats.total);
-                    $('#indexnow-last-submit').text(response.data.stats.last_submit);
-                }
-            } else {
-                showNotice(response.data || 'IndexNow submission failed', 'error');
-            }
+            mode: mode
+        }).done(function(response) {
+            const ok = !!(response && response.success);
+            const msg = (response && response.data && response.data.message)
+                ? response.data.message
+                : (ok ? 'Submitted to IndexNow' : 'IndexNow request failed');
+            showNotice(msg, ok ? 'success' : 'error');
+        }).fail(function() {
+            showNotice('IndexNow request failed', 'error');
+        }).always(function() {
+            $btn.prop('disabled', false).html(original);
         });
     }
 
@@ -754,50 +1501,30 @@ jQuery(function($) {
      * Initialize handlers
      */
     $(document).ready(function() {
-        // Generate IndexNow key
-        $('#generate-indexnow-key').on('click', function() {
-            const key = generateRandomKey(32);
-            $('#indexnow-key').val(key);
+        // IndexNow controls — delegated on document so they survive the
+        // Change tab being lazy-loaded after the page first renders.
+
+        // Generate a key into the field and trigger an auto-save so the new
+        // key persists to almaseo_sitemap_settings['indexnow'].
+        $(document).on('click', '#generate-indexnow-key', function() {
+            $('#indexnow-key').val(generateRandomKey(32));
+            markChanged();
         });
-        
-        // Verify IndexNow key
-        $('#verify-indexnow-key').on('click', function() {
-            const key = $('#indexnow-key').val();
-            if (!key) {
-                showNotice('Please enter an IndexNow key', 'error');
-                return;
-            }
-            
-            $.post(almaseoSitemaps.ajaxUrl, {
-                action: 'almaseo_verify_indexnow',
-                nonce: almaseoSitemaps.nonce,
-                key: key
-            })
-            .done(function(response) {
-                if (response.success) {
-                    showNotice('IndexNow key verified successfully', 'success');
-                } else {
-                    showNotice(response.data || 'Verification failed', 'error');
-                }
-            });
+        // Connectivity test — submit just the sitemap index.
+        $(document).on('click', '#test-indexnow', function() {
+            pingIndexNow($(this), 'test');
         });
-        
+        // Submit all queued changed URLs.
+        $(document).on('click', '#ping-all-indexnow', function() {
+            pingIndexNow($(this), 'all');
+        });
+
         // Attach button handlers
         $('#validate-sitemap').on('click', validateSitemap);
         $('#submit-to-search-engines').on('click', submitToSearchEngines);
         $('#rebuild-static').on('click', buildStaticSitemaps);
         $('#export-settings').on('click', exportSettings);
         $('#import-settings').on('click', importSettings);
-        
-        // IndexNow bulk submit
-        $('#indexnow-bulk-submit').on('click', function() {
-            const urls = $('#indexnow-urls').val().split('\n').filter(url => url.trim());
-            if (urls.length === 0) {
-                showNotice('Please enter at least one URL', 'error');
-                return;
-            }
-            submitIndexNow(urls);
-        });
     });
 
 }); // End jQuery wrapper
@@ -2672,45 +3399,13 @@ jQuery(function($) {
      * Phase 6: Quick Tools
      */
     
-    // Copy all sitemap URLs
-    $('#copy-all-urls-btn').on('click', function() {
-        const $btn = $(this);
-        const $list = $('#sitemap-urls-list');
-        const $textarea = $list.find('textarea');
-        
-        $btn.prop('disabled', true);
-        
-        $.post(almaseoSitemaps.ajaxUrl, {
-            action: 'almaseo_copy_all_urls',
-            nonce: almaseoSitemaps.nonce
-        }, function(response) {
-            if (response.success) {
-                $textarea.val(response.data.text);
-                $list.slideDown();
-                
-                // Select and copy
-                $textarea.select();
-                document.execCommand('copy');
-                
-                showToast('URLs copied to clipboard', 'success');
-                
-                // Update button text temporarily
-                const originalHtml = $btn.html();
-                $btn.html('<span class="dashicons dashicons-yes"></span> Copied!');
-                setTimeout(function() {
-                    $btn.html(originalHtml);
-                }, 2000);
-            } else {
-                showToast(response.data || 'Failed to get URLs', 'error');
-            }
-            
-            $btn.prop('disabled', false);
-        }).fail(function() {
-            showToast('Failed to get URLs', 'error');
-            $btn.prop('disabled', false);
-        });
-    });
-    
+    // NOTE: the Phase 6 "Copy all sitemap URLs" handler that lived here was
+    // removed — it double-bound #copy-all-urls-btn alongside the delegated
+    // handler above (~line 633) and read response.data.text, a key
+    // handle_copy_all_urls never returns (it returns {urls:[...]}), so it
+    // overwrote the textarea with "undefined". The delegated handler is
+    // canonical.
+
     // Copy shortcode
     $('#copy-shortcode').on('click', function(e) {
         e.preventDefault();

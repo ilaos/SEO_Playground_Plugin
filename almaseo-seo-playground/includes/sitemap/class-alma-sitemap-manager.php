@@ -184,6 +184,10 @@ class Alma_Sitemap_Manager {
         add_action('init', array($this, 'add_rewrite_rules'), 1);
         add_filter('query_vars', array($this, 'add_query_vars'));
         add_action('template_redirect', array($this->responder, 'handle_request'), 1);
+
+        // Auto-flush rewrite rules when the URL scheme version changes.
+        // Bump REWRITE_RULES_VERSION whenever add_rewrite_rules() changes.
+        add_action('init', array($this, 'maybe_flush_rewrite_rules'), 99);
         
         // Phase 4: Cron hooks for static rebuilds
         add_action('almaseo_sitemaps_rebuild', array($this, 'cron_rebuild'));
@@ -271,25 +275,51 @@ class Alma_Sitemap_Manager {
     /**
      * Add rewrite rules
      */
+    /**
+     * Version of the registered rewrite-rule scheme. Bump this whenever the
+     * regex pattern in add_rewrite_rules() changes so maybe_flush_rewrite_rules()
+     * forces WordPress to rebuild its cached rules.
+     */
+    const REWRITE_RULES_VERSION = '3';
+
+    /**
+     * Flush rewrite rules if the stored scheme version is behind.
+     */
+    public function maybe_flush_rewrite_rules() {
+        if (get_option('almaseo_sitemaps_rewrite_version') !== self::REWRITE_RULES_VERSION) {
+            flush_rewrite_rules(false);
+            update_option('almaseo_sitemaps_rewrite_version', self::REWRITE_RULES_VERSION, false);
+        }
+    }
+
     public function add_rewrite_rules() {
         // Main sitemap index
         add_rewrite_rule(
-            '^almaseo-sitemap\.xml$',
+            '^sitemap\.xml$',
             'index.php?almaseo_sitemap=index',
             'top'
         );
-        
+
         // Provider sitemaps with pagination
         add_rewrite_rule(
-            '^almaseo-sitemap-([a-z\-]+)-([0-9]+)\.xml$',
+            '^sitemap-([a-z\-]+)-([0-9]+)\.xml$',
             'index.php?almaseo_sitemap=$matches[1]&sitemap_page=$matches[2]',
             'top'
         );
-        
-        // Delta sitemap (can have pagination)
+
+        // Delta sitemap (no pagination)
         add_rewrite_rule(
-            '^almaseo-sitemap-delta\.xml$',
+            '^sitemap-delta\.xml$',
             'index.php?almaseo_sitemap=delta',
+            'top'
+        );
+
+        // XSL stylesheet. Every sitemap file references /sitemap.xsl via an
+        // xml-stylesheet processing instruction; serve it here so browsers
+        // render the sitemap as a readable page instead of a blank transform.
+        add_rewrite_rule(
+            '^sitemap\.xsl$',
+            'index.php?almaseo_sitemap=xsl',
             'top'
         );
     }
@@ -570,6 +600,7 @@ class Alma_Sitemap_Manager {
         }
         
         // Generate news sitemap
+        $urls = 0; // keep defined — log_news_refresh() below runs unconditionally
         $news_provider = $this->get_provider('news');
         if ($news_provider) {
             $urls = $writer->generate_with_seek('Alma_Provider_News', 'news');

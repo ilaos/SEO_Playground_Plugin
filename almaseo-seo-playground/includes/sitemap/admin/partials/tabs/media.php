@@ -124,7 +124,7 @@ try {
             <div class="almaseo-form-group">
                 <label><?php esc_html_e('Image Sitemap URL:', 'almaseo-seo-playground'); ?></label>
                 <div class="almaseo-input-group">
-                    <input type="text" readonly value="<?php echo esc_url(home_url('/almaseo-sitemap-image-1.xml')); ?>" class="almaseo-input">
+                    <input type="text" readonly value="<?php echo esc_url(home_url('/sitemap-image-1.xml')); ?>" class="almaseo-input">
                     <div class="almaseo-button-group">
                         <button type="button" class="button almaseo-button-secondary" id="open-image-sitemap">
                             <span class="dashicons dashicons-external"></span>
@@ -208,7 +208,7 @@ try {
             <div class="almaseo-form-group">
                 <label><?php esc_html_e('Video Sitemap URL:', 'almaseo-seo-playground'); ?></label>
                 <div class="almaseo-input-group">
-                    <input type="text" readonly value="<?php echo esc_url(home_url('/almaseo-sitemap-video-1.xml')); ?>" class="almaseo-input">
+                    <input type="text" readonly value="<?php echo esc_url(home_url('/sitemap-video-1.xml')); ?>" class="almaseo-input">
                     <div class="almaseo-button-group">
                         <button type="button" class="button almaseo-button-secondary" id="open-video-sitemap">
                             <span class="dashicons dashicons-external"></span>

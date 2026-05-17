@@ -339,11 +339,6 @@ function almaseo_get_locked_feature_content( $feature ) {
             'description' => 'Detect when structured data (JSON-LD) on your pages changes unexpectedly after plugin updates, theme switches, or other site changes. Capture baselines, scan for drift, and get alerted when schemas are removed, modified, or broken.',
             'url'         => 'https://almaseo.com/pro#schema-drift',
         ),
-        'snippet_targeting' => array(
-            'name'        => 'Featured Snippet Targeting',
-            'description' => 'Win featured snippets by targeting queries where you rank on page 1 but don\'t hold position zero. Draft snippet-optimized content in paragraph, list, table, or definition format and apply it to your posts with one click.',
-            'url'         => 'https://almaseo.com/pro#snippet-targets',
-        ),
     );
 
     if ( isset( $content[ $feature ] ) ) {

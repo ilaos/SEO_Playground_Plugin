@@ -2,3 +2,9 @@
 # to the prod server; they don't belong in the repo.
 almaseo-seo-playground-v*.zip
 almaseo-connector-v*.zip
+
+# Throwaway probe scripts and fetched JSON used during ad-hoc debugging.
+tmp-probes/
+
+# Release zip output directory.
+dist/

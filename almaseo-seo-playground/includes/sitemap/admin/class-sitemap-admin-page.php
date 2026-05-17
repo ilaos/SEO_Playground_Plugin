@@ -111,7 +111,7 @@ class Alma_Sitemap_Admin_Page {
         // and to match what sitemaps-consolidated.js actually reads. Field names
         // are camelCase for the same reason — JS reads .ajaxUrl, .sitemapUrl,
         // .i18n.*, .settings.* directly.
-        $urls = function_exists('almaseo_get_index_urls') ? almaseo_get_index_urls() : ['primary' => home_url('/almaseo-sitemap.xml')];
+        $urls = function_exists('almaseo_get_index_urls') ? almaseo_get_index_urls() : ['primary' => home_url('/sitemap.xml')];
         wp_localize_script('almaseo-sitemaps', 'almaseoSitemaps', [
             'ajaxUrl'    => admin_url('admin-ajax.php'),
             'nonce'      => wp_create_nonce('almaseo_sitemaps_nonce'),

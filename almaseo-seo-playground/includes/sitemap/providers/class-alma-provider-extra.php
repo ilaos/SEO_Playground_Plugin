@@ -451,13 +451,27 @@ class Alma_Additional_URLs_Storage {
      */
     public static function get_count($active_only = true) {
         global $wpdb;
-        
+
         $where = $active_only ? 'WHERE active = 1' : '';
         $table_name = self::get_table_name();
-        
+
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         return (int) $wpdb->get_var(
             "SELECT COUNT(*) FROM `$table_name` $where"
         );
+    }
+
+    /**
+     * Delete every row in the additional-URLs table. Used by the admin
+     * "Clear All" button. Returns the number of rows that were removed.
+     */
+    public static function clear_all() {
+        global $wpdb;
+        $table_name = self::get_table_name();
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        $count = (int) $wpdb->get_var("SELECT COUNT(*) FROM `$table_name`");
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        $wpdb->query("DELETE FROM `$table_name`");
+        return $count;
     }
 }

@@ -47,7 +47,7 @@ class Alma_Robots_Integration {
             return $output;
         }
         
-        $sitemap_url = home_url('/almaseo-sitemap.xml');
+        $sitemap_url = home_url('/sitemap.xml');
         
         // Check if sitemap is already in output
         if (strpos($output, $sitemap_url) !== false) {
@@ -90,7 +90,7 @@ class Alma_Robots_Integration {
         }
         
         // Add custom header
-        $index_url = home_url('/almaseo-sitemap.xml');
+        $index_url = home_url('/sitemap.xml');
         header('X-AlmaSEO-Sitemaps: index=' . $index_url);
         
         // Add cache headers
@@ -118,7 +118,7 @@ class Alma_Robots_Integration {
             return;
         }
         
-        $sitemap_url = home_url('/almaseo-sitemap.xml');
+        $sitemap_url = home_url('/sitemap.xml');
         echo '<link rel="sitemap" type="application/xml" title="Sitemap" href="' . esc_url($sitemap_url) . '" />' . "\n";
     }
     
@@ -130,7 +130,7 @@ class Alma_Robots_Integration {
             return;
         }
         
-        $sitemap_url = home_url('/almaseo-sitemap.xml');
+        $sitemap_url = home_url('/sitemap.xml');
         header('Link: <' . $sitemap_url . '>; rel="sitemap"');
     }
     
@@ -157,7 +157,7 @@ class Alma_Robots_Integration {
      * @return bool|WP_Error
      */
     public static function test_sitemap_access() {
-        $sitemap_url = home_url('/almaseo-sitemap.xml');
+        $sitemap_url = home_url('/sitemap.xml');
         
         $response = wp_remote_head($sitemap_url, array(
             'timeout' => 10,

@@ -2,8 +2,8 @@
 /*
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
-Description: Professional SEO optimization plugin with Alma-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights. Features 5 polished tabs for complete SEO management.
-Version: 1.13.8
+Description: Professional SEO optimization plugin with Alma-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights.
+Version: 1.14.5
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -50,7 +50,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
     }
     if ( $almaseo_seo_conflict ) {
         // Define only the bare minimum constants, then stop loading.
-        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.13.8' );
+        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.14.5' );
         if ( ! defined( 'ALMASEO_PATH' ) )           define( 'ALMASEO_PATH', plugin_dir_path( __FILE__ ) );
         if ( ! defined( 'ALMASEO_URL' ) )            define( 'ALMASEO_URL', plugin_dir_url( __FILE__ ) );
         if ( ! defined( 'ALMASEO_MAIN_FILE' ) )      define( 'ALMASEO_MAIN_FILE', __FILE__ );
@@ -62,7 +62,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
 if (!defined('ALMASEO_MAIN_FILE'))       define('ALMASEO_MAIN_FILE', __FILE__);
 if (!defined('ALMASEO_PATH'))            define('ALMASEO_PATH', plugin_dir_path(__FILE__));
 if (!defined('ALMASEO_URL'))             define('ALMASEO_URL', plugin_dir_url(__FILE__));
-if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.13.8');
+if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.14.5');
 if (!defined('ALMASEO_VERSION'))         define('ALMASEO_VERSION', '6.5.0');
 if (!defined('ALMASEO_API_NAMESPACE'))   define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
 if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
@@ -188,6 +188,7 @@ if (!$is_activating && file_exists(plugin_dir_path(__FILE__) . 'includes/llm/llm
 
 // Include new Sitemap module (Phase 0)
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/sitemap/class-alma-sitemap-manager.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/sitemap/defaults.php';
     require_once plugin_dir_path(__FILE__) . 'includes/sitemap/helpers.php';
     require_once plugin_dir_path(__FILE__) . 'includes/sitemap/class-alma-sitemap-manager.php';
     
@@ -272,10 +273,9 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/schema-drift/schema-drift-
     require_once plugin_dir_path(__FILE__) . 'includes/schema-drift/schema-drift-loader.php';
 }
 
-// Include Featured Snippet Targeting module (v7.9.0+) - Pro feature
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/snippet-targets/snippet-targets-loader.php')) {
-    require_once plugin_dir_path(__FILE__) . 'includes/snippet-targets/snippet-targets-loader.php';
-}
+// Featured Snippet Targeting module — REMOVED in 1.14.3.
+// Decision: archived as plugin-side feature; intended to live entirely on the
+// AlmaSEO dashboard going forward. See docs/FUTURE_FEATURES.md for the plan.
 
 // Include Role Manager (v8.0.0+)
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/role-manager.php')) {
@@ -293,6 +293,12 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/verification-codes.p
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/rss-controls.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/admin/rss-controls.php';
     AlmaSEO_RSS_Controls::init();
+}
+
+// Include Tag Manager (custom head/body/footer code injection)
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/tag-manager.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/admin/tag-manager.php';
+    AlmaSEO_Tag_Manager::init();
 }
 
 // Include LLMs.txt Management (v8.0.0+)
