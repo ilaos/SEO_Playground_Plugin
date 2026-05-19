@@ -236,7 +236,8 @@ function almaseo_eg_render_dashboard() {
         // Add help text for Evergreen
         if (function_exists('almaseo_render_help')) {
             almaseo_render_help(
-                __('Monitors content freshness and flags posts that may need an update to maintain rankings.', 'almaseo-seo-playground')
+                __('Tracks how fresh your published content is and flags posts that may be slipping in search rankings. Click "Analyze All Posts" to scan your site, then review anything marked Watch or Stale and update it.', 'almaseo-seo-playground'),
+                __('Each post is graded Evergreen (healthy), Watch (aging or losing traffic), or Stale (overdue for an update) — based on how long since it was last updated and, when Google Search Console is connected, its recent traffic trend. After updating a post, open it and click "Mark as Refreshed" to reset its status. Pro sites also get a weighted Refresh Score and High/Medium/Low risk tiers for prioritizing which posts to refresh first.', 'almaseo-seo-playground')
             );
         }
         ?>
