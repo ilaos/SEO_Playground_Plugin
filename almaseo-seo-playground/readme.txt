@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.15.3
+Stable tag: 1.15.4
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,14 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.15.4 =
+* Fix: Roles & Permissions now works. The per-role "can edit SEO fields" toggles previously had no effect — every role that could edit posts could also edit SEO fields. The Role Manager is now authoritative: roles that are not enabled do not see the SEO metabox and cannot save SEO meta. Administrators and Editors are enabled by default; Authors and Contributors are not (admins can change this on the Settings page).
+* Fix: Crawl Optimization — the oEmbed, REST API, and shortlink head-link toggles are now authoritative. Those tags were previously removed unconditionally regardless of the toggle state; the toggles now genuinely control their own output.
+* Fix: Image SEO — removed the non-functional "Strip File Extension" option (the extension was always stripped from generated alt/title text, which is the correct behavior).
+* Improvement: Image SEO no longer adds a title attribute to images by default (the title attribute on images is discouraged for accessibility). Existing configurations are unchanged; users can still set a title format.
+* Improvement: Google Analytics — the "Exclude Logged-in Users" option is now labelled "Exclude Administrators" to match what it actually does.
+* Improvement: RSS Feed settings now show a description for each available smart tag.
 
 = 1.15.3 =
 * Fix: The "GSC Analysis Window (days)" setting in Evergreen Advanced now actually applies. The traffic-trend calculation previously always used a fixed 90-day window regardless of the configured value; it now fetches Search Console data for the window you set.

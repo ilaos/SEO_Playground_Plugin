@@ -14,8 +14,12 @@ function almaseo_save_seo_playground_meta($post_id) {
         return;
     }
 
-    // Check if user has permissions
+    // Check if user has permissions — both the per-post capability and the
+    // Role Manager's "can edit SEO fields" setting for the user's role.
     if (!current_user_can('edit_post', $post_id)) {
+        return;
+    }
+    if (function_exists('almaseo_user_can_manage_seo') && !almaseo_user_can_manage_seo()) {
         return;
     }
 

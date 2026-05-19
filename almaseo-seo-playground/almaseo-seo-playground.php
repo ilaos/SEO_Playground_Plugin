@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with Alma-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights.
-Version: 1.15.3
+Version: 1.15.4
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -50,7 +50,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
     }
     if ( $almaseo_seo_conflict ) {
         // Define only the bare minimum constants, then stop loading.
-        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.15.3' );
+        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.15.4' );
         if ( ! defined( 'ALMASEO_PATH' ) )           define( 'ALMASEO_PATH', plugin_dir_path( __FILE__ ) );
         if ( ! defined( 'ALMASEO_URL' ) )            define( 'ALMASEO_URL', plugin_dir_url( __FILE__ ) );
         if ( ! defined( 'ALMASEO_MAIN_FILE' ) )      define( 'ALMASEO_MAIN_FILE', __FILE__ );
@@ -62,7 +62,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
 if (!defined('ALMASEO_MAIN_FILE'))       define('ALMASEO_MAIN_FILE', __FILE__);
 if (!defined('ALMASEO_PATH'))            define('ALMASEO_PATH', plugin_dir_path(__FILE__));
 if (!defined('ALMASEO_URL'))             define('ALMASEO_URL', plugin_dir_url(__FILE__));
-if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.15.3');
+if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.15.4');
 if (!defined('ALMASEO_VERSION'))         define('ALMASEO_VERSION', '6.5.0');
 if (!defined('ALMASEO_API_NAMESPACE'))   define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
 if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
@@ -2538,6 +2538,12 @@ function seo_playground_is_alma_connected() {
 // Add SEO Playground meta box
 if (!function_exists('almaseo_add_seo_playground_meta_box')) {
 function almaseo_add_seo_playground_meta_box() {
+    // Respect the Role Manager — roles not permitted to edit SEO fields
+    // do not get the SEO metabox at all.
+    if (function_exists('almaseo_user_can_manage_seo') && !almaseo_user_can_manage_seo()) {
+        return;
+    }
+
     $post_types = array('post', 'page');
 
     foreach ($post_types as $post_type) {
@@ -2568,12 +2574,12 @@ require_once plugin_dir_path(__FILE__) . 'includes/admin/post-save-handler.php';
 
 // Remove conflicting schema and meta tags from WordPress core and themes
 add_action('init', function() {
-    // Remove WordPress core meta tags that might conflict
-    remove_action('wp_head', 'wp_oembed_add_host_js');
-    remove_action('wp_head', 'wp_oembed_add_discovery_links');
+    // Remove core's canonical tag only — AlmaSEO emits its own canonical via
+    // the meta-tags renderer, so leaving core's would duplicate it.
+    // oEmbed, REST API, and shortlink head links are intentionally NOT removed
+    // here: that cleanup is owned by Settings -> Crawl Optimization, which has
+    // dedicated opt-in toggles for each.
     remove_action('wp_head', 'rel_canonical');
-    remove_action('wp_head', 'rest_output_link_wp_head');
-    remove_action('wp_head', 'wp_shortlink_wp_head');
     
     // Disable Yoast JSON-LD if present
     add_filter('wpseo_json_ld_output', '__return_false', 99);

@@ -79,7 +79,7 @@ class AlmaSEO_Analytics_Settings {
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><?php esc_html_e( 'Exclude Logged-in Users', 'almaseo-seo-playground' ); ?></th>
+                    <th scope="row"><?php esc_html_e( 'Exclude Administrators', 'almaseo-seo-playground' ); ?></th>
                     <td>
                         <label>
                             <input type="checkbox"

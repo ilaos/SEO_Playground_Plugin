@@ -23,6 +23,12 @@ function almaseo_user_can_edit_posts() {
  */
 if (!function_exists('almaseo_user_can_manage_seo')) {
 function almaseo_user_can_manage_seo() {
+    // The Role Manager is authoritative when present: it maps the per-role
+    // "can edit SEO fields" toggles onto the almaseo_manage_seo capability
+    // (administrators always pass). Without it, fall back to core caps.
+    if (class_exists('AlmaSEO_Role_Manager')) {
+        return AlmaSEO_Role_Manager::user_can_manage_seo();
+    }
     return current_user_can('edit_posts') || current_user_can('edit_pages');
 }
 } // end function_exists guard: almaseo_user_can_manage_seo

@@ -813,12 +813,14 @@ class AlmaSEO_Settings {
                             <th scope="row"><label for="rss_after"><?php esc_html_e('After Feed Content', 'almaseo-seo-playground'); ?></label></th>
                             <td>
                                 <textarea id="rss_after" name="almaseo_rss_settings[after_content]" rows="3" class="large-text"><?php echo esc_textarea($rss_settings['after_content']); ?></textarea>
-                                <p class="description">
+                                <p class="description" style="margin-bottom: 4px;">
                                     <?php esc_html_e('Available tags:', 'almaseo-seo-playground'); ?>
-                                    <?php foreach ($rss_tags as $tag => $desc) : ?>
-                                        <code><?php echo esc_html($tag); ?></code>
-                                    <?php endforeach; ?>
                                 </p>
+                                <ul class="description" style="margin: 0 0 0 4px; list-style: none;">
+                                    <?php foreach ($rss_tags as $tag => $desc) : ?>
+                                        <li><code><?php echo esc_html($tag); ?></code> &mdash; <?php echo esc_html($desc); ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
                             </td>
                         </tr>
                     </table>

@@ -19,8 +19,10 @@ class AlmaSEO_Image_SEO {
         return array(
             'enabled'           => false,
             'alt_format'        => '%%filename%%',
-            'title_format'      => '%%filename%% - %%sitename%%',
-            'strip_extension'   => true,
+            // Empty by default: the title attribute on <img> is discouraged for
+            // accessibility (redundant with alt, inconsistent screen-reader
+            // behavior). Users can opt in by setting a format.
+            'title_format'      => '',
             'override_existing' => false,
         );
     }
@@ -30,6 +32,8 @@ class AlmaSEO_Image_SEO {
     }
 
     public static function clean_filename( $filename ) {
+        // PATHINFO_FILENAME always drops the extension — alt/title text never
+        // wants ".jpg" in it, so the extension is unconditionally stripped.
         $name = pathinfo( $filename, PATHINFO_FILENAME );
         $name = str_replace( array( '-', '_' ), ' ', $name );
         $name = ucwords( trim( $name ) );
@@ -159,15 +163,6 @@ class AlmaSEO_Image_SEO {
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><?php esc_html_e( 'Strip File Extension', 'almaseo-seo-playground' ); ?></th>
-                    <td>
-                        <label>
-                            <input type="checkbox" name="almaseo_image_seo_settings[strip_extension]" value="1" <?php checked( $s['strip_extension'] ); ?> />
-                            <?php esc_html_e( 'Remove file extension from filename when generating text', 'almaseo-seo-playground' ); ?>
-                        </label>
-                    </td>
-                </tr>
-                <tr>
                     <th scope="row"><?php esc_html_e( 'Override Existing', 'almaseo-seo-playground' ); ?></th>
                     <td>
                         <label>
@@ -186,7 +181,6 @@ class AlmaSEO_Image_SEO {
             'enabled'           => ! empty( $input['enabled'] ),
             'alt_format'        => sanitize_text_field( $input['alt_format'] ?? '%%filename%%' ),
             'title_format'      => sanitize_text_field( $input['title_format'] ?? '' ),
-            'strip_extension'   => ! empty( $input['strip_extension'] ),
             'override_existing' => ! empty( $input['override_existing'] ),
         );
     }
