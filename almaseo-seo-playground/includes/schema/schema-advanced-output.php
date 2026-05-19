@@ -38,6 +38,14 @@ function almaseo_output_advanced_schema() {
         return;
     }
 
+    // Honor the legacy per-post "Enable Schema Markup" toggle. The metabox that
+    // set this key is retired, but posts saved by old plugin versions may still
+    // carry '_almaseo_schema_enabled' = 'disabled' — respect it here so the
+    // advanced emitter stays consistent with the basic emitter (schema-clean.php).
+    if (get_post_meta($post->ID, '_almaseo_schema_enabled', true) === 'disabled') {
+        return;
+    }
+
     // Get advanced schema settings
     $settings = get_option('almaseo_schema_advanced_settings', array(
         'enabled' => false,
@@ -99,7 +107,7 @@ function almaseo_output_advanced_schema() {
             '@graph' => $graph,
         );
 
-        echo '<script type="application/ld+json">';
+        echo '<script type="application/ld+json" data-almaseo="1">';
         echo wp_json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional JSON-LD output
         echo '</script>' . "\n";
     }
@@ -133,17 +141,19 @@ function almaseo_advanced_schema_active() {
  */
 if (!function_exists('almaseo_build_knowledge_graph_node')) {
 function almaseo_build_knowledge_graph_node($settings) {
-    // Require at least a name
-    if (empty($settings['site_name'])) {
+    // Fall back to the WordPress site name when the field is left blank, so the
+    // Knowledge Graph still emits instead of silently disappearing.
+    $site_name = !empty($settings['site_name']) ? $settings['site_name'] : get_bloginfo('name');
+    if (empty($site_name)) {
         return null;
     }
 
-    $type = ($settings['site_represents'] === 'person') ? 'Person' : 'Organization';
+    $type = (isset($settings['site_represents']) && $settings['site_represents'] === 'person') ? 'Person' : 'Organization';
 
     $node = array(
         '@type' => $type,
         '@id' => home_url('/#identity'),
-        'name' => $settings['site_name'],
+        'name' => $site_name,
         'url' => home_url('/'),
     );
 
@@ -229,8 +239,13 @@ function almaseo_build_schema_node_by_type($post, $type) {
  */
 if (!function_exists('almaseo_determine_schema_type')) {
 function almaseo_determine_schema_type($post, $settings) {
-    // 1. Check per-post primary type
+    // 1. Check per-post primary type. Fall back to the merged `_almaseo_schema_type`
+    //    key — posts last saved by an older plugin version may only have that one,
+    //    and without this the per-post selection would be silently ignored.
     $primary_type = get_post_meta($post->ID, '_almaseo_schema_primary_type', true);
+    if (empty($primary_type)) {
+        $primary_type = get_post_meta($post->ID, '_almaseo_schema_type', true);
+    }
     if (!empty($primary_type)) {
         return $primary_type;
     }

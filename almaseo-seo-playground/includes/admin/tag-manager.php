@@ -201,9 +201,20 @@ class AlmaSEO_Tag_Manager {
                             <label style="display:block; margin-bottom:6px;">
                                 <input type="checkbox" name="almaseo_tag_manager[enable_head]" value="1" <?php checked( ! empty( $s['enable_head'] ) ); ?> />
                                 <?php esc_html_e( 'Output in <head>', 'almaseo-seo-playground' ); ?>
+                                <span style="color:#646970; font-style:italic;"><?php esc_html_e( '— uncheck to disable this field (your code stays saved)', 'almaseo-seo-playground' ); ?></span>
                             </label>
                             <textarea name="almaseo_tag_manager[head_code]" rows="10" class="large-text code" spellcheck="false" placeholder="<?php esc_attr_e( '<!-- e.g. Google Tag Manager, analytics scripts, verification meta tags -->', 'almaseo-seo-playground' ); ?>"><?php echo esc_textarea( $s['head_code'] ); ?></textarea>
                             <p class="description"><?php esc_html_e( 'Injected inside the <head> tag on every frontend page (priority 100).', 'almaseo-seo-playground' ); ?></p>
+                            <p class="description" style="margin-top:6px; padding:8px 12px; background:#fcf9e8; border-left:4px solid #dba617;">
+                                <strong><?php esc_html_e( 'Adding a Google Analytics tag?', 'almaseo-seo-playground' ); ?></strong>
+                                <?php
+                                printf(
+                                    /* translators: %s: link to the AlmaSEO Settings page */
+                                    esc_html__( 'You don\'t need to paste it here. Use the dedicated Google Analytics section on the %s instead — just enter your GA4 Measurement ID and the snippet is handled for you.', 'almaseo-seo-playground' ),
+                                    '<a href="' . esc_url( admin_url( 'admin.php?page=almaseo-settings' ) ) . '">' . esc_html__( 'Settings page', 'almaseo-seo-playground' ) . '</a>'
+                                );
+                                ?>
+                            </p>
                         </td>
                     </tr>
 
@@ -213,6 +224,7 @@ class AlmaSEO_Tag_Manager {
                             <label style="display:block; margin-bottom:6px;">
                                 <input type="checkbox" name="almaseo_tag_manager[enable_body_open]" value="1" <?php checked( ! empty( $s['enable_body_open'] ) ); ?> />
                                 <?php esc_html_e( 'Output immediately after <body>', 'almaseo-seo-playground' ); ?>
+                                <span style="color:#646970; font-style:italic;"><?php esc_html_e( '— uncheck to disable this field (your code stays saved)', 'almaseo-seo-playground' ); ?></span>
                             </label>
                             <textarea name="almaseo_tag_manager[body_open_code]" rows="10" class="large-text code" spellcheck="false" placeholder="<?php esc_attr_e( '<!-- e.g. GTM <noscript> fallback iframe -->', 'almaseo-seo-playground' ); ?>"><?php echo esc_textarea( $s['body_open_code'] ); ?></textarea>
                             <p class="description"><?php esc_html_e( 'Injected at the top of <body>. Requires your theme to call wp_body_open() — most modern themes do.', 'almaseo-seo-playground' ); ?></p>
@@ -225,6 +237,7 @@ class AlmaSEO_Tag_Manager {
                             <label style="display:block; margin-bottom:6px;">
                                 <input type="checkbox" name="almaseo_tag_manager[enable_footer]" value="1" <?php checked( ! empty( $s['enable_footer'] ) ); ?> />
                                 <?php esc_html_e( 'Output before </body>', 'almaseo-seo-playground' ); ?>
+                                <span style="color:#646970; font-style:italic;"><?php esc_html_e( '— uncheck to disable this field (your code stays saved)', 'almaseo-seo-playground' ); ?></span>
                             </label>
                             <textarea name="almaseo_tag_manager[footer_code]" rows="10" class="large-text code" spellcheck="false" placeholder="<?php esc_attr_e( '<!-- e.g. chat widget, deferred analytics -->', 'almaseo-seo-playground' ); ?>"><?php echo esc_textarea( $s['footer_code'] ); ?></textarea>
                             <p class="description"><?php esc_html_e( 'Injected just before the closing </body> tag (priority 100).', 'almaseo-seo-playground' ); ?></p>

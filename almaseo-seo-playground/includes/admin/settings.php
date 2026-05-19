@@ -71,8 +71,11 @@ class AlmaSEO_Settings {
         register_setting('almaseo_settings', 'almaseo_schema_control', array(
             'type' => 'array',
             'default' => array(
-                'keep_breadcrumbs' => false,
-                'keep_product' => false,
+                // Whitelist breadcrumb + product schema by default: if a user
+                // enables Exclusive Schema Mode without configuring this, their
+                // high-value rich-result markup is preserved rather than stripped.
+                'keep_breadcrumbs' => true,
+                'keep_product' => true,
                 'amp_compatibility' => true,
                 'enable_logging' => true,
                 'log_limit' => 50
@@ -318,8 +321,8 @@ class AlmaSEO_Settings {
         
         $exclusive_schema = get_option('almaseo_exclusive_schema_enabled', false);
         $schema_control = get_option('almaseo_schema_control', array(
-            'keep_breadcrumbs' => false,
-            'keep_product' => false,
+            'keep_breadcrumbs' => true,
+            'keep_product' => true,
             'amp_compatibility' => true,
             'enable_logging' => true,
             'log_limit' => 50
@@ -338,20 +341,23 @@ class AlmaSEO_Settings {
                 <!-- Schema Control Section -->
                 <div class="almaseo-settings-section">
                     <h2><?php esc_html_e('Schema Control', 'almaseo-seo-playground'); ?></h2>
-                    
+                    <p class="description" style="margin-bottom: 16px; max-width: 780px;">
+                        <?php esc_html_e('AlmaSEO automatically prevents duplicate structured data from the major SEO plugins (Yoast, Rank Math, All in One SEO, SEOPress) — no setup needed. The settings below are optional fine-tuning; most sites can safely leave them at their defaults.', 'almaseo-seo-playground'); ?>
+                    </p>
+
                     <table class="form-table">
                         <tr>
                             <th scope="row"><?php esc_html_e('Exclusive Schema Mode', 'almaseo-seo-playground'); ?></th>
                             <td>
                                 <label>
-                                    <input type="checkbox" 
-                                           name="almaseo_exclusive_schema_enabled" 
-                                           value="1" 
+                                    <input type="checkbox"
+                                           name="almaseo_exclusive_schema_enabled"
+                                           value="1"
                                            <?php checked($exclusive_schema, true); ?>>
                                     <?php esc_html_e('Enable Exclusive Schema Mode', 'almaseo-seo-playground'); ?>
                                 </label>
                                 <p class="description">
-                                    <?php esc_html_e('When enabled, AlmaSEO removes other JSON-LD blocks so only one structured data block remains.', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('Optional, off by default. Turn this on only if your theme or another plugin still adds its own structured data and you want AlmaSEO to be the single source. It is a deeper cleanup than the automatic protection above. Leaving it off is safe for most sites.', 'almaseo-seo-playground'); ?>
                                 </p>
                             </td>
                         </tr>
@@ -840,7 +846,6 @@ class AlmaSEO_Settings {
                     </table>
                 </div>
                 <?php endif; ?>
-                ?>
 
                 <?php submit_button(); ?>
             </form>

@@ -190,7 +190,7 @@ class AlmaSEO_Breadcrumbs_Renderer {
         $json = wp_json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
         $output  = "\n<!-- AlmaSEO Breadcrumb Schema -->\n";
-        $output .= '<script type="application/ld+json">' . $json . '</script>';
+        $output .= '<script type="application/ld+json" data-almaseo="1">' . $json . '</script>';
         $output .= "\n<!-- /AlmaSEO Breadcrumb Schema -->\n";
 
         return $output;

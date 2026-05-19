@@ -313,7 +313,7 @@ class AlmaSEO_Woo_Breadcrumbs {
         }
         
         echo "\n<!-- AlmaSEO WooCommerce Breadcrumb Schema -->\n";
-        echo '<script type="application/ld+json">' . wp_json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional JSON-LD output
+        echo '<script type="application/ld+json" data-almaseo="1">' . wp_json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional JSON-LD output
         echo "\n<!-- /AlmaSEO WooCommerce Breadcrumb Schema -->\n";
     }
     

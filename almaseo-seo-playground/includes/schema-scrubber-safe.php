@@ -156,11 +156,15 @@ class AlmaSEO_Schema_Scrubber_Safe {
             return false;
         }
         
-        // Skip AMP
+        // AMP: skip scrubbing only when "AMP Compatibility" is enabled
+        // (Schema Control → AMP Compatibility). Default is enabled.
         if ($this->is_amp_request()) {
-            return false;
+            $schema_control = get_option('almaseo_schema_control', array());
+            if (!empty($schema_control['amp_compatibility'])) {
+                return false;
+            }
         }
-        
+
         // Default: emit on singular and front page
         return is_singular() || is_front_page();
     }
@@ -201,26 +205,14 @@ class AlmaSEO_Schema_Scrubber_Safe {
      * Scrub schema from HTML
      */
     public function scrub_schema($html) {
-        // Pattern to match JSON-LD scripts
-        $pattern = '/<script[^>]*type\s*=\s*["\']application\/ld\+json["\'][^>]*>.*?<\/script>/is';
-        
-        // Find all JSON-LD blocks
-        if (preg_match_all($pattern, $html, $matches, PREG_SET_ORDER)) {
-            foreach ($matches as $match) {
-                $full_tag = $match[0];
-                
-                // Keep our AlmaSEO block
-                if (strpos($full_tag, 'id="almaseo-jsonld"') !== false || 
-                    strpos($full_tag, 'data-almaseo="1"') !== false) {
-                    continue;
-                }
-                
-                // Remove all others
-                $html = str_replace($full_tag, '', $html);
-            }
-        }
-        
-        return $html;
+        // Delegate to analyze_html so live scrubbing and the dry-run preview
+        // share identical keep/remove logic (AlmaSEO marker + whitelist).
+        $result = $this->analyze_html($html, false);
+
+        // Record the action if logging is enabled.
+        $this->log_schema_action($result);
+
+        return $result['html'];
     }
     
     /**
@@ -243,7 +235,10 @@ class AlmaSEO_Schema_Scrubber_Safe {
         
         // Pattern to match JSON-LD scripts
         $pattern = '/<script[^>]*type\s*=\s*["\']application\/ld\+json["\'][^>]*>(.*?)<\/script>/is';
-        
+
+        // Schema types the user opted to keep (Schema Control → Whitelist).
+        $whitelist = $this->get_whitelist();
+
         if (preg_match_all($pattern, $html, $matches, PREG_SET_ORDER)) {
             $result['total_found'] = count($matches);
             
@@ -263,7 +258,23 @@ class AlmaSEO_Schema_Scrubber_Safe {
                     $result['kept_types'][] = $this->extract_schema_type($json_content);
                     continue;
                 }
-                
+
+                // Keep whitelisted standalone blocks (Schema Control → Whitelist
+                // Options). A block is kept only when *every* type it declares is
+                // whitelisted, so a mixed @graph (e.g. Yoast) is still removed.
+                $block_types = $this->extract_schema_types($json_content);
+                if ($this->is_whitelisted($block_types, $whitelist)) {
+                    $type_label = implode(', ', $block_types);
+                    $result['kept_blocks'][] = array(
+                        'reason' => 'Whitelisted: ' . $type_label,
+                        'type' => $type_label,
+                        'snippet' => substr($json_content, 0, 200)
+                    );
+                    $result['kept_count']++;
+                    $result['kept_types'][] = $type_label;
+                    continue;
+                }
+
                 // This block should be removed
                 $result['removed_blocks'][] = array(
                     'type' => $this->extract_schema_type($json_content),
@@ -311,7 +322,127 @@ class AlmaSEO_Schema_Scrubber_Safe {
         
         return 'Unknown';
     }
-    
+
+    /**
+     * Extract every schema @type declared in a JSON-LD block as a flat array.
+     *
+     * Handles a direct @type, an array @type, and an @graph of nodes.
+     *
+     * @param string $json_content Raw JSON-LD string.
+     * @return array Unique list of type strings.
+     */
+    private function extract_schema_types($json_content) {
+        $data = @json_decode($json_content, true);
+        if (!is_array($data)) {
+            return array();
+        }
+
+        $types = array();
+
+        if (isset($data['@graph']) && is_array($data['@graph'])) {
+            foreach ($data['@graph'] as $node) {
+                if (is_array($node) && isset($node['@type'])) {
+                    foreach ((array) $node['@type'] as $t) {
+                        $types[] = $t;
+                    }
+                }
+            }
+        }
+
+        if (isset($data['@type'])) {
+            foreach ((array) $data['@type'] as $t) {
+                $types[] = $t;
+            }
+        }
+
+        return array_values(array_unique(array_filter($types)));
+    }
+
+    /**
+     * Get the list of schema types the user opted to keep.
+     *
+     * Driven by Schema Control → Whitelist Options.
+     *
+     * @return array
+     */
+    private function get_whitelist() {
+        $whitelist = array();
+        $schema_control = get_option('almaseo_schema_control', array());
+
+        if (!empty($schema_control['keep_breadcrumbs'])) {
+            $whitelist[] = 'BreadcrumbList';
+        }
+        if (!empty($schema_control['keep_product'])) {
+            $whitelist[] = 'Product';
+        }
+
+        /**
+         * Filter the schema type whitelist.
+         *
+         * @param array $whitelist Schema types to keep.
+         */
+        return apply_filters('almaseo_schema_whitelist', $whitelist);
+    }
+
+    /**
+     * Decide whether a block is fully whitelisted.
+     *
+     * Returns true only when the block declares at least one type and every
+     * declared type is on the whitelist — so a mixed @graph is still removed.
+     *
+     * @param array $block_types Types declared by the block.
+     * @param array $whitelist   Allowed types.
+     * @return bool
+     */
+    private function is_whitelisted($block_types, $whitelist) {
+        if (empty($block_types) || empty($whitelist)) {
+            return false;
+        }
+        foreach ($block_types as $type) {
+            if (!in_array($type, $whitelist, true)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Append a scrub action to the schema log.
+     *
+     * No-op unless logging is enabled in Schema Control. The log is trimmed to
+     * the configured entry limit.
+     *
+     * @param array $result Result array from analyze_html().
+     */
+    private function log_schema_action($result) {
+        $schema_control = get_option('almaseo_schema_control', array());
+
+        if (empty($schema_control['enable_logging'])) {
+            return;
+        }
+
+        $log = get_option('almaseo_schema_log', array());
+        if (!is_array($log)) {
+            $log = array();
+        }
+
+        $log_limit = isset($schema_control['log_limit']) ? max(1, intval($schema_control['log_limit'])) : 50;
+
+        $log[] = array(
+            'time'          => time(),
+            'url'           => home_url(add_query_arg(array())),
+            'removed_count' => isset($result['removed_count']) ? (int) $result['removed_count'] : 0,
+            'kept_count'    => isset($result['kept_count']) ? (int) $result['kept_count'] : 0,
+            'kept_types'    => isset($result['kept_types']) ? array_values(array_unique($result['kept_types'])) : array(),
+        );
+
+        if (count($log) > $log_limit) {
+            $log = array_slice($log, -$log_limit);
+        }
+
+        update_option('almaseo_schema_log', $log);
+    }
+
     /**
      * Detect the source of schema markup
      */

@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.15.1
+Stable tag: 1.15.2
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,18 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.15.2 =
+* Fix: Exclusive Schema Mode no longer strips AlmaSEO's own structured data. Every AlmaSEO JSON-LD emitter (advanced schema graph, breadcrumbs, FAQ, How-To, WooCommerce, meta tags) now carries an identifying marker so the scrubber never removes it.
+* Fix: The "Keep BreadcrumbList" and "Keep Product" whitelist options now actually work — the live scrubber previously ignored them. Whitelisted standalone schema blocks are preserved while mixed third-party graphs are still removed.
+* Fix: Schema action logging and the Schema Action Log panel now populate when Exclusive Schema Mode runs.
+* Fix: The AMP Compatibility setting is now honored by the active scrubber.
+* Fix: Per-post schema type is read reliably for posts saved by older versions; the advanced emitter falls back to the merged schema-type key.
+* Fix: The Knowledge Graph node now falls back to the WordPress site name when the Name field is left blank, instead of silently emitting nothing.
+* Fix: Advanced and basic schema emitters now consistently honor the legacy per-post "disable schema" key.
+* Improvement: Safer defaults for Schema Control — breadcrumb and product schema are whitelisted by default so enabling Exclusive Schema Mode never costs rich results.
+* Improvement: Clearer Schema Control wording explaining what is automatic versus optional.
+* Improvement: Tag Manager fields show a hint that unchecking a location disables it without losing the saved code, plus a notice pointing Google Analytics users to the dedicated Settings section.
 
 = 1.15.1 =
 * Improvement: The LocalBusiness "Fill from AlmaSEO" button now also fills opening hours. When the client's Google Business Profile is connected on the AlmaSEO dashboard, the button populates the per-day open/close time pickers — sourced from the live Google Business Profile weekly hours — alongside the address, phone, email, Google Maps URL, and service areas. Saturday/Sunday are left blank when the business is closed those days. Hours still require review before saving like the rest of the fields. (Geo coordinates and price range remain manual.)
