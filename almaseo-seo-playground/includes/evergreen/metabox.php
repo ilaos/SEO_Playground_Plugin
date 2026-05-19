@@ -158,6 +158,45 @@ function almaseo_eg_meta_box_content($post) {
     </div>
     <?php endif; ?>
     
+    <!-- AI Freshness (dashboard-enhanced) -->
+    <?php
+    $ai_fresh = function_exists('almaseo_eg_get_ai_freshness') ? almaseo_eg_get_ai_freshness($post->ID) : null;
+    if ($ai_fresh):
+    ?>
+    <div style="margin-bottom: 15px; border-top: 1px solid #dcdcde; padding-top: 15px;">
+        <h4 style="margin-bottom: 8px;">
+            <?php esc_html_e('AI Freshness', 'almaseo-seo-playground'); ?>
+            <span style="display:inline-block; margin-left:4px; padding:1px 7px; background:#6d4aff; color:#fff; border-radius:10px; font-size:10px; vertical-align:middle;"><?php esc_html_e('AI', 'almaseo-seo-playground'); ?></span>
+        </h4>
+        <?php if (!$ai_fresh['is_current']): ?>
+        <p style="font-size:12px; color:#8a6d00; background:#fef8ee; padding:6px 8px; border-left:3px solid #dba617; margin:0 0 8px;">
+            <?php esc_html_e('Post content changed since this analysis — findings may be out of date.', 'almaseo-seo-playground'); ?>
+        </p>
+        <?php endif; ?>
+        <?php if ($ai_fresh['summary'] !== ''): ?>
+        <p style="font-size:13px; margin:0 0 8px;"><?php echo esc_html($ai_fresh['summary']); ?></p>
+        <?php endif; ?>
+        <?php if (!empty($ai_fresh['findings'])): ?>
+        <ul style="margin:0; padding-left:18px; font-size:12px;">
+            <?php foreach ($ai_fresh['findings'] as $finding):
+                $sev = isset($finding['severity']) ? $finding['severity'] : 'medium';
+                $sev_color = ($sev === 'high') ? '#d63638' : (($sev === 'low') ? '#646970' : '#bd8600');
+            ?>
+            <li style="margin-bottom:6px;">
+                <strong style="color:<?php echo esc_attr($sev_color); ?>;"><?php echo esc_html(ucfirst($sev)); ?>:</strong>
+                <?php echo esc_html(isset($finding['issue']) ? $finding['issue'] : ''); ?>
+                <?php if (!empty($finding['suggestion'])): ?>
+                <span style="color:#646970;">&mdash; <?php echo esc_html($finding['suggestion']); ?></span>
+                <?php endif; ?>
+            </li>
+            <?php endforeach; ?>
+        </ul>
+        <?php elseif ($ai_fresh['summary'] === ''): ?>
+        <p style="font-size:12px; color:#646970; margin:0;"><?php esc_html_e('No staleness issues detected.', 'almaseo-seo-playground'); ?></p>
+        <?php endif; ?>
+    </div>
+    <?php endif; ?>
+
     <!-- Actions -->
     <div style="border-top: 1px solid #dcdcde; padding-top: 15px;">
         <h4 style="margin-bottom: 10px;"><?php esc_html_e('Actions', 'almaseo-seo-playground'); ?></h4>

@@ -419,6 +419,16 @@ function almaseo_eg_compute_ai_freshness_score($post) {
         return 0;
     }
 
+    // Dashboard AI overlay: when the AlmaSEO dashboard has pushed an LLM
+    // staleness analysis and the post content has not changed since, use its
+    // score in place of the local heuristic. Drifted analyses fall through.
+    if (function_exists('almaseo_eg_get_ai_freshness')) {
+        $ai_freshness = almaseo_eg_get_ai_freshness($post_id);
+        if ($ai_freshness && $ai_freshness['is_current']) {
+            return $ai_freshness['score'];
+        }
+    }
+
     $score = 0;
 
     // Factor 1: Content age (0-40 points)

@@ -103,10 +103,20 @@ add_action('rest_api_init', function() {
     $rest_file = dirname(__FILE__) . '/rest-api.php';
     if (file_exists($rest_file)) {
         require_once $rest_file;
-        
+
         // Only instantiate if class exists
         if (class_exists('AlmaSEO_Evergreen_REST_API')) {
             AlmaSEO_Evergreen_REST_API::get_instance();
+        }
+    }
+
+    // AI Freshness dashboard push endpoint. Loaded here (inside rest_api_init)
+    // so it registers its route immediately, like the main REST class above.
+    $freshness_rest = dirname(__FILE__) . '/freshness-rest.php';
+    if (file_exists($freshness_rest)) {
+        require_once $freshness_rest;
+        if (class_exists('AlmaSEO_Evergreen_Freshness_REST')) {
+            AlmaSEO_Evergreen_Freshness_REST::register_routes();
         }
     }
 });

@@ -96,8 +96,45 @@ function almaseo_eg_set_clicks($post_id, $clicks_90d, $clicks_prev90d) {
 }
 
 /**
+ * Get the dashboard AI freshness analysis for a post.
+ *
+ * Returns the LLM staleness analysis pushed by the AlmaSEO dashboard, decoded
+ * and normalized. The `is_current` flag reports whether the post content still
+ * matches the content that was analyzed (drift detection) — callers should
+ * fall back to the local heuristic when it is false.
+ *
+ * @param int $post_id Post ID.
+ * @return array|null { score, summary, findings[], content_hash, analyzed_at,
+ *                      is_current } or null when no analysis is stored.
+ */
+function almaseo_eg_get_ai_freshness($post_id) {
+    $raw = get_post_meta($post_id, ALMASEO_EG_META_AI_FRESHNESS, true);
+    if (empty($raw)) {
+        return null;
+    }
+
+    $data = is_array($raw) ? $raw : json_decode($raw, true);
+    if (!is_array($data) || !isset($data['score'])) {
+        return null;
+    }
+
+    $post         = get_post($post_id);
+    $current_hash = $post ? md5((string) $post->post_content) : '';
+    $stored_hash  = isset($data['content_hash']) ? (string) $data['content_hash'] : '';
+
+    return array(
+        'score'        => max(0, min(100, (int) $data['score'])),
+        'summary'      => isset($data['summary']) ? (string) $data['summary'] : '',
+        'findings'     => isset($data['findings']) && is_array($data['findings']) ? $data['findings'] : array(),
+        'content_hash' => $stored_hash,
+        'analyzed_at'  => isset($data['analyzed_at']) ? (string) $data['analyzed_at'] : '',
+        'is_current'   => ($stored_hash !== '' && $stored_hash === $current_hash),
+    );
+}
+
+/**
  * Get notes for a post
- * 
+ *
  * @param int $post_id Post ID
  * @return array ['broken_links' => int, 'seasonal' => bool, 'pinned' => bool]
  */

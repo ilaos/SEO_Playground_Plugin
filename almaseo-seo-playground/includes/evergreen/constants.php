@@ -38,6 +38,11 @@ if (!defined('ALMASEO_EG_META_CLICKS_PREV90D')) {
 if (!defined('ALMASEO_EG_META_NOTES')) {
     define('ALMASEO_EG_META_NOTES', '_almaseo_eg_notes');
 }
+if (!defined('ALMASEO_EG_META_AI_FRESHNESS')) {
+    // Dashboard-pushed LLM staleness analysis (JSON: score, summary, findings,
+    // content_hash, analyzed_at). Overlays the local freshness heuristic.
+    define('ALMASEO_EG_META_AI_FRESHNESS', '_almaseo_eg_ai_freshness');
+}
 
 // Default thresholds
 if (!defined('ALMASEO_EG_DEFAULT_WATCH_DAYS')) {
