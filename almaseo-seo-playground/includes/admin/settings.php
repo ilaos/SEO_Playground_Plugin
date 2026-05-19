@@ -231,6 +231,12 @@ class AlmaSEO_Settings {
         $sanitized['high_risk_threshold'] = isset($input['high_risk_threshold']) ? max(0, min(100, absint($input['high_risk_threshold']))) : 75;
         $sanitized['medium_risk_threshold'] = isset($input['medium_risk_threshold']) ? max(0, min(100, absint($input['medium_risk_threshold']))) : 50;
 
+        // Medium must sit below High, otherwise the "medium" risk tier becomes
+        // unreachable. Clamp it down rather than rejecting the user's input.
+        if ($sanitized['medium_risk_threshold'] > $sanitized['high_risk_threshold']) {
+            $sanitized['medium_risk_threshold'] = $sanitized['high_risk_threshold'];
+        }
+
         // Stale days (must be positive)
         $sanitized['stale_days_threshold'] = isset($input['stale_days_threshold']) ? max(1, absint($input['stale_days_threshold'])) : 365;
 

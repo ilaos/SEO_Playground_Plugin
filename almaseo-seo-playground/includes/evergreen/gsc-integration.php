@@ -242,14 +242,22 @@ function almaseo_gsc_batch_fetch($urls, $days = 90) {
  */
 function almaseo_gsc_update_post_data($post_id) {
     $url = get_permalink($post_id);
-    
+
     if (!$url) {
         return false;
     }
-    
+
+    // Use the GSC Analysis Window configured in Evergreen Advanced settings.
+    // Falls back to 90 days when unset. The current/previous periods always
+    // use the same window length so the trend comparison stays apples-to-apples.
+    $adv_settings = get_option('almaseo_evergreen_advanced_settings', array());
+    $window = isset($adv_settings['gsc_window_days'])
+        ? max(1, min(365, (int) $adv_settings['gsc_window_days']))
+        : 90;
+
     // Fetch current and previous period data
-    $current = almaseo_gsc_get_url_metrics($url, 90, 0);
-    $previous = almaseo_gsc_get_url_metrics($url, 90, 90);
+    $current = almaseo_gsc_get_url_metrics($url, $window, 0);
+    $previous = almaseo_gsc_get_url_metrics($url, $window, $window);
     
     if (!$current || !$previous) {
         return false;

@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.15.2
+Stable tag: 1.15.3
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,10 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.15.3 =
+* Fix: The "GSC Analysis Window (days)" setting in Evergreen Advanced now actually applies. The traffic-trend calculation previously always used a fixed 90-day window regardless of the configured value; it now fetches Search Console data for the window you set.
+* Fix: The Evergreen Advanced "Medium Risk Threshold" can no longer be saved higher than the "High Risk Threshold." That combination silently made the "medium" risk tier unreachable; Medium is now clamped to at most High on save.
 
 = 1.15.2 =
 * Fix: Exclusive Schema Mode no longer strips AlmaSEO's own structured data. Every AlmaSEO JSON-LD emitter (advanced schema graph, breadcrumbs, FAQ, How-To, WooCommerce, meta tags) now carries an identifying marker so the scrubber never removes it.
