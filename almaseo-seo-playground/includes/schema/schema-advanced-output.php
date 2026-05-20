@@ -571,17 +571,28 @@ function almaseo_build_localbusiness_node($post) {
         $hours = is_array($hours_json) ? $hours_json : json_decode($hours_json, true);
         if ( is_array($hours) && ! empty($hours) ) {
             $specs = array();
+            // Schema.org's structured OpeningHoursSpecification.dayOfWeek
+            // requires a DayOfWeek enum value — either the full day name
+            // ("Monday") or the full URL ("https://schema.org/Monday").
+            // Two-letter abbreviations ("Mo","Tu") are only valid for the
+            // legacy LocalBusiness.openingHours TEXT format, and the
+            // schema.org validator flags them as invalid here. (1.15.8 fix.)
             $day_map = array(
-                'monday'    => 'Mo', 'tuesday'  => 'Tu', 'wednesday' => 'We',
-                'thursday'  => 'Th', 'friday'   => 'Fr', 'saturday'  => 'Sa',
-                'sunday'    => 'Su',
+                'monday'    => 'Monday',
+                'tuesday'   => 'Tuesday',
+                'wednesday' => 'Wednesday',
+                'thursday'  => 'Thursday',
+                'friday'    => 'Friday',
+                'saturday'  => 'Saturday',
+                'sunday'    => 'Sunday',
             );
             foreach ( $hours as $day => $times ) {
                 if ( empty($times['open']) || empty($times['close']) ) continue;
-                $abbr = isset($day_map[$day]) ? $day_map[$day] : ucfirst(substr($day, 0, 2));
+                $day_key = strtolower( (string) $day );
+                $day_name = isset($day_map[$day_key]) ? $day_map[$day_key] : ucfirst($day_key);
                 $specs[] = array(
                     '@type'     => 'OpeningHoursSpecification',
-                    'dayOfWeek' => $abbr,
+                    'dayOfWeek' => $day_name,
                     'opens'     => $times['open'],
                     'closes'    => $times['close'],
                 );
