@@ -153,6 +153,39 @@ class AlmaSEO_Settings {
             'default' => AlmaSEO_Role_Manager::get_defaults(),
             'sanitize_callback' => array('AlmaSEO_Role_Manager', 'sanitize')
         ));
+
+        // SEO panel post-type visibility. Default is the *null sentinel* (not
+        // an empty array) so almaseo_get_metabox_post_types() can distinguish
+        // "user has never visited settings" (→ show on all public CPTs) from
+        // "user explicitly unchecked everything" (→ stored as []).
+        register_setting('almaseo_settings', 'almaseo_metabox_post_types', array(
+            'type'              => 'array',
+            'default'           => null,
+            'sanitize_callback' => array($this, 'sanitize_metabox_post_types'),
+        ));
+    }
+
+    /**
+     * Sanitize the metabox post-type visibility list.
+     *
+     * If the form was submitted with no checkboxes checked, $input is not an
+     * array — we return [] so the user's "disable everywhere" intent persists.
+     * Otherwise we keep only slugs that are currently registered as public,
+     * which auto-prunes CPTs whose plugin/theme was deactivated.
+     */
+    public function sanitize_metabox_post_types($input) {
+        if (!is_array($input)) {
+            return array();
+        }
+        $public = get_post_types(array('public' => true), 'names');
+        $clean  = array();
+        foreach ($input as $slug) {
+            $slug = sanitize_key($slug);
+            if (isset($public[$slug])) {
+                $clean[] = $slug;
+            }
+        }
+        return array_values(array_unique($clean));
     }
 
     /**
@@ -760,6 +793,69 @@ class AlmaSEO_Settings {
                             </tr>
                         </table>
                     <?php endif; ?>
+                </div>
+
+                <?php
+                // ── SEO Panel Visibility (decides which post types show the metabox) ──
+                // Hardcoded list was 'post' + 'page' only, so the SEO panel was
+                // invisible on CPTs like Avada Portfolio. This UI lets the site
+                // owner pick per-CPT; default state shows every public CPT.
+                $metabox_saved   = get_option('almaseo_metabox_post_types', null);
+                $metabox_is_dflt = !is_array($metabox_saved);
+                $metabox_checked = function_exists('almaseo_get_metabox_post_types')
+                    ? almaseo_get_metabox_post_types()
+                    : ($metabox_is_dflt ? array('post', 'page') : $metabox_saved);
+                $metabox_all     = get_post_types(array('public' => true), 'objects');
+                // WooCommerce products have their own dedicated SEO metabox
+                // (includes/woo/woo-metabox.php), and attachments don't get a
+                // normal editor screen — exclude both from the list.
+                unset($metabox_all['attachment'], $metabox_all['product']);
+                // Pin post + page to the top, then alphabetical for the rest so
+                // CPTs from themes/plugins (Avada Portfolio, Events, etc.) are
+                // easy to find in long lists.
+                uksort($metabox_all, function($a, $b) {
+                    $pin = array('post' => 0, 'page' => 1);
+                    $pa  = isset($pin[$a]) ? $pin[$a] : 100;
+                    $pb  = isset($pin[$b]) ? $pin[$b] : 100;
+                    return ($pa === $pb) ? strcmp($a, $b) : ($pa - $pb);
+                });
+                ?>
+                <div class="almaseo-settings-section">
+                    <h2><?php esc_html_e('SEO Panel Visibility', 'almaseo-seo-playground'); ?></h2>
+                    <p class="description">
+                        <?php esc_html_e('Choose which post types show the SEO Playground meta box on their edit screen. Unchecking a type hides the panel from that screen. WooCommerce products have their own dedicated SEO panel and are not listed here.', 'almaseo-seo-playground'); ?>
+                    </p>
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row"><?php esc_html_e('Show SEO panel on', 'almaseo-seo-playground'); ?></th>
+                            <td>
+                                <?php if (empty($metabox_all)) : ?>
+                                    <p><em><?php esc_html_e('No public post types are registered on this site.', 'almaseo-seo-playground'); ?></em></p>
+                                <?php else : ?>
+                                    <fieldset>
+                                        <?php foreach ($metabox_all as $pt_slug => $pt_obj) :
+                                            $is_checked = in_array($pt_slug, $metabox_checked, true);
+                                            $pt_label   = isset($pt_obj->labels->name) ? $pt_obj->labels->name : $pt_slug;
+                                        ?>
+                                            <label style="display:block; margin-bottom:6px;">
+                                                <input type="checkbox"
+                                                       name="almaseo_metabox_post_types[]"
+                                                       value="<?php echo esc_attr($pt_slug); ?>"
+                                                       <?php checked($is_checked); ?> />
+                                                <strong><?php echo esc_html($pt_label); ?></strong>
+                                                <code style="font-size:11px; color:#646970; margin-left:4px;"><?php echo esc_html($pt_slug); ?></code>
+                                            </label>
+                                        <?php endforeach; ?>
+                                    </fieldset>
+                                    <?php if ($metabox_is_dflt) : ?>
+                                        <p class="description" style="margin-top:8px;">
+                                            <?php esc_html_e('All public post types are enabled by default. Save this page once to lock in your selection.', 'almaseo-seo-playground'); ?>
+                                        </p>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
 
                 <?php

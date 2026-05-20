@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.15.4
+Stable tag: 1.15.5
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,10 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.15.5 =
+* New: "SEO Panel Visibility" section in Settings lets you choose which post types show the SEO Playground meta box. Previously hardcoded to posts and pages only, so theme/plugin custom post types — including Avada Portfolio, Avada FAQs, Events, and others — got no SEO panel at all. By default the panel now appears on every public custom post type (WooCommerce products are excluded because they have their own dedicated SEO panel).
+* Improvement: Schema & Meta tab now shows a small reminder under the Schema Type dropdown pointing users to set a Featured Image or fill the OG Image URL. This avoids Google Rich Results Test flagging "Missing field 'image' (optional)" as a non-critical warning on LocalBusiness, Article, Product, Event, and other image-bearing schema types.
 
 = 1.15.4 =
 * Fix: Roles & Permissions now works. The per-role "can edit SEO fields" toggles previously had no effect — every role that could edit posts could also edit SEO fields. The Role Manager is now authoritative: roles that are not enabled do not see the SEO metabox and cannot save SEO meta. Administrators and Editors are enabled by default; Authors and Contributors are not (admins can change this on the Settings page).

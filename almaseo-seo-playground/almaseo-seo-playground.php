@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with Alma-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights.
-Version: 1.15.4
+Version: 1.15.5
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -50,7 +50,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
     }
     if ( $almaseo_seo_conflict ) {
         // Define only the bare minimum constants, then stop loading.
-        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.15.4' );
+        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.15.5' );
         if ( ! defined( 'ALMASEO_PATH' ) )           define( 'ALMASEO_PATH', plugin_dir_path( __FILE__ ) );
         if ( ! defined( 'ALMASEO_URL' ) )            define( 'ALMASEO_URL', plugin_dir_url( __FILE__ ) );
         if ( ! defined( 'ALMASEO_MAIN_FILE' ) )      define( 'ALMASEO_MAIN_FILE', __FILE__ );
@@ -62,7 +62,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
 if (!defined('ALMASEO_MAIN_FILE'))       define('ALMASEO_MAIN_FILE', __FILE__);
 if (!defined('ALMASEO_PATH'))            define('ALMASEO_PATH', plugin_dir_path(__FILE__));
 if (!defined('ALMASEO_URL'))             define('ALMASEO_URL', plugin_dir_url(__FILE__));
-if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.15.4');
+if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.15.5');
 if (!defined('ALMASEO_VERSION'))         define('ALMASEO_VERSION', '6.5.0');
 if (!defined('ALMASEO_API_NAMESPACE'))   define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
 if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
@@ -2535,6 +2535,26 @@ function seo_playground_is_alma_connected() {
 }
 } // end function_exists guard: seo_playground_is_alma_connected
 
+// Resolve which post types show the SEO Playground metabox. Reads the
+// 'almaseo_metabox_post_types' option set in Settings → SEO Panel Visibility.
+// Null/missing option = treat as "user has never configured this" and default
+// to every public CPT (minus attachment + product, since Woo has its own
+// metabox). Empty array = user explicitly unchecked all — respect it.
+if (!function_exists('almaseo_get_metabox_post_types')) {
+function almaseo_get_metabox_post_types() {
+    $saved = get_option('almaseo_metabox_post_types', null);
+    if (!is_array($saved)) {
+        $all = get_post_types(array('public' => true), 'names');
+        unset($all['attachment'], $all['product']);
+        return array_values($all);
+    }
+    // Prune any saved slugs whose CPT plugin/theme is no longer active so we
+    // don't waste an add_meta_box() call on a screen that won't render.
+    $public = get_post_types(array('public' => true), 'names');
+    return array_values(array_intersect($saved, $public));
+}
+} // end function_exists guard: almaseo_get_metabox_post_types
+
 // Add SEO Playground meta box
 if (!function_exists('almaseo_add_seo_playground_meta_box')) {
 function almaseo_add_seo_playground_meta_box() {
@@ -2544,7 +2564,7 @@ function almaseo_add_seo_playground_meta_box() {
         return;
     }
 
-    $post_types = array('post', 'page');
+    $post_types = almaseo_get_metabox_post_types();
 
     foreach ($post_types as $post_type) {
         // Defensive: remove any legacy box registered earlier with same ID

@@ -2392,11 +2392,32 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         <?php if ($current_schema === 'Article'): ?>
                         <div class="schema-fallback-hint" style="margin-top: 10px; padding: 10px; background: #f0f6fc; border-left: 3px solid #2271b1; border-radius: 3px;">
                             <small style="color: #2c3338;">
-                                <strong>Auto-fill enabled:</strong> Headline and description will auto-fill from your SEO title and description if left blank. 
+                                <strong>Auto-fill enabled:</strong> Headline and description will auto-fill from your SEO title and description if left blank.
                                 The image will auto-use your OG image or featured image.
                             </small>
                         </div>
                         <?php endif; ?>
+
+                        <!-- Image reminder — every schema type in the dropdown above
+                             accepts an image, and Google's Rich Results test flags
+                             "Missing field 'image' (optional)" as a non-critical issue
+                             when none is emitted. The schema builder reads
+                             _almaseo_og_image first, then falls back to the post's
+                             featured image; this nudge points users at both. -->
+                        <div class="almaseo-schema-image-reminder" style="margin-top: 8px; padding: 8px 10px; background: #f6f7f7; border-left: 3px solid #8c8f94; border-radius: 3px;">
+                            <small style="color: #50575e; line-height: 1.5; display: block;">
+                                <strong><?php esc_html_e('Image reminder:', 'almaseo-seo-playground'); ?></strong>
+                                <?php
+                                printf(
+                                    /* translators: %1$s: "Featured Image" (bold), %2$s: "OG Image URL" (bold), %3$s: Google warning text (italic). */
+                                    esc_html__( 'Set a %1$s on this page (or fill the %2$s field below) to avoid Google\'s %3$s non-critical warning.', 'almaseo-seo-playground' ),
+                                    '<strong>' . esc_html__( 'Featured Image', 'almaseo-seo-playground' ) . '</strong>',
+                                    '<strong>' . esc_html__( 'OG Image URL', 'almaseo-seo-playground' ) . '</strong>',
+                                    '<em>"' . esc_html__( 'Missing field \'image\' (optional)', 'almaseo-seo-playground' ) . '"</em>'
+                                );
+                                ?>
+                            </small>
+                        </div>
                         
                         <!-- Locked schema upsell notice -->
                         <div id="schema-locked-notice" style="display: none; margin-top: 10px; padding: 10px; background: #fff8e5; border-left: 3px solid #dba617; border-radius: 3px;">
