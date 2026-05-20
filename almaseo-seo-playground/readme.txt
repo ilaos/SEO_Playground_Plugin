@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.15.5
+Stable tag: 1.15.6
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.15.6 =
+* Improvement: Settings page now renders each section as a collapsible accordion that starts closed, so the full set of options fits in one scroll-less view. Click a section heading (or press Enter/Space while it is focused) to expand. Use the "Expand all" / "Collapse all" links at the top of the page to act on every section at once.
+* Improvement: The Save Changes button now sits in a styled, sticky footer that pins to the bottom of the viewport while the form is on screen. It scrolls away naturally once you reach the Schema Preview / Schema Action Log tools below.
+* Improvement: Unsaved-changes safeguards. Editing any field shows an "Unsaved changes" indicator next to the Save Changes button and a red dot next to the affected section header (so collapsed sections still surface that something is pending). Navigating away with unsaved edits triggers the browser's native "Are you sure?" dialog; clicking Save Changes saves cleanly without the warning.
 
 = 1.15.5 =
 * New: "SEO Panel Visibility" section in Settings lets you choose which post types show the SEO Playground meta box. Previously hardcoded to posts and pages only, so theme/plugin custom post types — including Avada Portfolio, Avada FAQs, Events, and others — got no SEO panel at all. By default the panel now appears on every public custom post type (WooCommerce products are excluded because they have their own dedicated SEO panel).

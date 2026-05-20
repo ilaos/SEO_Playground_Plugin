@@ -13,6 +13,141 @@
         init: function() {
             this.bindEvents();
             this.initializeUI();
+            this.initAccordion();
+            this.initUnsavedWarning();
+        },
+
+        /**
+         * Two-layer unsaved-changes safeguard:
+         *   1. beforeunload — native browser dialog when navigating away with
+         *      a dirty form. Suppressed on intentional submit.
+         *   2. Visual dirty markers — an "Unsaved changes" pill next to the
+         *      Save button, plus a red dot on each section header whose
+         *      child fields were touched (so collapsed sections still
+         *      surface the fact that something is pending).
+         *
+         * Why per-section dots: users with everything collapsed can expand a
+         * section, edit, then collapse — the section's content vanishes from
+         * view and they lose track of which section was edited. The dot
+         * survives the collapse.
+         */
+        initUnsavedWarning: function() {
+            var $form = $('form[action="options.php"]');
+            if (!$form.length) return;
+
+            var isSubmitting = false;
+
+            // Find or create the indicator inside the sticky footer.
+            var $footer = $('.almaseo-settings-form-footer');
+            var indicatorText = (window.almaseoSettings && almaseoSettings.i18n && almaseoSettings.i18n.unsaved_changes)
+                ? almaseoSettings.i18n.unsaved_changes
+                : 'Unsaved changes';
+            var $indicator = $('<span class="almaseo-unsaved-indicator" role="status" aria-live="polite"></span>')
+                .text(indicatorText);
+            $footer.prepend($indicator);
+
+            function markSectionDirty($field) {
+                var $sec = $field.closest('.almaseo-settings-section');
+                if (!$sec.length) return;
+                if ($sec.hasClass('is-dirty')) return;
+                $sec.addClass('is-dirty');
+                var $h2 = $sec.children('h2').first();
+                if ($h2.length && !$h2.children('.almaseo-section-dirty-dot').length) {
+                    $h2.append('<span class="almaseo-section-dirty-dot" aria-hidden="true"></span>');
+                }
+            }
+
+            function refreshGlobalIndicator() {
+                var anyDirty = $form.find('.almaseo-settings-section.is-dirty').length > 0;
+                $indicator.toggleClass('is-visible', anyDirty);
+            }
+
+            // Any user interaction with a form control marks its section.
+            $form.on('input change', ':input', function() {
+                markSectionDirty($(this));
+                refreshGlobalIndicator();
+            });
+
+            // Submitting is intentional — clear the trip-wire for unload.
+            $form.on('submit', function() {
+                isSubmitting = true;
+            });
+
+            // Modern browsers ignore the message string and show a generic
+            // localized dialog; returning a non-undefined value is what
+            // actually triggers it.
+            $(window).on('beforeunload', function(e) {
+                if (isSubmitting) return;
+                if (!$form.find('.almaseo-settings-section.is-dirty').length) return;
+                var msg = (window.almaseoSettings && almaseoSettings.i18n && almaseoSettings.i18n.leave_confirm)
+                    ? almaseoSettings.i18n.leave_confirm
+                    : 'You have unsaved changes. Are you sure you want to leave?';
+                e.returnValue = msg;
+                return msg;
+            });
+        },
+
+        /**
+         * Convert every settings/preview/log section into a collapsible
+         * accordion. Sections start closed. CSS handles the actual hiding
+         * via .is-collapsible (mode) + .is-open (state).
+         *
+         * Why we attach .is-collapsible from JS instead of in PHP: if this
+         * script ever fails to load, the page falls back to the old
+         * always-open layout instead of showing locked-closed sections.
+         */
+        initAccordion: function() {
+            var $sections = $('.almaseo-settings-section, .almaseo-preview-section, .almaseo-log-section');
+            if (!$sections.length) return;
+
+            $sections.each(function(i) {
+                var $sec = $(this);
+                var $h2  = $sec.children('h2').first();
+                if (!$h2.length) return;
+
+                $sec.addClass('is-collapsible');
+
+                // ARIA — make the h2 announce as a button that toggles a body.
+                // Body id is synthesized so screen readers can resolve the link.
+                var bodyId = ($sec.attr('id') || 'almaseo-acc-' + i) + '-body';
+                $h2.attr({
+                    'role': 'button',
+                    'tabindex': '0',
+                    'aria-expanded': 'false',
+                    'aria-controls': bodyId
+                });
+            });
+
+            // Click on h2 toggles, except when click originated on an
+            // interactive control inside the h2 (e.g. the "Clear Log"
+            // button nested in the Schema Action Log header).
+            $sections.on('click', '> h2', function(e) {
+                if ($(e.target).closest('button, a, input, select, textarea').length) return;
+                var $sec = $(this).parent();
+                var open = !$sec.hasClass('is-open');
+                $sec.toggleClass('is-open', open);
+                $(this).attr('aria-expanded', open ? 'true' : 'false');
+            });
+
+            // Keyboard — Enter / Space on focused h2 toggles.
+            $sections.on('keydown', '> h2', function(e) {
+                if (e.which !== 13 && e.which !== 32) return; // Enter or Space
+                e.preventDefault();
+                $(this).trigger('click');
+            });
+
+            // Expand all / Collapse all toolbar.
+            $(document).on('click', '.almaseo-settings-accordion-toolbar [data-acc-action]', function(e) {
+                e.preventDefault();
+                var action = $(this).attr('data-acc-action');
+                if (action === 'expand') {
+                    $sections.addClass('is-open');
+                    $sections.children('h2').attr('aria-expanded', 'true');
+                } else if (action === 'collapse') {
+                    $sections.removeClass('is-open');
+                    $sections.children('h2').attr('aria-expanded', 'false');
+                }
+            });
         },
         
         bindEvents: function() {

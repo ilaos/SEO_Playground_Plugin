@@ -320,14 +320,14 @@ class AlmaSEO_Settings {
             'almaseo-settings',
             plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/settings.css',
             array(),
-            '2.0.0'
+            '1.15.6'
         );
-        
+
         wp_enqueue_script(
             'almaseo-settings',
             plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/js/settings.js',
             array('jquery'),
-            '2.0.0',
+            '1.15.6',
             true
         );
         
@@ -339,7 +339,9 @@ class AlmaSEO_Settings {
                 'preview_loading' => __('Running preview...', 'almaseo-seo-playground'),
                 'preview_error' => __('Error running preview', 'almaseo-seo-playground'),
                 'clear_log_confirm' => __('Are you sure you want to clear the schema log?', 'almaseo-seo-playground'),
-                'log_cleared' => __('Schema log cleared', 'almaseo-seo-playground')
+                'log_cleared' => __('Schema log cleared', 'almaseo-seo-playground'),
+                'unsaved_changes' => __('Unsaved changes', 'almaseo-seo-playground'),
+                'leave_confirm' => __('You have unsaved changes. Are you sure you want to leave?', 'almaseo-seo-playground'),
             )
         ));
     }
@@ -370,9 +372,19 @@ class AlmaSEO_Settings {
         ?>
         <div class="wrap almaseo-settings-wrap">
             <h1><?php esc_html_e('AlmaSEO Settings', 'almaseo-seo-playground'); ?></h1>
-            <p class="description" style="margin-bottom: 20px; font-size: 14px;">
+            <p class="description" style="margin-bottom: 14px; font-size: 14px;">
                 <?php esc_html_e('AlmaSEO is built for both search engines and large language models (LLMs), with a dedicated LLM Optimization panel in the editor.', 'almaseo-seo-playground'); ?>
             </p>
+
+            <?php /* Accordion toolbar — wired by assets/js/settings.js. Each
+                     settings section is rendered as a collapsible panel that
+                     starts closed so the full settings surface fits in one
+                     scroll-less view. */ ?>
+            <div class="almaseo-settings-accordion-toolbar">
+                <button type="button" class="almaseo-acc-link" data-acc-action="expand"><?php esc_html_e('Expand all', 'almaseo-seo-playground'); ?></button>
+                <span class="almaseo-acc-sep" aria-hidden="true">|</span>
+                <button type="button" class="almaseo-acc-link" data-acc-action="collapse"><?php esc_html_e('Collapse all', 'almaseo-seo-playground'); ?></button>
+            </div>
 
             <form method="post" action="options.php">
                 <?php settings_fields('almaseo_settings'); ?>
@@ -951,7 +963,17 @@ class AlmaSEO_Settings {
                 </div>
                 <?php endif; ?>
 
-                <?php submit_button(); ?>
+                <?php /* Sticky form footer (added 1.15.6) — with sections
+                         collapsed, the submit button was getting visually
+                         orphaned between Roles & Permissions (last form
+                         section) and the Schema Preview tools (which live
+                         outside the form). position:sticky pins it to the
+                         viewport bottom while the form is on screen, then
+                         lets it scroll away once the user reaches the
+                         non-form sections below. */ ?>
+                <div class="almaseo-settings-form-footer">
+                    <?php submit_button(); ?>
+                </div>
             </form>
             
             <!-- Preview Tool -->
