@@ -120,8 +120,14 @@ function almaseo_is_admin_screen() {
         }
     }
     
-    // Check if we're on post/page editor with AlmaSEO meta box
-    if (in_array($screen->post_type, array('post', 'page')) && $screen->base === 'post') {
+    // Check if we're on a post-edit screen for one of the post types the
+    // user has enabled under Settings → SEO Panel Visibility. Used by the
+    // help-CSS enqueue and other places that need to know "is this an
+    // AlmaSEO-managed editor screen."
+    $almaseo_metabox_types = function_exists('almaseo_get_metabox_post_types')
+        ? almaseo_get_metabox_post_types()
+        : array('post', 'page');
+    if (in_array($screen->post_type, $almaseo_metabox_types, true) && $screen->base === 'post') {
         return true;
     }
     

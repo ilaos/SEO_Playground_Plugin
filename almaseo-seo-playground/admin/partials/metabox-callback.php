@@ -53,8 +53,16 @@ function almaseo_enqueue_seo_playground_styles() {
         ));
     }
 
-    // Enqueue SEO Playground scripts on post/page edit screens
-    if ($screen && in_array($screen->post_type, array('post', 'page'))) {
+    // Enqueue SEO Playground scripts on every post type the user has
+    // enabled under Settings → SEO Panel Visibility. Previously this was
+    // hardcoded to ['post','page'], so the metabox would *render* on CPTs
+    // (Avada Portfolio etc.) but load none of its CSS/JS — the panel
+    // appeared but unstyled. Falls back to ['post','page'] if the helper
+    // is missing for any reason.
+    $almaseo_metabox_types = function_exists('almaseo_get_metabox_post_types')
+        ? almaseo_get_metabox_post_types()
+        : array('post', 'page');
+    if ($screen && in_array($screen->post_type, $almaseo_metabox_types, true)) {
         // Check user capability
         if (!current_user_can('edit_posts')) {
             return;

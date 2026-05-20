@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.15.6
+Stable tag: 1.15.7
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,9 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.15.7 =
+* Fix: SEO Playground meta box now loads its full CSS and JavaScript on custom post types that have been enabled under Settings → SEO Panel Visibility (e.g. Avada Portfolio, Avada FAQs, Events). The 1.15.5 release made the meta box appear on those screens, but the asset enqueue was still hardcoded to posts and pages only, so the panel rendered unstyled / partially broken on CPT edit screens. Posts and pages were unaffected.
 
 = 1.15.6 =
 * Improvement: Settings page now renders each section as a collapsible accordion that starts closed, so the full set of options fits in one scroll-less view. Click a section heading (or press Enter/Space while it is focused) to expand. Use the "Expand all" / "Collapse all" links at the top of the page to act on every section at once.
