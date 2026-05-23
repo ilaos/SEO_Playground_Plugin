@@ -36,8 +36,8 @@ Both the AlmaSEO Connector and SEO Playground can be active simultaneously:
 - All shared functions guarded with `function_exists()`
 - Smart admin notice with one-click "Deactivate Connector" button
 - Connection data preserved via shared `wp_options` keys
-- Connector source: `C:\Users\ishla\Desktop\Luma SEO older scripts\FULLY WORKING WITH MULTIPLE SITE OPTIONS\almaseo-connector\`
-- Connector version: 1.5.0 (with matching guards)
+- Connector source: `C:\Users\ishla\Desktop\AlmaSEO_Connector\almaseo-connector\` (local clone of `github.com/ilaos/AlmaSEO_Connector`). Also cloned on prod at `/root/AlmaSEO_Connector/almaseo-connector/`. See `memory/reference_connector_source_path.md` for full layout and which copies are stale.
+- Connector version: 2.1.8 (with matching guards)
 
 ## Key Files
 
@@ -515,7 +515,7 @@ Admin page template in `admin/pages/`, CSS/JS in `assets/css/` and `assets/js/`.
 ## ALMASEO PLUGIN RELEASE WORKFLOW
 
 ### Overview
-This local development environment builds WordPress plugins (Connector and SEO Playground) that are deployed to the AlmaSEO production server. A separate Claude Code agent manages that server. These rules ensure both agents stay in sync.
+This local development environment builds WordPress plugins (Connector and SEO Playground) that are deployed to the AlmaSEO production server. Deploys happen via direct SSH from this session — there is no separate server-side agent. See `memory/feedback_release_default_broadcast.md` for the full broadcast chain.
 
 ### Production Server Details
 - Server path: `/root/FULLY WORKING WITH MULTIPLE SITE OPTIONS/`
@@ -573,6 +573,6 @@ Skip the broadcast only when the user explicitly opts out ("don't push", "let me
 - [ ] Zip follows naming convention: `almaseo-seo-playground-v{VERSION}.zip`
 - [ ] Zip contains a single top-level directory, not loose files
 
-### Current Versions (as of 2026-05-04)
-- Connector: v2.1.4
-- SEO Playground: v1.8.0
+### Current Versions (as of 2026-05-23)
+- Connector: v2.1.8
+- SEO Playground: v1.15.9
