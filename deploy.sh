@@ -103,6 +103,19 @@ echo "  -> ${DOWNLOADS_DIR}/${ZIP_NAME}"
 # Clean up temp
 rm "/tmp/${ZIP_NAME}"
 
+# Copy plugin icons (used by the WP update screen via PUC "icons" field)
+ICONS_SRC="${PLUGIN_DIR}/assets/icons"
+ICONS_DST="${UPDATES_DIR}/assets"
+if [ -d "$ICONS_SRC" ]; then
+    mkdir -p "$ICONS_DST"
+    for icon in icon-128x128.png icon-256x256.png; do
+        if [ -f "${ICONS_SRC}/${icon}" ]; then
+            cp "${ICONS_SRC}/${icon}" "${ICONS_DST}/${icon}"
+            echo "  -> ${ICONS_DST}/${icon}"
+        fi
+    done
+fi
+
 # -------------------------------------------------------
 # Step 5: Update almaseo-sitemap.json for PUC
 # -------------------------------------------------------
@@ -117,6 +130,10 @@ cat > "$JSON_FILE" <<EOF
     "tested": "6.6",
     "requires_php": "7.4",
     "author": "AlmaSEO",
+    "icons": {
+        "1x": "https://api.almaseo.com/updates/assets/icon-128x128.png",
+        "2x": "https://api.almaseo.com/updates/assets/icon-256x256.png"
+    },
     "sections": {
         "description": "Professional SEO optimization plugin with AI-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights.",
         "changelog": "<h4>${VERSION}</h4><ul><li>Latest stable release</li></ul>"

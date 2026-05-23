@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.15.8
+Stable tag: 1.15.9
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,9 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.15.9 =
+* Improvement: Plugin icon now appears on the WordPress "Plugins" and "Updates" screens (replaces the generic placeholder). Added the `icons` field to the update metadata served from `api.almaseo.com/updates/` and shipped the icon assets with the plugin.
 
 = 1.15.8 =
 * Fix: LocalBusiness opening-hours schema now uses valid `dayOfWeek` values. The structured-data validator on schema.org was flagging entries like `"dayOfWeek": "Tu"` as invalid — those two-letter abbreviations are only valid in the legacy `openingHours` text format, not inside `OpeningHoursSpecification`. The plugin now emits the full day names (`"Monday"`, `"Tuesday"`, ...), which both schema.org's validator and Google's Rich Results test accept.
