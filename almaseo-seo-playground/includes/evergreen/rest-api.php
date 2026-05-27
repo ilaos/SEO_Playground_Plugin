@@ -12,11 +12,22 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Pull in the module's constants directly so REST requests served before
+// (or independently of) plugins_loaded never see the meta-key fallback drift
+// that used to live in this file — see mark_refreshed() / bulk_reset() below.
+require_once dirname(__FILE__) . '/constants.php';
+
 /**
  * Evergreen REST API Class
  */
 class AlmaSEO_Evergreen_REST_API {
-    
+
+    /**
+     * Maximum posts touched per single REST bulk call. Keeps a single request
+     * from exhausting memory / hitting the gateway timeout on a large site.
+     */
+    const BULK_LIMIT = 500;
+
     /**
      * Instance
      */
@@ -281,15 +292,8 @@ class AlmaSEO_Evergreen_REST_API {
             return new WP_Error('not_found', 'Post not found', array('status' => 404));
         }
         
-        // Ensure constants are defined
-        if (!defined('ALMASEO_EG_META_STATUS')) {
-            define('ALMASEO_EG_META_STATUS', '_almaseo_evergreen_status');
-        }
-        if (!defined('ALMASEO_EG_STATUS_EVERGREEN')) {
-            define('ALMASEO_EG_STATUS_EVERGREEN', 'evergreen');
-        }
-        
-        // Update status to evergreen
+        // Update status to evergreen. Constants come from constants.php which is
+        // require_once'd at the top of this file, so they are guaranteed defined.
         update_post_meta($post_id, ALMASEO_EG_META_STATUS, ALMASEO_EG_STATUS_EVERGREEN);
         update_post_meta($post_id, '_almaseo_eg_last_calculated', time());
         update_post_meta($post_id, '_almaseo_eg_refreshed', time());
@@ -382,7 +386,12 @@ class AlmaSEO_Evergreen_REST_API {
     }
     
     /**
-     * Bulk recalculate
+     * Bulk recalculate.
+     *
+     * Per-request cap is enforced so a single REST call can't exhaust memory
+     * or hit the gateway timeout on a large site. The dashboard "Analyze All
+     * Posts" path batches via admin-post.php (see actions.php) — this cap is
+     * for direct REST clients.
      */
     private function bulk_recalculate($post_ids = null) {
         // Load evergreen functions if needed
@@ -390,20 +399,28 @@ class AlmaSEO_Evergreen_REST_API {
             $plugin_dir = plugin_dir_path(dirname(dirname(__FILE__)));
             require_once $plugin_dir . 'includes/evergreen/scoring.php';
         }
-        
-        // Get posts to recalculate
+
+        // Get posts to recalculate.
         if (empty($post_ids)) {
             $post_ids = get_posts(array(
-                'post_type' => array('post', 'page'),
-                'post_status' => 'publish',
-                'numberposts' => -1,
-                'fields' => 'ids'
+                'post_type'      => almaseo_eg_get_supported_post_types(),
+                'post_status'    => 'publish',
+                'posts_per_page' => self::BULK_LIMIT,
+                'fields'         => 'ids',
             ));
+        } else {
+            $post_ids = array_slice(array_map('intval', $post_ids), 0, self::BULK_LIMIT);
         }
-        
+
+        // Only process posts the current user can edit (matters on multi-author sites).
+        $post_ids = array_filter($post_ids, function ($pid) {
+            return current_user_can('edit_post', $pid);
+        });
+
         $processed = 0;
-        $failed = 0;
-        
+        $failed    = 0;
+        $skipped   = 0;
+
         foreach ($post_ids as $post_id) {
             $result = almaseo_eg_calculate_single_post($post_id);
             if ($result !== false) {
@@ -412,49 +429,61 @@ class AlmaSEO_Evergreen_REST_API {
                 $failed++;
             }
         }
-        
+
         return array(
             'success' => true,
-            'data' => array(
-                'processed' => $processed,
-                'failed' => $failed,
-                'total' => count($post_ids)
-            )
+            'data'    => array(
+                'processed'    => $processed,
+                'failed'       => $failed,
+                'skipped'      => $skipped,
+                'total'        => count($post_ids),
+                'batch_limit'  => self::BULK_LIMIT,
+            ),
         );
     }
-    
+
     /**
-     * Bulk reset
+     * Bulk reset.
+     *
+     * Same per-request cap + per-post capability filter as bulk_recalculate.
+     * Uses the ALMASEO_EG_META_STATUS constant rather than a hard-coded meta key
+     * so this can't drift away from where mark_refreshed() / scoring writes.
      */
     private function bulk_reset($post_ids = null) {
-        // Get posts to reset
         if (empty($post_ids)) {
             $post_ids = get_posts(array(
-                'post_type' => array('post', 'page'),
-                'post_status' => 'publish',
-                'numberposts' => -1,
-                'fields' => 'ids',
-                'meta_key' => '_almaseo_eg_status',
-                'meta_compare' => 'EXISTS'
+                'post_type'      => almaseo_eg_get_supported_post_types(),
+                'post_status'    => 'publish',
+                'posts_per_page' => self::BULK_LIMIT,
+                'fields'         => 'ids',
+                'meta_key'       => ALMASEO_EG_META_STATUS,
+                'meta_compare'   => 'EXISTS',
             ));
+        } else {
+            $post_ids = array_slice(array_map('intval', $post_ids), 0, self::BULK_LIMIT);
         }
-        
+
+        $post_ids = array_filter($post_ids, function ($pid) {
+            return current_user_can('edit_post', $pid);
+        });
+
         $processed = 0;
-        
+
         foreach ($post_ids as $post_id) {
-            delete_post_meta($post_id, '_almaseo_eg_status');
+            delete_post_meta($post_id, ALMASEO_EG_META_STATUS);
             delete_post_meta($post_id, '_almaseo_eg_last_calculated');
             delete_post_meta($post_id, '_almaseo_eg_status_reasons');
             delete_post_meta($post_id, '_almaseo_eg_score');
             delete_post_meta($post_id, '_almaseo_eg_traffic_data');
             $processed++;
         }
-        
+
         return array(
             'success' => true,
-            'data' => array(
-                'processed' => $processed
-            )
+            'data'    => array(
+                'processed'   => $processed,
+                'batch_limit' => self::BULK_LIMIT,
+            ),
         );
     }
     
@@ -600,9 +629,9 @@ class AlmaSEO_Evergreen_REST_API {
 
         $offset = ($page - 1) * $per_page;
 
-        // Build post type condition
+        // Build post type condition — single canonical list (functions.php).
         $post_types = ($post_type === 'all')
-            ? array('post', 'page', 'product')
+            ? almaseo_eg_get_supported_post_types()
             : array($post_type);
 
         $post_type_placeholders = implode(',', array_fill(0, count($post_types), '%s'));

@@ -146,21 +146,22 @@ add_action('admin_enqueue_scripts', function($hook) {
     
     // Get the plugin URL correctly - we're in /includes/evergreen/, need to go up 2 levels
     $plugin_url = plugin_dir_url(dirname(dirname(__FILE__)));
-    
+    $ver        = defined('ALMASEO_PLUGIN_VERSION') ? ALMASEO_PLUGIN_VERSION : '1.0.0';
+
     // Enqueue CSS if exists
     wp_enqueue_style(
         'almaseo-evergreen',
         $plugin_url . 'assets/css/evergreen.css',
         array(),
-        '2.5.0'
+        $ver
     );
-    
+
     // Enqueue JS for functionality
     wp_enqueue_script(
         'almaseo-evergreen',
         $plugin_url . 'assets/js/evergreen.js',
         array('jquery'),
-        '2.5.0',
+        $ver,
         true
     );
     
@@ -196,14 +197,15 @@ add_action('enqueue_block_editor_assets', function() {
     // Get the plugin URL and path correctly - we're in /includes/evergreen/, need to go up 2 levels
     $plugin_url = plugin_dir_url(dirname(dirname(__FILE__)));
     $plugin_dir = plugin_dir_path(dirname(dirname(__FILE__)));
-    
+    $ver        = defined('ALMASEO_PLUGIN_VERSION') ? ALMASEO_PLUGIN_VERSION : '1.0.0';
+
     // Enqueue sidebar CSS (only if file exists)
     if (file_exists($plugin_dir . 'assets/css/evergreen-sidebar.css')) {
         wp_enqueue_style(
             'almaseo-evergreen-sidebar',
             $plugin_url . 'assets/css/evergreen-sidebar.css',
             array(),
-            '4.2.0'
+            $ver
         );
     }
     
@@ -236,7 +238,7 @@ add_action('enqueue_block_editor_assets', function() {
             'almaseo-evergreen-panel-enhanced-v2',
             $plugin_url . 'assets/js/evergreen-panel-enhanced-v2.js',
             array('wp-plugins', 'wp-edit-post', 'wp-editor', 'wp-element', 'wp-components', 'wp-data', 'wp-i18n', 'wp-api-fetch', 'wp-compose'),
-            '4.2.1',
+            $ver,
             true
         );
         
@@ -252,7 +254,7 @@ add_action('enqueue_block_editor_assets', function() {
             'almaseo-evergreen-panel-enhanced',
             $plugin_url . 'assets/js/evergreen-panel-enhanced.js',
             array('wp-plugins', 'wp-edit-post', 'wp-editor', 'wp-element', 'wp-components', 'wp-data', 'wp-i18n', 'wp-api-fetch', 'wp-compose'),
-            '4.2.0',
+            $ver,
             true
         );
         
@@ -271,7 +273,7 @@ add_action('enqueue_block_editor_assets', function() {
                 'almaseo-evergreen-panel-simple',
                 $plugin_url . 'assets/js/evergreen-panel-minimal.js',
                 array('wp-plugins', 'wp-edit-post', 'wp-editor', 'wp-element', 'wp-components', 'wp-data', 'wp-i18n'),
-                '2.6.0',
+                $ver,
                 true
             );
             

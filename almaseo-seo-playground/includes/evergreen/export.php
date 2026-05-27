@@ -425,9 +425,10 @@ function almaseo_eg_handle_pdf_export() {
  * Get export data
  */
 function almaseo_eg_get_export_data($post_type = 'all', $status_filter = 'all', $limit = -1) {
-    // Build post type condition
-    $post_types = ($post_type === 'all') 
-        ? array('post', 'page')  // Supported post types
+    // Build post type condition — use the canonical helper so exports match
+    // what the dashboard counts.
+    $post_types = ($post_type === 'all')
+        ? almaseo_eg_get_supported_post_types()
         : array($post_type);
     
     // Build query

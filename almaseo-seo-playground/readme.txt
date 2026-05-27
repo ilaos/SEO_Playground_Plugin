@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.15.10
+Stable tag: 1.16.0
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,31 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.16.0 =
+**Evergreen tab — full audit, twelve fixes, plain-language help**
+
+* New: Friendly intro panel at the top of the Evergreen page explaining what the three status colors mean (🟢 Evergreen, 🟡 Watch, 🔴 Stale), when you'd actually need to do something here, how status is decided, the difference between editing a post and clicking "Mark as Refreshed", and whether the feature needs the AlmaSEO dashboard or works on its own.
+* Fix: Consolidated the two divergent evergreen scoring functions into one. Previously, a recalculation triggered by cron could return a different status than the same post analyzed via the editor "Analyze Now" button, because each path applied a different rule set.
+* Fix: The Advanced Insights panel's "Alma Freshness Score" was actually storing a staleness score (higher = needs refresh more), but the UI labeled it as freshness — which was the opposite of what users intuitively read. Renamed to "Refresh Priority" throughout with explicit "higher = more in need of refresh" copy.
+* Fix: Removed the random demo data that used to populate the Health Trend chart on brand-new installs. The chart now shows an honest empty state ("No history yet — click Analyze All Posts above") instead of fake numbers that made it look like content health data already existed.
+* Fix: Evergreen asset versions (CSS/JS) now bump with each plugin release. Previously they were locked to hardcoded values like '2.5.0' and '4.2.0', so browser cache never invalidated when the plugin updated.
+* Fix: Bulk REST operations (`/evergreen/bulk`) now cap each call at 500 posts. The previous unlimited fetch could OOM or hit gateway timeouts on large sites.
+* Fix: Bulk REST operations now filter by per-post edit capability, so editors on multi-author sites can no longer wipe evergreen data on posts they don't own.
+* Fix: The `mark_refreshed` and `bulk_reset` REST endpoints now use the canonical `ALMASEO_EG_META_STATUS` constant from `constants.php`. Previously, an inline fallback in `rest-api.php` could define the constant to a different value than the rest of the module, so these endpoints could write to (or fail to clear) a stale meta key under unusual load orderings.
+* Fix: The Health Trend chart's i18n strings (Analyzing…, Analyze Now, Refreshed!, etc.) now load correctly. The previous duplicate asset enqueue had a later `wp_localize_script` call overwrite the i18n strings table with a smaller config, so JS read `undefined` for those labels.
+* Fix: Basic stats and the Pro Advanced Insights now query the same canonical set of post types via a new `almaseo_eg_get_supported_post_types()` helper. Previously, basic stats counted only post + page while Advanced counted post + page + product, so totals diverged on WooCommerce sites.
+* Fix: Tightened the dashboard render capability from `read` to `manage_options` to match the submenu's registered capability.
+* Fix: Removed a dead `add_action('almaseo_eg_weekly', ...)` hook in dashboard.php — no code was scheduling that event, so the callback never fired. The real weekly snapshot is taken by the cron after `run_weekly_recalculation`.
+* Cleanup: Deleted `evergreen-panel-consolidated.js` (24KB, never enqueued) and the orphan `wp_ajax_almaseo_save_panel_state` AJAX handler it depended on (the handler had a nonce-name mismatch and would have failed every request even if the JS had loaded).
+
+**Search Appearance — newbie-friendly intro**
+
+* New: Top-of-page intro panel matching the Evergreen pattern. Answers "What does this page do?" with the polarity of templates and per-post overrides, "Do I need to change anything?" (reassurance: defaults work for most sites), and three expandable sections explaining when to change something, how this interacts with per-post SEO fields, and why Google may still show old titles after edits. Smart-tags modal also notes that tags work inside per-post SEO fields, and the Search Engine Visibility help text explicitly says per-post robots settings override these defaults.
+
+**Schema & Meta**
+
+* New: `EntertainmentBusiness` added to the Local Business type picker, in the Entertainment category. The closest schema.org LocalBusiness subtype for bands, DJs, performers, and other event-entertainment services.
 
 = 1.15.10 =
 * Fix: Search Appearance &mdash; the "Hide this post type from search engines (noindex)" checkbox now actually applies a `noindex` robots tag to every published post of that type. Previously the setting only affected the post-type archive page; individual posts were still indexed.

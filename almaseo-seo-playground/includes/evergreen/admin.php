@@ -60,71 +60,19 @@ function almaseo_eg_admin_page() {
     <?php
 }
 
-/**
- * AJAX handler for saving panel state
- */
-function almaseo_save_panel_state() {
-    // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'wp_rest')) {
-        wp_die('Security check failed');
-    }
+// The almaseo_save_panel_state AJAX handler used to live here, paired with a
+// caller in evergreen-panel-consolidated.js. That JS file was never enqueued
+// (the editor cascade in the loader uses enhanced-v2 → enhanced → minimal),
+// and the handler additionally verified against the 'wp_rest' nonce while the
+// localized data carried an 'almaseo_eg_ajax' nonce, so even if the JS had
+// loaded the request would have failed security_check. Removed; if per-panel
+// open/closed state ever becomes a feature again, register it via the REST
+// API alongside the other evergreen routes instead of as an ad-hoc AJAX action.
 
-    $user_id = isset($_POST['user_id']) ? intval(wp_unslash($_POST['user_id'])) : get_current_user_id();
-    $panel = isset($_POST['panel']) ? sanitize_key(wp_unslash($_POST['panel'])) : '';
-    $state = isset($_POST['state']) ? sanitize_key(wp_unslash($_POST['state'])) : 'open';
-    
-    if ($user_id && $panel) {
-        update_user_meta($user_id, '_almaseo_sidebar_state_' . $panel, $state);
-        wp_send_json_success(array('saved' => true));
-    } else {
-        wp_send_json_error(array('message' => 'Invalid parameters'));
-    }
-}
-add_action('wp_ajax_almaseo_save_panel_state', 'almaseo_save_panel_state');
-
-/**
- * Enqueue Evergreen assets only on the Evergreen dashboard
- */
-add_action('admin_enqueue_scripts', function ($hook) {
-    // Handle both top-level and submenu slugs
-    $page = isset($_GET['page']) ? sanitize_key(wp_unslash($_GET['page'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-    if ($page !== 'almaseo-evergreen') {
-        return; // not our screen
-    }
-
-    // Make sure jQuery is available
-    wp_enqueue_script('jquery');
-
-    // Build URLs safely from main plugin file
-    $base_url = plugin_dir_url( ALMASEO_PLUGIN_FILE ); // define ALMASEO_PLUGIN_FILE in your main plugin file if not already
-    $ver      = defined('ALMASEO_VERSION') ? ALMASEO_VERSION : '5.9.2';
-
-    // Styles (optional if already enqueued)
-    wp_enqueue_style(
-        'almaseo-evergreen-css',
-        $base_url . 'assets/css/evergreen.css',
-        array(),
-        $ver
-    );
-
-    // Chart/UX logic
-    wp_enqueue_script(
-        'almaseo-evergreen',
-        $base_url . 'assets/js/evergreen.js',
-        array('jquery'),
-        $ver,
-        true
-    );
-
-    // Localized config (used elsewhere, harmless here)
-    wp_localize_script('almaseo-evergreen', 'almaseoEvergreen', array(
-        'ajaxurl' => admin_url('admin-ajax.php'),
-        'nonce'   => wp_create_nonce('almaseo_eg_ajax'),
-    ));
-
-    // Kick the chart after script loads (avoids CSP inline issues)
-    wp_add_inline_script(
-        'almaseo-evergreen',
-        'window.almaseoRenderTrendChart && window.almaseoRenderTrendChart();'
-    );
-}, 20);
+// Evergreen dashboard CSS/JS + localized config (ajaxurl, nonce, i18n) are
+// enqueued by evergreen-loader-minimal-safe.php — its admin_enqueue_scripts
+// hook already covers `?page=almaseo-evergreen`. The previous admin.php block
+// here re-registered the same handle at a later priority and overwrote the
+// loader's wp_localize_script() data, dropping the i18n strings table that
+// evergreen.js reads (e.g. almaseoEvergreen.i18n.analyzing). Removed; the
+// chart self-kicks on DOM ready (assets/js/evergreen.js:709).

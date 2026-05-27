@@ -26,106 +26,59 @@ if (!defined('ALMASEO_EG_STATUS_STALE')) {
 }
 
 /**
- * Get weekly snapshots - moved to top to ensure availability
+ * Get weekly snapshots.
+ *
+ * Returns the stored history if it exists. Older versions backfilled missing
+ * weeks with random "demo" numbers (wp_rand) so the chart never looked empty;
+ * that produced a chart full of fake content health data on new installs,
+ * which was misleading. Now we return an honest empty array — the chart
+ * container renders an empty-state message instead.
  */
 if (!function_exists('almaseo_eg_get_weekly_snapshots')) {
 function almaseo_eg_get_weekly_snapshots($weeks = 12) {
     $snapshots = get_option('_almaseo_evergreen_weekly', array());
-    
-    // If no snapshots, generate them
     if (empty($snapshots)) {
-        almaseo_eg_rebuild_weekly_snapshots();
-        $snapshots = get_option('_almaseo_evergreen_weekly', array());
+        return array();
     }
-    
-    // Get last N weeks
-    $snapshots = array_slice($snapshots, -$weeks);
-    
-    // Fill in missing weeks with current data if needed
-    if (count($snapshots) < $weeks) {
-        $current_stats = almaseo_eg_get_dashboard_stats();
-        
-        // Check if we have real data
-        $has_data = (isset($current_stats['total']) && $current_stats['total'] > 0);
-        
-        while (count($snapshots) < $weeks) {
-            if ($has_data) {
-                $default_week = array(
-                    'week_start' => gmdate('Y-m-d', strtotime('-' . (count($snapshots) + 1) . ' weeks')),
-                    'evergreen' => isset($current_stats['evergreen']) ? $current_stats['evergreen'] : 0,
-                    'watch' => isset($current_stats['watch']) ? $current_stats['watch'] : 0,
-                    'stale' => isset($current_stats['stale']) ? $current_stats['stale'] : 0,
-                    'unanalyzed' => isset($current_stats['unanalyzed']) ? $current_stats['unanalyzed'] : 0,
-                    'total' => isset($current_stats['total']) ? $current_stats['total'] : 0
-                );
-            } else {
-                // Use demo data
-                $default_week = array(
-                    'week_start' => gmdate('Y-m-d', strtotime('-' . (count($snapshots) + 1) . ' weeks')),
-                    'evergreen' => 20 + wp_rand(-5, 5),
-                    'watch' => 8 + wp_rand(-2, 2),
-                    'stale' => 4 + wp_rand(-1, 1),
-                    'unanalyzed' => 0,
-                    'total' => 32 + wp_rand(-5, 5)
-                );
-            }
-            array_unshift($snapshots, $default_week);
-        }
-    }
-    
-    return $snapshots;
+    return array_slice($snapshots, -max(1, (int) $weeks));
 }
 }
 
 /**
- * Rebuild weekly snapshots - moved to top to ensure availability
+ * Rebuild weekly snapshots.
+ *
+ * Snapshots are normally added by the cron job (`almaseo_eg_weekly_recalculation`
+ * in cron.php) every week. This function rebuilds the history from the current
+ * stats — used by the "Rebuild Stats" admin action. If there is no underlying
+ * data yet (no posts have been analyzed) the history stays empty rather than
+ * being populated with the same number 12 weeks in a row.
  */
 if (!function_exists('almaseo_eg_rebuild_weekly_snapshots')) {
 function almaseo_eg_rebuild_weekly_snapshots() {
-    $snapshots = array();
-    
-    // Get current stats
     $current_stats = almaseo_eg_get_dashboard_stats();
-    
-    // Check if we have any data
-    $has_data = (isset($current_stats['total']) && $current_stats['total'] > 0);
-    
-    // Generate last 12 weeks of data
-    for ($i = 11; $i >= 0; $i--) {
-        $week_start = gmdate('Y-m-d', strtotime('-' . $i . ' weeks'));
-        
-        if ($has_data) {
-            // Use real data with variations
-            $variation = 1 + (sin($i) * 0.1); // ±10% variation
-            
-            $snapshots[] = array(
-                'week_start' => $week_start,
-                'evergreen' => round((isset($current_stats['evergreen']) ? $current_stats['evergreen'] : 0) * $variation),
-                'watch' => round((isset($current_stats['watch']) ? $current_stats['watch'] : 0) * $variation),
-                'stale' => round((isset($current_stats['stale']) ? $current_stats['stale'] : 0) * $variation),
-                'unanalyzed' => isset($current_stats['unanalyzed']) ? $current_stats['unanalyzed'] : 0,
-                'total' => isset($current_stats['total']) ? $current_stats['total'] : 0
-            );
-        } else {
-            // Generate demo data to show how the chart works
-            $demo_evergreen = 25 + wp_rand(-5, 5);
-            $demo_watch = 10 + wp_rand(-3, 3);
-            $demo_stale = 5 + wp_rand(-2, 2);
-            
-            $snapshots[] = array(
-                'week_start' => $week_start,
-                'evergreen' => $demo_evergreen,
-                'watch' => $demo_watch,
-                'stale' => $demo_stale,
-                'unanalyzed' => 0,
-                'total' => $demo_evergreen + $demo_watch + $demo_stale
-            );
-        }
+    $has_data      = (isset($current_stats['total']) && $current_stats['total'] > 0);
+
+    if (!$has_data) {
+        update_option('_almaseo_evergreen_weekly', array());
+        return array();
     }
-    
-    // Save snapshots
+
+    // Seed the history with the current snapshot for every week — flat line
+    // rather than fabricated variation. The cron will start producing real
+    // week-over-week data going forward.
+    $snapshots = array();
+    for ($i = 11; $i >= 0; $i--) {
+        $snapshots[] = array(
+            'week_start' => gmdate('Y-m-d', strtotime('-' . $i . ' weeks')),
+            'evergreen'  => isset($current_stats['evergreen']) ? (int) $current_stats['evergreen'] : 0,
+            'watch'      => isset($current_stats['watch']) ? (int) $current_stats['watch'] : 0,
+            'stale'      => isset($current_stats['stale']) ? (int) $current_stats['stale'] : 0,
+            'unanalyzed' => isset($current_stats['unanalyzed']) ? (int) $current_stats['unanalyzed'] : 0,
+            'total'      => (int) $current_stats['total'],
+        );
+    }
+
     update_option('_almaseo_evergreen_weekly', $snapshots);
-    
     return $snapshots;
 }
 }
@@ -150,8 +103,10 @@ function almaseo_eg_rebuild_weekly_snapshots() {
  * Render the dashboard page
  */
 function almaseo_eg_render_dashboard() {
-    // Check permissions
-    if (!current_user_can('read')) {
+    // Match the capability the submenu was registered with (admin.php). The
+    // previous 'read' check was looser than the menu cap and only mattered
+    // for someone hitting the page URL directly.
+    if (!current_user_can('manage_options')) {
         wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'almaseo-seo-playground'));
     }
     
@@ -232,12 +187,66 @@ function almaseo_eg_render_dashboard() {
             <?php endif; ?>
         </h1>
         
+        <div class="almaseo-eg-intro">
+            <h2><?php esc_html_e('What does this page do?', 'almaseo-seo-playground'); ?></h2>
+            <p>
+                <?php esc_html_e('It tracks how fresh your published content is and tells you which posts may be losing rankings on Google because they\'re out of date. Each published post gets graded into one of three buckets:', 'almaseo-seo-playground'); ?>
+            </p>
+            <ul class="almaseo-eg-intro-statuses">
+                <li>
+                    <strong>🟢 <?php esc_html_e('Evergreen', 'almaseo-seo-playground'); ?></strong>
+                    — <?php esc_html_e('healthy. Recently updated, or still getting traffic. Nothing to do.', 'almaseo-seo-playground'); ?>
+                </li>
+                <li>
+                    <strong>🟡 <?php esc_html_e('Watch', 'almaseo-seo-playground'); ?></strong>
+                    — <?php esc_html_e('aging or losing traffic. Worth a quick look soon.', 'almaseo-seo-playground'); ?>
+                </li>
+                <li>
+                    <strong>🔴 <?php esc_html_e('Stale', 'almaseo-seo-playground'); ?></strong>
+                    — <?php esc_html_e('overdue for a refresh. Update the content, then click "Mark as Refreshed" on the post.', 'almaseo-seo-playground'); ?>
+                </li>
+            </ul>
+            <p>
+                <?php
+                echo wp_kses(
+                    __( '<strong>First time here?</strong> Click <em>Analyze All Posts</em> at the top of the page once. The plugin will score every post on your site so the cards, chart, and at-risk table below show real data instead of zeros.', 'almaseo-seo-playground' ),
+                    array( 'strong' => array(), 'em' => array() )
+                );
+                ?>
+            </p>
+
+            <details>
+                <summary><?php esc_html_e('How is the status decided?', 'almaseo-seo-playground'); ?></summary>
+                <p><?php esc_html_e('Two signals combine into the grade:', 'almaseo-seo-playground'); ?></p>
+                <ol>
+                    <li><?php esc_html_e('How many days since the post was last updated. Posts older than ~6 months drift toward "Watch", and older than ~12 months toward "Stale". Freshly published posts (less than 90 days old) get a grace period.', 'almaseo-seo-playground'); ?></li>
+                    <li><?php esc_html_e('If you\'ve connected Google Search Console, the plugin also looks at the post\'s traffic trend. A post losing significant traffic gets downgraded even if it was recently updated.', 'almaseo-seo-playground'); ?></li>
+                </ol>
+                <p><?php esc_html_e('Some pages are exempt: anything pinned as evergreen on its editor, or anything in the 90-day grace period after publication.', 'almaseo-seo-playground'); ?></p>
+            </details>
+
+            <details>
+                <summary><?php esc_html_e('Does this need the AlmaSEO dashboard, or does it work on its own?', 'almaseo-seo-playground'); ?></summary>
+                <p>
+                    <?php esc_html_e('It works on its own. The grades, the chart, and the at-risk table are all calculated locally on your WordPress site — no connection required.', 'almaseo-seo-playground'); ?>
+                </p>
+                <p>
+                    <?php esc_html_e('When you connect the AlmaSEO dashboard (Pro tier), an extra "Refresh Priority" panel appears at the bottom. That panel uses an AI analysis of the actual writing inside each post to spot staleness the date-based check would miss — e.g. a post that says "the new 2023 rules" when it\'s now several years later. The basic Evergreen / Watch / Stale grading is unchanged either way.', 'almaseo-seo-playground'); ?>
+                </p>
+            </details>
+
+            <details>
+                <summary><?php esc_html_e('What\'s the difference between "Mark as Refreshed" and just updating the post?', 'almaseo-seo-playground'); ?></summary>
+                <p><?php esc_html_e('Saving the post bumps its "last modified" date, which the plugin sees on the next recalculation — but that can lag by up to a week. "Mark as Refreshed" tells the plugin "I just updated this, reset its status now" without waiting for the cron. Use it after meaningful content edits, not after typo fixes.', 'almaseo-seo-playground'); ?></p>
+            </details>
+        </div>
+
         <?php
-        // Add help text for Evergreen
+        // Legacy help block retained for users who already know the workflow.
         if (function_exists('almaseo_render_help')) {
             almaseo_render_help(
-                __('Tracks how fresh your published content is and flags posts that may be slipping in search rankings. Click "Analyze All Posts" to scan your site, then review anything marked Watch or Stale and update it.', 'almaseo-seo-playground'),
-                __('Each post is graded Evergreen (healthy), Watch (aging or losing traffic), or Stale (overdue for an update) — based on how long since it was last updated and, when Google Search Console is connected, its recent traffic trend. After updating a post, open it and click "Mark as Refreshed" to reset its status. Pro sites also get a weighted Refresh Score and High/Medium/Low risk tiers for prioritizing which posts to refresh first.', 'almaseo-seo-playground')
+                __('Tracks how fresh your published content is and flags posts that may be slipping in search rankings.', 'almaseo-seo-playground'),
+                __('After updating a post, open it and click "Mark as Refreshed" to reset its status. Pro sites also get a weighted Refresh Priority and High/Medium/Low risk tiers for picking which posts to refresh next.', 'almaseo-seo-playground')
             );
         }
         ?>
@@ -349,12 +358,21 @@ function almaseo_eg_render_dashboard() {
         <!-- Trend Chart -->
         <div class="almaseo-eg-chart-container" role="img" aria-label="<?php esc_attr_e('Content health trend over time', 'almaseo-seo-playground'); ?>">
             <h2><?php esc_html_e('Health Trend', 'almaseo-seo-playground'); ?></h2>
-            
-            <div id="almaseo-eg-trend-chart" 
-                 data-weekly="<?php echo esc_attr( wp_json_encode( array_values( $weekly_data ) ) ); ?>"
-                 data-weeks="<?php echo esc_attr($date_range); ?>">
-                <div class="almaseo-eg-chart-loading"><?php esc_html_e('Loading chart...', 'almaseo-seo-playground'); ?></div>
-            </div>
+
+            <?php if (empty($weekly_data)): ?>
+                <div class="almaseo-eg-chart-empty" style="padding: 40px 20px; text-align: center; color: #555; background: #fafafa; border: 1px dashed #c3c4c7; border-radius: 4px;">
+                    <p style="margin: 0 0 8px; font-size: 14px;"><strong><?php esc_html_e('No history yet.', 'almaseo-seo-playground'); ?></strong></p>
+                    <p style="margin: 0; font-size: 13px;">
+                        <?php esc_html_e('Click "Analyze All Posts" above to score your content, then come back next week — this chart fills in once there is real data to show.', 'almaseo-seo-playground'); ?>
+                    </p>
+                </div>
+            <?php else: ?>
+                <div id="almaseo-eg-trend-chart"
+                     data-weekly="<?php echo esc_attr( wp_json_encode( array_values( $weekly_data ) ) ); ?>"
+                     data-weeks="<?php echo esc_attr($date_range); ?>">
+                    <div class="almaseo-eg-chart-loading"><?php esc_html_e('Loading chart...', 'almaseo-seo-playground'); ?></div>
+                </div>
+            <?php endif; ?>
             <div class="almaseo-eg-chart-legend">
                 <span class="legend-item legend-evergreen">
                     <span class="legend-color"></span> <?php esc_html_e('Evergreen', 'almaseo-seo-playground'); ?>
@@ -538,37 +556,37 @@ function almaseo_eg_render_dashboard() {
                         </div>
                     </div>
 
-                    <!-- AI Freshness Impact Panel -->
+                    <!-- Refresh Priority Panel (powered by Alma's LLM staleness analysis when connected) -->
                     <div class="almaseo-eg-panel" style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
                         <h3 style="margin-top: 0; color: #1e293b; font-size: 16px;">
-                            <?php esc_html_e('Alma Freshness Impact', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('Refresh Priority (Alma AI Analysis)', 'almaseo-seo-playground'); ?>
                         </h3>
                         <p class="description" style="margin-bottom: 20px;">
-                            <?php esc_html_e('How content clarity and LLM-friendly signals affect your content health', 'almaseo-seo-playground'); ?>
+                            <?php esc_html_e('Each post gets a Refresh Priority score from 0–100. A higher score means the content is more likely to be stale and should be refreshed sooner. When connected to the AlmaSEO dashboard, this score is enhanced by Alma\'s LLM analysis of the actual writing (not just the post age).', 'almaseo-seo-playground'); ?>
                         </p>
 
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 20px;">
                             <div style="background: #f8fafc; padding: 16px; border-radius: 6px; border: 1px solid #e2e8f0;">
                                 <div style="color: #64748b; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-                                    <?php esc_html_e('Average Alma Freshness Score', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('Average Refresh Priority', 'almaseo-seo-playground'); ?>
                                 </div>
                                 <div style="font-size: 36px; font-weight: 700; color: #1e293b; margin-top: 8px;">
                                     <?php echo esc_html($advanced_summary['ai_freshness']['average']); ?>
                                 </div>
                                 <div style="color: #64748b; font-size: 12px; margin-top: 4px;">
-                                    <?php esc_html_e('out of 100', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('out of 100 — higher means more in need of refresh', 'almaseo-seo-playground'); ?>
                                 </div>
                             </div>
 
                             <div style="background: #fef3c7; padding: 16px; border-radius: 6px; border: 1px solid #fde68a;">
                                 <div style="color: #92400e; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-                                    <?php esc_html_e('Posts Below Threshold (50)', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('Posts with Priority 50+', 'almaseo-seo-playground'); ?>
                                 </div>
                                 <div style="font-size: 36px; font-weight: 700; color: #78350f; margin-top: 8px;">
                                     <?php echo esc_html($advanced_summary['ai_freshness']['below_threshold']); ?>
                                 </div>
                                 <div style="color: #92400e; font-size: 12px; margin-top: 4px;">
-                                    <?php esc_html_e('need Alma optimization', 'almaseo-seo-playground'); ?>
+                                    <?php esc_html_e('worth reviewing — pick a few each week', 'almaseo-seo-playground'); ?>
                                 </div>
                             </div>
                         </div>
@@ -576,13 +594,13 @@ function almaseo_eg_render_dashboard() {
                         <?php if (!empty($advanced_summary['ai_freshness']['top_at_risk'])): ?>
                         <div>
                             <h4 style="margin: 16px 0 12px 0; color: #475569; font-size: 14px; font-weight: 600;">
-                                <?php esc_html_e('Top 5 Posts Needing Alma Optimization', 'almaseo-seo-playground'); ?>
+                                <?php esc_html_e('Top 5 Posts to Refresh Next', 'almaseo-seo-playground'); ?>
                             </h4>
                             <table class="wp-list-table widefat fixed striped" style="font-size: 13px;">
                                 <thead>
                                     <tr>
                                         <th><?php esc_html_e('Post', 'almaseo-seo-playground'); ?></th>
-                                        <th style="width: 120px;"><?php esc_html_e('Alma Score', 'almaseo-seo-playground'); ?></th>
+                                        <th style="width: 140px;"><?php esc_html_e('Refresh Priority', 'almaseo-seo-playground'); ?></th>
                                         <th style="width: 120px;"><?php esc_html_e('Risk', 'almaseo-seo-playground'); ?></th>
                                     </tr>
                                 </thead>
@@ -685,9 +703,10 @@ function almaseo_eg_get_dashboard_stats($post_type = 'all') {
     
     global $wpdb;
     
-    // Build post type condition
-    $post_types = ($post_type === 'all') 
-        ? array('post', 'page')  // Supported post types
+    // Build post type condition — use the canonical list so basic stats,
+    // at-risk table, advanced summary and cron all agree on what's in scope.
+    $post_types = ($post_type === 'all')
+        ? almaseo_eg_get_supported_post_types()
         : array($post_type);
     
     $post_type_sql = "'" . implode("','", array_map('esc_sql', $post_types)) . "'";
@@ -805,9 +824,10 @@ function almaseo_eg_get_dashboard_stats($post_type = 'all') {
 function almaseo_eg_get_at_risk_posts($post_type = 'all', $status_filter = 'all', $page = 1, $per_page = 20) {
     global $wpdb;
     
-    // Build post type condition
-    $post_types = ($post_type === 'all') 
-        ? array('post', 'page')  // Supported post types
+    // Build post type condition — use the canonical list so basic stats,
+    // at-risk table, advanced summary and cron all agree on what's in scope.
+    $post_types = ($post_type === 'all')
+        ? almaseo_eg_get_supported_post_types()
         : array($post_type);
     
     // Build query
@@ -891,31 +911,13 @@ function almaseo_eg_render_status_pill($status) {
     }
 }
 
-/**
- * Update weekly snapshot on cron
- */
-function almaseo_eg_update_weekly_snapshot() {
-    $snapshots = get_option('_almaseo_evergreen_weekly', array());
-    
-    // Keep only last 12 weeks
-    if (count($snapshots) >= 12) {
-        array_shift($snapshots);
-    }
-    
-    // Add current week
-    $current_stats = almaseo_eg_get_dashboard_stats();
-    $snapshots[] = array(
-        'week_start' => gmdate('Y-m-d', strtotime('monday this week')),
-        'evergreen' => $current_stats['evergreen'],
-        'watch' => $current_stats['watch'],
-        'stale' => $current_stats['stale'],
-        'unanalyzed' => $current_stats['unanalyzed'],
-        'total' => $current_stats['total']
-    );
-    
-    update_option('_almaseo_evergreen_weekly', $snapshots);
-}
-add_action('almaseo_eg_weekly', 'almaseo_eg_update_weekly_snapshot');
+// Note: the previous version of this file registered:
+//   add_action('almaseo_eg_weekly', 'almaseo_eg_update_weekly_snapshot');
+// — but no code ever scheduled the 'almaseo_eg_weekly' cron event, so the
+// callback never fired. The real weekly snapshot is taken by
+// AlmaSEO_Evergreen_Cron::take_weekly_snapshot() (cron.php) after
+// run_weekly_recalculation(). The orphan hook + duplicate function have been
+// removed to make it obvious which path actually runs.
 
 /**
  * AJAX handler for quick analyze
@@ -993,9 +995,9 @@ function almaseo_eg_get_advanced_summary($post_type = 'all') {
 
     global $wpdb;
 
-    // Build post type condition
+    // Build post type condition — single canonical list (functions.php).
     $post_types = ($post_type === 'all')
-        ? array('post', 'page', 'product')
+        ? almaseo_eg_get_supported_post_types()
         : array($post_type);
 
     $post_type_placeholders = implode(',', array_fill(0, count($post_types), '%s'));

@@ -12,8 +12,28 @@ if (!defined('ABSPATH')) {
 }
 
 /**
+ * Canonical list of post types the Evergreen module operates on.
+ *
+ * Used by every query that needs to enumerate "the content the user manages"
+ * so the basic dashboard stats, the at-risk table, the Pro advanced summary,
+ * and the cron all agree on which posts are in scope. Filterable so themes /
+ * other plugins can add CPTs (e.g. learndash courses) without forking core.
+ *
+ * @return string[] Post type slugs.
+ */
+if (!function_exists('almaseo_eg_get_supported_post_types')) {
+function almaseo_eg_get_supported_post_types() {
+    $types = array('post', 'page');
+    if (class_exists('WooCommerce')) {
+        $types[] = 'product';
+    }
+    return apply_filters('almaseo_eg_supported_post_types', $types);
+}
+}
+
+/**
  * Get post evergreen status
- * 
+ *
  * @param int $post_id Post ID
  * @return string Status (evergreen, watch, stale, or empty)
  */

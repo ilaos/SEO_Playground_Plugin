@@ -282,7 +282,9 @@ function almaseo_eg_clear_meta($post_id) {
  * @since 6.5.0
  */
 function almaseo_register_evergreen_advanced_meta_fields() {
-    $post_types = array('post', 'page', 'product');
+    $post_types = function_exists('almaseo_eg_get_supported_post_types')
+        ? almaseo_eg_get_supported_post_types()
+        : array('post', 'page');
 
     foreach ($post_types as $post_type) {
         // Refresh Score (0-100)

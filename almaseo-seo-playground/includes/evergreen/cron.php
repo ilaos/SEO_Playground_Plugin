@@ -73,12 +73,17 @@ class AlmaSEO_Evergreen_Cron {
             return;
         }
         
-        // Get all published posts
+        // Get all published posts using the canonical supported list so cron
+        // covers the same content the dashboard counts.
+        $post_types = function_exists('almaseo_eg_get_supported_post_types')
+            ? almaseo_eg_get_supported_post_types()
+            : array('post', 'page');
+
         $posts = get_posts(array(
-            'post_type' => array('post', 'page'),
+            'post_type'   => $post_types,
             'post_status' => 'publish',
             'numberposts' => -1,
-            'fields' => 'ids'
+            'fields'      => 'ids',
         ));
         
         // Load scoring functions

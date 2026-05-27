@@ -21,13 +21,60 @@ $smart_tags  = AlmaSEO_Smart_Tags::get_available_tags();
 ?>
 <div class="wrap almaseo-sa-wrap">
     <h1><?php esc_html_e( 'Search Appearance', 'almaseo-seo-playground' ); ?></h1>
-    <p class="description">
-        <?php esc_html_e( 'This page controls how your titles and descriptions look in Google for every page on your site at once. You write a template here using "smart tags" like %%title%% — the plugin fills in the real values for each post when the page is visited.', 'almaseo-seo-playground' ); ?>
-    </p>
-    <p class="description">
-        <strong><?php esc_html_e( 'New to this?', 'almaseo-seo-playground' ); ?></strong>
-        <?php esc_html_e( 'The defaults work well for most sites. Click "View all tags" next to any field to see what smart tags you can use. Don\'t forget to press Save Changes at the bottom.', 'almaseo-seo-playground' ); ?>
-    </p>
+
+    <div class="almaseo-sa-intro">
+        <h2><?php esc_html_e( 'What does this page do?', 'almaseo-seo-playground' ); ?></h2>
+        <p>
+            <?php
+            echo wp_kses(
+                __( 'It sets the default <strong>title</strong> (the blue link Google shows in search results) and <strong>description</strong> (the gray snippet underneath) for every page on your site at once. Instead of writing them post-by-post, you write a template here using "smart tags" like <code>%%title%%</code> &mdash; the plugin fills in the real values for each page automatically.', 'almaseo-seo-playground' ),
+                array( 'strong' => array(), 'code' => array() )
+            );
+            ?>
+        </p>
+        <p>
+            <?php
+            echo wp_kses(
+                __( '<strong>Do I need to change anything?</strong> Probably not. The defaults work well for most sites &mdash; they show your post title, a separator, and your site name in Google (e.g. <em>Hello World - My Blog</em>). The Save Changes button at the bottom only does something if you actually change something.', 'almaseo-seo-playground' ),
+                array( 'strong' => array(), 'em' => array() )
+            );
+            ?>
+        </p>
+
+        <details>
+            <summary><?php esc_html_e( 'When would I want to change something here?', 'almaseo-seo-playground' ); ?></summary>
+            <ul>
+                <li><?php esc_html_e( 'You want every product or article on your site to follow the same format in Google.', 'almaseo-seo-playground' ); ?></li>
+                <li><?php esc_html_e( 'You want to hide certain types of pages from search engines (author archives, date archives, attachments, 404 pages).', 'almaseo-seo-playground' ); ?></li>
+                <li><?php esc_html_e( 'You want a custom title and description for your homepage.', 'almaseo-seo-playground' ); ?></li>
+                <li><?php esc_html_e( 'You want to change the separator character (the dash between your post title and site name).', 'almaseo-seo-playground' ); ?></li>
+            </ul>
+        </details>
+
+        <details>
+            <summary><?php esc_html_e( 'How does this work with the per-post SEO fields?', 'almaseo-seo-playground' ); ?></summary>
+            <p><?php esc_html_e( 'Per-post settings always win over this page. For each page on your site, the plugin uses values in this order:', 'almaseo-seo-playground' ); ?></p>
+            <ol>
+                <li><?php echo wp_kses( __( 'Whatever you typed into the <strong>SEO Page Health</strong> box on that post\'s editor (highest priority).', 'almaseo-seo-playground' ), array( 'strong' => array() ) ); ?></li>
+                <li><?php esc_html_e( 'The template on this page (used when the per-post field is blank).', 'almaseo-seo-playground' ); ?></li>
+                <li><?php esc_html_e( 'WordPress defaults (used when neither has anything filled in).', 'almaseo-seo-playground' ); ?></li>
+            </ol>
+            <p><?php esc_html_e( 'The same applies to the "hide from search engines" (noindex) setting: if you\'ve explicitly set a robots option on a specific post, that wins for that post. Otherwise the post-type default from this page takes effect.', 'almaseo-seo-playground' ); ?></p>
+            <p>
+                <?php
+                echo wp_kses(
+                    __( 'Smart tags (<code>%%title%%</code>, <code>%%sep%%</code>, etc.) work inside the per-post SEO fields too &mdash; useful if you want a mostly-custom title that still pulls in one dynamic value.', 'almaseo-seo-playground' ),
+                    array( 'code' => array() )
+                );
+                ?>
+            </p>
+        </details>
+
+        <details>
+            <summary><?php esc_html_e( 'I made changes but Google still shows the old title/description. Why?', 'almaseo-seo-playground' ); ?></summary>
+            <p><?php esc_html_e( 'Google caches search results. Your changes are live on the page right away (you can view the page source and find the <title> tag to confirm), but it can take a few days to a few weeks for Google to recrawl your site and update what it shows in search results.', 'almaseo-seo-playground' ); ?></p>
+        </details>
+    </div>
 
     <div class="almaseo-sa-notice" id="almaseo-sa-notice" style="display:none;"></div>
 
@@ -84,7 +131,7 @@ $smart_tags  = AlmaSEO_Smart_Tags::get_available_tags();
                                    <?php checked( ! empty( $pt_settings['noindex'] ) ); ?> />
                             <?php esc_html_e( 'Hide this post type from search engines (noindex)', 'almaseo-seo-playground' ); ?>
                         </label>
-                        <p class="description"><?php esc_html_e( 'When checked, every post of this type tells Google "do not list me in search results." Leave unchecked for normal content.', 'almaseo-seo-playground' ); ?></p>
+                        <p class="description"><?php esc_html_e( 'When checked, every post of this type tells Google "do not list me in search results." Leave unchecked for normal content. If a specific post has its own robots setting in the SEO Page Health box on its editor, that setting wins for that post.', 'almaseo-seo-playground' ); ?></p>
                     </td>
                 </tr>
             </table>
@@ -401,7 +448,7 @@ $smart_tags  = AlmaSEO_Smart_Tags::get_available_tags();
                 <p class="description">
                     <?php
                     echo wp_kses(
-                        __( '<strong>What is a smart tag?</strong> A placeholder you type into a title or description template — the plugin swaps it for the real value when each page is shown. For example, type <code>%%title%%</code> in the template and Google sees the actual post title.', 'almaseo-seo-playground' ),
+                        __( '<strong>What is a smart tag?</strong> A placeholder you type into a title or description template &mdash; the plugin swaps it for the real value when each page is shown. For example, type <code>%%title%%</code> in the template and Google sees the actual post title. These tags also work inside the per-post SEO fields on each post\'s editor.', 'almaseo-seo-playground' ),
                         array( 'code' => array(), 'strong' => array() )
                     );
                     ?>

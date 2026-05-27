@@ -12,70 +12,45 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Calculate evergreen status for a single post
- * 
- * @param int $post_id Post ID
- * @return string|false Status or false on failure
+ * Calculate and PERSIST evergreen status for a single post.
+ *
+ * Used by REST recalculate, cron, the dashboard's auto-analysis pass, and
+ * admin-post bulk actions. All scoring rules live in almaseo_score_evergreen()
+ * so this is just a persistence wrapper — that's deliberate so the same rules
+ * apply whether the recalculation was triggered by cron, REST, AJAX quick
+ * analyze, or post-save. Previously two divergent rule sets lived here and in
+ * almaseo_score_evergreen(), which could return DIFFERENT statuses for the
+ * same post depending on which path triggered the calculation.
+ *
+ * @param int $post_id Post ID.
+ * @return string|false Status string ('evergreen' | 'watch' | 'stale') or false on failure.
  */
 function almaseo_eg_calculate_single_post($post_id) {
     $post = get_post($post_id);
     if (!$post) {
         return false;
     }
-    
-    // Get post ages
-    if (!function_exists('almaseo_get_post_ages')) {
+
+    if (!function_exists('almaseo_score_evergreen')) {
         return false;
     }
-    
-    $ages = almaseo_get_post_ages($post);
-    $settings = almaseo_eg_get_settings();
-    
-    // Default to evergreen
-    $status = ALMASEO_EG_STATUS_EVERGREEN;
-    $reasons = array();
-    
-    // Check if it's in grace period (new content)
-    if ($ages['published_days'] < $settings['grace_days']) {
-        $status = ALMASEO_EG_STATUS_EVERGREEN;
-        $reasons[] = 'grace_period';
+
+    $result = almaseo_score_evergreen($post);
+    if (empty($result['status'])) {
+        return false;
     }
-    // Check for stale (very old)
-    elseif ($ages['updated_days'] > $settings['stale_days']) {
-        $status = ALMASEO_EG_STATUS_STALE;
-        $reasons[] = 'old_content';
-    }
-    // Check for watch (getting old)
-    elseif ($ages['updated_days'] > $settings['watch_days']) {
-        $status = ALMASEO_EG_STATUS_WATCH;
-        $reasons[] = 'aging_content';
-    }
-    
-    // Check traffic decline if GSC data available
-    if (function_exists('almaseo_eg_get_clicks')) {
-        $clicks = almaseo_eg_get_clicks($post_id);
-        if ($clicks['clicks_90d'] > 0 && $clicks['clicks_prev90d'] > 0) {
-            $trend = almaseo_compute_trend($clicks['clicks_90d'], $clicks['clicks_prev90d']);
-            
-            if ($trend < $settings['decline_pct']) {
-                // Significant traffic decline
-                if ($status === ALMASEO_EG_STATUS_EVERGREEN) {
-                    $status = ALMASEO_EG_STATUS_WATCH;
-                    $reasons[] = 'traffic_decline';
-                } elseif ($status === ALMASEO_EG_STATUS_WATCH) {
-                    $status = ALMASEO_EG_STATUS_STALE;
-                    $reasons[] = 'severe_traffic_decline';
-                }
-            }
-        }
-    }
-    
-    // Save the status
-    update_post_meta($post_id, ALMASEO_EG_META_STATUS, $status);
-    update_post_meta($post_id, '_almaseo_eg_status_reasons', $reasons);
+
+    update_post_meta($post_id, ALMASEO_EG_META_STATUS, $result['status']);
+    update_post_meta($post_id, '_almaseo_eg_status_reasons', $result['reasons']);
     update_post_meta($post_id, '_almaseo_eg_last_calculated', time());
-    
-    return $status;
+    update_post_meta($post_id, '_almaseo_eg_last_checked', time());
+
+    // Pro: also refresh the advanced refresh-score / risk-level / AI-freshness meta.
+    if (function_exists('almaseo_eg_update_advanced_scores')) {
+        almaseo_eg_update_advanced_scores($post);
+    }
+
+    return $result['status'];
 }
 
 /**
@@ -288,7 +263,20 @@ function almaseo_score_evergreen($post) {
             'metrics' => $metrics
         );
     }
-    
+
+    // Grace period: brand-new content is treated as evergreen no matter what
+    // the age/traffic rules below would say. Avoids flagging a freshly-launched
+    // post as stale just because GSC has no data for it yet.
+    $eg_settings = function_exists('almaseo_eg_get_settings') ? almaseo_eg_get_settings() : array('grace_days' => 90);
+    $grace_days  = isset($eg_settings['grace_days']) ? (int) $eg_settings['grace_days'] : 90;
+    if ($ages['published_days'] < $grace_days) {
+        return array(
+            'status'  => ALMASEO_EG_STATUS_EVERGREEN,
+            'reasons' => array(__('In grace period (newly published)', 'almaseo-seo-playground')),
+            'metrics' => $metrics,
+        );
+    }
+
     // Determine status based on rules
     // Rule: Stale if updated_days > 365 OR traffic down > 40%
     if ($ages['updated_days'] > $stale_days) {

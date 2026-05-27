@@ -1,10 +1,79 @@
 /**
  * AlmaSEO Evergreen Feature - Styles
- * 
+ *
  * @package AlmaSEO
  * @subpackage Evergreen
  * @since 1.5.0
  */
+
+/* "First-time visitor" intro panel — matches the Search Appearance pattern. */
+.almaseo-eg-intro {
+    background: #f0f6fc;
+    border-left: 4px solid #2271b1;
+    padding: 16px 20px;
+    margin: 16px 0 24px;
+    border-radius: 3px;
+    max-width: 900px;
+}
+.almaseo-eg-intro h2 {
+    margin: 14px 0 8px;
+    padding: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1d2327;
+}
+.almaseo-eg-intro h2:first-child {
+    margin-top: 0;
+}
+.almaseo-eg-intro p {
+    margin: 0 0 10px;
+    font-size: 14px;
+    color: #2c3338;
+    line-height: 1.55;
+}
+.almaseo-eg-intro ul,
+.almaseo-eg-intro ol {
+    margin: 0 0 10px 22px;
+    font-size: 14px;
+    color: #2c3338;
+    line-height: 1.55;
+}
+.almaseo-eg-intro li {
+    margin-bottom: 4px;
+}
+.almaseo-eg-intro ul.almaseo-eg-intro-statuses {
+    list-style: none;
+    margin-left: 0;
+}
+.almaseo-eg-intro ul.almaseo-eg-intro-statuses li {
+    margin-bottom: 6px;
+}
+.almaseo-eg-intro code {
+    background: rgba(0, 0, 0, 0.06);
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-size: 12px;
+}
+.almaseo-eg-intro details {
+    margin-top: 12px;
+    border-top: 1px solid #c3c4c7;
+    padding-top: 10px;
+}
+.almaseo-eg-intro details > summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    color: #1d2327;
+    padding: 4px 0;
+    user-select: none;
+    list-style: revert;
+}
+.almaseo-eg-intro details > summary:hover {
+    color: #2271b1;
+}
+.almaseo-eg-intro details[open] > summary {
+    margin-bottom: 8px;
+}
 
 /* Evergreen Pills */
 .almaseo-eg-pill {
