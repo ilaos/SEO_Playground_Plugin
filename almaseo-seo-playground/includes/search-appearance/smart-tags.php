@@ -131,6 +131,14 @@ class AlmaSEO_Smart_Tags {
         if ( isset( $context['title'] ) ) {
             $map['%%title%%'] = $context['title'];
         }
+        // Post type label overrides — used by post-type-archive pages, where
+        // there is no $post to derive pt_single/pt_plural from.
+        if ( isset( $context['pt_single'] ) ) {
+            $map['%%pt_single%%'] = $context['pt_single'];
+        }
+        if ( isset( $context['pt_plural'] ) ) {
+            $map['%%pt_plural%%'] = $context['pt_plural'];
+        }
 
         return $map;
     }

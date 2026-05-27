@@ -99,7 +99,9 @@ class AlmaSEO_Search_Appearance_Settings {
                     'noindex'        => true,
                 ),
                 'error_404' => array(
-                    'title_template' => 'Page Not Found %%sep%% %%sitename%%',
+                    'title_template'       => 'Page Not Found %%sep%% %%sitename%%',
+                    'description_template' => '',
+                    'noindex'              => true,
                 ),
                 'homepage'  => array(
                     'title_template'       => '%%sitename%% %%sep%% %%sitetagline%%',

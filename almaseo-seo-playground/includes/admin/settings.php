@@ -1102,8 +1102,16 @@ class AlmaSEO_Settings {
             wp_send_json_error(array('message' => __('Empty response from URL', 'almaseo-seo-playground')));
         }
         
-        // Run the scrubber in dry-run mode
-        $scrubber = AlmaSEO_Schema_Scrubber::get_instance();
+        // Run the scrubber in dry-run mode. The "Safe" variant is the one actually
+        // loaded by the plugin bootstrap; the legacy AlmaSEO_Schema_Scrubber class
+        // is only registered as a fallback and is normally absent.
+        if (class_exists('AlmaSEO_Schema_Scrubber_Safe')) {
+            $scrubber = AlmaSEO_Schema_Scrubber_Safe::get_instance();
+        } elseif (class_exists('AlmaSEO_Schema_Scrubber')) {
+            $scrubber = AlmaSEO_Schema_Scrubber::get_instance();
+        } else {
+            wp_send_json_error(array('message' => __('Schema scrubber not available', 'almaseo-seo-playground')));
+        }
         $result = $scrubber->analyze_html($html, true);
         
         wp_send_json_success($result);

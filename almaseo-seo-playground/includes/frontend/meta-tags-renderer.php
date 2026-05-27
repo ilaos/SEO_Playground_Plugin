@@ -78,9 +78,23 @@ function almaseo_render_meta_tags() {
     $imageindex = get_post_meta($post_id, '_almaseo_robots_imageindex', true);
     $translate = get_post_meta($post_id, '_almaseo_robots_translate', true);
 
-    // Build robots content (only include non-default values)
-    if ($index === 'noindex') $robots_parts[] = 'noindex';
-    else $robots_parts[] = 'index';
+    // Build robots content (only include non-default values).
+    // Per-post value wins; if it's blank/unset, fall back to the Search
+    // Appearance per-post-type "noindex this post type" setting. This is what
+    // makes the SA toggle actually do something on real posts rather than
+    // only on the post-type archive page.
+    if ($index === 'noindex') {
+        $robots_parts[] = 'noindex';
+    } elseif ($index === 'index') {
+        $robots_parts[] = 'index';
+    } else {
+        $type_noindex = false;
+        if (class_exists('AlmaSEO_Search_Appearance_Settings')) {
+            $pt_settings = AlmaSEO_Search_Appearance_Settings::get_post_type_settings($post->post_type);
+            $type_noindex = ! empty($pt_settings['noindex']);
+        }
+        $robots_parts[] = $type_noindex ? 'noindex' : 'index';
+    }
 
     if ($follow === 'nofollow') $robots_parts[] = 'nofollow';
     else $robots_parts[] = 'follow';
@@ -112,7 +126,26 @@ function almaseo_render_meta_tags() {
     if (!empty($seo_desc_raw) && class_exists('AlmaSEO_Tag_Validator')) {
         $seo_desc_raw = AlmaSEO_Tag_Validator::sanitize_seo_value($seo_desc_raw);
     }
-    $seo_description = !empty($seo_desc_raw) ? $seo_desc_raw : wp_trim_words($post->post_content, 30);
+
+    // Description chain: per-post override → Search Appearance per-post-type
+    // template (smart tags resolved with this post as context) → first 30
+    // words of post content. This is what makes the SA description template
+    // actually take effect on real posts.
+    $seo_description = '';
+    if (!empty($seo_desc_raw)) {
+        $seo_description = $seo_desc_raw;
+    } elseif (class_exists('AlmaSEO_Search_Appearance_Settings') && class_exists('AlmaSEO_Smart_Tags')) {
+        $pt_settings = AlmaSEO_Search_Appearance_Settings::get_post_type_settings($post->post_type);
+        if (!empty($pt_settings['description_template'])) {
+            $seo_description = AlmaSEO_Smart_Tags::replace(
+                $pt_settings['description_template'],
+                array('post' => $post)
+            );
+        }
+    }
+    if (empty($seo_description)) {
+        $seo_description = wp_trim_words($post->post_content, 30);
+    }
 
     // Output standard meta description tag
     if (!empty($seo_description)) {

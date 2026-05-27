@@ -219,10 +219,10 @@ class AlmaSEO_Search_Appearance_Frontend {
             }
             $pt_settings = AlmaSEO_Search_Appearance_Settings::get_post_type_settings( $post_type );
             if ( ! empty( $pt_settings['title_template'] ) ) {
-                $pt_obj = get_post_type_object( $post_type );
-                return AlmaSEO_Smart_Tags::replace( $pt_settings['title_template'], array(
-                    'title' => $pt_obj ? $pt_obj->labels->name : $post_type,
-                ) );
+                return AlmaSEO_Smart_Tags::replace(
+                    $pt_settings['title_template'],
+                    self::build_post_type_archive_context( $post_type )
+                );
             }
 
             return '';
@@ -290,6 +290,15 @@ class AlmaSEO_Search_Appearance_Frontend {
         } elseif ( is_search() ) {
             $noindex = ! empty( $settings['special']['search']['noindex'] );
 
+        } elseif ( is_404() ) {
+            $noindex = ! empty( $settings['special']['error_404']['noindex'] );
+            $tpl     = isset( $settings['special']['error_404']['description_template'] )
+                ? $settings['special']['error_404']['description_template']
+                : '';
+            if ( ! empty( $tpl ) ) {
+                $desc = AlmaSEO_Smart_Tags::replace( $tpl );
+            }
+
         } elseif ( is_post_type_archive() ) {
             $post_type   = get_query_var( 'post_type' );
             if ( is_array( $post_type ) ) {
@@ -299,7 +308,10 @@ class AlmaSEO_Search_Appearance_Frontend {
             $noindex     = ! empty( $pt_settings['noindex'] );
 
             if ( ! empty( $pt_settings['description_template'] ) ) {
-                $desc = AlmaSEO_Smart_Tags::replace( $pt_settings['description_template'] );
+                $desc = AlmaSEO_Smart_Tags::replace(
+                    $pt_settings['description_template'],
+                    self::build_post_type_archive_context( $post_type )
+                );
             }
         }
 
@@ -374,6 +386,27 @@ class AlmaSEO_Search_Appearance_Frontend {
 
         wp_safe_redirect( $redirect_url, 301 );
         exit;
+    }
+
+    /**
+     * Build smart tag context for a post-type archive page.
+     *
+     * There is no $post on these pages, so pt_single / pt_plural / title
+     * have to be supplied explicitly so templates that reference them resolve.
+     *
+     * @param string $post_type Post type slug.
+     * @return array Context for AlmaSEO_Smart_Tags::replace().
+     */
+    private static function build_post_type_archive_context( $post_type ) {
+        $pt_obj = get_post_type_object( $post_type );
+        if ( ! $pt_obj ) {
+            return array( 'title' => $post_type );
+        }
+        return array(
+            'title'     => $pt_obj->labels->name,
+            'pt_single' => $pt_obj->labels->singular_name,
+            'pt_plural' => $pt_obj->labels->name,
+        );
     }
 
     /**

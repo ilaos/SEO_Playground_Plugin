@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.15.9
+Stable tag: 1.15.10
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,14 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.15.10 =
+* Fix: Search Appearance &mdash; the "Hide this post type from search engines (noindex)" checkbox now actually applies a `noindex` robots tag to every published post of that type. Previously the setting only affected the post-type archive page; individual posts were still indexed.
+* Fix: Search Appearance &mdash; per-post-type Meta Description templates (e.g. `%%excerpt%% %%sep%% %%sitename%%`) are now used on single posts/pages when no manual description has been entered. Previously the templates only worked on archive pages; single posts fell straight back to the first 30 words of post content. Open Graph and Twitter descriptions inherit the same chain.
+* Fix: Search Appearance &mdash; the `%%pt_single%%` and `%%pt_plural%%` smart tags now resolve on post-type archive titles and descriptions (previously rendered as empty strings).
+* Fix: Search Appearance &mdash; the Schema Preview (Dry-Run) tool on the Settings page no longer fails with "error running preview". The handler was calling a class name that the plugin no longer loads; it now uses the active scrubber.
+* Improvement: Search Appearance UI &mdash; replaced the misleading "Show in Search Results" row header (which sat above a noindex checkbox) with "Search Engine Visibility" plus plain-language copy. Added a Meta Description input to Date Archives and full Meta Description + Search Engine Visibility inputs to the 404 page (404 defaults to noindex on fresh installs).
+* Improvement: Search Appearance UI &mdash; every tab and card now has a short plain-English explanation of what it controls and when you would change it, including a "What is a smart tag?" intro inside the smart-tags reference modal.
 
 = 1.15.9 =
 * Improvement: Plugin icon now appears on the WordPress "Plugins" and "Updates" screens (replaces the generic placeholder). Added the `icons` field to the update metadata served from `api.almaseo.com/updates/` and shipped the icon assets with the plugin.
