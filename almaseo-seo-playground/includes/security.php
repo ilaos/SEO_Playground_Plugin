@@ -48,24 +48,30 @@ function almaseo_verify_nonce($nonce, $action = 'almaseo_nonce') {
 
 /**
  * Sanitize SEO title
+ *
+ * No length cap: Google's ~60-char recommendation is advisory, not a hard rule.
+ * The metabox UI shows a live char counter that warns past 50/58. Truncating
+ * server-side with byte-based substr corrupted multibyte titles (em-dashes,
+ * curly quotes, emoji) and caused the DB write to silently fail — so the
+ * field appeared to revert on refresh.
  */
 if (!function_exists('almaseo_sanitize_seo_title')) {
 function almaseo_sanitize_seo_title($title) {
     $title = sanitize_text_field($title);
     $title = wp_strip_all_tags($title);
-    $title = substr($title, 0, 60); // Limit to 60 characters
     return $title;
 }
 } // end function_exists guard: almaseo_sanitize_seo_title
 
 /**
  * Sanitize meta description
+ *
+ * No length cap — see almaseo_sanitize_seo_title() for rationale.
  */
 if (!function_exists('almaseo_sanitize_meta_description')) {
 function almaseo_sanitize_meta_description($description) {
     $description = sanitize_textarea_field($description);
     $description = wp_strip_all_tags($description);
-    $description = substr($description, 0, 160); // Limit to 160 characters
     return $description;
 }
 } // end function_exists guard: almaseo_sanitize_meta_description

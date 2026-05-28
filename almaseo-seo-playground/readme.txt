@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.16.0
+Stable tag: 1.16.1
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.16.1 =
+**Fix: SEO title and meta description fields no longer truncate or wipe on save**
+
+* Fix: The metabox SEO Title and Meta Description fields were hard-truncated server-side (60 and 160 characters, byte-based). Titles longer than the limit were cut mid-word, and titles containing multibyte characters (em-dashes, curly quotes, accented letters, emoji) could land the cut inside a character — producing invalid UTF-8, which caused the database write to silently fail and the field to appear to revert to its previous value on refresh. Both fields now save whatever the user types; the live character counter in the metabox is the advisory signal (yellow past 50/140, red past 58/155) and remains untouched.
 
 = 1.16.0 =
 **Evergreen tab — full audit, twelve fixes, plain-language help**
