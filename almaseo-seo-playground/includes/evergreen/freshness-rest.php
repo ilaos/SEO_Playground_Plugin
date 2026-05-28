@@ -104,6 +104,18 @@ class AlmaSEO_Evergreen_Freshness_REST {
             );
 
             update_post_meta($post_id, ALMASEO_EG_META_AI_FRESHNESS, wp_json_encode($data));
+
+            // Also set the basic Evergreen/Watch/Stale grade so the dashboard's
+            // "X analyzed" count agrees with the plugin's Evergreen page. The
+            // scorer is fast (post-age math + GSC click meta reads, no LLM),
+            // so calling it here adds ~5ms per pushed item. Without this, a
+            // post with rich AI freshness findings still reads as "Unanalyzed"
+            // in the plugin's status cards because that count keys on a
+            // different meta (_almaseo_eg_status) that the push never touched.
+            if (function_exists('almaseo_eg_calculate_single_post')) {
+                almaseo_eg_calculate_single_post($post_id);
+            }
+
             $stored++;
         }
 

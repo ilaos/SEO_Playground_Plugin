@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.16.1
+Stable tag: 1.16.2
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,9 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.16.2 =
+* Fix: When the AlmaSEO dashboard pushes a content-freshness analysis for a post (via the `/evergreen-freshness/push` REST endpoint), the post now also has its basic Evergreen/Watch/Stale grade calculated immediately. Previously the dashboard analysis only set the AI-freshness findings meta and the post still read as "Unanalyzed" in the Evergreen page's status cards, because that count keys on a different meta key. This meant a fresh dashboard analysis of e.g. 71 posts could still leave the plugin showing 51 of them as Unanalyzed. The grade calculation is fast (post-age math + GSC click meta reads, no LLM calls), so it adds only a few milliseconds per pushed item.
 
 = 1.16.1 =
 **Fix: SEO title and meta description fields no longer truncate or wipe on save**
