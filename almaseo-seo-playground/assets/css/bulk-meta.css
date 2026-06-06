@@ -620,49 +620,6 @@ button:focus,
 }
 
 /* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-    .almaseo-bulk-meta {
-        background: #1e1e1e;
-        color: #fff;
-    }
-    
-    .bulk-actions-wrapper {
-        background: #2c3338;
-        border-color: #3f4346;
-    }
-    
-    .missing-toggle {
-        background: #2c3338;
-        color: #fff;
-    }
-    
-    .wp-list-table {
-        background: #1e1e1e;
-        color: #fff;
-    }
-    
-    .wp-list-table thead th,
-    .wp-list-table tfoot th {
-        background: #2c3338;
-        color: #fff;
-    }
-    
-    .wp-list-table tbody tr:hover {
-        background: #2c3338;
-    }
-    
-    .meta-title-input,
-    .meta-description-input {
-        background: #2c3338;
-        color: #fff;
-        border-color: #3f4346;
-    }
-    
-    #loading-overlay {
-        background: rgba(0, 0, 0, 0.9);
-    }
-}
-
 /* Visual Indicators for SEO Metrics */
 .almabar {
     display: inline-block;
@@ -865,36 +822,6 @@ button:focus,
 }
 
 /* Dark mode support */
-@media (prefers-color-scheme: dark) {
-    .alma-gauge .bar {
-        background: #374151;
-    }
-    
-    .alma-gauge .num {
-        color: #9ca3af;
-    }
-    
-    .alma-badge.good {
-        background: #064e3b;
-        color: #6ee7b7;
-    }
-    
-    .alma-badge.warn {
-        background: #78350f;
-        color: #fcd34d;
-    }
-    
-    .alma-badge.risk {
-        background: #7f1d1d;
-        color: #fca5a5;
-    }
-    
-    .alma-badge.info {
-        background: #1e3a8a;
-        color: #93c5fd;
-    }
-}
-
 /* Auto-Fill spinner animation */
 @keyframes rotation {
     from { transform: rotate(0deg); }

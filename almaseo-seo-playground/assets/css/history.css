@@ -634,36 +634,3 @@
 }
 
 /* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-    .almaseo-history-card {
-        background: #1d2327;
-        border-color: #3c434a;
-    }
-    
-    .history-item {
-        border-color: #3c434a;
-    }
-    
-    .history-item:hover {
-        border-color: #50575e;
-    }
-    
-    .drawer-panel {
-        background: #1d2327;
-    }
-    
-    .drawer-header,
-    .drawer-selectors,
-    .drawer-footer {
-        border-color: #3c434a;
-    }
-    
-    .compare-column {
-        border-color: #3c434a;
-    }
-    
-    .column-content,
-    .schema-preview {
-        background: #2c3338;
-    }
-}

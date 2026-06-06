@@ -351,22 +351,12 @@
             }
         });
         
-        // ====================================
-        // Dark Mode Detection
-        // ====================================
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            $('body').addClass('almaseo-dark-mode');
-        }
-        
-        // Listen for changes
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-            if (e.matches) {
-                $('body').addClass('almaseo-dark-mode');
-            } else {
-                $('body').removeClass('almaseo-dark-mode');
-            }
-        });
-        
+        // Dark mode is intentionally NOT auto-applied from the visitor's OS
+        // (prefers-color-scheme). WordPress admin does not follow the OS dark
+        // setting, so auto-darkening produced light text on a light admin
+        // background. A real toggle would set the 'almaseo-dark-mode' class
+        // explicitly; until then we leave the admin in its native scheme.
+
     });
     
 })(jQuery);

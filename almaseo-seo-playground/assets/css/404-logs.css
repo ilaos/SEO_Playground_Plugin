@@ -279,30 +279,6 @@ tr.ignored:hover {
 }
 
 /* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-    .stat-card {
-        background: #1e1e1e;
-        border-color: #444;
-    }
-    
-    .stat-value {
-        color: #fff;
-    }
-    
-    .stat-label {
-        color: #aaa;
-    }
-    
-    .inline-help {
-        background: #1a3a52;
-        border-color: #2196f3;
-    }
-    
-    .inline-help .dashicons {
-        color: #2196f3;
-    }
-}
-
 /* ── Intelligence Panels (v7.6.0+) ── */
 .almaseo-404-intelligence-panel {
     background: #fff;

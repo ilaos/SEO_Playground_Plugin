@@ -390,33 +390,3 @@
 }
 
 /* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-    .ki-metric-item,
-    .ki-suggestion-item,
-    .ki-trend-item {
-        background: #2c3338;
-        border-color: #3c434a;
-    }
-    
-    .ki-metric-header strong,
-    .ki-suggestion-data strong,
-    .ki-trend-data strong {
-        color: #f0f0f0;
-    }
-    
-    .ki-metrics-list h4,
-    .ki-suggestions-list h4,
-    .ki-trends-list h4 {
-        color: #f0f0f0;
-    }
-    
-    .ki-volume,
-    .ki-suggestion-metrics,
-    .ki-trend-volumes {
-        color: #a7aaad;
-    }
-    
-    .ki-tabs {
-        border-bottom-color: #3c434a;
-    }
-}

@@ -156,29 +156,6 @@
 }
 
 /* ==========================================================================
-   Dark Mode Support (if theme uses prefers-color-scheme)
-   ========================================================================== */
-
-@media (prefers-color-scheme: dark) {
-    .almaseo-breadcrumbs .breadcrumb-item a {
-        color: #6eb4e7;
-    }
-
-    .almaseo-breadcrumbs .breadcrumb-item a:hover,
-    .almaseo-breadcrumbs .breadcrumb-item a:focus {
-        color: #9ecbf0;
-    }
-
-    .almaseo-breadcrumbs .breadcrumb-item--current {
-        color: #e0e0e0;
-    }
-
-    .almaseo-breadcrumbs .breadcrumb-separator {
-        color: #9e9e9e;
-    }
-}
-
-/* ==========================================================================
    Print Styles
    ========================================================================== */
 

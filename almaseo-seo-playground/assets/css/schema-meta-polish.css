@@ -511,68 +511,6 @@
 /* ========================================
    Dark Mode Support
    ======================================== */
-
-@media (prefers-color-scheme: dark) {
-    #tab-schema-meta .almaseo-field-group {
-        background: #1e1e1e;
-        border-color: #444;
-    }
-    
-    #tab-schema-meta label[class*="-label"] {
-        color: #e0e0e0;
-    }
-    
-    .almaseo-input,
-    .almaseo-textarea,
-    .almaseo-schema-select {
-        background: #2a2a2a;
-        border-color: #444;
-        color: #e0e0e0;
-    }
-    
-    .almaseo-input:focus,
-    .almaseo-textarea:focus,
-    .almaseo-schema-select:focus {
-        background: #333;
-        border-color: #0073aa;
-    }
-    
-    .schema-preview-container {
-        border-color: #444;
-    }
-    
-    .schema-preview-header {
-        background: #2a2a2a;
-        border-bottom-color: #444;
-    }
-    
-    .schema-preview-header strong {
-        color: #e0e0e0;
-    }
-    
-    .schema-analyzer-container {
-        background: #2a2a2a;
-    }
-    
-    .schema-analysis-info-box {
-        background: #333;
-        border-color: #444;
-    }
-    
-    .schema-analysis-info-box .analysis-text {
-        color: #ccc;
-    }
-    
-    .schema-suggestion-container {
-        background: linear-gradient(135deg, #1a2633 0%, #1e3045 100%);
-        border-color: #3a5f8a;
-    }
-    
-    .suggestion-text {
-        color: #e0e0e0;
-    }
-}
-
 /* ========================================
    Accessibility
    ======================================== */

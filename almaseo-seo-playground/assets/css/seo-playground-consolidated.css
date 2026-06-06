@@ -60,21 +60,6 @@
 }
 
 /* Dark Mode Variables */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --almaseo-bg-white: #1a1a1a;
-        --almaseo-bg-light: #2a2a2a;
-        --almaseo-bg-gray: #333333;
-        --almaseo-border-light: #444444;
-        --almaseo-border-gray: #555555;
-        --almaseo-border-dark: #666666;
-        --almaseo-text-primary: #e8e8e8;
-        --almaseo-text-secondary: #b8b8b8;
-        --almaseo-text-muted: #999999;
-        --almaseo-text-light: #777777;
-    }
-}
-
 /* ============================================
    SHARED COMPONENTS
    ============================================ */

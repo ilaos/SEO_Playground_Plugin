@@ -139,12 +139,3 @@
 }
 
 /* Dark mode support for character bars */
-@media (prefers-color-scheme: dark) {
-    .char-bar-track {
-        background: #2c3338;
-    }
-    
-    .char-bar-marker {
-        background: rgba(255, 255, 255, 0.2);
-    }
-}

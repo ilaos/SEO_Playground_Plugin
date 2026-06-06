@@ -100,6 +100,10 @@ function almaseo_output_advanced_schema() {
         }
     }
 
+    // Promote inline Article authors to linked top-level Person entities so the
+    // graph is connected (one shared author node referenced by @id per article).
+    $graph = almaseo_link_author_entities($graph);
+
     // Output JSON-LD if we have any nodes
     if (!empty($graph)) {
         $data = array(
@@ -272,6 +276,176 @@ function almaseo_determine_schema_type($post, $settings) {
 } // end function_exists guard: almaseo_determine_schema_type
 
 /**
+ * Stable schema @id for a post author's Person entity.
+ *
+ * Deterministic per (site, author) so the same author resolves to one entity
+ * across every article — which is the whole point of a linked author node.
+ * Mirrors the hash-based identity pattern Yoast/Rank Math use.
+ *
+ * @param int $author_id WP user ID
+ * @return string Fragment URL @id
+ */
+if (!function_exists('almaseo_get_author_entity_id')) {
+function almaseo_get_author_entity_id($author_id) {
+    return home_url('/#/schema/person/' . md5('almaseo-author-' . (int) $author_id));
+}
+} // end function_exists guard: almaseo_get_author_entity_id
+
+/**
+ * Build a rich Person node for a post's author (the byline / E-E-A-T author).
+ *
+ * Distinct from almaseo_build_person_node(), which describes the *page itself*
+ * as a person. This describes the human who wrote the post, sourced from their
+ * WordPress user profile plus the optional AlmaSEO author fields
+ * (job title, profile/social URLs) added under includes/admin/author-profile-fields.php.
+ *
+ * Returns a full object with a stable @id. The advanced emitter lifts this into
+ * a top-level @graph node and references it by @id (linked entity); the legacy
+ * single-node emitter (schema-clean.php) keeps it inline, which is still valid.
+ *
+ * @param WP_Post $post
+ * @return array|null Person node, or null if the author can't be resolved
+ */
+if (!function_exists('almaseo_build_author_person_node')) {
+function almaseo_build_author_person_node($post) {
+    $author_id = isset($post->post_author) ? (int) $post->post_author : 0;
+    if (!$author_id) {
+        return null;
+    }
+
+    $name = get_the_author_meta('display_name', $author_id);
+    if (!$name) {
+        return null;
+    }
+
+    $node = array(
+        '@type' => 'Person',
+        '@id'   => almaseo_get_author_entity_id($author_id),
+        'name'  => $name,
+    );
+
+    // Author archive URL — the canonical "bio" location WordPress already gives us.
+    $url = get_author_posts_url($author_id);
+    if ($url) {
+        $node['url'] = $url;
+    }
+
+    // Job title — optional AlmaSEO profile field (e.g. "Founder & Principal").
+    $job_title = get_the_author_meta('almaseo_author_job_title', $author_id);
+    if ($job_title) {
+        $node['jobTitle'] = $job_title;
+    }
+
+    // Bio — the standard WP "Biographical Info" field.
+    $bio = get_the_author_meta('description', $author_id);
+    if ($bio) {
+        $node['description'] = $bio;
+    }
+
+    // Avatar as the author's image.
+    if (function_exists('get_avatar_url')) {
+        $avatar = get_avatar_url($author_id, array('size' => 192));
+        if ($avatar) {
+            $node['image'] = array(
+                '@type' => 'ImageObject',
+                'url'   => $avatar,
+            );
+        }
+    }
+
+    // worksFor — reference the site's brand identity (the #identity Organization
+    // node the knowledge-graph builder emits) so the author is tied to the org.
+    $settings = get_option('almaseo_schema_advanced_settings', array());
+    $brand = !empty($settings['site_name']) ? $settings['site_name'] : get_bloginfo('name');
+    if ($brand) {
+        $node['worksFor'] = array(
+            '@type' => 'Organization',
+            '@id'   => home_url('/#identity'),
+            'name'  => $brand,
+        );
+    }
+
+    // sameAs — the WP profile website plus any AlmaSEO profile/social URLs
+    // (one per line). Deduped and URL-validated.
+    $same_as = array();
+    $website = get_the_author_meta('user_url', $author_id);
+    if ($website) {
+        $same_as[] = $website;
+    }
+    $extra = get_the_author_meta('almaseo_author_same_as', $author_id);
+    if ($extra) {
+        foreach (preg_split('/\r\n|\r|\n/', $extra) as $line) {
+            $clean = esc_url_raw(trim($line));
+            if ($clean !== '') {
+                $same_as[] = $clean;
+            }
+        }
+    }
+    $same_as = array_values(array_unique(array_filter($same_as)));
+    if (!empty($same_as)) {
+        $node['sameAs'] = $same_as;
+    }
+
+    /**
+     * Filter the author Person node before it is attached to the schema graph.
+     *
+     * @param array   $node      The assembled Person node.
+     * @param int     $author_id WP user ID.
+     * @param WP_Post $post      The post being rendered.
+     */
+    return apply_filters('almaseo_author_person_node', $node, $author_id, $post);
+}
+} // end function_exists guard: almaseo_build_author_person_node
+
+/**
+ * Lift inline Article authors into linked top-level @graph Person entities.
+ *
+ * Article-family builders emit a full inline author object (so the legacy
+ * single-node emitter stays valid). In the advanced @graph we instead want one
+ * shared Person node per author, referenced by @id from each article — the
+ * connected-graph shape Google prefers and that Yoast/Rank Math produce. This
+ * pass extracts each inline author, dedupes by @id, appends them as top-level
+ * nodes, and replaces the inline author with an @id reference.
+ *
+ * @param array $graph The @graph array
+ * @return array Rewritten graph
+ */
+if (!function_exists('almaseo_link_author_entities')) {
+function almaseo_link_author_entities($graph) {
+    if (!is_array($graph) || empty($graph)) {
+        return $graph;
+    }
+
+    $article_types = array('Article', 'BlogPosting', 'NewsArticle');
+    $author_nodes  = array(); // @id => full Person node
+
+    foreach ($graph as &$node) {
+        if (!is_array($node) || empty($node['@type'])) {
+            continue;
+        }
+        if (!in_array($node['@type'], $article_types, true)) {
+            continue;
+        }
+        if (isset($node['author']) && is_array($node['author']) && !empty($node['author']['@id'])) {
+            $aid = $node['author']['@id'];
+            if (!isset($author_nodes[$aid])) {
+                $author_nodes[$aid] = $node['author'];
+            }
+            // Replace the inline author with a lightweight reference.
+            $node['author'] = array('@id' => $aid);
+        }
+    }
+    unset($node);
+
+    foreach ($author_nodes as $author_node) {
+        $graph[] = $author_node;
+    }
+
+    return $graph;
+}
+} // end function_exists guard: almaseo_link_author_entities
+
+/**
  * Build Article/BlogPosting/NewsArticle node
  *
  * @param WP_Post $post Current post
@@ -295,12 +469,19 @@ function almaseo_build_article_node($post, $type = 'Article') {
         'dateModified' => get_the_modified_date('c', $post->ID),
     );
 
-    // Author
-    $author_name = get_the_author_meta('display_name', $post->post_author);
-    $node['author'] = array(
-        '@type' => 'Person',
-        'name' => $author_name,
-    );
+    // Author — rich, linkable Person entity (E-E-A-T). The advanced emitter
+    // lifts this into a top-level @graph node referenced by @id; standalone
+    // (legacy emitter) it stays a valid inline Person. Falls back to a
+    // name-only Person if the author can't be resolved.
+    $author_node = almaseo_build_author_person_node($post);
+    if ($author_node) {
+        $node['author'] = $author_node;
+    } else {
+        $node['author'] = array(
+            '@type' => 'Person',
+            'name'  => get_the_author_meta('display_name', $post->post_author),
+        );
+    }
 
     // Publisher (reference Knowledge Graph if exists)
     $site_name = get_bloginfo('name');

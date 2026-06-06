@@ -579,45 +579,6 @@
 }
 
 /* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-    .almaseo-eg-tooltip {
-        background: #1d2327;
-        color: #f0f0f1;
-    }
-    
-    .almaseo-eg-tooltip::before {
-        border-top-color: #1d2327;
-    }
-    
-    .almaseo-eg-stats-card {
-        background: #1d2327;
-        border-color: #3c434a;
-        color: #f0f0f1;
-    }
-    
-    #almaseo-eg-last-checked {
-        color: #a7aaad;
-    }
-    
-    .wp-core-ui.wp-admin .almaseo-eg-evergreen {
-        background-color: #1a3d1a;
-        color: #7ee83f;
-        border-color: #2a5a2a;
-    }
-    
-    .wp-core-ui.wp-admin .almaseo-eg-watch {
-        background-color: #3d3100;
-        color: #ffb900;
-        border-color: #5a4a00;
-    }
-    
-    .wp-core-ui.wp-admin .almaseo-eg-stale {
-        background-color: #3d1a1a;
-        color: #ff6b6b;
-        border-color: #5a2a2a;
-    }
-}
-
 /* Animations */
 @keyframes fadeIn {
     from {

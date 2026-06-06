@@ -182,44 +182,6 @@
     font-style: italic;
 }
 
-/* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-    .almaseo-collapsible-toggle {
-        background: #2c3338;
-        border-color: #50575e;
-        color: #f0f0f1;
-    }
-    
-    .almaseo-collapsible-toggle:hover {
-        background: #3c434a;
-        border-color: #646970;
-    }
-    
-    #social-preview-content {
-        background: #2c3338;
-        border-color: #50575e;
-    }
-    
-    #social-tags-preview {
-        color: #f0f0f1;
-    }
-    
-    .schema-fallback-hint {
-        background: #1d2327;
-        border-color: #2271b1;
-    }
-    
-    .schema-fallback-hint small,
-    #schema-locked-notice small {
-        color: #f0f0f1;
-    }
-    
-    #schema-locked-notice {
-        background: #3c434a;
-        border-color: #dba617;
-    }
-}
-
 .almaseo-schema-meta-title {
     font-size: 24px;
     font-weight: 600;

@@ -452,68 +452,6 @@
 /* ========================================
    Dark Mode Support
    ======================================== */
-
-@media (prefers-color-scheme: dark) {
-    #tab-search-console .almaseo-field-group {
-        background: #1e1e1e;
-        border-color: #444;
-    }
-    
-    .almaseo-gsc-keywords-label {
-        color: #e0e0e0;
-    }
-    
-    .gsc-keywords-header {
-        background: #2a2a2a;
-    }
-    
-    .gsc-date-range {
-        background: #333;
-        border-color: #555;
-        color: #e0e0e0;
-    }
-    
-    .gsc-keywords-table-container {
-        background: #1e1e1e;
-        border-color: #444;
-    }
-    
-    .gsc-keywords-table thead {
-        background: #2a2a2a;
-        border-bottom-color: #444;
-    }
-    
-    .gsc-keywords-table th {
-        background: #2a2a2a;
-        color: #e0e0e0;
-    }
-    
-    .gsc-keywords-table tbody tr {
-        border-bottom-color: #333;
-    }
-    
-    .gsc-keywords-table tbody tr:hover {
-        background: #2a2a2a;
-    }
-    
-    .gsc-keywords-table td {
-        color: #ccc;
-    }
-    
-    .gsc-keywords-table .gsc-keyword {
-        color: #e0e0e0;
-    }
-    
-    .gsc-keywords-empty .empty-text {
-        color: #aaa;
-    }
-    
-    .gsc-keywords-error {
-        background: #2a1e1e;
-        border-color: #5a3333;
-    }
-}
-
 /* ========================================
    Accessibility
    ======================================== */

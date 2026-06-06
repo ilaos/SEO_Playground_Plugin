@@ -119,28 +119,6 @@
 }
 
 /* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-    .almaseo-tab-navigation {
-        background: #1d2327;
-        border-bottom-color: #3c434a;
-    }
-    
-    .almaseo-tab-btn {
-        color: #c3c4c7;
-    }
-    
-    .almaseo-tab-btn:hover {
-        background: #2c3338;
-        color: #72aee6;
-    }
-    
-    .almaseo-tab-btn.active {
-        color: #72aee6;
-        border-bottom-color: #72aee6;
-        background: #2c3338;
-    }
-}
-
 /* Animation */
 @keyframes fadeIn {
     from {

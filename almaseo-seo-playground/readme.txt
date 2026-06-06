@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.16.2
+Stable tag: 1.17.0
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,13 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.17.0 =
+**Linked author (Person) schema for E-E-A-T — parity with Yoast/Rank Math**
+
+* New: Article/BlogPosting/NewsArticle schema now emits a rich, linked author `Person` entity instead of a name-only object. The author node carries a stable `@id`, the author-archive URL, the WordPress bio (`description`), the avatar (`image`), `jobTitle`, `sameAs` profile links, and `worksFor` referencing your site's brand Organization. In advanced (multi-node) schema the article's `author` becomes an `@id` reference to a single shared top-level Person node — the connected-graph shape Google prefers — while standalone output keeps a valid inline author. Works on the free tier.
+* New: Two optional fields on every WordPress user profile (Users → Profile) — **Job Title** and **Profile / Social URLs** — feed the author schema's `jobTitle` and `sameAs`. Everything else (name, bio, avatar, archive URL) is pulled from the existing WordPress profile automatically, so no data is entered twice.
+* Dark mode: Removed OS-driven dark-mode styling (`prefers-color-scheme`) from the admin panels. WordPress admin does not follow the operating system's dark setting, so on dark-mode machines this had been forcing light text onto light backgrounds — unreadable in the Schema & Meta tab and others. The admin now renders in its native color scheme; an explicit dark theme tied to the WordPress admin color scheme is unaffected.
 
 = 1.16.2 =
 * Fix: When the AlmaSEO dashboard pushes a content-freshness analysis for a post (via the `/evergreen-freshness/push` REST endpoint), the post now also has its basic Evergreen/Watch/Stale grade calculated immediately. Previously the dashboard analysis only set the AI-freshness findings meta and the post still read as "Unanalyzed" in the Evergreen page's status cards, because that count keys on a different meta key. This meant a fresh dashboard analysis of e.g. 71 posts could still leave the plugin showing 51 of them as Unanalyzed. The grade calculation is fast (post-age math + GSC click meta reads, no LLM calls), so it adds only a few milliseconds per pushed item.

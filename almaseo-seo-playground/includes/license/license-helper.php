@@ -64,6 +64,11 @@ function almaseo_is_pro_active() {
  * - 'gsc_monitor': GSC Monitor
  * - 'orphan_detection': Orphan page detection
  * - 'schema_drift': Schema drift monitor
+ * - 'author_entity_dashboard': RESERVED (not yet enforced) — future dashboard-powered
+ *      author enrichment (auto-fill author identity from the AlmaSEO client profile,
+ *      AI-written bios, cross-site author entities). The baseline linked-author
+ *      Person schema is FREE (parity with Yoast/Rank Math); only this enhanced
+ *      layer is gated when it ships.
  *
  * Free tier features (available to all):
  * - Redirect manager (301/302)
@@ -101,6 +106,7 @@ function almaseo_feature_available( $feature ) {
         'orphan_detection',       // Orphan page detection
         'schema_drift',           // Schema drift monitor
         'meta_autogen',           // Profile-aware title/description generation (per-post button)
+        'author_entity_dashboard', // RESERVED (not yet enforced) — dashboard/AI author enrichment; baseline author schema is FREE
     );
 
     // Check if this feature requires Pro tier
@@ -220,6 +226,7 @@ function almaseo_get_pro_features() {
         'gsc_monitor',
         'orphan_detection',
         'schema_drift',
+        'author_entity_dashboard', // RESERVED — see almaseo_feature_available()
     );
 }
 } // end function_exists guard: almaseo_get_pro_features

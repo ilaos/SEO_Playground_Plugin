@@ -261,24 +261,6 @@
 }
 
 /* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-    .almaseo-health-summary,
-    .almaseo-health-signals,
-    .almaseo-seo-fields {
-        background: #1d2327;
-        border-color: #3c434a;
-    }
-    
-    .almaseo-health-signal {
-        background: #2c3338;
-        border-color: #3c434a;
-    }
-    
-    .signal-note {
-        color: #c3c4c7;
-    }
-}
-
 /* Animations */
 @keyframes fadeIn {
     from {

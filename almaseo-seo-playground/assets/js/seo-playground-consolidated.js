@@ -596,21 +596,16 @@
      * Check and apply dark mode
      */
     AlmaSEO.checkDarkMode = function() {
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        // Only apply dark mode when the user has EXPLICITLY opted in via a
+        // stored preference. We intentionally do NOT follow the OS
+        // prefers-color-scheme setting: WordPress admin keeps its light
+        // background regardless of the OS, so OS-driven darkening only
+        // recolored the text and produced unreadable light-on-light panels.
         const userPreference = AlmaSEO.Storage.get('dark_mode');
-        
+
         if (userPreference !== null) {
             $('body').toggleClass('almaseo-dark-mode', userPreference);
-        } else if (prefersDark) {
-            $('body').addClass('almaseo-dark-mode');
         }
-
-        // Listen for changes
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-            if (AlmaSEO.Storage.get('dark_mode') === null) {
-                $('body').toggleClass('almaseo-dark-mode', e.matches);
-            }
-        });
     };
 
     // Initialize when ready

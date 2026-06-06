@@ -326,27 +326,3 @@
 }
 
 /* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-    .almaseo-modal-content {
-        background: #1e1e1e;
-        color: #fff;
-    }
-    
-    .almaseo-modal-header,
-    .almaseo-modal-footer {
-        border-color: #444;
-    }
-    
-    .form-field input[type="text"],
-    .form-field input[type="url"] {
-        background: #2b2b2b;
-        color: #fff;
-        border-color: #444;
-    }
-    
-    .almaseo-redirects-stats,
-    .stat-box {
-        background: #2b2b2b;
-        border-color: #444;
-    }
-}
