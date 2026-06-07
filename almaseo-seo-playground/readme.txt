@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.17.0
+Stable tag: 1.17.1
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.17.1 =
+**Fix: Schema & Meta tab now fully readable in dark admin color schemes**
+
+* Fix: In the Modern and Midnight WordPress admin color schemes, several sections of the Schema & Meta tab (the Person/Organization/Product/Event/Recipe/LocalBusiness detail panels, the "Also describe this page as" picker, the info and warning notices, and the Schema Markup Output card) kept light backgrounds while their text was rendered light — making them hard to read. These sections now darken to match the Meta Robots card, with readable light text throughout. The Facebook/X social share previews are intentionally kept light so they still resemble those platforms.
 
 = 1.17.0 =
 **Linked author (Person) schema for E-E-A-T — parity with Yoast/Rank Math**
