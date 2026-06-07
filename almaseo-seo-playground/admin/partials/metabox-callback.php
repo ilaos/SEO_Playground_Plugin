@@ -397,9 +397,9 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     <span class="tab-icon">🧩</span>
                     <span class="tab-label">Schema & Meta</span>
                 </button>
-                <button type="button" class="almaseo-tab-btn" data-tab="ai-tools">
-                    <span class="tab-icon">✨</span>
-                    <span class="tab-label">Alma Tools</span>
+                <button type="button" class="almaseo-tab-btn" data-tab="analytics">
+                    <span class="tab-icon">📊</span>
+                    <span class="tab-label">Analytics</span>
                 </button>
                 <button type="button" class="almaseo-tab-btn" data-tab="llm-optimization">
                     <span class="tab-icon">🤖</span>
@@ -4042,65 +4042,482 @@ function almaseo_seo_playground_meta_box_callback($post) {
         </div>
         <!-- End Schema & Meta Tab -->
         
-        <!-- AI Tools Tab -->
-        <div class="almaseo-tab-panel" id="tab-ai-tools">
-            <!-- AI Tools — Coming Soon (all tiers see the same view) -->
-            <div class="almaseo-ai-upsell-screen">
-                <div class="upsell-hero">
-                    <h2>Alma-Powered SEO Tools</h2>
-                    <p class="upsell-subtitle">
-                        These tools are in active development. When ready, they’ll help you optimize content directly from the editor.
-                    </p>
-                </div>
+        <!-- Analytics Tab -->
+        <div class="almaseo-tab-panel" id="tab-analytics">
+            <?php
+            $ga_page_url = get_permalink($post->ID);
+            $ga_post_id  = $post->ID;
+            ?>
 
-                <div class="locked-features-grid">
-                    <div class="locked-feature">
-                        <div class="feature-icon">🕐</div>
-                        <h3>✏️ Alma Rewrite</h3>
-                        <p>Rewrite and improve your content in different tones — professional, casual, friendly, and more.</p>
-                        <span class="feature-badge" style="background: #f0f6ff; color: #2271b1;">Coming Soon</span>
-                    </div>
+            <!-- ═══ GA Container — always rendered, JS manages states ═══ -->
+            <div class="almaseo-ga-container"
+                 id="almaseo-ga-container"
+                 data-post-id="<?php echo esc_attr($ga_post_id); ?>"
+                 data-page-url="<?php echo esc_attr($ga_page_url); ?>"
+                 data-nonce="<?php echo esc_attr(wp_create_nonce('almaseo_ga_nonce')); ?>"
+                 data-connected="<?php echo esc_attr($is_connected ? '1' : '0'); ?>">
 
-                    <div class="locked-feature">
-                        <div class="feature-icon">🕐</div>
-                        <h3>💡 Alma Title Generator</h3>
-                        <p>Generate SEO-optimized title suggestions based on your post content.</p>
-                        <span class="feature-badge" style="background: #f0f6ff; color: #2271b1;">Coming Soon</span>
-                    </div>
-
-                    <div class="locked-feature">
-                        <div class="feature-icon">🕐</div>
-                        <h3>📝 Alma Meta Description Generator</h3>
-                        <p>Create optimized meta descriptions constrained to the ideal 155–160 character length.</p>
-                        <span class="feature-badge" style="background: #f0f6ff; color: #2271b1;">Coming Soon</span>
-                    </div>
-                </div>
-
-                <?php if (!$is_connected): ?>
-                <div class="upsell-benefits">
-                    <h3>Why Connect to AlmaSEO?</h3>
-                    <ul class="benefits-list">
-                        <li>✅ <strong>Instant Setup</strong> – Connect in less than 60 seconds</li>
-                        <li>✅ <strong>Full SEO Toolkit</strong> – Schema markup, sitemaps, meta management, and health scoring included free</li>
-                        <li>✅ <strong>Content Publishing</strong> – Publish articles directly from the AlmaSEO dashboard to your site</li>
-                        <li>✅ <strong>Alma Tools on the Roadmap</strong> – Rewrite, title, and meta description generators are in active development</li>
-                    </ul>
-                </div>
-
-                <div class="upsell-cta-section">
-                    <div class="cta-buttons">
-                        <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>" class="cta-btn-primary">
-                            Connect to AlmaSEO
-                        </a>
-                        <a href="https://almaseo.com" target="_blank" class="cta-btn-secondary">
-                            Visit AlmaSEO.com
+                <!-- ═══ State 1: Connection Issue (fallback) ═══ -->
+                <div class="almaseo-ga-state" id="ga-state-not-connected" style="display: none;">
+                    <div class="gsc-state-card">
+                        <div class="gsc-state-icon">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#dba617" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                <line x1="12" y1="9" x2="12" y2="13"/>
+                                <line x1="12" y1="17" x2="12.01" y2="17"/>
+                            </svg>
+                        </div>
+                        <h3 class="gsc-state-heading">AlmaSEO connection not detected</h3>
+                        <p class="gsc-state-description">
+                            The plugin couldn't verify a connection to your AlmaSEO Dashboard. Please check your connection settings.
+                        </p>
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>" class="gsc-state-btn gsc-btn-secondary">
+                            Check Connection Settings
                         </a>
                     </div>
                 </div>
-                <?php endif; ?>
+
+                <!-- ═══ State 2: Default — prompt to load GA data ═══ -->
+                <div class="almaseo-ga-state" id="ga-state-no-ga">
+                    <div class="gsc-state-card">
+                        <div class="gsc-state-icon">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 3v18h18"/>
+                                <path d="M18 17V9"/>
+                                <path d="M13 17V5"/>
+                                <path d="M8 17v-3"/>
+                            </svg>
+                        </div>
+                        <h3 class="gsc-state-heading">Google Analytics</h3>
+                        <p class="gsc-state-description">
+                            See how this page performs in Google Analytics — visitors, sessions, engagement, traffic sources, and conversions — all right here while you edit.
+                        </p>
+                        <button type="button" id="ga-connect-btn" class="gsc-state-btn gsc-btn-primary">
+                            Load Analytics Data
+                        </button>
+                        <p class="gsc-state-hint">
+                            Don't have Analytics connected yet?
+                            <a href="https://app.almaseo.com/profile/google-services" target="_blank">Connect it in your Dashboard</a>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- ═══ State 3: No GA4 property selected ═══ -->
+                <div class="almaseo-ga-state" id="ga-state-no-property" style="display: none;">
+                    <div class="gsc-state-card">
+                        <div class="gsc-state-icon">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#dba617" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-6"/>
+                            </svg>
+                        </div>
+                        <h3 class="gsc-state-heading">Pick a GA4 property</h3>
+                        <p class="gsc-state-description">
+                            Google Analytics is connected, but no GA4 property is mapped to this site yet. Choose which property this site reports to in your Dashboard.
+                        </p>
+                        <a href="https://app.almaseo.com/profile/google-services" target="_blank" class="gsc-state-btn gsc-btn-primary">
+                            Select Property in Dashboard
+                            <span class="gsc-btn-arrow">&rarr;</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- ═══ State 4: Loading ═══ -->
+                <div class="almaseo-ga-state" id="ga-state-loading" style="display: none;">
+                    <div class="gsc-state-card">
+                        <div class="gsc-loading-spinner"></div>
+                        <h3 class="gsc-state-heading">Fetching analytics…</h3>
+                        <p class="gsc-state-description">Loading Google Analytics data for this page.</p>
+                    </div>
+                    <div class="gsc-skeleton-metrics">
+                        <div class="gsc-skeleton-card"></div>
+                        <div class="gsc-skeleton-card"></div>
+                        <div class="gsc-skeleton-card"></div>
+                        <div class="gsc-skeleton-card"></div>
+                    </div>
+                </div>
+
+                <!-- ═══ State 5: No Data ═══ -->
+                <div class="almaseo-ga-state" id="ga-state-no-data" style="display: none;">
+                    <div class="gsc-state-card">
+                        <div class="gsc-state-icon">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>
+                            </svg>
+                        </div>
+                        <h3 class="gsc-state-heading">No analytics data yet</h3>
+                        <p class="gsc-state-description">
+                            This page hasn't recorded any visits in the selected time period. This is normal for newer or low-traffic pages.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- ═══ State 6: Data Available (Main View) ═══ -->
+                <div class="almaseo-ga-state" id="ga-state-data" style="display: none;">
+
+                    <div class="gsc-data-header">
+                        <div class="gsc-data-title-row">
+                            <div>
+                                <h2 class="gsc-data-title">Page Analytics</h2>
+                                <div class="gsc-page-url" id="ga-page-url" title="<?php echo esc_attr($ga_page_url); ?>">
+                                    <?php echo esc_html($ga_page_url); ?>
+                                </div>
+                            </div>
+                            <div class="gsc-index-badge gsc-badge-indexed" id="ga-property-badge">
+                                <span class="gsc-badge-dot"></span>
+                                <span id="ga-property-name">GA4</span>
+                            </div>
+                        </div>
+                        <div class="gsc-data-context">
+                            This data is specific to the page you are currently editing — not your entire site. Use it to understand how visitors find and engage with this page.
+                        </div>
+                        <div class="gsc-data-controls">
+                            <select class="gsc-date-range-selector" id="ga-date-range" aria-label="Date range">
+                                <option value="7">Last 7 days</option>
+                                <option value="28" selected>Last 28 days</option>
+                                <option value="90">Last 90 days</option>
+                            </select>
+                            <button type="button" class="gsc-refresh-btn" id="ga-refresh-btn" title="Refresh data">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Metric Cards -->
+                    <div class="ga-metrics-grid">
+                        <div class="gsc-metric-card"><div class="gsc-metric-label">Views</div><div class="gsc-metric-value" id="ga-views">--</div><div class="gsc-metric-trend" id="ga-views-trend"><span class="gsc-trend-arrow"></span><span class="gsc-trend-value"></span><span class="gsc-trend-label">vs prev</span></div></div>
+                        <div class="gsc-metric-card"><div class="gsc-metric-label">Sessions</div><div class="gsc-metric-value" id="ga-sessions">--</div><div class="gsc-metric-trend" id="ga-sessions-trend"><span class="gsc-trend-arrow"></span><span class="gsc-trend-value"></span><span class="gsc-trend-label">vs prev</span></div></div>
+                        <div class="gsc-metric-card"><div class="gsc-metric-label">Users</div><div class="gsc-metric-value" id="ga-users">--</div><div class="gsc-metric-trend" id="ga-users-trend"><span class="gsc-trend-arrow"></span><span class="gsc-trend-value"></span><span class="gsc-trend-label">vs prev</span></div></div>
+                        <div class="gsc-metric-card"><div class="gsc-metric-label">New Users</div><div class="gsc-metric-value" id="ga-newusers">--</div><div class="gsc-metric-trend" id="ga-newusers-trend"><span class="gsc-trend-arrow"></span><span class="gsc-trend-value"></span><span class="gsc-trend-label">vs prev</span></div></div>
+                        <div class="gsc-metric-card"><div class="gsc-metric-label">Engaged Sessions</div><div class="gsc-metric-value" id="ga-engaged">--</div><div class="gsc-metric-trend" id="ga-engaged-trend"><span class="gsc-trend-arrow"></span><span class="gsc-trend-value"></span><span class="gsc-trend-label">vs prev</span></div></div>
+                        <div class="gsc-metric-card"><div class="gsc-metric-label">Engagement Rate</div><div class="gsc-metric-value" id="ga-engagementrate">--</div><div class="gsc-metric-trend" id="ga-engagementrate-trend"><span class="gsc-trend-arrow"></span><span class="gsc-trend-value"></span><span class="gsc-trend-label">vs prev</span></div></div>
+                        <div class="gsc-metric-card"><div class="gsc-metric-label">Bounce Rate</div><div class="gsc-metric-value" id="ga-bounce">--</div><div class="gsc-metric-trend" id="ga-bounce-trend"><span class="gsc-trend-arrow"></span><span class="gsc-trend-value"></span><span class="gsc-trend-label">vs prev</span></div></div>
+                        <div class="gsc-metric-card"><div class="gsc-metric-label">Avg Session Duration</div><div class="gsc-metric-value" id="ga-avgduration">--</div><div class="gsc-metric-trend" id="ga-avgduration-trend"><span class="gsc-trend-arrow"></span><span class="gsc-trend-value"></span><span class="gsc-trend-label">vs prev</span></div></div>
+                        <div class="gsc-metric-card"><div class="gsc-metric-label">Avg Engagement Time</div><div class="gsc-metric-value" id="ga-engagementtime">--</div><div class="gsc-metric-trend" id="ga-engagementtime-trend"><span class="gsc-trend-arrow"></span><span class="gsc-trend-value"></span><span class="gsc-trend-label">vs prev</span></div></div>
+                        <div class="gsc-metric-card"><div class="gsc-metric-label">Events</div><div class="gsc-metric-value" id="ga-events">--</div><div class="gsc-metric-trend" id="ga-events-trend"><span class="gsc-trend-arrow"></span><span class="gsc-trend-value"></span><span class="gsc-trend-label">vs prev</span></div></div>
+                        <div class="gsc-metric-card"><div class="gsc-metric-label">Conversions</div><div class="gsc-metric-value" id="ga-conversions">--</div><div class="gsc-metric-trend"><span class="gsc-trend-label">key events</span></div></div>
+                        <div class="gsc-metric-card" id="ga-revenue-card" style="display:none;"><div class="gsc-metric-label">Revenue</div><div class="gsc-metric-value" id="ga-revenue">--</div><div class="gsc-metric-trend"><span class="gsc-trend-label">this page</span></div></div>
+                    </div>
+
+                    <!-- Trend chart -->
+                    <div class="ga-section">
+                        <div class="ga-section-header"><h3 class="gsc-queries-title">Views &amp; Sessions Over Time</h3></div>
+                        <div id="ga-trend-chart" class="ga-trend-chart"></div>
+                    </div>
+
+                    <!-- Breakdowns -->
+                    <div class="ga-breakdowns">
+                        <div class="ga-section">
+                            <div class="ga-section-header"><h3 class="gsc-queries-title">Traffic Sources</h3><span class="gsc-queries-subtitle">How visitors reached this page</span></div>
+                            <div class="gsc-queries-table-wrapper">
+                                <table class="gsc-queries-table">
+                                    <thead><tr><th class="gsc-col-query">Channel</th><th class="gsc-col-clicks">Sessions</th><th class="gsc-col-impressions">Users</th></tr></thead>
+                                    <tbody id="ga-sources-tbody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="ga-section">
+                            <div class="ga-section-header"><h3 class="gsc-queries-title">Devices</h3></div>
+                            <div class="gsc-queries-table-wrapper">
+                                <table class="gsc-queries-table">
+                                    <thead><tr><th class="gsc-col-query">Device</th><th class="gsc-col-clicks">Sessions</th><th class="gsc-col-impressions">Share</th></tr></thead>
+                                    <tbody id="ga-devices-tbody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="ga-section">
+                            <div class="ga-section-header"><h3 class="gsc-queries-title">Top Countries</h3></div>
+                            <div class="gsc-queries-table-wrapper">
+                                <table class="gsc-queries-table">
+                                    <thead><tr><th class="gsc-col-query">Country</th><th class="gsc-col-clicks">Sessions</th><th class="gsc-col-impressions">Users</th></tr></thead>
+                                    <tbody id="ga-countries-tbody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="gsc-last-updated" id="ga-last-updated"></div>
+                </div>
+
+                <!-- ═══ State 7: API Error ═══ -->
+                <div class="almaseo-ga-state" id="ga-state-error" style="display: none;">
+                    <div class="gsc-state-card">
+                        <div class="gsc-state-icon">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#d63638" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                        </div>
+                        <h3 class="gsc-state-heading">Couldn't load analytics</h3>
+                        <p class="gsc-state-description" id="ga-error-message">An error occurred while fetching Analytics data. Please try again.</p>
+                        <button type="button" class="gsc-state-btn gsc-btn-primary" id="ga-retry-btn">Retry</button>
+                    </div>
+                </div>
+
+                <!-- ═══ State 8: Token Expired ═══ -->
+                <div class="almaseo-ga-state" id="ga-state-token-expired" style="display: none;">
+                    <div class="gsc-state-card">
+                        <div class="gsc-state-icon">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#dba617" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+                            </svg>
+                        </div>
+                        <h3 class="gsc-state-heading">Analytics access needs renewal</h3>
+                        <p class="gsc-state-description">
+                            Your Google authorization has expired or been revoked. Please re-connect Google Analytics in your AlmaSEO Dashboard.
+                        </p>
+                        <a href="https://app.almaseo.com/profile/google-services" target="_blank" class="gsc-state-btn gsc-btn-primary">
+                            Re-connect in Dashboard
+                            <span class="gsc-btn-arrow">&rarr;</span>
+                        </a>
+                    </div>
+                </div>
+
             </div>
+            <!-- End almaseo-ga-container -->
+
+            <style>
+                .ga-metrics-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                    gap: 12px;
+                    padding: 16px 20px;
+                }
+                .ga-section { padding: 8px 20px 16px; }
+                .ga-section-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+                .ga-breakdowns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 0; }
+                .ga-trend-chart { width: 100%; }
+                .ga-trend-chart svg { width: 100%; height: 80px; display: block; }
+                .ga-bar-track { display: inline-block; width: 60px; height: 8px; background: #eef2f7; border-radius: 4px; overflow: hidden; vertical-align: middle; margin-right: 6px; }
+                .ga-bar-fill { display: block; height: 100%; background: #2271b1; }
+                @media (max-width: 782px) {
+                    .ga-breakdowns { grid-template-columns: 1fr; }
+                    .ga-metrics-grid { grid-template-columns: repeat(2, 1fr); }
+                }
+            </style>
+
+            <script>
+            jQuery(document).ready(function($) {
+                var $container = $('#almaseo-ga-container');
+                if (!$container.length) return;
+
+                var postId = $container.data('post-id');
+                var pageUrl = $container.data('page-url');
+                var nonce = $container.data('nonce');
+                var isConnected = $container.data('connected') === 1 || $container.data('connected') === '1';
+                var gaConfirmed = false;
+
+                function showState(stateId) {
+                    $container.find('.almaseo-ga-state').hide();
+                    $('#' + stateId).show();
+                }
+
+                if (!isConnected) {
+                    showState('ga-state-not-connected');
+                    return;
+                }
+
+                function formatNumber(n) {
+                    return Math.round(n || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                }
+                function formatPct(ratio) {
+                    return ((ratio || 0) * 100).toFixed(1) + '%';
+                }
+                function formatDuration(sec) {
+                    sec = Math.round(sec || 0);
+                    if (sec < 60) return sec + 's';
+                    var m = Math.floor(sec / 60), s = sec % 60;
+                    return m + 'm ' + s + 's';
+                }
+
+                // Update a trend indicator. invert=true means lower is better (e.g. bounce rate).
+                function updateTrend(elId, current, previous, invert) {
+                    var $el = $('#' + elId);
+                    if (previous === null || previous === undefined) {
+                        $el.find('.gsc-trend-value').text('--');
+                        $el.find('.gsc-trend-arrow').text('');
+                        return;
+                    }
+                    var diff = current - previous;
+                    var pct = previous !== 0 ? Math.abs((diff / previous) * 100).toFixed(1) : '0.0';
+                    var arrow, cls, better;
+                    if (Math.abs(diff) < 0.0001) {
+                        arrow = '→'; cls = 'gsc-trend-neutral';
+                    } else {
+                        better = invert ? (diff < 0) : (diff > 0);
+                        arrow = diff > 0 ? '↑' : '↓';
+                        cls = better ? 'gsc-trend-up' : 'gsc-trend-down';
+                    }
+                    $el.removeClass('gsc-trend-up gsc-trend-down gsc-trend-neutral').addClass(cls);
+                    $el.find('.gsc-trend-arrow').text(arrow);
+                    $el.find('.gsc-trend-value').text(pct + '%');
+                }
+
+                function renderTrendChart(trend) {
+                    var $chart = $('#ga-trend-chart').empty();
+                    if (!trend || !trend.length) { $chart.html('<p style="color:#94a3b8;font-size:12px;text-align:center;padding:20px;">No daily data.</p>'); return; }
+                    var W = 600, H = 80, pad = 4;
+                    var max = Math.max.apply(null, trend.map(function(d){ return d.views; })) || 1;
+                    var n = trend.length;
+                    var stepX = n > 1 ? (W - pad * 2) / (n - 1) : 0;
+                    function y(v){ return H - pad - (v / max) * (H - pad * 2); }
+                    var pts = trend.map(function(d, i){ return (pad + i * stepX).toFixed(1) + ',' + y(d.views).toFixed(1); });
+                    var area = 'M' + (pad) + ',' + (H - pad) + ' L' + pts.join(' L') + ' L' + (pad + (n - 1) * stepX).toFixed(1) + ',' + (H - pad) + ' Z';
+                    var line = 'M' + pts.join(' L');
+                    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">' +
+                        '<path d="' + area + '" fill="rgba(34,113,177,0.12)" />' +
+                        '<path d="' + line + '" fill="none" stroke="#2271b1" stroke-width="2" vector-effect="non-scaling-stroke" />' +
+                        '</svg>';
+                    $chart.html(svg);
+                }
+
+                function renderTable(tbodyId, rows, cols, withBar) {
+                    var $tbody = $('#' + tbodyId).empty();
+                    if (!rows || !rows.length) {
+                        $tbody.append('<tr><td colspan="3" style="text-align:center;color:#94a3b8;padding:16px;">No data</td></tr>');
+                        return;
+                    }
+                    var total = 0;
+                    if (withBar) { rows.forEach(function(r){ total += (r[cols[1]] || 0); }); }
+                    rows.forEach(function(r) {
+                        var c2;
+                        if (withBar) {
+                            var share = total ? Math.round((r[cols[1]] / total) * 100) : 0;
+                            c2 = '<span class="ga-bar-track"><span class="ga-bar-fill" style="width:' + share + '%"></span></span>' + share + '%';
+                        } else {
+                            c2 = formatNumber(r[cols[2]]);
+                        }
+                        $tbody.append(
+                            '<tr>' +
+                            '<td class="gsc-col-query">' + $('<span>').text(r.label || '(not set)').html() + '</td>' +
+                            '<td class="gsc-col-clicks">' + formatNumber(r[cols[1]]) + '</td>' +
+                            '<td class="gsc-col-impressions">' + c2 + '</td>' +
+                            '</tr>'
+                        );
+                    });
+                }
+
+                function renderData(data) {
+                    var m = data.metrics, p = data.previous;
+                    gaConfirmed = true;
+
+                    if (data.property && data.property.name) {
+                        $('#ga-property-name').text(data.property.name);
+                    }
+
+                    $('#ga-views').text(formatNumber(m.screenPageViews));
+                    $('#ga-sessions').text(formatNumber(m.sessions));
+                    $('#ga-users').text(formatNumber(m.activeUsers));
+                    $('#ga-newusers').text(formatNumber(m.newUsers));
+                    $('#ga-engaged').text(formatNumber(m.engagedSessions));
+                    $('#ga-engagementrate').text(formatPct(m.engagementRate));
+                    $('#ga-bounce').text(formatPct(m.bounceRate));
+                    $('#ga-avgduration').text(formatDuration(m.averageSessionDuration));
+                    $('#ga-events').text(formatNumber(m.eventCount));
+
+                    var engTime = m.activeUsers ? (m.userEngagementDuration / m.activeUsers) : 0;
+                    $('#ga-engagementtime').text(formatDuration(engTime));
+
+                    if (data.conversions !== null && data.conversions !== undefined) {
+                        $('#ga-conversions').text(formatNumber(data.conversions));
+                    } else {
+                        $('#ga-conversions').text('--');
+                    }
+                    if (data.total_revenue && data.total_revenue > 0) {
+                        $('#ga-revenue-card').show();
+                        $('#ga-revenue').text('$' + Number(data.total_revenue).toFixed(2));
+                    } else {
+                        $('#ga-revenue-card').hide();
+                    }
+
+                    if (p) {
+                        updateTrend('ga-views-trend', m.screenPageViews, p.screenPageViews);
+                        updateTrend('ga-sessions-trend', m.sessions, p.sessions);
+                        updateTrend('ga-users-trend', m.activeUsers, p.activeUsers);
+                        updateTrend('ga-newusers-trend', m.newUsers, p.newUsers);
+                        updateTrend('ga-engaged-trend', m.engagedSessions, p.engagedSessions);
+                        updateTrend('ga-engagementrate-trend', m.engagementRate, p.engagementRate);
+                        updateTrend('ga-bounce-trend', m.bounceRate, p.bounceRate, true);
+                        updateTrend('ga-avgduration-trend', m.averageSessionDuration, p.averageSessionDuration);
+                        updateTrend('ga-events-trend', m.eventCount, p.eventCount);
+                        var prevEng = p.activeUsers ? (p.userEngagementDuration / p.activeUsers) : 0;
+                        updateTrend('ga-engagementtime-trend', engTime, prevEng);
+                    }
+
+                    renderTrendChart(data.trend);
+                    renderTable('ga-sources-tbody', data.sources, ['label', 'sessions', 'activeUsers'], false);
+                    renderTable('ga-devices-tbody', data.devices, ['label', 'sessions', 'sessions'], true);
+                    renderTable('ga-countries-tbody', data.countries, ['label', 'sessions', 'activeUsers'], false);
+
+                    $('#ga-last-updated').text('Data through: ' + (data.last_updated || 'today'));
+                    showState('ga-state-data');
+                }
+
+                function handleError(data) {
+                    var msg = (data && data.message) ? data.message : 'An unexpected error occurred.';
+                    $('#ga-error-message').text(msg);
+                    showState('ga-state-error');
+                }
+
+                function fetchGAData() {
+                    var days = $('#ga-date-range').val() || 28;
+                    showState('ga-state-loading');
+                    $.ajax({
+                        url: ajaxurl,
+                        type: 'POST',
+                        data: {
+                            action: 'almaseo_fetch_ga_page_data',
+                            nonce: nonce,
+                            post_id: postId,
+                            page_url: pageUrl,
+                            days: days
+                        },
+                        timeout: 30000,
+                        success: function(response) {
+                            if (!response.success) { handleError(response.data); return; }
+                            var d = response.data;
+                            if (d.status === 'ga_not_connected') {
+                                showState('ga-state-no-ga');
+                            } else if (d.status === 'no_property') {
+                                showState('ga-state-no-property');
+                            } else if (d.status === 'token_expired') {
+                                showState('ga-state-token-expired');
+                            } else if (d.status === 'no_data') {
+                                showState('ga-state-no-data');
+                            } else if (d.status === 'ok') {
+                                renderData(d);
+                            } else {
+                                handleError({ message: 'Unexpected response from server.' });
+                            }
+                        },
+                        error: function(xhr, status) {
+                            var msg = status === 'timeout'
+                                ? 'The request timed out. Please try again.'
+                                : 'Could not reach the server. Check your connection.';
+                            handleError({ message: msg });
+                        }
+                    });
+                }
+
+                $('#ga-date-range').on('change', function() { if (gaConfirmed) fetchGAData(); });
+                $('#ga-refresh-btn').on('click', function() {
+                    if (!gaConfirmed) return;
+                    $(this).addClass('spinning');
+                    fetchGAData();
+                    setTimeout(function() { $('#ga-refresh-btn').removeClass('spinning'); }, 1000);
+                });
+                $('#ga-retry-btn').on('click', fetchGAData);
+                $(document).on('click', '#ga-connect-btn', function(e) { e.preventDefault(); fetchGAData(); });
+
+                $(document).on('click', '.almaseo-tab-btn[data-tab="analytics"]', function() {
+                    if (gaConfirmed) fetchGAData();
+                });
+            });
+            </script>
         </div>
-        <!-- End AI Tools Tab -->
+        <!-- End Analytics Tab -->
 
         <!-- LLM Optimization Tab -->
         <div class="almaseo-tab-panel" id="tab-llm-optimization">
