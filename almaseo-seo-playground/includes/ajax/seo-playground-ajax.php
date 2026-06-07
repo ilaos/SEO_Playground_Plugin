@@ -1839,3 +1839,75 @@ function almaseo_ajax_lb_fill_from_profile() {
     wp_send_json_success(array('fields' => $fields, 'hours' => $hours));
 }
 } // end function_exists guard: almaseo_ajax_lb_fill_from_profile
+
+/* ────────────────────────────────────────────────────────────────────────
+ * Person schema panel — "Fill from user".
+ * Maps a chosen WordPress user's profile onto the Person schema metabox
+ * fields so an editor can one-click populate name/job title/photo/links
+ * instead of retyping them. Reuses the same author profile meta
+ * (almaseo_author_job_title / almaseo_author_image / almaseo_author_same_as)
+ * that powers the linked-author schema, so the two stay consistent.
+ * Note: the Person node's display name comes from the page title, so it is
+ * intentionally not returned here.
+ * ──────────────────────────────────────────────────────────────────────── */
+add_action('wp_ajax_almaseo_person_fill_from_user', 'almaseo_ajax_person_fill_from_user');
+if (!function_exists('almaseo_ajax_person_fill_from_user')) {
+function almaseo_ajax_person_fill_from_user() {
+    if (!check_ajax_referer('almaseo_person_fill', 'nonce', false)) {
+        wp_send_json_error(array('message' => 'Security check failed.'));
+    }
+    if (!current_user_can('edit_posts') || !current_user_can('list_users')) {
+        wp_send_json_error(array('message' => 'Insufficient permissions.'));
+    }
+
+    $user_id = isset($_POST['user_id']) ? absint($_POST['user_id']) : 0;
+    $user    = $user_id ? get_userdata($user_id) : false;
+    if (!$user) {
+        wp_send_json_error(array('message' => 'User not found.'));
+    }
+
+    // Given/family name: prefer the dedicated WP name fields, fall back to
+    // splitting the display name.
+    $first = get_user_meta($user_id, 'first_name', true);
+    $last  = get_user_meta($user_id, 'last_name', true);
+    if (!$first && !$last && $user->display_name) {
+        $parts = preg_split('/\s+/', trim($user->display_name), 2);
+        $first = isset($parts[0]) ? $parts[0] : '';
+        $last  = isset($parts[1]) ? $parts[1] : '';
+    }
+
+    // Photo: explicit author photo, else avatar/Gravatar.
+    $image = get_user_meta($user_id, 'almaseo_author_image', true);
+    if (!$image && function_exists('get_avatar_url')) {
+        $image = get_avatar_url($user_id, array('size' => 192));
+    }
+
+    // sameAs: the profile website plus the AlmaSEO author social URLs.
+    $same_as = array();
+    if (!empty($user->user_url)) {
+        $same_as[] = $user->user_url;
+    }
+    $extra = get_user_meta($user_id, 'almaseo_author_same_as', true);
+    if ($extra) {
+        foreach (preg_split('/\r\n|\r|\n/', $extra) as $line) {
+            $line = trim($line);
+            if ($line !== '') {
+                $same_as[] = $line;
+            }
+        }
+    }
+    $same_as = array_values(array_unique(array_filter($same_as)));
+
+    // Keys are the Person metabox input name="" attributes.
+    $fields = array(
+        'almaseo_person_given_name'  => $first,
+        'almaseo_person_family_name' => $last,
+        'almaseo_person_job_title'   => get_user_meta($user_id, 'almaseo_author_job_title', true),
+        'almaseo_person_email'       => $user->user_email,
+        'almaseo_person_image'       => $image,
+        'almaseo_person_same_as'     => implode("\n", $same_as),
+    );
+
+    wp_send_json_success(array('fields' => $fields));
+}
+} // end function_exists guard: almaseo_ajax_person_fill_from_user

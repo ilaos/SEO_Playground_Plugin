@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.17.1
+Stable tag: 1.18.0
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,13 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.18.0 =
+**Author identity enhancements (E-E-A-T)**
+
+* New: Added an **Author Photo URL** field to the WordPress user profile (Users → Edit → "AlmaSEO Author Details"). The author Person schema now uses this photo when set, and only falls back to the Gravatar/avatar when it is blank — so a real author photo no longer depends on Gravatar.
+* New: The **Person** schema type panel now includes step-by-step guidance explaining where each value comes from (name from the page title, URL from the permalink) and which fields carry the strongest E-E-A-T signals.
+* New: Added a **"Populate from user"** dropdown to the Person schema panel. Pick any WordPress user and one click fills the given/family name, job title, email, photo, and verified profile links (Same As) from their profile — reusing the same author details that power the linked-author schema. All fields stay editable afterward.
 
 = 1.17.1 =
 **Fix: Schema & Meta tab now fully readable in dark admin color schemes**

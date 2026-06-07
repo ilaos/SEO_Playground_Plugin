@@ -342,15 +342,17 @@ function almaseo_build_author_person_node($post) {
         $node['description'] = $bio;
     }
 
-    // Avatar as the author's image.
-    if (function_exists('get_avatar_url')) {
-        $avatar = get_avatar_url($author_id, array('size' => 192));
-        if ($avatar) {
-            $node['image'] = array(
-                '@type' => 'ImageObject',
-                'url'   => $avatar,
-            );
-        }
+    // Image — an explicit Author Photo URL (set on the user profile) wins;
+    // otherwise fall back to the WordPress avatar / Gravatar.
+    $author_image = get_the_author_meta('almaseo_author_image', $author_id);
+    if (!$author_image && function_exists('get_avatar_url')) {
+        $author_image = get_avatar_url($author_id, array('size' => 192));
+    }
+    if ($author_image) {
+        $node['image'] = array(
+            '@type' => 'ImageObject',
+            'url'   => $author_image,
+        );
     }
 
     // worksFor — reference the site's brand identity (the #identity Organization

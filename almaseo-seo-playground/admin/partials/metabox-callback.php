@@ -2896,9 +2896,66 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             <div id="almaseo-person-fields" style="<?php echo esc_attr(($show_person ? '' : 'display:none; ') . 'margin-top: 15px; padding: 15px; background: #f9fafb; border: 1px solid #e2e4e7; border-radius: 6px;'); ?>">
                                 <h4 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 600; color: #1d2327;">👤 <?php esc_html_e('Person Profile Details', 'almaseo-seo-playground'); ?></h4>
 
-                                <div style="margin-bottom: 14px; padding: 10px 12px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 12px; color: #475569; line-height: 1.5;">
-                                    <?php esc_html_e('Use these fields when the page represents a person — author profile, public figure, team member, speaker, etc. The post title becomes the person\'s name and the URL is their canonical profile URL.', 'almaseo-seo-playground'); ?>
+                                <div style="margin-bottom: 12px; padding: 10px 12px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 12px; color: #475569; line-height: 1.6;">
+                                    <?php esc_html_e('Use these fields when the page represents a person — author profile, public figure, team member, speaker, etc.', 'almaseo-seo-playground'); ?>
+                                    <ul style="margin: 6px 0 0 0; padding-left: 18px;">
+                                        <li><?php esc_html_e('The person\'s name comes from this page\'s title, and the profile URL is this page\'s permalink.', 'almaseo-seo-playground'); ?></li>
+                                        <li><?php esc_html_e('A headshot, job title, areas of expertise (Knows About) and verified profile links (Same As) are the strongest E-E-A-T signals — fill in as many as you can.', 'almaseo-seo-playground'); ?></li>
+                                        <li><?php esc_html_e('To reuse a WordPress user\'s details, pick them below and click "Fill from user." You can edit anything afterward. Manage a user\'s photo, bio, job title and links under Users → Profile.', 'almaseo-seo-playground'); ?></li>
+                                    </ul>
                                 </div>
+
+                                <?php if ( current_user_can( 'list_users' ) ) :
+                                    $almaseo_person_users = get_users( array( 'fields' => array( 'ID', 'display_name' ), 'number' => 200, 'orderby' => 'display_name' ) );
+                                    if ( ! empty( $almaseo_person_users ) ) : ?>
+                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; padding: 10px 12px; background: linear-gradient(135deg, #eef5ff 0%, #f5f0ff 100%); border: 1px solid #c7d7f0; border-radius: 6px;">
+                                    <label for="almaseo-person-user-select" style="font-size: 12px; font-weight: 600; margin: 0;"><?php esc_html_e( 'Populate from user:', 'almaseo-seo-playground' ); ?></label>
+                                    <select id="almaseo-person-user-select" class="almaseo-select" style="flex: 1; min-width: 150px; max-width: 240px;">
+                                        <option value=""><?php esc_html_e( '— Select a user —', 'almaseo-seo-playground' ); ?></option>
+                                        <?php foreach ( $almaseo_person_users as $almaseo_pu ) {
+                                            echo '<option value="' . esc_attr( $almaseo_pu->ID ) . '">' . esc_html( $almaseo_pu->display_name ) . '</option>';
+                                        } ?>
+                                    </select>
+                                    <button type="button" class="button button-secondary" id="almaseo-person-fill-btn" data-nonce="<?php echo esc_attr( wp_create_nonce( 'almaseo_person_fill' ) ); ?>">
+                                        <span class="dashicons dashicons-admin-users" style="vertical-align: middle;"></span>
+                                        <?php esc_html_e( 'Fill from user', 'almaseo-seo-playground' ); ?>
+                                    </button>
+                                    <span id="almaseo-person-fill-status" style="font-size: 11px; flex-basis: 100%; line-height: 1.5;"></span>
+                                </div>
+                                <script>
+                                (function(){
+                                    var btn = document.getElementById('almaseo-person-fill-btn');
+                                    if (!btn || btn.dataset.bound) { return; }
+                                    btn.dataset.bound = '1';
+                                    var statusEl = document.getElementById('almaseo-person-fill-status');
+                                    function setStatus(msg, color){ if (statusEl){ statusEl.textContent = msg; statusEl.style.color = color; } }
+                                    btn.addEventListener('click', function(){
+                                        var sel = document.getElementById('almaseo-person-user-select');
+                                        var uid = sel ? sel.value : '';
+                                        if (!uid) { setStatus('<?php echo esc_js( __( 'Pick a user first.', 'almaseo-seo-playground' ) ); ?>', '#b3801e'); return; }
+                                        var orig = btn.innerHTML; btn.disabled = true;
+                                        setStatus('<?php echo esc_js( __( 'Loading…', 'almaseo-seo-playground' ) ); ?>', '#475569');
+                                        fetch(ajaxurl, {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                                            body: new URLSearchParams({ action: 'almaseo_person_fill_from_user', nonce: btn.dataset.nonce, user_id: uid })
+                                        })
+                                        .then(function(r){ return r.json(); })
+                                        .then(function(res){
+                                            btn.disabled = false; btn.innerHTML = orig;
+                                            if (!res || !res.success) { setStatus((res && res.data && res.data.message) ? res.data.message : '<?php echo esc_js( __( 'Could not load that user.', 'almaseo-seo-playground' ) ); ?>', '#b32d2e'); return; }
+                                            var fields = res.data.fields || {}; var filled = 0;
+                                            Object.keys(fields).forEach(function(name){
+                                                var el = document.querySelector('#almaseo-person-fields [name="' + name + '"]');
+                                                if (el && fields[name]) { el.value = fields[name]; filled++; }
+                                            });
+                                            setStatus(filled + ' <?php echo esc_js( __( 'field(s) filled from the user profile. Review, then click Update to save. (The person\'s name still comes from the page title.)', 'almaseo-seo-playground' ) ); ?>', '#1e7e34');
+                                        })
+                                        .catch(function(){ btn.disabled = false; btn.innerHTML = orig; setStatus('<?php echo esc_js( __( 'Network error.', 'almaseo-seo-playground' ) ); ?>', '#b32d2e'); });
+                                    });
+                                })();
+                                </script>
+                                <?php endif; endif; ?>
 
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
                                     <div>

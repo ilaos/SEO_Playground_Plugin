@@ -35,12 +35,13 @@ function almaseo_render_author_profile_fields( $user ) {
         return;
     }
 
-    $job_title = get_user_meta( $user->ID, 'almaseo_author_job_title', true );
-    $same_as   = get_user_meta( $user->ID, 'almaseo_author_same_as', true );
+    $job_title    = get_user_meta( $user->ID, 'almaseo_author_job_title', true );
+    $author_image = get_user_meta( $user->ID, 'almaseo_author_image', true );
+    $same_as      = get_user_meta( $user->ID, 'almaseo_author_same_as', true );
     ?>
     <h2><?php esc_html_e( 'AlmaSEO Author Details', 'almaseo-seo-playground' ); ?></h2>
     <p class="description" style="margin-bottom: 12px;">
-        <?php esc_html_e( 'Optional. These enrich the author (Person) schema on posts written by this user, strengthening E-E-A-T signals. Name, bio, and avatar are taken from the fields above automatically.', 'almaseo-seo-playground' ); ?>
+        <?php esc_html_e( 'Optional. These enrich the author (Person) schema on posts written by this user, strengthening E-E-A-T signals. Name and bio are taken from the fields above automatically; the photo falls back to the avatar/Gravatar above when no Author Photo URL is set.', 'almaseo-seo-playground' ); ?>
     </p>
     <table class="form-table" role="presentation">
         <tr>
@@ -55,6 +56,20 @@ function almaseo_render_author_profile_fields( $user ) {
                        class="regular-text"
                        placeholder="<?php esc_attr_e( 'e.g. Founder & Principal', 'almaseo-seo-playground' ); ?>" />
                 <p class="description"><?php esc_html_e( 'Added to the author schema as jobTitle.', 'almaseo-seo-playground' ); ?></p>
+            </td>
+        </tr>
+        <tr>
+            <th>
+                <label for="almaseo_author_image"><?php esc_html_e( 'Author Photo URL', 'almaseo-seo-playground' ); ?></label>
+            </th>
+            <td>
+                <input type="url"
+                       name="almaseo_author_image"
+                       id="almaseo_author_image"
+                       value="<?php echo esc_attr( $author_image ); ?>"
+                       class="regular-text"
+                       placeholder="https://example.com/author-photo.jpg" />
+                <p class="description"><?php esc_html_e( 'Optional. Used as the author photo in schema (Person image). If left blank, the WordPress avatar / Gravatar is used instead. Recommended: a square image, at least 192x192px.', 'almaseo-seo-playground' ); ?></p>
             </td>
         </tr>
         <tr>
@@ -97,6 +112,16 @@ function almaseo_save_author_profile_fields( $user_id ) {
             update_user_meta( $user_id, 'almaseo_author_job_title', $job_title );
         } else {
             delete_user_meta( $user_id, 'almaseo_author_job_title' );
+        }
+    }
+
+    // Author photo URL — single sanitized URL (overrides the avatar in schema).
+    if ( isset( $_POST['almaseo_author_image'] ) ) {
+        $image = esc_url_raw( trim( wp_unslash( $_POST['almaseo_author_image'] ) ) );
+        if ( $image !== '' ) {
+            update_user_meta( $user_id, 'almaseo_author_image', $image );
+        } else {
+            delete_user_meta( $user_id, 'almaseo_author_image' );
         }
     }
 
