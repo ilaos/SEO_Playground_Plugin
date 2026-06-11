@@ -36,6 +36,9 @@
             
             // Reset to WP default button
             $('#reset-wp-default').on('click', this.resetWPDefault.bind(this));
+
+            // Delete physical file button
+            $('#delete-physical-file').on('click', this.deletePhysicalFile.bind(this));
             
             // Auto-save indicator
             var saveTimeout;
@@ -254,6 +257,37 @@
             });
         },
         
+        /**
+         * Delete the physical robots.txt file (content is preserved as the
+         * virtual robots.txt server-side before deletion).
+         */
+        deletePhysicalFile: function(e) {
+            e.preventDefault();
+
+            if (!confirm(almaseoRobots.strings.confirmDelete)) {
+                return;
+            }
+
+            var $button = $('#delete-physical-file');
+            $button.prop('disabled', true);
+
+            $.post(almaseoRobots.ajaxurl, {
+                action: 'almaseo_robots_delete_file',
+                nonce: almaseoRobots.nonce
+            }, function(response) {
+                if (response.success) {
+                    alert(response.data.message);
+                    window.location.reload();
+                } else {
+                    $button.prop('disabled', false);
+                    alert((response.data && response.data.message) || almaseoRobots.strings.error);
+                }
+            }).fail(function() {
+                $button.prop('disabled', false);
+                alert(almaseoRobots.strings.error);
+            });
+        },
+
         /**
          * Update status display
          */

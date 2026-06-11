@@ -32,6 +32,12 @@ $physical_content = '';
 if ($physical_exists) {
     $physical_content = $controller->read_physical_file();
 }
+
+// In Physical mode the file itself is the source of truth — edit what is
+// actually on disk, not the (possibly stale) option backup.
+if ($mode === 'file' && $physical_exists && $physical_content !== '') {
+    $content = $physical_content;
+}
 ?>
 
 <div class="wrap almaseo-robots-editor">
@@ -197,7 +203,12 @@ if ($physical_exists) {
                 <pre class="physical-content"><?php echo esc_html($physical_content); ?></pre>
             </div>
             <p class="description">
-                <?php echo esc_html__('To edit this content, switch to Physical mode above.', 'almaseo-seo-playground'); ?>
+                <?php echo esc_html__('To edit this content, switch to Physical mode above. Or delete the file to start serving your virtual robots.txt — its content is preserved as the virtual content first, so the served rules do not change.', 'almaseo-seo-playground'); ?>
+            </p>
+            <p>
+                <button type="button" class="button" id="delete-physical-file">
+                    <?php echo esc_html__('Delete Physical File & Use Virtual Mode', 'almaseo-seo-playground'); ?>
+                </button>
             </p>
         </div>
         <?php endif; ?>

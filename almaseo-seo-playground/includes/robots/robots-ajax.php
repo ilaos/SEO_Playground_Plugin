@@ -161,6 +161,37 @@ function almaseo_ajax_robots_get_default() {
 }
 
 /**
+ * AJAX handler for deleting the physical robots.txt file
+ */
+add_action('wp_ajax_almaseo_robots_delete_file', 'almaseo_ajax_robots_delete_file');
+function almaseo_ajax_robots_delete_file() {
+    // Check nonce
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'almaseo_robots_nonce')) {
+        wp_send_json_error(array('message' => __('Security check failed.', 'almaseo-seo-playground')));
+    }
+
+    // Check permissions
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error(array('message' => __('Insufficient permissions.', 'almaseo-seo-playground')));
+    }
+
+    $controller = AlmaSEO_Robots_Controller::get_instance();
+
+    $result = $controller->delete_physical_file();
+
+    if (is_wp_error($result)) {
+        wp_send_json_error(array('message' => $result->get_error_message()));
+    }
+
+    // Make sure we serve something sensible afterwards.
+    update_option('almaseo_robots_mode', 'virtual');
+
+    wp_send_json_success(array(
+        'message' => __('Physical robots.txt deleted. Its content was preserved as your virtual robots.txt, which is now being served.', 'almaseo-seo-playground')
+    ));
+}
+
+/**
  * AJAX handler for checking file status
  */
 add_action('wp_ajax_almaseo_robots_check_status', 'almaseo_ajax_robots_check_status');

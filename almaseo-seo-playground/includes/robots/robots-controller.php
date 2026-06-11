@@ -119,7 +119,8 @@ class AlmaSEO_Robots_Controller {
                 'error' => __('An error occurred. Please try again.', 'almaseo-seo-playground'),
                 'testing' => __('Testing output...', 'almaseo-seo-playground'),
                 'confirmReset' => __('Are you sure you want to reset to WordPress default?', 'almaseo-seo-playground'),
-                'fileWarning' => __('Warning: A physical robots.txt file exists. WordPress will serve it regardless of virtual mode settings.', 'almaseo-seo-playground')
+                'fileWarning' => __('Warning: A physical robots.txt file exists. WordPress will serve it regardless of virtual mode settings.', 'almaseo-seo-playground'),
+                'confirmDelete' => __('Delete the physical robots.txt file? Its content will be preserved as your virtual robots.txt so the served rules do not change.', 'almaseo-seo-playground')
             )
         ));
     }
@@ -139,8 +140,15 @@ class AlmaSEO_Robots_Controller {
      * Filter robots.txt output
      */
     public function filter_robots_txt($output, $public) {
+        // Respect "Discourage search engines from indexing this site" —
+        // never replace core's Disallow: / privacy output. ($public is the
+        // blog_public option value: '0' is falsy.)
+        if (!$public) {
+            return $output;
+        }
+
         $mode = get_option('almaseo_robots_mode', 'virtual');
-        
+
         // If physical mode or file exists, don't filter
         if ($mode === 'file' || $this->physical_file_exists()) {
             return $output;
@@ -294,19 +302,53 @@ class AlmaSEO_Robots_Controller {
      * Get current robots.txt output
      */
     public function get_current_output() {
-        $mode = get_option('almaseo_robots_mode', 'virtual');
-        
-        // If physical file exists and we're not in file mode
-        if ($this->physical_file_exists() && $mode !== 'file') {
+        // A physical file is always what the web server serves, regardless
+        // of the selected mode — preview it as-is.
+        if ($this->physical_file_exists()) {
             return $this->read_physical_file();
         }
-        
+
         // Get the filtered output
         ob_start();
         do_robots();
         $output = ob_get_clean();
-        
+
         return $output;
+    }
+
+    /**
+     * Delete the physical robots.txt file.
+     *
+     * The file content is preserved in the virtual content option first
+     * (when that option is empty) so the served rules don't change.
+     *
+     * @return true|WP_Error
+     */
+    public function delete_physical_file() {
+        if (!$this->physical_file_exists()) {
+            return true;
+        }
+
+        // Preserve content as virtual backup before deleting.
+        $existing_virtual = get_option('almaseo_robots_content', '');
+        if (empty($existing_virtual)) {
+            $file_content = $this->read_physical_file();
+            if (!empty($file_content)) {
+                update_option('almaseo_robots_content', $this->sanitize_robots_content($file_content));
+            }
+        }
+
+        global $wp_filesystem;
+        if (!function_exists('WP_Filesystem')) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+        }
+        WP_Filesystem();
+
+        if (!$wp_filesystem || !$wp_filesystem->delete($this->get_robots_file_path())) {
+            return new WP_Error('delete_failed', __('Could not delete the robots.txt file. Please check file permissions or remove it manually.', 'almaseo-seo-playground'));
+        }
+
+        return true;
     }
 }
 
