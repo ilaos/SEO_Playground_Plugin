@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.0
+Stable tag: 1.19.1
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,18 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.1 =
+**Import & Migrate audit fixes**
+
+* Fix: Imported taxonomy term SEO data (Step 2) now actually affects your site — category/tag/term pages use the imported per-term SEO title, meta description, canonical URL, noindex flag, and Open Graph title/description. Previously the data was stored but never read.
+* Fix: Rank Math redirect import no longer stops early or re-reads rows when redirect rules use regex matching or multiple source patterns — all exact-match rules are now imported.
+* Fix: Yoast Premium redirect import now skips regex redirects instead of importing them as broken exact-match rules.
+* Fix: Redirection-plugin import now skips regex rules and disabled redirects.
+* Fix: AIOSEO taxonomy term import was silently failing on sites where the aioseo_terms table lacked an expected column (the canonical column is `canonical_url`); the query is now column-defensive like the post importer.
+* Fix: Redirect detection counts now match what will actually be imported (enabled AIOSEO rules, URL-action Redirection rules).
+* Fix: Taxonomy archive canonical output no longer risks a fatal error when the term link cannot be resolved.
+* Fix: Corrected malformed HTML in the Import page's overwrite description.
 
 = 1.19.0 =
 **Per-page Google Analytics in the editor**

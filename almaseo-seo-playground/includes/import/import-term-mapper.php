@@ -271,10 +271,26 @@ class AlmaSEO_Import_Term_Mapper {
             return array();
         }
 
+        // Check which columns actually exist (AIOSEO versions vary — and the
+        // canonical column is `canonical_url`, mirroring aioseo_posts).
+        $columns = array(
+            'term_id', 'title', 'description', 'canonical_url',
+            'robots_noindex', 'og_title', 'og_description',
+        );
+        $actual_columns = $wpdb->get_col( "DESCRIBE `{$table}`", 0 ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        $select_columns = array_intersect( $columns, $actual_columns );
+
+        if ( ! in_array( 'term_id', $select_columns, true ) ) {
+            return array();
+        }
+
+        $select = implode( ', ', array_map( function ( $col ) {
+            return '`' . $col . '`';
+        }, $select_columns ) );
+
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $results = $wpdb->get_results( $wpdb->prepare(
-            "SELECT term_id, title, description, canonical, robots_noindex,
-                    og_title, og_description
+            "SELECT {$select}
              FROM `{$table}`
              WHERE (title != '' AND title IS NOT NULL)
                 OR (description != '' AND description IS NOT NULL)
@@ -294,7 +310,7 @@ class AlmaSEO_Import_Term_Mapper {
                 'term_id'     => (int) $row['term_id'],
                 'title'       => isset( $row['title'] ) ? $row['title'] : '',
                 'description' => isset( $row['description'] ) ? $row['description'] : '',
-                'canonical'   => isset( $row['canonical'] ) ? $row['canonical'] : '',
+                'canonical'   => isset( $row['canonical_url'] ) ? $row['canonical_url'] : '',
                 'noindex'     => ( isset( $row['robots_noindex'] ) && $row['robots_noindex'] ) ? '1' : '',
                 'og_title'    => isset( $row['og_title'] ) ? $row['og_title'] : '',
                 'og_desc'     => isset( $row['og_description'] ) ? $row['og_description'] : '',

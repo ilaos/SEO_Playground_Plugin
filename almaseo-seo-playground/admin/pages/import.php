@@ -62,7 +62,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                         </label>
                         <p class="description" style="color:#b32d2e; margin-top:4px;">
                             <?php esc_html_e( 'Re-importing? Check this box to replace previously imported data with clean, resolved values.', 'almaseo-seo-playground' ); ?>
-                        </label>
+                        </p>
                     </td>
                 </tr>
             </table>

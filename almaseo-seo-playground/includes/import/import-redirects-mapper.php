@@ -34,15 +34,17 @@ class AlmaSEO_Import_Redirects_Mapper {
         $yoast_redirects = get_option( 'wpseo-premium-redirects-base', array() );
         $yoast_count     = is_array( $yoast_redirects ) ? count( $yoast_redirects ) : 0;
 
-        // AIOSEO redirects table (Pro feature).
+        // AIOSEO redirects table (Pro feature). Count only enabled rules —
+        // that's what the importer reads.
         $aioseo_table  = $wpdb->prefix . 'aioseo_redirects';
         $aioseo_exists = (bool) $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $aioseo_table ) );
-        $aioseo_count  = $aioseo_exists ? (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$aioseo_table}`" ) : 0; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        $aioseo_count  = $aioseo_exists ? (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$aioseo_table}` WHERE enabled = 1" ) : 0; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
 
-        // Redirection plugin table.
+        // Redirection plugin table. Count only URL-action rules — that's what
+        // the importer reads.
         $redir_table  = $wpdb->prefix . 'redirection_items';
         $redir_exists = (bool) $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $redir_table ) );
-        $redir_count  = $redir_exists ? (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$redir_table}`" ) : 0; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        $redir_count  = $redir_exists ? (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$redir_table}` WHERE action_type = 'url'" ) : 0; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
 
         return array(
             'rankmath'    => array( 'name' => 'Rank Math', 'available' => $rm_count > 0, 'plugin_active' => class_exists( 'RankMath' ), 'record_count' => $rm_count ),
@@ -75,17 +77,15 @@ class AlmaSEO_Import_Redirects_Mapper {
             return new WP_Error( 'table_missing', __( 'AlmaSEO redirects table does not exist. Please visit the Redirects page first.', 'almaseo-seo-playground' ) );
         }
 
-        $rows = self::$method( $offset, self::BATCH_SIZE );
+        $batch = self::$method( $offset, self::BATCH_SIZE );
+        $rows  = $batch['rows'];
 
         $imported  = 0;
         $skipped   = 0;
-        $processed = 0;
 
         $now = current_time( 'mysql' );
 
         foreach ( $rows as $row ) {
-            $processed++;
-
             $source_url = trim( $row['source'] );
             $target_url = trim( $row['target'] );
             $status     = (int) $row['status'];
@@ -148,14 +148,15 @@ class AlmaSEO_Import_Redirects_Mapper {
             }
         }
 
-        $done = count( $rows ) < self::BATCH_SIZE;
-
         return array(
-            'processed' => $processed,
+            // Progress is reported in source-record units so it lines up with
+            // the detected record_count totals (Rank Math rows can expand into
+            // several importable rules, or collapse to none for regex rules).
+            'processed' => $batch['consumed'],
             'imported'  => $imported,
             'skipped'   => $skipped,
-            'offset'    => $offset + $processed,
-            'done'      => $done,
+            'offset'    => $offset + $batch['consumed'],
+            'done'      => $batch['done'],
         );
     }
 
@@ -163,12 +164,21 @@ class AlmaSEO_Import_Redirects_Mapper {
      *  Rank Math: rank_math_redirections + rank_math_redirections_cache
      * ----------------------------------------------------------------*/
 
+    /*
+     * Each get_batch_* method returns:
+     *   rows     — importable {source, target, status} rows (may be fewer or
+     *              more than the DB rows read, e.g. Rank Math expands one DB
+     *              row into multiple sources and drops regex rules)
+     *   consumed — how many underlying records the offset must advance by
+     *   done     — whether the underlying record set is exhausted
+     */
+
     private static function get_batch_rankmath( $offset, $limit ) {
         global $wpdb;
 
         $table = $wpdb->prefix . 'rank_math_redirections';
         if ( ! (bool) $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $table ) ) ) {
-            return array();
+            return array( 'rows' => array(), 'consumed' => 0, 'done' => true );
         }
 
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
@@ -198,7 +208,11 @@ class AlmaSEO_Import_Redirects_Mapper {
             }
         }
 
-        return $rows;
+        return array(
+            'rows'     => $rows,
+            'consumed' => count( $results ),
+            'done'     => count( $results ) < $limit,
+        );
     }
 
     /* ------------------------------------------------------------------
@@ -208,11 +222,15 @@ class AlmaSEO_Import_Redirects_Mapper {
     private static function get_batch_yoast( $offset, $limit ) {
         $redirects = get_option( 'wpseo-premium-redirects-base', array() );
         if ( ! is_array( $redirects ) ) {
-            return array();
+            return array( 'rows' => array(), 'consumed' => 0, 'done' => true );
         }
 
         $rows = array();
         foreach ( $redirects as $source => $data ) {
+            // Skip regex redirects — AlmaSEO only supports exact-match rules.
+            if ( isset( $data['format'] ) && $data['format'] === 'regex' ) {
+                continue;
+            }
             $rows[] = array(
                 'source' => $source,
                 'target' => isset( $data['url'] ) ? $data['url'] : '',
@@ -220,7 +238,13 @@ class AlmaSEO_Import_Redirects_Mapper {
             );
         }
 
-        return array_slice( $rows, $offset, $limit );
+        $slice = array_slice( $rows, $offset, $limit );
+
+        return array(
+            'rows'     => $slice,
+            'consumed' => count( $slice ),
+            'done'     => ( $offset + count( $slice ) ) >= count( $rows ),
+        );
     }
 
     /* ------------------------------------------------------------------
@@ -232,13 +256,14 @@ class AlmaSEO_Import_Redirects_Mapper {
 
         $table = $wpdb->prefix . 'redirection_items';
         if ( ! (bool) $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $table ) ) ) {
-            return array();
+            return array( 'rows' => array(), 'consumed' => 0, 'done' => true );
         }
 
+        // SELECT * so regex/status columns are available when present
+        // (Redirection's schema varies across versions).
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $results = $wpdb->get_results( $wpdb->prepare(
-            "SELECT url AS source, action_data AS target, action_code AS status
-             FROM `{$table}`
+            "SELECT * FROM `{$table}`
              WHERE action_type = 'url'
              ORDER BY id ASC
              LIMIT %d OFFSET %d",
@@ -246,7 +271,31 @@ class AlmaSEO_Import_Redirects_Mapper {
             $offset
         ), ARRAY_A );
 
-        return is_array( $results ) ? $results : array();
+        if ( ! is_array( $results ) ) {
+            $results = array();
+        }
+
+        $rows = array();
+        foreach ( $results as $r ) {
+            // Skip regex rules and disabled redirects.
+            if ( ! empty( $r['regex'] ) ) {
+                continue;
+            }
+            if ( isset( $r['status'] ) && $r['status'] === 'disabled' ) {
+                continue;
+            }
+            $rows[] = array(
+                'source' => isset( $r['url'] ) ? $r['url'] : '',
+                'target' => isset( $r['action_data'] ) ? $r['action_data'] : '',
+                'status' => isset( $r['action_code'] ) ? (int) $r['action_code'] : 301,
+            );
+        }
+
+        return array(
+            'rows'     => $rows,
+            'consumed' => count( $results ),
+            'done'     => count( $results ) < $limit,
+        );
     }
 
     /* ------------------------------------------------------------------
@@ -258,7 +307,7 @@ class AlmaSEO_Import_Redirects_Mapper {
 
         $table = $wpdb->prefix . 'aioseo_redirects';
         if ( ! (bool) $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $table ) ) ) {
-            return array();
+            return array( 'rows' => array(), 'consumed' => 0, 'done' => true );
         }
 
         // AIOSEO stores source_url (relative path) and target_url (full or relative).
@@ -276,7 +325,7 @@ class AlmaSEO_Import_Redirects_Mapper {
         ), ARRAY_A );
 
         if ( ! is_array( $results ) ) {
-            return array();
+            $results = array();
         }
 
         $rows = array();
@@ -288,7 +337,11 @@ class AlmaSEO_Import_Redirects_Mapper {
             );
         }
 
-        return $rows;
+        return array(
+            'rows'     => $rows,
+            'consumed' => count( $results ),
+            'done'     => count( $results ) < $limit,
+        );
     }
 
     /* ------------------------------------------------------------------

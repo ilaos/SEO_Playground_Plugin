@@ -143,6 +143,13 @@ class AlmaSEO_Search_Appearance_Frontend {
                 return '';
             }
 
+            // Per-term manual override (set by import or dashboard) wins over
+            // the per-taxonomy template.
+            $manual = self::get_term_override( $term, '_almaseo_term_title' );
+            if ( '' !== $manual ) {
+                return $manual;
+            }
+
             $tax_settings = AlmaSEO_Search_Appearance_Settings::get_taxonomy_settings( $term->taxonomy );
             if ( ! empty( $tax_settings['title_template'] ) ) {
                 return AlmaSEO_Smart_Tags::replace( $tax_settings['title_template'], array(
@@ -264,7 +271,16 @@ class AlmaSEO_Search_Appearance_Frontend {
                 $tax_settings = AlmaSEO_Search_Appearance_Settings::get_taxonomy_settings( $term->taxonomy );
                 $noindex      = ! empty( $tax_settings['noindex'] );
 
-                if ( ! empty( $tax_settings['description_template'] ) ) {
+                // Per-term noindex override.
+                if ( get_term_meta( $term->term_id, '_almaseo_term_noindex', true ) ) {
+                    $noindex = true;
+                }
+
+                // Per-term description override wins over the taxonomy template.
+                $manual_desc = self::get_term_override( $term, '_almaseo_term_description' );
+                if ( '' !== $manual_desc ) {
+                    $desc = $manual_desc;
+                } elseif ( ! empty( $tax_settings['description_template'] ) ) {
                     $desc = AlmaSEO_Smart_Tags::replace( $tax_settings['description_template'], array(
                         'term' => $term,
                     ) );
@@ -389,6 +405,37 @@ class AlmaSEO_Search_Appearance_Frontend {
     }
 
     /**
+     * Get a usable per-term override value from term meta.
+     *
+     * Runs the value through the tag validator (so leftover foreign tokens
+     * like "#taxonomy_title" never reach output) and resolves %%tags%% with
+     * the term as context.
+     *
+     * @param WP_Term $term     Term object.
+     * @param string  $meta_key Term meta key (e.g. '_almaseo_term_title').
+     * @return string Resolved value, or '' if unset/unusable.
+     */
+    private static function get_term_override( $term, $meta_key ) {
+        $value = get_term_meta( $term->term_id, $meta_key, true );
+        if ( empty( $value ) || ! is_string( $value ) ) {
+            return '';
+        }
+
+        if ( class_exists( 'AlmaSEO_Tag_Validator' ) ) {
+            $value = AlmaSEO_Tag_Validator::sanitize_seo_value( $value );
+        }
+        if ( empty( $value ) ) {
+            return '';
+        }
+
+        if ( strpos( $value, '%%' ) !== false ) {
+            $value = AlmaSEO_Smart_Tags::replace( $value, array( 'term' => $term ) );
+        }
+
+        return trim( $value );
+    }
+
+    /**
      * Build smart tag context for a post-type archive page.
      *
      * There is no $post on these pages, so pt_single / pt_plural / title
@@ -421,7 +468,18 @@ class AlmaSEO_Search_Appearance_Frontend {
 
         if ( is_category() || is_tag() || is_tax() ) {
             $term = get_queried_object();
-            return $term ? get_term_link( $term ) : '';
+            if ( ! $term ) {
+                return '';
+            }
+
+            // Per-term canonical override.
+            $manual = get_term_meta( $term->term_id, '_almaseo_term_canonical', true );
+            if ( ! empty( $manual ) ) {
+                return $manual;
+            }
+
+            $link = get_term_link( $term );
+            return is_wp_error( $link ) ? '' : $link;
         }
 
         if ( is_author() ) {
@@ -448,6 +506,21 @@ class AlmaSEO_Search_Appearance_Frontend {
     private static function render_non_singular_og( $desc ) {
         $title = wp_get_document_title();
         $url   = self::get_archive_canonical();
+
+        // Per-term OG overrides (set by import or dashboard).
+        if ( is_category() || is_tag() || is_tax() ) {
+            $term = get_queried_object();
+            if ( $term && ! is_wp_error( $term ) ) {
+                $og_title = self::get_term_override( $term, '_almaseo_term_og_title' );
+                if ( '' !== $og_title ) {
+                    $title = $og_title;
+                }
+                $og_desc = self::get_term_override( $term, '_almaseo_term_og_description' );
+                if ( '' !== $og_desc ) {
+                    $desc = $og_desc;
+                }
+            }
+        }
 
         if ( empty( $url ) ) {
             if ( isset( $_SERVER['REQUEST_URI'] ) ) {
