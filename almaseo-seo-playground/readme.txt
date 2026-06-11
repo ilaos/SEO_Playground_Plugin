@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.2
+Stable tag: 1.19.3
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.3 =
+**.htaccess audit — automatic crash protection**
+
+* New: After every .htaccess save or backup restore, the plugin now performs a loopback health check (the same approach WordPress core uses for the plugin/theme editor). If the new rules cause a server error (HTTP 5xx), the previous .htaccess is restored automatically and you're told what happened — your site can no longer be taken offline by a typo in this editor. On hosts that block loopback requests, the save proceeds as before.
 
 = 1.19.2 =
 **Robots.txt audit fixes**

@@ -71,7 +71,11 @@
                         } );
                     }, 5000 );
                 } else {
-                    self.showMessage( response.data.message || almaseoHtaccess.strings.error, 'error' );
+                    self.showMessage( ( response.data && response.data.message ) || almaseoHtaccess.strings.error, 'error' );
+                    // The auto-rollback path still creates a backup.
+                    if ( response.data && response.data.backups ) {
+                        self.updateBackupsDropdown( response.data.backups );
+                    }
                 }
             } ).fail( function () {
                 self.$saveBtn.prop( 'disabled', false );
@@ -120,7 +124,10 @@
                         } );
                     }, 5000 );
                 } else {
-                    self.showMessage( response.data.message || almaseoHtaccess.strings.error, 'error' );
+                    self.showMessage( ( response.data && response.data.message ) || almaseoHtaccess.strings.error, 'error' );
+                    if ( response.data && response.data.backups ) {
+                        self.updateBackupsDropdown( response.data.backups );
+                    }
                 }
             } ).fail( function () {
                 self.$restoreBtn.prop( 'disabled', false );

@@ -167,11 +167,14 @@ class AlmaSEO_Htaccess_Editor {
         $content = isset( $_POST['content'] ) ? $this->sanitize_htaccess( wp_unslash( $_POST['content'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized by sanitize_htaccess()
 
         $file_path = $this->get_file_path();
+        $had_file  = file_exists( $file_path );
+        $previous  = '';
 
         // Create backup of current content before writing.
-        if ( file_exists( $file_path ) ) {
+        if ( $had_file ) {
             $current = file_get_contents( $file_path );
             if ( false !== $current ) {
+                $previous = $current;
                 $this->push_backup( $current );
             }
         }
@@ -180,6 +183,16 @@ class AlmaSEO_Htaccess_Editor {
         $result = $this->write_file( $content );
         if ( is_wp_error( $result ) ) {
             wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+        }
+
+        // Loopback health check — roll back automatically if the new rules
+        // broke the server.
+        $health = $this->verify_site_or_rollback( $previous, $had_file );
+        if ( is_wp_error( $health ) ) {
+            wp_send_json_error( array(
+                'message' => $health->get_error_message(),
+                'backups' => $this->get_backups_for_js(),
+            ) );
         }
 
         wp_send_json_success( array(
@@ -213,9 +226,12 @@ class AlmaSEO_Htaccess_Editor {
 
         // Backup current content before restoring.
         $file_path = $this->get_file_path();
-        if ( file_exists( $file_path ) ) {
+        $had_file  = file_exists( $file_path );
+        $previous  = '';
+        if ( $had_file ) {
             $current = file_get_contents( $file_path );
             if ( false !== $current ) {
+                $previous = $current;
                 $this->push_backup( $current );
             }
         }
@@ -223,6 +239,16 @@ class AlmaSEO_Htaccess_Editor {
         $result = $this->write_file( $restore_content );
         if ( is_wp_error( $result ) ) {
             wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+        }
+
+        // Loopback health check — roll back automatically if the restored
+        // rules broke the server.
+        $health = $this->verify_site_or_rollback( $previous, $had_file );
+        if ( is_wp_error( $health ) ) {
+            wp_send_json_error( array(
+                'message' => $health->get_error_message(),
+                'backups' => $this->get_backups_for_js(),
+            ) );
         }
 
         wp_send_json_success( array(
@@ -330,6 +356,63 @@ class AlmaSEO_Htaccess_Editor {
         }
 
         return true;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /*  Health check                                                       */
+    /* ------------------------------------------------------------------ */
+
+    /**
+     * After writing .htaccess, verify the site still responds. If the
+     * homepage now returns a 5xx error, the new rules broke the server
+     * config — roll back to the previous content automatically.
+     *
+     * Mirrors WordPress core's loopback check in the plugin/theme editor.
+     *
+     * @param string $previous Previous file content ('' if none captured).
+     * @param bool   $had_file Whether the file existed before the write.
+     * @return true|WP_Error True when healthy (or unverifiable), WP_Error after rollback.
+     */
+    private function verify_site_or_rollback( $previous, $had_file ) {
+        $response = wp_remote_get( home_url( '/' ), array(
+            'timeout'   => 10,
+            'sslverify' => false,
+            'headers'   => array( 'Cache-Control' => 'no-cache' ),
+        ) );
+
+        // Loopback requests are blocked on some hosts — cannot verify, assume OK.
+        if ( is_wp_error( $response ) ) {
+            return true;
+        }
+
+        $code = (int) wp_remote_retrieve_response_code( $response );
+        if ( $code < 500 ) {
+            return true;
+        }
+
+        // Server is now erroring — roll back.
+        if ( $had_file ) {
+            $this->write_file( $previous );
+        } else {
+            // There was no file before; remove the one we just created.
+            global $wp_filesystem;
+            if ( ! function_exists( 'WP_Filesystem' ) ) {
+                require_once ABSPATH . 'wp-admin/includes/file.php';
+            }
+            WP_Filesystem();
+            if ( $wp_filesystem ) {
+                $wp_filesystem->delete( $this->get_file_path() );
+            }
+        }
+
+        return new WP_Error(
+            'htaccess_broke_site',
+            sprintf(
+                /* translators: %d: HTTP status code returned by the homepage */
+                __( 'The new rules caused a server error (HTTP %d), so the previous .htaccess was restored automatically. Please review your changes.', 'almaseo-seo-playground' ),
+                $code
+            )
+        );
     }
 
     /* ------------------------------------------------------------------ */
