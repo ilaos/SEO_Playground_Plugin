@@ -26,6 +26,14 @@ class AlmaSEO_Internal_Links_Engine {
     private static $settings = null;
 
     /**
+     * Per-request tally of links inserted, keyed by rule ID. Flushed to the
+     * database once at shutdown to avoid a write on every keyword match.
+     *
+     * @var array
+     */
+    private static $pending_hits = array();
+
+    /**
      * Initialize the engine by hooking into the_content
      */
     public static function init() {
@@ -36,6 +44,40 @@ class AlmaSEO_Internal_Links_Engine {
 
         // Hook with a late priority so other plugins process content first
         add_filter( 'the_content', array( __CLASS__, 'process_content' ), 999 );
+
+        // Persist insertion counts once per request.
+        add_action( 'shutdown', array( __CLASS__, 'flush_hits' ) );
+    }
+
+    /**
+     * Record that a rule inserted $count link(s) this request.
+     *
+     * @param int $rule_id Rule ID.
+     * @param int $count   Number of links inserted.
+     */
+    private static function accumulate_hit( $rule_id, $count ) {
+        $count = (int) $count;
+        if ( $count < 1 ) {
+            return;
+        }
+        $rule_id = (int) $rule_id;
+        self::$pending_hits[ $rule_id ] = ( isset( self::$pending_hits[ $rule_id ] ) ? self::$pending_hits[ $rule_id ] : 0 ) + $count;
+    }
+
+    /**
+     * Flush accumulated hit counts to the database (one pass per request).
+     */
+    public static function flush_hits() {
+        if ( empty( self::$pending_hits ) ) {
+            return;
+        }
+
+        if ( ! class_exists( 'AlmaSEO_Internal_Links_Model' ) ) {
+            require_once plugin_dir_path( __FILE__ ) . 'internal-links-model.php';
+        }
+
+        AlmaSEO_Internal_Links_Model::record_hits( self::$pending_hits );
+        self::$pending_hits = array();
     }
 
     /**
@@ -265,16 +307,11 @@ class AlmaSEO_Internal_Links_Engine {
                 $count       = 0;
                 $parts[ $i ] = preg_replace_callback(
                     $search_pattern,
-                    function ( $matches ) use ( $anchor, &$count, $remaining, $rule ) {
+                    function ( $matches ) use ( $anchor, &$count, $remaining ) {
                         if ( $count >= $remaining ) {
                             return $matches[0];
                         }
                         $count++;
-
-                        // Track hits asynchronously
-                        if ( function_exists( 'wp_schedule_single_event' ) && ! wp_next_scheduled( 'almaseo_internal_link_hit', array( (int) $rule['id'] ) ) ) {
-                            // We'll batch-update hits via a lightweight approach
-                        }
 
                         return str_replace( '{{KEYWORD}}', $matches[0], $anchor );
                     },
@@ -283,6 +320,7 @@ class AlmaSEO_Internal_Links_Engine {
 
                 $rule_counts[ $rule_id ] += $count;
                 $total_inserted          += $count;
+                self::accumulate_hit( $rule_id, $count );
             }
         }
 
@@ -334,6 +372,7 @@ class AlmaSEO_Internal_Links_Engine {
             );
 
             $total_inserted += $count;
+            self::accumulate_hit( $rule['id'], $count );
         }
 
         return $content;

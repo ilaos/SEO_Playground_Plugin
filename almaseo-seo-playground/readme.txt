@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.6
+Stable tag: 1.19.7
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.7 =
+**Internal Links audit fix**
+
+* Fix: The "Links Inserted" total and the per-rule "Hits" column on the Internal Links page were always stuck at 0. The auto-linker now records how many links each rule inserts (counted once per page view and saved efficiently in a single write), so these figures reflect real activity.
 
 = 1.19.6 =
 **404 Monitor audit fixes**

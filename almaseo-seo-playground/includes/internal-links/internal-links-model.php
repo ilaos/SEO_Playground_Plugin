@@ -325,6 +325,39 @@ class AlmaSEO_Internal_Links_Model {
     }
 
     /**
+     * Increment hit counters for multiple rules at once.
+     *
+     * Called once per front-end request (at shutdown) by the engine so that
+     * matching a keyword doesn't cost a database write per match.
+     *
+     * @param array $counts Map of rule ID => number of links inserted.
+     * @return void
+     */
+    public static function record_hits( $counts ) {
+        global $wpdb;
+
+        if ( empty( $counts ) || ! is_array( $counts ) ) {
+            return;
+        }
+
+        $table = self::get_table_name();
+
+        foreach ( $counts as $id => $n ) {
+            $id = absint( $id );
+            $n  = absint( $n );
+            if ( $id <= 0 || $n <= 0 ) {
+                continue;
+            }
+
+            $wpdb->query( $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix, prepared
+                "UPDATE $table SET hits = hits + %d WHERE id = %d",
+                $n,
+                $id
+            ) );
+        }
+    }
+
+    /**
      * Get summary statistics
      *
      * @return array {
