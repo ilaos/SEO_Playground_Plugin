@@ -226,7 +226,7 @@ class AlmaSEO_Woo_Loader {
                 'almaseo-woo-meta',
                 plugins_url('assets/css/woo-meta.css', dirname(dirname(__FILE__))),
                 array(),
-                ALMASEO_VERSION
+                ALMASEO_PLUGIN_VERSION
             );
             
             // Enqueue JS
@@ -234,7 +234,7 @@ class AlmaSEO_Woo_Loader {
                 'almaseo-woo-meta',
                 plugins_url('assets/js/woo-meta.js', dirname(dirname(__FILE__))),
                 array('jquery'),
-                ALMASEO_VERSION,
+                ALMASEO_PLUGIN_VERSION,
                 true
             );
             

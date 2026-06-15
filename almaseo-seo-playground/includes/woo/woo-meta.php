@@ -397,6 +397,11 @@ class AlmaSEO_Woo_Meta {
         if (is_singular('product')) {
             global $post;
             $custom_title = get_post_meta($post->ID, '_almaseo_woo_title', true);
+            if (!$custom_title) {
+                // Fall back to the "AlmaSEO - Product SEO" metabox key so its
+                // SEO Title field is honored instead of being a dead end.
+                $custom_title = get_post_meta($post->ID, '_almaseo_wc_seo_title', true);
+            }
             if ($custom_title) {
                 return $custom_title;
             }
@@ -433,6 +438,11 @@ class AlmaSEO_Woo_Meta {
             
             // Meta description
             $meta_desc = get_post_meta($post->ID, '_almaseo_woo_description', true);
+            if (!$meta_desc) {
+                // Fall back to the "AlmaSEO - Product SEO" metabox key so its
+                // Meta Description field is honored instead of being a dead end.
+                $meta_desc = get_post_meta($post->ID, '_almaseo_wc_meta_description', true);
+            }
             if ($meta_desc) {
                 $meta_tags[] = '<meta name="description" content="' . esc_attr($meta_desc) . '" />';
             }

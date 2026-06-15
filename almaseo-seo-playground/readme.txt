@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.19
+Stable tag: 1.19.20
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
