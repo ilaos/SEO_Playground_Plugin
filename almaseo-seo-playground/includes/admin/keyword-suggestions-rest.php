@@ -100,6 +100,12 @@ class AlmaSEO_Keyword_Suggestions_REST {
         $query       = isset( $_GET['q'] ) ? sanitize_text_field( wp_unslash( $_GET['q'] ) ) : '';
         $post_id     = isset( $_GET['post_id'] ) ? absint( wp_unslash( $_GET['post_id'] ) ) : 0;
 
+        // When a post is targeted, require edit access to it — the result is
+        // written to that post's _almaseo_kw_suggestions meta below.
+        if ( $post_id && ! current_user_can( 'edit_post', $post_id ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+        }
+
         if ( mb_strlen( $query ) < 2 ) {
             wp_send_json_success( array( 'keywords' => array() ) );
         }

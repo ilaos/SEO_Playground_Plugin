@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.20
+Stable tag: 1.19.21
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,18 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.21 =
+**Editor-panel AJAX audit — security hardening**
+
+* Security: The per-post AJAX actions behind the SEO Page Health metabox (health recalculate / refresh / live update, draft meta description, keyword suggestions) and the AI headline and AI keyword tools now require edit access to the specific post being acted on, not just the generic "can edit posts" capability. Previously a lower-privileged contributor could pass another post's ID and have its SEO title, meta description, focus keyword or AI overlays written or read. The metabox is admin/editor-facing in normal use; this closes the underlying handlers. Normal editing is unaffected.
+* Fix: SEO Page Health admin styles and scripts are now cache-busted by the live plugin version, so updates take effect immediately instead of serving a stale cached copy.
+
+= 1.19.20 =
+**WooCommerce SEO audit fixes**
+
+* Fix: The SEO Title and Meta Description fields in the product "AlmaSEO - Product SEO" box are now honored on the front end instead of being silently ignored. Existing values continue to take precedence.
+* Fix: WooCommerce product-edit styles and scripts are now cache-busted by the live plugin version, so updates take effect immediately.
 
 = 1.19.19 =
 **Connection settings audit — security hardening**

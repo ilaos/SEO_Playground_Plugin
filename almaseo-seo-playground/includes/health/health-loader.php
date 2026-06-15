@@ -131,8 +131,12 @@ class AlmaSEO_Health_Loader {
         
         $post_id = isset($_POST['post_id']) ? intval(wp_unslash($_POST['post_id'])) : 0;
 
-        if (!$post_id || !get_post($post_id)) {
-            wp_send_json_error('Invalid post ID');
+        // Per-post capability check: this handler writes meta to $post_id, so
+        // edit_posts alone isn't enough — require edit access to THIS post.
+        // (current_user_can('edit_post', $bad_id) is false, so this also
+        // covers the non-existent-post case the old !get_post() guard handled.)
+        if (!$post_id || !current_user_can('edit_post', $post_id)) {
+            wp_send_json_error('Invalid post ID or insufficient permissions');
         }
 
         // Calculate
@@ -171,8 +175,12 @@ class AlmaSEO_Health_Loader {
         $token = isset($_POST['token']) ? intval(wp_unslash($_POST['token'])) : 0;
         $reason = isset($_POST['reason']) ? sanitize_text_field(wp_unslash($_POST['reason'])) : 'manual';
 
-        if (!$post_id || !get_post($post_id)) {
-            wp_send_json_error('Invalid post ID');
+        // Per-post capability check: this handler writes the SEO title,
+        // description and focus keyword to $post_id, so require edit access to
+        // THIS post — edit_posts alone would let a contributor overwrite any
+        // post's meta tags.
+        if (!$post_id || !current_user_can('edit_post', $post_id)) {
+            wp_send_json_error('Invalid post ID or insufficient permissions');
         }
 
         // Clear any cached data for this post
@@ -250,8 +258,11 @@ class AlmaSEO_Health_Loader {
         
         $post_id = isset($_POST['post_id']) ? intval(wp_unslash($_POST['post_id'])) : 0;
 
-        if (!$post_id || !get_post($post_id)) {
-            wp_send_json_error('Invalid post ID');
+        // Per-post capability check: this handler writes the SEO title,
+        // description and focus keyword to $post_id, so require edit access to
+        // THIS post rather than the generic edit_posts capability.
+        if (!$post_id || !current_user_can('edit_post', $post_id)) {
+            wp_send_json_error('Invalid post ID or insufficient permissions');
         }
 
         // Save any updated meta fields if provided
@@ -314,8 +325,16 @@ class AlmaSEO_Health_Loader {
         }
         
         $post_id = isset($_POST['post_id']) ? intval(wp_unslash($_POST['post_id'])) : 0;
+
+        // Require edit access to the specific post (its title/URL are sent to
+        // the keyword API) — don't leak another author's post on the shared nonce.
+        if (!$post_id || !current_user_can('edit_post', $post_id)) {
+            wp_send_json_error(array('message' => 'Invalid post ID or insufficient permissions'));
+            return;
+        }
+
         $api_key = get_option('almaseo_api_key');
-        
+
         if (empty($api_key)) {
             wp_send_json_error(array(
                 'message' => __('Not connected to AlmaSEO Dashboard', 'almaseo-seo-playground'),
@@ -369,8 +388,14 @@ class AlmaSEO_Health_Loader {
         }
         
         $post_id = isset($_POST['post_id']) ? intval(wp_unslash($_POST['post_id'])) : 0;
-        $post = get_post($post_id);
 
+        // Require edit access to the specific post — this reads its content to
+        // draft a description, so don't expose another author's post.
+        if (!$post_id || !current_user_can('edit_post', $post_id)) {
+            wp_send_json_error('Invalid post ID or insufficient permissions');
+        }
+
+        $post = get_post($post_id);
         if (!$post) {
             wp_send_json_error('Invalid post');
         }
@@ -430,15 +455,15 @@ class AlmaSEO_Health_Loader {
             'almaseo-health',
             plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/css/health-namespaced.css',
             array(),
-            '4.2.4'
+            ALMASEO_PLUGIN_VERSION
         );
-        
+
         // JS - use main health.js file
         wp_enqueue_script(
             'almaseo-health',
             plugin_dir_url(dirname(dirname(__FILE__))) . 'assets/js/health.js',
             array('jquery'),
-            '4.2.4',
+            ALMASEO_PLUGIN_VERSION,
             true
         );
         

@@ -103,6 +103,12 @@ class AlmaSEO_Headline_Analyzer_REST {
         $headline = isset( $_POST['headline'] ) ? sanitize_text_field( wp_unslash( $_POST['headline'] ) ) : '';
         $post_id  = isset( $_POST['post_id'] ) ? absint( wp_unslash( $_POST['post_id'] ) ) : 0;
 
+        // When a post is targeted, require edit access to it — the result is
+        // written to that post's _almaseo_headline_dashboard meta below.
+        if ( $post_id && ! current_user_can( 'edit_post', $post_id ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+        }
+
         if ( empty( $headline ) ) {
             wp_send_json_error( array( 'message' => 'No headline provided.' ) );
         }
