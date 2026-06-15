@@ -17,7 +17,36 @@
         loadRedirects();
         bindEvents();
         updateStats();
+        maybePrefillFromUrl();
     });
+
+    /**
+     * Open the Add modal pre-filled from URL parameters.
+     *
+     * The 404 Monitor hands off via:
+     *   admin.php?page=almaseo-redirects&action=add&source=/old&target=/new
+     * Without this, those handoffs would land on an empty page.
+     */
+    function maybePrefillFromUrl() {
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('action') !== 'add' || !params.get('source')) {
+            return;
+        }
+
+        openModal('add');
+        $('#redirect-source').val(params.get('source'));
+
+        var target = params.get('target');
+        if (target) {
+            $('#redirect-target').val(target);
+        }
+        $('#redirect-target').trigger('focus');
+
+        // Strip the handoff params so a refresh doesn't re-open the modal.
+        if (window.history && window.history.replaceState) {
+            window.history.replaceState({}, '', 'admin.php?page=almaseo-redirects');
+        }
+    }
     
     /**
      * Bind event handlers

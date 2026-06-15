@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.5
+Stable tag: 1.19.6
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,12 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.6 =
+**404 Monitor audit fixes**
+
+* Fix: "Create Redirect" (and the "Use as redirect" suggestion) on the 404 Monitor now actually works. Both open the Redirect Manager with the source path — and, for suggestions, the target — pre-filled in a ready-to-save form. Previously they sent you to the Redirect Manager with an empty form, because the hand-off data was ignored.
+* Fix: 404 paths on WordPress installs in a subdirectory are no longer mangled when the path repeats the subdirectory name (e.g. /blog/blog-post). Only the leading subdirectory is stripped now.
 
 = 1.19.5 =
 **Redirect Manager audit fixes**

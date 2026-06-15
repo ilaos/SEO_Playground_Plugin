@@ -92,10 +92,15 @@ class AlmaSEO_404_Capture {
         $parsed = wp_parse_url($request_uri);
         $path = isset($parsed['path']) ? $parsed['path'] : '/';
         
-        // Remove site subdirectory if in subdirectory install
+        // Remove site subdirectory if in subdirectory install. Strip only the
+        // leading prefix — str_replace() would remove every occurrence and
+        // mangle paths that repeat the subdirectory name (e.g. /blog/blog-x).
         $site_url = wp_parse_url(home_url());
         if (isset($site_url['path']) && $site_url['path'] !== '/') {
-            $path = str_replace($site_url['path'], '', $path);
+            $prefix = rtrim($site_url['path'], '/');
+            if ($prefix !== '' && strpos($path, $prefix) === 0) {
+                $path = substr($path, strlen($prefix));
+            }
         }
         
         // Normalize path

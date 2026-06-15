@@ -477,6 +477,7 @@ class AlmaSEO_404_Controller {
         global $wpdb;
         $table = $wpdb->prefix . 'almaseo_404_log';
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from $wpdb->prefix, no user input
         $results = $wpdb->get_results(
             "SELECT id, path, hits, impact_score, impressions, clicks, suggested_target, last_seen
              FROM {$table}
