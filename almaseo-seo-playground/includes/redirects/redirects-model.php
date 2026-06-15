@@ -21,6 +21,38 @@ class AlmaSEO_Redirects_Model {
         global $wpdb;
         return $wpdb->prefix . 'almaseo_redirects';
     }
+
+    /**
+     * HTTP status codes this module supports. Kept in sync with the import
+     * redirects mapper (which writes 307/308/410/451 into the same table) and
+     * the runtime handler.
+     *
+     * @return int[]
+     */
+    public static function allowed_statuses() {
+        return array( 301, 302, 307, 308, 410, 451 );
+    }
+
+    /**
+     * Whether a status is a "gone" code that has no redirect target.
+     *
+     * @param int $status
+     * @return bool
+     */
+    public static function is_gone_status( $status ) {
+        return in_array( (int) $status, array( 410, 451 ), true );
+    }
+
+    /**
+     * Coerce an arbitrary status into a supported code (defaults to 301).
+     *
+     * @param mixed $status
+     * @return int
+     */
+    public static function sanitize_status( $status ) {
+        $status = (int) $status;
+        return in_array( $status, self::allowed_statuses(), true ) ? $status : 301;
+    }
     
     /**
      * Get all redirects with optional filters
@@ -74,8 +106,9 @@ class AlmaSEO_Redirects_Model {
         // Build main query
         $offset = ($args['page'] - 1) * $args['per_page'];
 
-        // Whitelist orderby column and direction to prevent SQL injection
-        $allowed_orderby = array('id', 'source_url', 'target_url', 'redirect_type', 'hit_count', 'created_at', 'updated_at', 'is_enabled');
+        // Whitelist orderby column and direction to prevent SQL injection.
+        // These must match the actual table columns.
+        $allowed_orderby = array('id', 'source', 'target', 'status', 'hits', 'last_hit', 'created_at', 'updated_at', 'is_enabled');
         $allowed_order = array('ASC', 'DESC');
         $orderby_col = in_array($args['orderby'], $allowed_orderby, true) ? $args['orderby'] : 'created_at';
         $order_dir = in_array(strtoupper($args['order']), $allowed_order, true) ? strtoupper($args['order']) : 'DESC';
@@ -149,24 +182,37 @@ class AlmaSEO_Redirects_Model {
         global $wpdb;
         
         $table = self::get_table_name();
-        
+
         // Normalize and validate
         $source = self::normalize_path($data['source']);
-        $target = self::validate_target($data['target']);
-        
-        if (!$source || !$target) {
+        $status = self::sanitize_status(isset($data['status']) ? $data['status'] : 301);
+
+        if (!$source) {
             return false;
         }
-        
+
+        // "Gone" codes (410/451) have no meaningful target; everything else
+        // requires a valid target URL or path.
+        if (self::is_gone_status($status)) {
+            $target = isset($data['target']) && trim($data['target']) !== ''
+                ? ( self::validate_target($data['target']) ?: '' )
+                : '';
+        } else {
+            $target = self::validate_target(isset($data['target']) ? $data['target'] : '');
+            if (!$target) {
+                return false;
+            }
+        }
+
         // Check for duplicate source
         if (self::source_exists($source)) {
             return false;
         }
-        
+
         $insert_data = array(
             'source' => $source,
             'target' => $target,
-            'status' => isset($data['status']) && in_array($data['status'], array(301, 302)) ? $data['status'] : 301,
+            'status' => $status,
             'is_enabled' => isset($data['is_enabled']) ? intval($data['is_enabled']) : 1,
             'hits' => 0,
             'last_hit' => null,
@@ -218,19 +264,37 @@ class AlmaSEO_Redirects_Model {
             $format[] = '%s';
         }
         
+        // Determine the resulting status (provided value, or the existing one)
+        // so target validation knows whether a target is required.
+        $effective_status = null;
+        if (isset($data['status'])) {
+            $effective_status = self::sanitize_status($data['status']);
+        }
+
         // Handle target update
         if (isset($data['target'])) {
-            $target = self::validate_target($data['target']);
-            if (!$target) {
-                return false;
+            $target_raw = trim($data['target']);
+            $is_gone = ($effective_status !== null)
+                ? self::is_gone_status($effective_status)
+                : self::is_gone_status(self::current_status($id));
+
+            if ($target_raw === '' && $is_gone) {
+                // Clearing the target is allowed for 410/451.
+                $update_data['target'] = '';
+                $format[] = '%s';
+            } else {
+                $target = self::validate_target($data['target']);
+                if (!$target) {
+                    return false;
+                }
+                $update_data['target'] = $target;
+                $format[] = '%s';
             }
-            $update_data['target'] = $target;
-            $format[] = '%s';
         }
-        
+
         // Handle status update
-        if (isset($data['status']) && in_array($data['status'], array(301, 302))) {
-            $update_data['status'] = $data['status'];
+        if ($effective_status !== null) {
+            $update_data['status'] = $effective_status;
             $format[] = '%d';
         }
         
@@ -320,8 +384,55 @@ class AlmaSEO_Redirects_Model {
     }
     
     /**
+     * Get the stored status code for a redirect (used during partial updates).
+     *
+     * @param int $id
+     * @return int
+     */
+    private static function current_status($id) {
+        global $wpdb;
+        $table = self::get_table_name();
+        $status = $wpdb->get_var($wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+            "SELECT status FROM $table WHERE id = %d",
+            $id
+        ));
+        return (int) $status;
+    }
+
+    /**
+     * Aggregate statistics for the dashboard panel. Computed in SQL so the
+     * totals are accurate regardless of how many redirects exist (the old
+     * approach fetched rows client-side and silently capped/failed).
+     *
+     * @return array
+     */
+    public static function get_stats() {
+        global $wpdb;
+        $table = self::get_table_name();
+
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        $total      = (int) $wpdb->get_var("SELECT COUNT(*) FROM $table");
+        $active     = (int) $wpdb->get_var("SELECT COUNT(*) FROM $table WHERE is_enabled = 1");
+        $total_hits = (int) $wpdb->get_var("SELECT COALESCE(SUM(hits), 0) FROM $table");
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+        $today_start = current_time('Y-m-d') . ' 00:00:00';
+        $today = (int) $wpdb->get_var($wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+            "SELECT COUNT(*) FROM $table WHERE last_hit >= %s",
+            $today_start
+        ));
+
+        return array(
+            'total'      => $total,
+            'active'     => $active,
+            'total_hits' => $total_hits,
+            'today'      => $today,
+        );
+    }
+
+    /**
      * Get all enabled redirects (for caching)
-     * 
+     *
      * @return array
      */
     public static function get_enabled_redirects() {

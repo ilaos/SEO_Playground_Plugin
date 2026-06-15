@@ -59,6 +59,9 @@
         
         // Test redirect
         $('#run-test').on('click', testRedirect);
+
+        // Toggle target field when redirect type changes
+        $('#redirect-status').on('change', toggleTargetField);
         
         // Form validation
         $('#redirect-source').on('blur', function() {
@@ -256,14 +259,40 @@
             $('#redirect-id').val(redirect.id);
             $('#redirect-source').val(redirect.source);
             $('#redirect-target').val(redirect.target);
-            $('input[name="status"][value="' + redirect.status + '"]').prop('checked', true);
+            $('#redirect-status').val(String(redirect.status));
             $('#redirect-enabled').prop('checked', redirect.is_enabled == 1);
         } else {
             $title.text('Add New Redirect');
+            $('#redirect-status').val('301');
             $('#redirect-enabled').prop('checked', true);
         }
-        
+
+        toggleTargetField();
         $modal.show();
+    }
+
+    /**
+     * Whether a status code is a "gone" code (no target needed).
+     */
+    function isGoneStatus(status) {
+        return status === '410' || status === '451' || status === 410 || status === 451;
+    }
+
+    /**
+     * Show/hide and require the target field based on the selected status.
+     */
+    function toggleTargetField() {
+        const gone = isGoneStatus($('#redirect-status').val());
+        const $field = $('#redirect-target-field');
+        const $input = $('#redirect-target');
+
+        if (gone) {
+            $field.hide();
+            $input.prop('required', false);
+        } else {
+            $field.show();
+            $input.prop('required', true);
+        }
     }
     
     /**
@@ -281,14 +310,15 @@
         const data = {
             source: $('#redirect-source').val().trim(),
             target: $('#redirect-target').val().trim(),
-            status: $('input[name="status"]:checked').val(),
+            status: $('#redirect-status').val(),
             is_enabled: $('#redirect-enabled').is(':checked') ? 1 : 0
         };
-        
+
         // Client-side validation
         const sourceError = validateSource(data.source);
-        const targetError = validateTarget(data.target);
-        
+        // 410/451 ("gone") redirects have no target.
+        const targetError = isGoneStatus(data.status) ? null : validateTarget(data.target);
+
         if (sourceError || targetError) {
             showFormErrors([sourceError, targetError].filter(Boolean));
             return;
@@ -473,29 +503,16 @@
      */
     function updateStats() {
         $.ajax({
-            url: almaseoRedirects.apiUrl,
+            url: almaseoRedirects.apiUrl + '/stats',
             method: 'GET',
-            data: { per_page: 1000 }, // Get all for stats
             beforeSend: function(xhr) {
                 xhr.setRequestHeader('X-WP-Nonce', almaseoRedirects.nonce);
             },
-            success: function(response) {
-                if (response.items) {
-                    const total = response.items.length;
-                    const active = response.items.filter(r => r.is_enabled == 1).length;
-                    const totalHits = response.items.reduce((sum, r) => sum + parseInt(r.hits), 0);
-                    
-                    // Calculate today's hits (would need last_hit date comparison)
-                    const today = new Date().toISOString().split('T')[0];
-                    const todayHits = response.items.filter(r => 
-                        r.last_hit && r.last_hit.startsWith(today)
-                    ).length;
-                    
-                    $('#total-redirects').text(total);
-                    $('#active-redirects').text(active);
-                    $('#total-hits').text(totalHits);
-                    $('#redirects-today').text(todayHits);
-                }
+            success: function(stats) {
+                $('#total-redirects').text(stats.total || 0);
+                $('#active-redirects').text(stats.active || 0);
+                $('#total-hits').text(stats.total_hits || 0);
+                $('#redirects-today').text(stats.today || 0);
             }
         });
     }

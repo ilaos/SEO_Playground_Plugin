@@ -167,6 +167,13 @@ class AlmaSEO_Redirects_REST {
             ),
         ));
         
+        // Aggregate statistics (computed server-side)
+        register_rest_route(self::NAMESPACE, '/redirects/stats', array(
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => array($this, 'get_stats'),
+            'permission_callback' => array($this, 'check_permission'),
+        ));
+
         // Test redirect
         register_rest_route(self::NAMESPACE, '/redirects/test', array(
             'methods' => WP_REST_Server::CREATABLE,
@@ -207,6 +214,15 @@ class AlmaSEO_Redirects_REST {
         return new WP_REST_Response($result, 200);
     }
     
+    /**
+     * Get aggregate statistics for the dashboard panel.
+     */
+    public function get_stats($request) {
+        require_once plugin_dir_path(__FILE__) . 'redirects-model.php';
+
+        return new WP_REST_Response(AlmaSEO_Redirects_Model::get_stats(), 200);
+    }
+
     /**
      * Get single redirect
      */

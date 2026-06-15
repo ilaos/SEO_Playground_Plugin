@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.4
+Stable tag: 1.19.5
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,15 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.5 =
+**Redirect Manager audit fixes**
+
+* Fix: The Redirect Statistics panel (Total, Active, Total Hits, Hits Today) was always stuck at 0. It now reads accurate counts computed on the server, so the numbers are correct no matter how many redirects you have.
+* Fix: Redirects imported as 307, 308, 410, or 451 are no longer silently downgraded to 301 when you edit them. The editor now supports all six status codes, and 410 "Gone" / 451 redirects are served correctly (previously a 410 redirect produced an error instead of a proper "Gone" response).
+* New: When adding or editing a redirect you can now choose 301, 302, 307, 308, 410, or 451. The target field is hidden automatically for 410/451, which don't need one.
+* Fix: Corrected the internal sort column list, which referenced columns that don't exist in the redirects table.
+* Fix: Editor JavaScript and styles are now versioned with the plugin so updates aren't blocked by browser caching, and a heavyweight unused script dependency was removed.
 
 = 1.19.4 =
 **LLMs.txt audit fixes**

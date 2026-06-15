@@ -51,22 +51,55 @@ class AlmaSEO_Redirects_Runtime {
         }
         
         $redirect = $redirects[$request_path];
-        
+        $status   = intval($redirect['status']);
+
+        // 410 Gone / 451 Unavailable: send the status code without a Location
+        // header. wp_redirect() only accepts 3xx codes and would call wp_die()
+        // on these, so they must be handled separately.
+        if ($status === 410 || $status === 451) {
+            self::record_hit_async($redirect['id']);
+            self::serve_gone($status);
+            exit;
+        }
+
         // Prevent redirect loops
         if (self::would_create_loop($request_path, $redirect['target'])) {
             error_log('AlmaSEO Redirects: Potential redirect loop detected for ' . $request_path);
             return;
         }
-        
+
         // Record the hit (async if possible)
         self::record_hit_async($redirect['id']);
-        
+
         // Build the final target URL
         $target_url = self::build_target_url($redirect['target']);
-        
+
         // Perform the redirect
-        wp_redirect(esc_url_raw($target_url), intval($redirect['status'])); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- Intentional: redirects may target external URLs configured by admin
+        wp_redirect(esc_url_raw($target_url), $status); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- Intentional: redirects may target external URLs configured by admin
         exit;
+    }
+
+    /**
+     * Emit a 410 Gone / 451 Unavailable response with a minimal body.
+     *
+     * @param int $status 410 or 451.
+     */
+    private static function serve_gone($status) {
+        nocache_headers();
+        status_header($status);
+        header('X-Robots-Tag: noindex');
+        header('Content-Type: text/html; charset=utf-8');
+
+        $label = ($status === 451)
+            ? __('Unavailable For Legal Reasons', 'almaseo-seo-playground')
+            : __('Gone', 'almaseo-seo-playground');
+
+        echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>'
+            . esc_html($status . ' ' . $label)
+            . '</title><meta name="robots" content="noindex"></head><body><h1>'
+            . esc_html($status . ' ' . $label)
+            . '</h1><p>' . esc_html__('This content is no longer available.', 'almaseo-seo-playground')
+            . '</p></body></html>';
     }
     
     /**

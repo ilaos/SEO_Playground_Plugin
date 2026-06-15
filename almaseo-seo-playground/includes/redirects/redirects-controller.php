@@ -77,15 +77,16 @@ class AlmaSEO_Redirects_Controller {
             'almaseo-redirects',
             plugins_url('assets/css/redirects.css', dirname(dirname(__FILE__))),
             array(),
-            '6.1.0'
+            ALMASEO_PLUGIN_VERSION
         );
-        
-        // Enqueue JavaScript
+
+        // Enqueue JavaScript. Uses plain $.ajax with the wp_rest nonce, so the
+        // heavyweight wp-api (Backbone) client is not needed.
         wp_enqueue_script(
             'almaseo-redirects',
             plugins_url('assets/js/redirects.js', dirname(dirname(__FILE__))),
-            array('jquery', 'wp-api'),
-            '6.1.0',
+            array('jquery'),
+            ALMASEO_PLUGIN_VERSION,
             true
         );
         
@@ -188,30 +189,36 @@ class AlmaSEO_Redirects_Controller {
             }
         }
         
-        // Validate target
+        require_once plugin_dir_path(__FILE__) . 'redirects-model.php';
+
+        // 410/451 ("gone") redirects have no target.
+        $is_gone = isset($data['status']) && AlmaSEO_Redirects_Model::is_gone_status($data['status']);
+
+        // Validate target (not required for gone codes)
         if (empty($data['target'])) {
-            $errors->add('invalid_target', __('Target URL is required.', 'almaseo-seo-playground'));
+            if (!$is_gone) {
+                $errors->add('invalid_target', __('Target URL is required.', 'almaseo-seo-playground'));
+            }
         } else {
             // Check if it's a valid URL or path
             if (!filter_var($data['target'], FILTER_VALIDATE_URL)) {
                 // Try as a path
-                require_once plugin_dir_path(__FILE__) . 'redirects-model.php';
                 $normalized_target = AlmaSEO_Redirects_Model::normalize_path($data['target']);
-                
+
                 if (!$normalized_target) {
                     $errors->add('invalid_target', __('Invalid target. Must be a valid URL or path starting with /.', 'almaseo-seo-playground'));
                 }
-                
+
                 // Check for potential loops
                 if (isset($normalized_source) && $normalized_source === $normalized_target) {
                     $errors->add('redirect_loop', __('Source and target cannot be the same.', 'almaseo-seo-playground'));
                 }
             }
         }
-        
+
         // Validate status
-        if (isset($data['status']) && !in_array($data['status'], array(301, 302))) {
-            $errors->add('invalid_status', __('Status must be 301 or 302.', 'almaseo-seo-playground'));
+        if (isset($data['status']) && !in_array((int) $data['status'], AlmaSEO_Redirects_Model::allowed_statuses(), true)) {
+            $errors->add('invalid_status', __('Unsupported redirect status code. Use 301, 302, 307, 308, 410, or 451.', 'almaseo-seo-playground'));
         }
         
         if ($errors->has_errors()) {

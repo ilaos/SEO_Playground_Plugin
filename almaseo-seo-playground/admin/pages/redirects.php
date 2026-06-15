@@ -124,7 +124,7 @@ if (!current_user_can('manage_options')) {
                     </p>
                 </div>
                 
-                <div class="form-field">
+                <div class="form-field" id="redirect-target-field">
                     <label for="redirect-target">
                         <?php esc_html_e('Target URL', 'almaseo-seo-playground'); ?>
                         <span class="required">*</span>
@@ -134,21 +134,17 @@ if (!current_user_can('manage_options')) {
                         <?php esc_html_e('Where to redirect to. Can be a relative path or absolute URL.', 'almaseo-seo-playground'); ?>
                     </p>
                 </div>
-                
+
                 <div class="form-field">
-                    <label><?php esc_html_e('Redirect Type', 'almaseo-seo-playground'); ?></label>
-                    <div class="radio-group">
-                        <label>
-                            <input type="radio" name="status" value="301" checked />
-                            <strong>301 - <?php esc_html_e('Permanent', 'almaseo-seo-playground'); ?></strong>
-                            <span class="description"><?php esc_html_e('(SEO-friendly, passes link equity)', 'almaseo-seo-playground'); ?></span>
-                        </label>
-                        <label>
-                            <input type="radio" name="status" value="302" />
-                            <strong>302 - <?php esc_html_e('Temporary', 'almaseo-seo-playground'); ?></strong>
-                            <span class="description"><?php esc_html_e('(For temporary changes)', 'almaseo-seo-playground'); ?></span>
-                        </label>
-                    </div>
+                    <label for="redirect-status"><?php esc_html_e('Redirect Type', 'almaseo-seo-playground'); ?></label>
+                    <select id="redirect-status" name="status">
+                        <option value="301"><?php esc_html_e('301 - Permanent (SEO-friendly, passes link equity)', 'almaseo-seo-playground'); ?></option>
+                        <option value="302"><?php esc_html_e('302 - Temporary', 'almaseo-seo-playground'); ?></option>
+                        <option value="307"><?php esc_html_e('307 - Temporary (preserves request method)', 'almaseo-seo-playground'); ?></option>
+                        <option value="308"><?php esc_html_e('308 - Permanent (preserves request method)', 'almaseo-seo-playground'); ?></option>
+                        <option value="410"><?php esc_html_e('410 - Gone (content removed; no target needed)', 'almaseo-seo-playground'); ?></option>
+                        <option value="451"><?php esc_html_e('451 - Unavailable for legal reasons', 'almaseo-seo-playground'); ?></option>
+                    </select>
                 </div>
                 
                 <div class="form-field">
