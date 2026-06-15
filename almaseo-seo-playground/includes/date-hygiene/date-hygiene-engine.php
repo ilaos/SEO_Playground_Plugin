@@ -353,6 +353,12 @@ class AlmaSEO_Date_Hygiene_Engine {
     public static function scan_all() {
         global $wpdb;
 
+        // Scanning every published post can take a while on large sites; keep
+        // going even if the client (browser fetch) has already timed out, so
+        // the findings table finishes populating server-side.
+        @set_time_limit( 0 );      // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+        @ignore_user_abort( true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+
         $settings     = self::get_settings();
         $post_types   = ! empty( $settings['scan_post_types'] ) ? $settings['scan_post_types'] : array( 'post', 'page', 'product' );
         $placeholders = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
@@ -385,8 +391,12 @@ class AlmaSEO_Date_Hygiene_Engine {
 
                 if ( ! empty( $findings ) ) {
                     // Filter out findings that were previously dismissed/resolved.
+                    // detected_value must be sanitized the same way the model
+                    // stores it (sanitize_text_field collapses whitespace), or
+                    // multi-word findings won't match their stored key and a
+                    // dismissed finding would reappear after every re-scan.
                     $findings = array_filter( $findings, function ( $f ) use ( $dismissed_keys ) {
-                        $key = $f['post_id'] . ':' . $f['finding_type'] . ':' . $f['detected_value'];
+                        $key = $f['post_id'] . ':' . $f['finding_type'] . ':' . sanitize_text_field( $f['detected_value'] );
                         return ! isset( $dismissed_keys[ $key ] );
                     } );
 

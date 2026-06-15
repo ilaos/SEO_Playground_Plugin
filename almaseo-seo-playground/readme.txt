@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.11
+Stable tag: 1.19.12
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,13 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.12 =
+**Date Hygiene audit fixes**
+
+* Fix: Findings you dismiss or resolve now reliably stay hidden after a re-scan. Multi-word findings (dated phrases, listicle-style year titles) with irregular spacing could previously reappear on the next scan; their identity is now matched consistently.
+* Fix: "Scan Now" can now finish on large sites. The scan keeps running server-side even if the browser request times out, so all findings are recorded instead of stopping partway.
+* Fix: The Date Hygiene page's styles and scripts now update correctly on plugin upgrades (they were pinned to a stale version string and could be served from browser cache).
 
 = 1.19.11 =
 **Refresh Queue audit fixes**
