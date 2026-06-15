@@ -324,7 +324,7 @@ class BulkMeta_REST {
             }
             $d = (string) get_post_meta( $pid, '_almaseo_meta_description', true );
             if ( $d === '' ) {
-                $d = (string) get_post_meta( $pid, '_almaseo_desc', true );
+                $d = (string) get_post_meta( $pid, '_almaseo_description', true );
             }
 
             $post_type_obj = get_post_type_object( $post->post_type );

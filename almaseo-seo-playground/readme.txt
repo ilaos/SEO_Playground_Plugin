@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.8
+Stable tag: 1.19.9
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,12 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.9 =
+**Bulk Metadata Editor audit fix**
+
+* Fix: Meta descriptions set in the per-post SEO editor or brought in through Import now appear correctly in the Bulk Metadata Editor grid. They were showing as blank because the editor read the description from the wrong meta key — titles were unaffected.
+* Fix: The "Missing metadata" filter no longer flags posts that already have a meta description set outside the bulk editor.
 
 = 1.19.8 =
 **Orphan Pages audit fixes**

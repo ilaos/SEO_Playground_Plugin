@@ -217,7 +217,7 @@ class BulkMeta_Controller {
         }
         $d = (string) get_post_meta($pid, '_almaseo_meta_description', true);
         if ($d === '') {
-            $d = (string) get_post_meta($pid, '_almaseo_desc', true);
+            $d = (string) get_post_meta($pid, '_almaseo_description', true);
         }
         $post_type_obj = get_post_type_object($post->post_type);
         return array(
@@ -311,8 +311,8 @@ class BulkMeta_Controller {
                         array('key' => '_almaseo_meta_description', 'value' => '', 'compare' => '='),
                     ),
                     array('relation' => 'OR',
-                        array('key' => '_almaseo_desc', 'compare' => 'NOT EXISTS'),
-                        array('key' => '_almaseo_desc', 'value' => '', 'compare' => '='),
+                        array('key' => '_almaseo_description', 'compare' => 'NOT EXISTS'),
+                        array('key' => '_almaseo_description', 'value' => '', 'compare' => '='),
                     ),
                 ),
             );
