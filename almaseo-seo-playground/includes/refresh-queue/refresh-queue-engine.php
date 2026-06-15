@@ -297,6 +297,12 @@ class AlmaSEO_Refresh_Queue_Engine {
     public static function recalculate_all() {
         global $wpdb;
 
+        // Scoring every published post can take a while on large sites; keep
+        // going even if the client (browser fetch) has already timed out, so
+        // the queue finishes populating server-side.
+        @set_time_limit( 0 );      // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+        @ignore_user_abort( true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+
         $excluded_types = array( 'attachment', 'revision', 'nav_menu_item', 'wp_template', 'wp_template_part', 'wp_navigation' );
         $placeholders   = implode( ', ', array_fill( 0, count( $excluded_types ), '%s' ) );
 

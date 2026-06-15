@@ -257,8 +257,8 @@
         }).then(function () {
             if (saveBtn) saveBtn.disabled = false;
             if (settingsMsg) {
-                settingsMsg.textContent = 'Saved!';
-                setTimeout(function () { settingsMsg.textContent = ''; }, 2000);
+                settingsMsg.textContent = 'Saved — click Recalculate to apply the new weights.';
+                setTimeout(function () { settingsMsg.textContent = ''; }, 4000);
             }
         }).catch(function () {
             if (saveBtn) saveBtn.disabled = false;

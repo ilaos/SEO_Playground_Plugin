@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.10
+Stable tag: 1.19.11
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,13 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.11 =
+**Refresh Queue audit fixes**
+
+* Fix: "Recalculate" can now finish scoring large sites. The job keeps running server-side even if the browser request times out, so the queue populates instead of stopping partway.
+* Fix: The Signal Weights save confirmation now reminds you to click Recalculate to apply the new weights (changing weights doesn't re-score existing posts on its own).
+* Fix: The Refresh Queue page's styles and scripts now update correctly on plugin upgrades (they were pinned to a stale version string and could be served from browser cache).
 
 = 1.19.10 =
 **Content Refresh audit fixes**
