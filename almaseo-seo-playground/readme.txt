@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.3
+Stable tag: 1.19.4
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,15 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.4 =
+**LLMs.txt audit fixes**
+
+* Fix: llms.txt is now served correctly on WordPress installs in a subdirectory (e.g. example.com/blog/llms.txt). Previously only root installs worked, so the "View llms.txt" link 404'd on subfolder sites.
+* New: The editor now warns when a physical llms.txt file exists at your site root, since the web server serves that file directly and the editor content would otherwise have no visible effect.
+* Fix: Removed an unimplemented "file" mode that could be saved via the API and would silently stop llms.txt from being served. Only Virtual and Disabled remain (the only two the UI offers).
+* Fix: Served llms.txt now sends explicit 200 and no-cache headers so proxies and CDNs don't serve a stale or wrong-status response.
+* Fix: Auto-Generate no longer emits unresolved template variables (e.g. %%title%%) into the file when a post's meta description contains them — it falls back to a content excerpt instead.
 
 = 1.19.3 =
 **.htaccess audit — automatic crash protection**

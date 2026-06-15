@@ -62,6 +62,14 @@ class AlmaSEO_LLMS_Txt_Generator {
 
             foreach ( $posts as $post ) {
                 $desc = get_post_meta( $post->ID, '_almaseo_description', true );
+
+                // Don't emit unresolved template tokens (e.g. %%title%% or
+                // imported #post_excerpt) into the file — fall back to an excerpt.
+                if ( ! empty( $desc ) && class_exists( 'AlmaSEO_Tag_Validator' )
+                    && ! AlmaSEO_Tag_Validator::is_usable_value( $desc ) ) {
+                    $desc = '';
+                }
+
                 if ( empty( $desc ) ) {
                     $desc = wp_trim_words( wp_strip_all_tags( $post->post_content ), 20, '...' );
                 }

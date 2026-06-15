@@ -10,18 +10,36 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-$content = get_option( 'almaseo_llms_txt_content', '' );
-$mode    = get_option( 'almaseo_llms_txt_mode', 'virtual' );
+$controller = AlmaSEO_LLMS_Txt_Controller::get_instance();
+$content    = get_option( 'almaseo_llms_txt_content', '' );
+$mode       = get_option( 'almaseo_llms_txt_mode', 'virtual' );
 
 if ( empty( $content ) ) {
     $content = AlmaSEO_LLMS_Txt_Controller::get_default_content();
 }
+
+$physical_exists = $controller->physical_file_exists();
 ?>
 <div class="wrap almaseo-llms-txt-wrap">
     <h1><?php esc_html_e( 'LLMs.txt Editor', 'almaseo-seo-playground' ); ?></h1>
     <p class="description">
         <?php esc_html_e( 'The llms.txt file helps large language models understand your site structure and content. Similar to robots.txt for search engines, this file guides LLMs on how to interact with your content.', 'almaseo-seo-playground' ); ?>
     </p>
+
+    <?php if ( $physical_exists ) : ?>
+    <div class="notice notice-warning">
+        <p>
+            <strong><?php esc_html_e( 'Warning:', 'almaseo-seo-playground' ); ?></strong>
+            <?php
+            printf(
+                /* translators: %s: absolute path to the physical llms.txt file */
+                esc_html__( 'A physical llms.txt file exists at %s. Your web server serves that file directly, so the content below will not take effect until you remove it.', 'almaseo-seo-playground' ),
+                '<code>' . esc_html( $controller->get_physical_file_path() ) . '</code>'
+            );
+            ?>
+        </p>
+    </div>
+    <?php endif; ?>
 
     <div class="almaseo-llms-txt-notice" id="almaseo-llms-txt-notice" style="display:none;"></div>
 

@@ -109,7 +109,14 @@ class AlmaSEO_LLMS_Txt_Controller {
         }
 
         $path = wp_parse_url( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), PHP_URL_PATH );
-        if ( $path !== '/llms.txt' && $path !== '/llms-full.txt' ) {
+        if ( ! is_string( $path ) ) {
+            return;
+        }
+        $path = untrailingslashit( $path );
+
+        // Match relative to the WordPress home path so subdirectory installs
+        // (e.g. /blog/llms.txt) are served, not just root installs.
+        if ( ! in_array( $path, self::get_request_paths(), true ) ) {
             return;
         }
 
@@ -123,10 +130,47 @@ class AlmaSEO_LLMS_Txt_Controller {
             $content = self::get_default_content();
         }
 
+        nocache_headers();
+        status_header( 200 );
         header( 'Content-Type: text/plain; charset=utf-8' );
         header( 'X-Robots-Tag: noindex' );
         echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- plain text file
         exit;
+    }
+
+    /**
+     * Request paths that should serve the llms.txt content, relative to the
+     * site's home path (handles both root and subdirectory installs).
+     *
+     * @return string[]
+     */
+    private static function get_request_paths() {
+        $home_path = wp_parse_url( home_url( '/' ), PHP_URL_PATH );
+        $home_path = is_string( $home_path ) ? untrailingslashit( $home_path ) : '';
+
+        return array(
+            $home_path . '/llms.txt',
+            $home_path . '/llms-full.txt',
+        );
+    }
+
+    /**
+     * Absolute path to a physical llms.txt file at the site root, if any.
+     *
+     * @return string
+     */
+    public function get_physical_file_path() {
+        return trailingslashit( ABSPATH ) . 'llms.txt';
+    }
+
+    /**
+     * Whether a physical llms.txt file exists at the site root. When present,
+     * the web server serves it directly and the virtual editor has no effect.
+     *
+     * @return bool
+     */
+    public function physical_file_exists() {
+        return file_exists( $this->get_physical_file_path() );
     }
 
     /**
@@ -142,7 +186,10 @@ class AlmaSEO_LLMS_Txt_Controller {
         $content = isset( $_POST['content'] ) ? sanitize_textarea_field( wp_unslash( $_POST['content'] ) ) : '';
         $mode    = isset( $_POST['mode'] ) ? sanitize_key( wp_unslash( $_POST['mode'] ) ) : 'virtual';
 
-        if ( ! in_array( $mode, array( 'virtual', 'file', 'disabled' ), true ) ) {
+        // Only 'virtual' and 'disabled' are implemented. A physical "file"
+        // mode was never wired up (no file is written), so it would silently
+        // stop serving llms.txt — reject it rather than persist it.
+        if ( ! in_array( $mode, array( 'virtual', 'disabled' ), true ) ) {
             $mode = 'virtual';
         }
 
