@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.15
+Stable tag: 1.19.16
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.16 =
+**Tag Manager audit fix**
+
+* Fix: Saving on the Tag Manager page now shows a "settings saved" confirmation. The page previously saved correctly but gave no visible feedback. The rest of the feature reviewed clean (admin-only, code injected verbatim on frontend pages only).
 
 = 1.19.15 =
 **Schema Drift audit fixes**

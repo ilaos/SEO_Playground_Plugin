@@ -183,9 +183,24 @@ class AlmaSEO_Tag_Manager {
         }
 
         $s = self::get_settings();
+
+        // This is a custom admin page (admin.php?page=), so WordPress' automatic
+        // "Settings saved." notice — which only renders on real options-*.php
+        // screens — never appears. Queue and render it ourselves so saving the
+        // form gives visible confirmation.
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only flag set by options.php redirect
+        if ( ! empty( $_GET['settings-updated'] ) ) {
+            add_settings_error(
+                self::OPTION_GROUP,
+                'almaseo_tag_manager_saved',
+                __( 'Tag Manager settings saved.', 'almaseo-seo-playground' ),
+                'updated'
+            );
+        }
         ?>
         <div class="wrap almaseo-tag-manager-wrap">
             <h1><?php esc_html_e( 'Tag Manager', 'almaseo-seo-playground' ); ?></h1>
+            <?php settings_errors( self::OPTION_GROUP ); ?>
 
             <p class="description" style="max-width:780px;">
                 <?php esc_html_e( 'Inject custom code into your site\'s frontend. Paste full <script>, <style>, <noscript>, or <meta> tags — anything you enter here is output verbatim. Useful for analytics, pixels, verification scripts, chat widgets, and other third-party snippets.', 'almaseo-seo-playground' ); ?>
