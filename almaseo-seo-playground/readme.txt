@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.7
+Stable tag: 1.19.8
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,12 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.8 =
+**Orphan Pages audit fixes**
+
+* Fix: The "Orphans" summary count at the top of the Orphan Pages screen always showed 0, even when orphan pages existed (the table below listed them correctly). The count is now accurate.
+* Fix: Orphan detection no longer reports false orphans when internal links are written without a trailing slash (e.g. /my-post) but permalinks include one (/my-post/). Inbound link matching is now trailing-slash insensitive, so genuinely-linked pages are recognized.
 
 = 1.19.7 =
 **Internal Links audit fix**

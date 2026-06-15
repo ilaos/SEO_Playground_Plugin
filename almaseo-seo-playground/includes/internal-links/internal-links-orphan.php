@@ -62,10 +62,11 @@ class AlmaSEO_Internal_Links_Orphan {
             $url = get_permalink( $post->ID );
             if ( $url ) {
                 $url_map[ $url ] = (int) $post->ID;
-                // Also index the path-only version.
+                // Also index a trailing-slash-insensitive path so links written
+                // as /my-post still match a permalink stored as /my-post/.
                 $path = wp_parse_url( $url, PHP_URL_PATH );
                 if ( $path ) {
-                    $url_map[ $path ] = (int) $post->ID;
+                    $url_map[ self::normalize_path_key( $path ) ] = (int) $post->ID;
                 }
             }
         }
@@ -230,9 +231,14 @@ class AlmaSEO_Internal_Links_Orphan {
         );
 
         foreach ( $rows as $r ) {
-            $stats['total'] += (int) $r->cnt;
-            if ( isset( $stats[ $r->status ] ) ) {
-                $stats[ $r->status ] = (int) $r->cnt;
+            $cnt             = (int) $r->cnt;
+            $stats['total'] += $cnt;
+
+            // The stored status is 'orphan' (singular); the stat card key is
+            // 'orphans' (plural). Map it so the Orphans count isn't always 0.
+            $key = ( 'orphan' === $r->status ) ? 'orphans' : $r->status;
+            if ( isset( $stats[ $key ] ) ) {
+                $stats[ $key ] = $cnt;
             }
         }
 
@@ -381,15 +387,32 @@ class AlmaSEO_Internal_Links_Orphan {
                     $targets[] = $url_map[ $href ];
                     continue;
                 }
-                // Check path-only match.
+                // Check path-only match (trailing-slash insensitive).
                 $path = wp_parse_url( $href, PHP_URL_PATH );
-                if ( $path && isset( $url_map[ $path ] ) ) {
-                    $targets[] = $url_map[ $path ];
+                if ( $path ) {
+                    $key = self::normalize_path_key( $path );
+                    if ( isset( $url_map[ $key ] ) ) {
+                        $targets[] = $url_map[ $key ];
+                    }
                 }
             }
         }
 
         return array_unique( $targets );
+    }
+
+    /**
+     * Normalize a URL path for matching: strip the trailing slash, except for
+     * the site root which stays '/'.
+     *
+     * @param string $path URL path.
+     * @return string
+     */
+    private static function normalize_path_key( $path ) {
+        if ( ! $path ) {
+            return '';
+        }
+        return ( '/' === $path ) ? '/' : untrailingslashit( $path );
     }
 
     /**
