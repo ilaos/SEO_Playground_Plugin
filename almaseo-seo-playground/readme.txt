@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.12
+Stable tag: 1.19.13
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,12 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.13 =
+**E-E-A-T audit fixes**
+
+* Fix: The E-E-A-T "Scan Now" can now finish on large sites. The scan keeps running server-side even if the browser request times out, so all findings are recorded instead of stopping partway.
+* Fix: The E-E-A-T page's styles and scripts now update correctly on plugin upgrades (they were pinned to a stale version string and could be served from browser cache).
 
 = 1.19.12 =
 **Date Hygiene audit fixes**

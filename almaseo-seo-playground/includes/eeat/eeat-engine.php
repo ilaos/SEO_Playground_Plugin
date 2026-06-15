@@ -419,6 +419,12 @@ class AlmaSEO_EEAT_Engine {
     public static function scan_all() {
         global $wpdb;
 
+        // Scanning every published post can take a while on large sites; keep
+        // going even if the client (browser fetch) has already timed out, so
+        // the findings table finishes populating server-side.
+        @set_time_limit( 0 );      // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+        @ignore_user_abort( true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+
         $settings     = self::get_settings();
         $post_types   = ! empty( $settings['scan_post_types'] ) ? $settings['scan_post_types'] : array( 'post', 'page', 'product' );
         $placeholders = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
