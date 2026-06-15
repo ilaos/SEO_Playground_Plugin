@@ -775,7 +775,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                     <td><?php esc_html_e( 'Detect when structured data changes unexpectedly after plugin/theme updates', 'almaseo-seo-playground' ); ?></td>
                 </tr>
                 <tr>
-                    <td><?php esc_html_e( 'Featured Snippet Targeting', 'almaseo-seo-playground' ); ?></td>
+                    <td>
+                        <?php esc_html_e( 'Featured Snippet Targeting', 'almaseo-seo-playground' ); ?>
+                        <em style="color:#646970; font-weight:normal;"><?php esc_html_e( '(coming soon)', 'almaseo-seo-playground' ); ?></em>
+                    </td>
                     <td><?php esc_html_e( 'Win Google\'s "position zero" with draft editor, live preview, and one-click content insertion', 'almaseo-seo-playground' ); ?></td>
                 </tr>
             </tbody>
