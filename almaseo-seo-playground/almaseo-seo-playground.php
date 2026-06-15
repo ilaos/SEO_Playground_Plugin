@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with Alma-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights.
-Version: 1.19.18
+Version: 1.19.19
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -50,7 +50,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
     }
     if ( $almaseo_seo_conflict ) {
         // Define only the bare minimum constants, then stop loading.
-        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.19.18' );
+        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.19.19' );
         if ( ! defined( 'ALMASEO_PATH' ) )           define( 'ALMASEO_PATH', plugin_dir_path( __FILE__ ) );
         if ( ! defined( 'ALMASEO_URL' ) )            define( 'ALMASEO_URL', plugin_dir_url( __FILE__ ) );
         if ( ! defined( 'ALMASEO_MAIN_FILE' ) )      define( 'ALMASEO_MAIN_FILE', __FILE__ );
@@ -62,7 +62,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
 if (!defined('ALMASEO_MAIN_FILE'))       define('ALMASEO_MAIN_FILE', __FILE__);
 if (!defined('ALMASEO_PATH'))            define('ALMASEO_PATH', plugin_dir_path(__FILE__));
 if (!defined('ALMASEO_URL'))             define('ALMASEO_URL', plugin_dir_url(__FILE__));
-if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.19.18');
+if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.19.19');
 if (!defined('ALMASEO_VERSION'))         define('ALMASEO_VERSION', '6.5.0');
 if (!defined('ALMASEO_API_NAMESPACE'))   define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
 if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
@@ -2187,7 +2187,13 @@ add_action('wp_ajax_almaseo_get_status', function() {
         wp_send_json_error(array('message' => 'Security check failed'));
         return;
     }
-    
+    // almaseo_nonce is shared with author-facing editor features, so a nonce
+    // check alone isn't enough — connection state is admin-only.
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error(array('message' => 'Insufficient permissions'));
+        return;
+    }
+
     $status = almaseo_get_connection_status();
     wp_send_json_success($status);
 });
@@ -2199,7 +2205,13 @@ add_action('wp_ajax_almaseo_check_dashboard', function() {
         wp_send_json_error(array('message' => 'Security check failed'));
         return;
     }
-    
+    // almaseo_nonce is shared with author-facing editor features — gate this
+    // connection/registration lookup on the admin capability.
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error(array('message' => 'Insufficient permissions'));
+        return;
+    }
+
     $dashboard_status = almaseo_check_dashboard_registration();
     
     if ($dashboard_status['registered']) {
@@ -2224,9 +2236,16 @@ add_action('wp_ajax_almaseo_test_connection', function() {
         wp_send_json_error(array('message' => 'Security check failed'));
         return;
     }
-    
+    // almaseo_nonce is shared with author-facing editor features. This handler
+    // makes an authenticated outbound call with the site's stored credentials,
+    // so it must be restricted to administrators.
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error(array('message' => 'Insufficient permissions'));
+        return;
+    }
+
     $status = almaseo_get_connection_status();
-    
+
     if (!$status['connected']) {
         wp_send_json_error(array('message' => 'Site is not connected to AlmaSEO'));
         return;
