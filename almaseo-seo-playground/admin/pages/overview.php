@@ -31,8 +31,8 @@ function seo_playground_render_overview_page() {
     // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
     $optimized_count = (int) $wpdb->get_var(
         "SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->posts} p
-         INNER JOIN {$wpdb->postmeta} pm1 ON p.ID = pm1.post_id AND pm1.meta_key = '_seo_playground_title' AND pm1.meta_value != ''
-         INNER JOIN {$wpdb->postmeta} pm2 ON p.ID = pm2.post_id AND pm2.meta_key = '_seo_playground_description' AND pm2.meta_value != ''
+         INNER JOIN {$wpdb->postmeta} pm1 ON p.ID = pm1.post_id AND pm1.meta_key = '_almaseo_title' AND pm1.meta_value != ''
+         INNER JOIN {$wpdb->postmeta} pm2 ON p.ID = pm2.post_id AND pm2.meta_key = '_almaseo_description' AND pm2.meta_value != ''
          WHERE p.post_type = 'post' AND p.post_status = 'publish'"
     );
 
@@ -41,7 +41,7 @@ function seo_playground_render_overview_page() {
     $has_any_meta = (int) $wpdb->get_var(
         "SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->posts} p
          INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-            AND pm.meta_key IN ('_seo_playground_title', '_seo_playground_description')
+            AND pm.meta_key IN ('_almaseo_title', '_almaseo_description')
             AND pm.meta_value != ''
          WHERE p.post_type = 'post' AND p.post_status = 'publish'"
     );
@@ -50,10 +50,13 @@ function seo_playground_render_overview_page() {
     // Calculate health score percentage
     $health_score = $total_posts > 0 ? round(($optimized_count / $total_posts) * 100) : 0;
 
-    // Get 404 count if available
+    // Get 404 count from the 404 module (unique paths seen in the last 7 days).
+    // The old seo_playground_get_404_count() helper never existed, so this
+    // metric had been stuck at 0.
     $error_404_count = 0;
-    if (function_exists('seo_playground_get_404_count')) {
-        $error_404_count = seo_playground_get_404_count();
+    if (class_exists('AlmaSEO_404_Model') && method_exists('AlmaSEO_404_Model', 'get_stats')) {
+        $stats_404 = AlmaSEO_404_Model::get_stats();
+        $error_404_count = isset($stats_404['unique_7d']) ? (int) $stats_404['unique_7d'] : 0;
     }
 
     // Check if Pro is active
@@ -123,7 +126,7 @@ function seo_playground_render_overview_page() {
                     <div class="almaseo-metric-value"><?php echo esc_html($error_404_count); ?></div>
                     <div class="almaseo-metric-label">404 Errors</div>
                     <div class="almaseo-metric-sublabel">
-                        <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-404-monitor')); ?>">View all &rarr;</a>
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-404-logs')); ?>">View all &rarr;</a>
                     </div>
                 </div>
             </div>
@@ -135,16 +138,16 @@ function seo_playground_render_overview_page() {
                 </div>
                 <div class="almaseo-metric-content">
                     <?php
-                    $pending_links = 0;
+                    $active_link_rules = 0;
                     if (class_exists('AlmaSEO_Internal_Links_Model') && method_exists('AlmaSEO_Internal_Links_Model', 'get_stats')) {
                         $link_stats = AlmaSEO_Internal_Links_Model::get_stats();
-                        $pending_links = isset($link_stats['pending']) ? $link_stats['pending'] : 0;
+                        $active_link_rules = isset($link_stats['active_rules']) ? $link_stats['active_rules'] : 0;
                     }
                     ?>
-                    <div class="almaseo-metric-value"><?php echo esc_html($pending_links); ?></div>
-                    <div class="almaseo-metric-label">Link Suggestions</div>
+                    <div class="almaseo-metric-value"><?php echo esc_html($active_link_rules); ?></div>
+                    <div class="almaseo-metric-label">Link Rules</div>
                     <div class="almaseo-metric-sublabel">
-                        <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-internal-links')); ?>">Review &rarr;</a>
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-internal-links')); ?>">Manage &rarr;</a>
                     </div>
                 </div>
             </div>
@@ -158,7 +161,7 @@ function seo_playground_render_overview_page() {
                     <?php
                     $pending_drafts = 0;
                     if (class_exists('AlmaSEO_Refresh_Draft_Model') && method_exists('AlmaSEO_Refresh_Draft_Model', 'count')) {
-                        $pending_drafts = AlmaSEO_Refresh_Draft_Model::count(array('status' => 'pending'));
+                        $pending_drafts = AlmaSEO_Refresh_Draft_Model::count('pending');
                     }
                     ?>
                     <div class="almaseo-metric-value"><?php echo esc_html($pending_drafts); ?></div>
@@ -244,20 +247,25 @@ function seo_playground_render_overview_page() {
                             <?php while ($posts_query->have_posts()): $posts_query->the_post();
                                 $post_id = get_the_ID();
 
-                                // Get post meta data
-                                $seo_title = get_post_meta($post_id, '_seo_playground_title', true);
-                                $seo_description = get_post_meta($post_id, '_seo_playground_description', true);
-                                $schema_type = get_post_meta($post_id, '_seo_playground_schema_type', true);
-                                $keyword_suggestions = get_post_meta($post_id, '_seo_playground_keyword_suggestions', true);
-                                $internal_links = get_post_meta($post_id, '_seo_playground_internal_links', true);
-                                $rewrite_data = get_post_meta($post_id, '_seo_playground_rewrite', true);
-                                $reoptimize_flag = get_post_meta($post_id, '_seo_playground_reoptimize_flag', true);
+                                // Get post meta data. These use the canonical _almaseo_* keys
+                                // that the rest of the plugin reads/writes (the old
+                                // _seo_playground_* namespace was renamed and nothing writes it).
+                                $seo_title = get_post_meta($post_id, '_almaseo_title', true);
+                                $seo_description = get_post_meta($post_id, '_almaseo_description', true);
+                                $schema_type = get_post_meta($post_id, '_almaseo_schema_type', true);
+                                $keyword_suggestions = get_post_meta($post_id, '_almaseo_kw_suggestions', true);
+                                $focus_keyword = get_post_meta($post_id, '_almaseo_focus_keyword', true);
+                                // No per-post equivalents exist for these in the current
+                                // architecture; they remain unset (their scorecard checks stay false).
+                                $internal_links = '';
+                                $rewrite_data = '';
+                                $reoptimize_flag = '';
 
                                 // Calculate scorecard status (similar to JavaScript logic)
                                 $scorecard_checks = array(
                                     'seo_title' => !empty($seo_title),
                                     'meta_description' => !empty($seo_description),
-                                    'focus_keywords' => !empty($keyword_suggestions),
+                                    'focus_keywords' => !empty($focus_keyword) || !empty($keyword_suggestions),
                                     'internal_links' => !empty($internal_links),
                                     'schema_type' => !empty($schema_type) && $schema_type !== 'none',
                                     'ai_rewrite' => !empty($rewrite_data),
@@ -330,7 +338,12 @@ function seo_playground_render_overview_page() {
                                         <button class="almaseo-action-btn almaseo-rewrite-btn" data-post-id="<?php echo esc_attr($post_id); ?>">
                                             ✍️ Rewrite
                                         </button>
-                                        <button class="almaseo-action-btn almaseo-view-meta-btn" data-post-id="<?php echo esc_attr($post_id); ?>">
+                                        <button class="almaseo-action-btn almaseo-view-meta-btn"
+                                            data-post-id="<?php echo esc_attr($post_id); ?>"
+                                            data-meta-title="<?php echo esc_attr($seo_title); ?>"
+                                            data-meta-desc="<?php echo esc_attr($seo_description); ?>"
+                                            data-meta-schema="<?php echo esc_attr(!empty($schema_type) && $schema_type !== 'none' ? ucfirst($schema_type) : ''); ?>"
+                                            data-meta-keyword="<?php echo esc_attr($focus_keyword); ?>">
                                             👁 View Meta
                                         </button>
                                     </div>
@@ -404,7 +417,7 @@ function seo_playground_render_overview_page() {
                         </div>
 
                         <div class="almaseo-quick-link">
-                            <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-404-monitor')); ?>">
+                            <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-404-logs')); ?>">
                                 <span class="dashicons dashicons-warning"></span>
                                 404 Monitor (<?php echo esc_html($error_404_count); ?>)
                             </a>
@@ -442,9 +455,9 @@ function seo_playground_render_overview_page() {
                             </a>
                         </div>
                         <div class="almaseo-action-item">
-                            <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-schema')); ?>">
-                                <span class="dashicons dashicons-media-code"></span>
-                                Schema Manager
+                            <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-import')); ?>">
+                                <span class="dashicons dashicons-migrate"></span>
+                                Import &amp; Migrate
                             </a>
                         </div>
                     </div>
@@ -1146,28 +1159,31 @@ function seo_playground_render_overview_page() {
             });
         });
 
-        // View Meta button
+        // View Meta button — render the post's real SEO meta (embedded as
+        // data attributes server-side), with a "not set" fallback per field.
         $('.almaseo-view-meta-btn').on('click', function() {
-            var postId = $(this).data('post-id');
-            var postTitle = $(this).closest('tr').find('td:first a').text();
+            var $btn      = $(this);
+            var postTitle = $btn.closest('tr').find('td:first a').text();
 
-            // Show modal with post meta data
-            $('#almaseo-meta-content').empty().append($('<p>').text('Loading meta data for: ' + postTitle));
+            function field(val) {
+                if (val && String(val).trim() !== '') {
+                    return $('<span class="meta-value"></span>').text(val).prop('outerHTML');
+                }
+                return '<span class="meta-value" style="color:#a7aaad; font-style:italic;">Not set</span>';
+            }
+
+            var html = '<div class="almaseo-meta-details">' +
+                '<h4></h4>' +
+                '<p><strong>SEO Title:</strong> ' + field($btn.data('meta-title')) + '</p>' +
+                '<p><strong>Meta Description:</strong> ' + field($btn.data('meta-desc')) + '</p>' +
+                '<p><strong>Schema Type:</strong> ' + field($btn.data('meta-schema')) + '</p>' +
+                '<p><strong>Focus Keyword:</strong> ' + field($btn.data('meta-keyword')) + '</p>' +
+                '</div>';
+
+            $('#almaseo-meta-content').html(html);
+            // Set the post title via .text() so it can't inject markup.
+            $('#almaseo-meta-content h4').text('SEO Meta Data for: ' + postTitle);
             $('#almaseo-view-meta-modal').show();
-
-            // In a real implementation, you would fetch the meta data via AJAX
-            // For now, we'll show a placeholder
-            setTimeout(function() {
-                $('#almaseo-meta-content').html(
-                    '<div class="almaseo-meta-details">' +
-                    '<h4>SEO Meta Data for: ' + postTitle + '</h4>' +
-                    '<p><strong>SEO Title:</strong> <span class="meta-value">Sample SEO Title</span></p>' +
-                    '<p><strong>Meta Description:</strong> <span class="meta-value">Sample meta description for this post...</span></p>' +
-                    '<p><strong>Schema Type:</strong> <span class="meta-value">Article</span></p>' +
-                    '<p><strong>Keywords:</strong> <span class="meta-value">keyword1, keyword2, keyword3</span></p>' +
-                    '</div>'
-                );
-            }, 500);
         });
 
         // Close modal

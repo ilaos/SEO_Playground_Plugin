@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.17
+Stable tag: 1.19.18
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,15 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.18 =
+**Overview dashboard audit fixes**
+
+* Fix: The Overview dashboard now shows real numbers. The SEO Health Score, Optimized Posts, and Need Review counts were stuck at 0 because they read an old, renamed set of meta keys; they now read the actual SEO title/description data. The per-post table scorecards are accurate for the same reason.
+* Fix: The "404 Errors" metric was always 0 — it now reflects real 404 activity from the 404 Monitor.
+* Fix: The "Link Suggestions" metric (which read a value that no longer exists) now shows your active internal-link rules.
+* Fix: Several dashboard links pointed to the wrong place — the 404 Monitor links and a broken "Schema Manager" shortcut have been corrected.
+* Fix: The per-post "View Meta" popup showed placeholder sample text; it now displays the post's real SEO title, description, schema type, and focus keyword.
 
 = 1.19.17 =
 **Documentation page audit fix**
