@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.21
+Stable tag: 1.19.22
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.22 =
+**Content Refresh — prevent silent loss of edits**
+
+* Fix: Applying a content refresh draft no longer silently discards edits made to the post after the draft was created. The plugin now records a fingerprint of the live content when a draft is generated and detects if the post changed before you apply. When it has, the review screen shows a clear warning and asks you to confirm before replacing the live content (the previous version is still kept as a WordPress revision). Drafts created before this update are unaffected and behave as before.
 
 = 1.19.21 =
 **Editor-panel AJAX audit — security hardening**

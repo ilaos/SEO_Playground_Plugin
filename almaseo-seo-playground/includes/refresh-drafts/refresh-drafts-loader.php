@@ -32,7 +32,7 @@ register_activation_hook(
       and the case where the plugin was already active). ── */
 add_action( 'admin_init', function () {
     $installed = get_option( 'almaseo_rd_db_version', '0' );
-    if ( version_compare( $installed, '1.0.0', '<' ) ) {
+    if ( version_compare( $installed, '1.1.0', '<' ) ) {
         almaseo_refresh_drafts_install();
     }
 } );

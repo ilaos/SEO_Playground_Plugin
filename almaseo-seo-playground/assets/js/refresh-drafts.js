@@ -143,6 +143,41 @@
         }
 
         if (applyBtn) {
+            var driftMsg =
+                'This post has been edited since this refresh draft was created.\n\n' +
+                'Applying now will replace the live content with the reviewed version ' +
+                'and discard those edits. The previous version is kept as a WordPress ' +
+                'revision.\n\nApply anyway?';
+
+            function sendApply(decisions, confirmDrift) {
+                applyBtn.disabled = true;
+                applyBtn.textContent = 'Applying\u2026';
+
+                wp.apiFetch({
+                    url:    cfg.restBase + '/' + draftId + '/review',
+                    method: 'POST',
+                    data:   { decisions: decisions, confirm_drift: !!confirmDrift },
+                }).then(function () {
+                    applyBtn.textContent = 'Applied!';
+                    setTimeout(function () {
+                        window.location.href = cfg.adminUrl;
+                    }, 800);
+                }).catch(function (err) {
+                    // Server detected drift between page load and apply \u2014 confirm and retry.
+                    if (err && err.code === 'content_drifted' && !confirmDrift) {
+                        applyBtn.disabled = false;
+                        applyBtn.textContent = 'Apply selected changes';
+                        if (window.confirm((err.message || driftMsg) + '\n\nApply anyway?')) {
+                            sendApply(decisions, true);
+                        }
+                        return;
+                    }
+                    applyBtn.disabled = false;
+                    applyBtn.textContent = 'Apply selected changes';
+                    alert('Something went wrong. Please try again.');
+                });
+            }
+
             applyBtn.addEventListener('click', function () {
                 var decisions = {};
                 sectionsWrap.querySelectorAll('.almaseo-rd-section.changed').forEach(function (el) {
@@ -151,23 +186,14 @@
                     decisions[key] = (cb && cb.checked) ? 'accept' : 'reject';
                 });
 
-                applyBtn.disabled = true;
-                applyBtn.textContent = 'Applying\u2026';
+                // Known-at-load drift: confirm before sending so the user is never
+                // surprised by silently overwritten edits.
+                var driftedAtLoad = sectionsWrap.dataset.drifted === '1';
+                if (driftedAtLoad && !window.confirm(driftMsg)) {
+                    return;
+                }
 
-                wp.apiFetch({
-                    url:    cfg.restBase + '/' + draftId + '/review',
-                    method: 'POST',
-                    data:   { decisions: decisions },
-                }).then(function () {
-                    applyBtn.textContent = 'Applied!';
-                    setTimeout(function () {
-                        window.location.href = cfg.adminUrl;
-                    }, 800);
-                }).catch(function () {
-                    applyBtn.disabled = false;
-                    applyBtn.textContent = 'Apply selected changes';
-                    alert('Something went wrong. Please try again.');
-                });
+                sendApply(decisions, driftedAtLoad);
             });
         }
 

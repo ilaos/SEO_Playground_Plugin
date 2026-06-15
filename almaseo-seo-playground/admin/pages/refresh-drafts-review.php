@@ -15,6 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $sections = json_decode( $draft->sections_json, true );
 $post     = get_post( $draft->post_id );
+
+// Drift: has the live post changed since this draft captured its baseline?
+// Legacy drafts (no stored hash) can't be checked, so they report no drift.
+$rd_drifted = false;
+if ( ! empty( $draft->content_hash ) && $post && $draft->status !== 'applied' ) {
+    $rd_drifted = ( md5( $post->post_content ) !== $draft->content_hash );
+}
 ?>
 <div class="wrap almaseo-rd-wrap almaseo-rd-review-wrap">
 
@@ -41,6 +48,18 @@ $post     = get_post( $draft->post_id );
         Created: <?php echo esc_html( $draft->created_at ); ?>
     </p>
 
+    <?php if ( $rd_drifted ) : ?>
+        <div class="notice notice-warning almaseo-rd-drift-warning" style="margin:16px 0;padding:12px 16px;border-left-width:4px;">
+            <p style="margin:0;">
+                <strong>&#9888; This post has changed since this refresh was created.</strong>
+                The &ldquo;Current&rdquo; column below is a snapshot from when the draft was generated and may no
+                longer match the live post. Applying will replace the live content with the reviewed version and
+                <strong>discard any edits made in the meantime</strong> (the previous version is kept as a WordPress
+                revision). You&rsquo;ll be asked to confirm before anything is applied.
+            </p>
+        </div>
+    <?php endif; ?>
+
     <?php if ( $draft->status !== 'applied' ) : ?>
         <div class="almaseo-rd-actions-top">
             <button id="almaseo-rd-accept-all" class="button">Accept all</button>
@@ -48,7 +67,7 @@ $post     = get_post( $draft->post_id );
         </div>
     <?php endif; ?>
 
-    <div class="almaseo-rd-sections" id="almaseo-rd-sections" data-draft-id="<?php echo esc_attr( $draft->id ); ?>">
+    <div class="almaseo-rd-sections" id="almaseo-rd-sections" data-draft-id="<?php echo esc_attr( $draft->id ); ?>" data-drifted="<?php echo $rd_drifted ? '1' : '0'; ?>">
         <?php foreach ( $sections as $i => $sec ) :
             $changed = ! empty( $sec['changed'] );
             $cls     = $changed ? 'almaseo-rd-section changed' : 'almaseo-rd-section unchanged';

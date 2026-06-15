@@ -77,6 +77,11 @@ class AlmaSEO_Refresh_Drafts_REST {
                     'required' => true,
                     'description' => 'Map of section key => "accept" | "reject".',
                 ),
+                'confirm_drift' => array(
+                    'type'        => 'boolean',
+                    'default'     => false,
+                    'description' => 'Acknowledge that the live post changed since the draft was created and apply anyway.',
+                ),
             ),
         ) );
     }
@@ -85,6 +90,31 @@ class AlmaSEO_Refresh_Drafts_REST {
 
     public static function can_manage() {
         return current_user_can( 'edit_posts' );
+    }
+
+    /**
+     * Has the live post changed since this draft captured its baseline?
+     *
+     * The draft stores old_body snapshots taken at create time; merge()
+     * rebuilds the whole post from those snapshots. If the live content was
+     * edited in the meantime, applying would silently discard those edits —
+     * so callers warn before applying when this returns true.
+     *
+     * Legacy drafts created before the content_hash column existed return
+     * false (we can't tell), preserving their previous behaviour.
+     *
+     * @param  object $row Draft row.
+     * @return bool
+     */
+    private static function has_drifted( $row ) {
+        if ( empty( $row->content_hash ) ) {
+            return false;
+        }
+        $post = get_post( $row->post_id );
+        if ( ! $post ) {
+            return false;
+        }
+        return md5( $post->post_content ) !== $row->content_hash;
     }
 
     /* ────────────────────── callbacks ── */
@@ -142,7 +172,10 @@ class AlmaSEO_Refresh_Drafts_REST {
         $trigger  = sanitize_key( $request['trigger_source'] );
 
         $sections = AlmaSEO_Refresh_Engine::diff( $original, $proposed );
-        $draft_id = AlmaSEO_Refresh_Draft_Model::create( $post_id, $sections, $trigger );
+        // Capture the live content fingerprint so we can later detect whether
+        // the post was edited between now and when the draft is applied.
+        $content_hash = md5( $original );
+        $draft_id = AlmaSEO_Refresh_Draft_Model::create( $post_id, $sections, $trigger, $content_hash );
 
         if ( ! $draft_id ) {
             return new WP_Error( 'db_error', 'Could not save draft.', array( 'status' => 500 ) );
@@ -182,6 +215,18 @@ class AlmaSEO_Refresh_Drafts_REST {
         // specific post, not just the edit_posts route gate.
         if ( ! current_user_can( 'edit_post', $row->post_id ) ) {
             return new WP_Error( 'forbidden', 'You are not allowed to edit this post.', array( 'status' => 403 ) );
+        }
+
+        // Drift guard: merge() rebuilds the whole post from snapshots taken when
+        // the draft was created. If the live post changed since then, applying
+        // would silently overwrite those edits — so require an explicit
+        // acknowledgement first instead of losing the work.
+        if ( self::has_drifted( $row ) && empty( $request['confirm_drift'] ) ) {
+            return new WP_Error(
+                'content_drifted',
+                'This post has been edited since the refresh draft was created. Applying now will replace the current content with the reviewed version and discard those edits. Re-confirm to proceed.',
+                array( 'status' => 409 )
+            );
         }
 
         // Decode stored sections.
@@ -270,6 +315,7 @@ class AlmaSEO_Refresh_Drafts_REST {
             'sections'       => $sections,
             'section_count'  => is_array( $sections ) ? count( $sections ) : 0,
             'changed_count'  => $changed_count,
+            'has_drifted'    => self::has_drifted( $row ),
             'created_at'     => $row->created_at,
             'reviewed_at'    => $row->reviewed_at,
             'reviewed_by'    => (int) $row->reviewed_by,

@@ -33,10 +33,16 @@ class AlmaSEO_Refresh_Draft_Model {
      * @param  int    $post_id        WP post ID.
      * @param  array  $sections       Array of section diffs.
      * @param  string $trigger_source 'manual' | 'evergreen' | 'cron'.
+     * @param  string $content_hash   md5() of the live post_content at create
+     *                                time, used later for drift detection.
      * @return int|false  Inserted row ID or false on failure.
      */
-    public static function create( $post_id, array $sections, $trigger_source = 'manual' ) {
+    public static function create( $post_id, array $sections, $trigger_source = 'manual', $content_hash = '' ) {
         global $wpdb;
+
+        // Normalise to a clean 32-char hex hash, or NULL for legacy callers.
+        $content_hash = preg_replace( '/[^a-f0-9]/', '', strtolower( (string) $content_hash ) );
+        $content_hash = ( strlen( $content_hash ) === 32 ) ? $content_hash : null;
 
         $ok = $wpdb->insert(
             self::table(),
@@ -44,10 +50,11 @@ class AlmaSEO_Refresh_Draft_Model {
                 'post_id'        => absint( $post_id ),
                 'status'         => 'pending',
                 'sections_json'  => wp_json_encode( $sections, JSON_UNESCAPED_UNICODE ),
+                'content_hash'   => $content_hash,
                 'trigger_source' => sanitize_key( $trigger_source ),
                 'created_at'     => current_time( 'mysql', true ),
             ),
-            array( '%d', '%s', '%s', '%s', '%s' )
+            array( '%d', '%s', '%s', '%s', '%s', '%s' )
         );
 
         return $ok ? (int) $wpdb->insert_id : false;

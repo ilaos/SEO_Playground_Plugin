@@ -28,6 +28,7 @@ function almaseo_refresh_drafts_install() {
         status          VARCHAR(20)     NOT NULL DEFAULT 'pending',
         sections_json   LONGTEXT        NOT NULL,
         merged_content  LONGTEXT        DEFAULT NULL,
+        content_hash    VARCHAR(32)     DEFAULT NULL,
         trigger_source  VARCHAR(40)     NOT NULL DEFAULT 'manual',
         created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
         reviewed_at     DATETIME        DEFAULT NULL,
@@ -39,7 +40,8 @@ function almaseo_refresh_drafts_install() {
     ) {$charset};";
 
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    // dbDelta adds the content_hash column to pre-1.1.0 tables in place.
     dbDelta( $sql );
 
-    update_option( 'almaseo_rd_db_version', '1.0.0' );
+    update_option( 'almaseo_rd_db_version', '1.1.0' );
 }
