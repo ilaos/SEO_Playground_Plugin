@@ -131,6 +131,12 @@ class AlmaSEO_Refresh_Drafts_REST {
             return new WP_Error( 'invalid_post', 'Post not found or not editable.', array( 'status' => 404 ) );
         }
 
+        // The route gate only checks edit_posts; confirm the caller can edit
+        // this specific post before storing a draft against it.
+        if ( ! current_user_can( 'edit_post', $post_id ) ) {
+            return new WP_Error( 'forbidden', 'You are not allowed to create a refresh draft for this post.', array( 'status' => 403 ) );
+        }
+
         $original = $post->post_content;
         $proposed = $request['proposed_content'];
         $trigger  = sanitize_key( $request['trigger_source'] );
@@ -170,6 +176,12 @@ class AlmaSEO_Refresh_Drafts_REST {
 
         if ( $row->status === 'applied' ) {
             return new WP_Error( 'already_applied', 'This draft has already been applied.', array( 'status' => 400 ) );
+        }
+
+        // Applying rewrites the post's content — require edit rights on this
+        // specific post, not just the edit_posts route gate.
+        if ( ! current_user_can( 'edit_post', $row->post_id ) ) {
+            return new WP_Error( 'forbidden', 'You are not allowed to edit this post.', array( 'status' => 403 ) );
         }
 
         // Decode stored sections.
@@ -219,6 +231,10 @@ class AlmaSEO_Refresh_Drafts_REST {
 
         if ( ! $row ) {
             return new WP_Error( 'not_found', 'Draft not found.', array( 'status' => 404 ) );
+        }
+
+        if ( ! current_user_can( 'edit_post', $row->post_id ) ) {
+            return new WP_Error( 'forbidden', 'You are not allowed to modify this draft.', array( 'status' => 403 ) );
         }
 
         AlmaSEO_Refresh_Draft_Model::update( $row->id, array( 'status' => 'dismissed' ) );
