@@ -50,13 +50,23 @@ class AlmaSEO_Schema_Drift_Engine {
             'sslverify' => false,
         ) );
 
+        // Distinguish a failed fetch (loopback blocked, timeout, 5xx) from a
+        // page that genuinely has no schema. Returning false on failure lets
+        // the drift scan skip the post instead of reporting a false
+        // "schema_error" for every monitored post when the site can't fetch
+        // its own pages.
         if ( is_wp_error( $response ) ) {
-            return array();
+            return false;
+        }
+
+        $code = (int) wp_remote_retrieve_response_code( $response );
+        if ( $code < 200 || $code >= 300 ) {
+            return false;
         }
 
         $body = wp_remote_retrieve_body( $response );
-        if ( empty( $body ) ) {
-            return array();
+        if ( '' === $body ) {
+            return false;
         }
 
         return self::parse_jsonld( $body );
@@ -114,6 +124,9 @@ class AlmaSEO_Schema_Drift_Engine {
 
         $url     = get_permalink( $post_id );
         $schemas = self::extract_schemas_from_url( $url );
+        if ( ! is_array( $schemas ) ) {
+            return 0; // Fetch failed — capture nothing rather than a bogus baseline.
+        }
         $count   = 0;
 
         foreach ( $schemas as $type => $data ) {
@@ -136,6 +149,11 @@ class AlmaSEO_Schema_Drift_Engine {
      */
     public static function capture_all_baselines() {
         global $wpdb;
+
+        // Each sampled post is fetched over HTTP (loopback); keep going even
+        // if the browser request times out.
+        @set_time_limit( 0 );      // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+        @ignore_user_abort( true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
         $settings    = self::get_settings();
         $post_types  = $settings['monitored_post_types'];
@@ -182,6 +200,11 @@ class AlmaSEO_Schema_Drift_Engine {
      * @return array { posts_scanned: int, findings_count: int }
      */
     public static function scan_for_drift() {
+        // Each post is fetched over HTTP (loopback), so this is slower than a
+        // DB scan; keep going even if the browser request times out.
+        @set_time_limit( 0 );      // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+        @ignore_user_abort( true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+
         $baselines = AlmaSEO_Schema_Drift_Model::get_all_baselines();
 
         // Group baselines by post_id.
@@ -200,6 +223,12 @@ class AlmaSEO_Schema_Drift_Engine {
             $url            = get_permalink( $post_id );
             $current_schemas = self::extract_schemas_from_url( $url );
             $posts_scanned++;
+
+            // Fetch failed (loopback blocked / timeout / error) — we can't
+            // compare, so skip rather than reporting false drift for the post.
+            if ( ! is_array( $current_schemas ) ) {
+                continue;
+            }
 
             // Check each baseline against current.
             $baseline_types = array();

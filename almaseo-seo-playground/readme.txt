@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.14
+Stable tag: 1.19.15
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,13 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.15 =
+**Schema Drift audit fixes**
+
+* Fix: Schema Drift no longer reports false "schema error" findings on hosts where the site cannot fetch its own pages (blocked loopback requests, timeouts). A failed page fetch is now skipped instead of being mistaken for missing schema, and a failed fetch no longer captures an empty baseline.
+* Fix: Capturing baselines and scanning for drift now complete on sites with many monitored pages. Because each page is fetched over HTTP, these run longer than other scans; they now keep running server-side even if the browser request times out.
+* Fix: The Schema Drift page's styles and scripts now update correctly on plugin upgrades (they were pinned to a stale version string and could be served from browser cache).
 
 = 1.19.14 =
 **GSC Monitor audit fix**

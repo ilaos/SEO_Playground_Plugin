@@ -67,7 +67,9 @@ class AlmaSEO_Schema_Drift_Controller {
         }
 
         $base = plugin_dir_url( dirname( __DIR__ ) );
-        $ver  = defined( 'ALMASEO_VERSION' ) ? ALMASEO_VERSION : '7.8.0';
+        // Use the live plugin version for cache-busting. ALMASEO_VERSION is
+        // frozen at 6.5.0 in the main file, so it never busts caches on update.
+        $ver  = defined( 'ALMASEO_PLUGIN_VERSION' ) ? ALMASEO_PLUGIN_VERSION : '7.8.0';
 
         wp_enqueue_style(
             'almaseo-schema-drift',
