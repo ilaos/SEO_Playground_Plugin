@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.26
+Stable tag: 1.19.27
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.27 =
+**Fix: stop two PHP notices from flooding the debug log**
+
+* Fix: Resolved two "Undefined array key" warnings (`cpts` in the sitemap manager, `enabled` in the advanced schema output) that fired on nearly every front-end request when settings were saved by an older plugin version. On sites with `WP_DEBUG_LOG` enabled these could grow the debug log unchecked. No functional/behavioral change — purely defensive key checks.
 
 = 1.19.26 =
 **Schema Drift — reliable drift scanning on large sites**

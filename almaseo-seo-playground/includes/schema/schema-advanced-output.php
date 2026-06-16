@@ -56,8 +56,11 @@ function almaseo_output_advanced_schema() {
         'default_schema_by_post_type' => array()
     ));
 
-    // Check if advanced schema is enabled globally
-    if (!$settings['enabled']) {
+    // Check if advanced schema is enabled globally. Use empty() rather than a
+    // direct key read: get_option()'s default array only applies when the option
+    // is absent entirely, so a partial array saved by an older version (missing
+    // 'enabled') would otherwise warn on every front-end request.
+    if (empty($settings['enabled'])) {
         return;
     }
 

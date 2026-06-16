@@ -231,7 +231,7 @@ class Alma_Sitemap_Manager {
         }
         
         // CPTs provider
-        if ($include['cpts'] === 'all' || !empty($include['cpts'])) {
+        if (!empty($include['cpts'])) {
             $this->providers['cpts'] = new Alma_Provider_CPTs($this->settings);
         }
         
