@@ -97,11 +97,13 @@ Both the AlmaSEO Connector and SEO Playground can be active simultaneously:
 
 ## Internal Links Module (v7.0.0)
 
-### Feature: Automated Internal Link Insertion (Guardrailed)
+### Feature: Keyword → URL Auto-Linker (Guardrailed)
 
-**Tier**: Hybrid — Free users see suggestions and approve/reject, Pro users can auto-insert/undo.
+> **Doc corrected 2026-06-16 (1.19.23 docs pass):** earlier revisions of this section described a "dashboard pushes recommendations → approve/apply/undo" workflow with columns like `source_post_id`/`anchor_text`/`confidence_score`. **That design never shipped.** The actual module is an admin-defined keyword→URL auto-linker (Yoast/Rank-Math style). The schema and endpoints below match the real install.
 
-**Data flow**: AlmaSEO dashboard pushes recommendations → plugin stores in DB → admin reviews on dedicated page → Pro users apply with one click.
+**Tier**: Hybrid — managing link rules in the admin page is free; the Pro gate `internal_links_auto` controls the automatic front-end insertion behavior.
+
+**What it actually does**: You create rules ("link the phrase X to URL Y, max N times per post, exact/partial match, nofollow, etc."). The engine wraps matching anchor text in published content at render time, subject to the guardrails below. There is no dashboard push / per-suggestion approve flow.
 
 ### Files
 
@@ -117,35 +119,39 @@ Both the AlmaSEO Connector and SEO Playground can be active simultaneously:
 | `assets/css/internal-links.css` | Admin page styles |
 | `assets/js/internal-links.js` | Admin page JavaScript (SPA-like) |
 
-### Database Table: `wp_almaseo_internal_links`
+### Database Table: `wp_almaseo_internal_links` (actual schema)
 
 | Column | Type | Purpose |
 |--------|------|---------|
-| source_post_id | BIGINT | Post that should contain the link |
-| target_post_id | BIGINT | Post being linked to (optional) |
-| target_url | TEXT | Full URL of link target |
-| anchor_text | VARCHAR(255) | Text to wrap with the link |
-| suggested_context | TEXT | Paragraph snippet to locate insertion point |
-| confidence_score | DECIMAL(5,2) | 0.00–1.00 confidence from dashboard |
-| reason | TEXT | Why this link was recommended |
-| status | VARCHAR(20) | pending/approved/applied/rejected/removed |
-| content_hash | VARCHAR(64) | MD5 of post_content before insertion (for undo) |
-| original_paragraph | TEXT | Original paragraph text (for undo) |
+| keyword | VARCHAR(255) | The phrase to auto-link |
+| target_url | TEXT | URL the keyword links to |
+| target_post_id | BIGINT (nullable) | Optional resolved target post |
+| match_type | VARCHAR(20) | 'exact' / 'partial' (default 'exact') |
+| case_sensitive | TINYINT(1) | Match case-sensitively (default 0) |
+| max_per_post | SMALLINT | Max insertions per post (default 1) |
+| max_per_page | SMALLINT | Max insertions per page render (default 3) |
+| nofollow | TINYINT(1) | Add rel="nofollow" (default 0) |
+| new_tab | TINYINT(1) | Open link in a new tab (default 0) |
+| is_enabled | TINYINT(1) | Rule active (default 1) |
+| post_types | VARCHAR(255) | CSV of post types (default 'post,page') |
+| exclude_ids | TEXT | CSV of post IDs to skip |
+| priority | SMALLINT | Apply order (default 10) |
+| hits | BIGINT | Times this rule has inserted a link |
+| created_at / updated_at | DATETIME | Timestamps |
 
-### REST API Endpoints
+### REST API Endpoints (namespace `almaseo/v1`, all `manage_options`)
+- `GET /internal-links` — list rules (paginated, search, orderby, is_enabled filter)
+- `POST /internal-links` — create a rule
+- `GET /internal-links/{id}` — read one rule
+- `PUT|PATCH /internal-links/{id}` — update a rule
+- `DELETE /internal-links/{id}` — delete a rule
+- `PATCH /internal-links/{id}/toggle` — enable/disable a rule
+- `POST /internal-links/bulk` — bulk action (`action` + `ids[]`)
+- `GET /internal-links/stats` — rule + hit stats
+- `POST /internal-links/preview` — preview insertions for a `post_id` (**known broken**: bails on `!is_singular()` in REST context — see `memory/project_audit_backlog.md`; currently unused by the admin UI)
+- `GET|POST /internal-links/settings` — module settings
 
-**Dashboard push** (auth: Basic Auth via app password):
-- `POST /wp-json/almaseo/v1/internal-links/push` — Receive batch recommendations
-
-**Admin UI** (auth: `manage_options` capability):
-- `GET /internal-links` — List (paginated, filtered)
-- `GET /internal-links/stats` — Status counts
-- `GET /internal-links/post/{id}` — Per-post suggestions
-- `PATCH /internal-links/{id}/approve` — Approve
-- `PATCH /internal-links/{id}/reject` — Reject
-- `POST /internal-links/{id}/apply` — Insert link (Pro)
-- `POST /internal-links/{id}/undo` — Remove link (Pro)
-- `POST /internal-links/bulk` — Bulk approve/reject/apply
+There is **no** `/push`, `/approve`, `/apply`, `/undo`, or `/post/{id}` route.
 
 ### Guardrails (in `internal-links-engine.php`)
 1. **Max links per post** — Configurable via `almaseo_internal_links_max_per_post` option (default 5)
@@ -164,9 +170,11 @@ Both the AlmaSEO Connector and SEO Playground can be active simultaneously:
 
 ### Feature: Diff-based Refresh Drafts (Side-by-Side Changes)
 
-**Tier**: Pro only — entire feature gated behind `almaseo_feature_available('refresh_drafts')`.
+**Tier**: Pro only — admin REST endpoints gated behind `almaseo_feature_available('refresh_drafts')` + per-post `edit_post`.
 
-**Data flow**: AlmaSEO dashboard pushes AI-generated content refresh → plugin splits at headings, computes word-level diffs → admin reviews side-by-side → accepts/rejects each section → applies accepted sections to live post (WordPress revision created automatically).
+> **Doc corrected 2026-06-16:** the schema/endpoints/engine described in older revisions were aspirational. Corrected to the real install below. Note there is **no `/push` endpoint** and **no `draft_content`/`source`/`created_by`/`applied_by`/`applied_at` columns**.
+
+**Data flow**: A draft is created via `POST /refresh-drafts` with `proposed_content` (caller-supplied — dashboard or manual) → engine splits the live post + proposed content at `<h2>`–`<h4>` headings and diffs them section-by-section (storing each section's old/new body in `sections_json`) → admin reviews side-by-side → accept/reject per section → `POST /refresh-drafts/{id}/review` merges the chosen sections and `wp_update_post()`s the result (auto-creates a WP revision). As of 1.19.22 a `content_hash` captured at create time guards against silently overwriting edits made after the draft was created.
 
 ### Files
 
@@ -175,54 +183,47 @@ Both the AlmaSEO Connector and SEO Playground can be active simultaneously:
 | `includes/refresh-drafts/refresh-drafts-loader.php` | Module bootstrap |
 | `includes/refresh-drafts/refresh-drafts-install.php` | DB table creation (`wp_almaseo_refresh_drafts`) |
 | `includes/refresh-drafts/refresh-drafts-model.php` | CRUD, section status updates, bulk updates, status counts |
-| `includes/refresh-drafts/refresh-drafts-engine.php` | Section splitting, heading alignment, word-level LCS diff, selective merge, content drift detection |
-| `includes/refresh-drafts/refresh-drafts-rest.php` | REST API (9 endpoints) |
+| `includes/refresh-drafts/refresh-drafts-engine.php` | Section splitting (h2–h4), index-based section diff, selective merge |
+| `includes/refresh-drafts/refresh-drafts-rest.php` | REST API (5 routes) |
 | `includes/refresh-drafts/refresh-drafts-controller.php` | Admin menu "Content Refresh" (priority 23), assets, Pro gate |
 | `admin/pages/refresh-drafts.php` | List page template |
 | `admin/pages/refresh-drafts-review.php` | Review page template (side-by-side diff) |
 | `assets/css/refresh-drafts.css` | Admin page styles (diff highlighting, section cards, responsive) |
 | `assets/js/refresh-drafts.js` | Admin page JavaScript (list + review pages) |
 
-### Database Table: `wp_almaseo_refresh_drafts`
+### Database Table: `wp_almaseo_refresh_drafts` (actual schema)
 
 | Column | Type | Purpose |
 |--------|------|---------|
-| post_id | BIGINT (UNIQUE) | One active draft per post |
-| draft_content | LONGTEXT | Full proposed content from dashboard |
-| sections_json | LONGTEXT | JSON array of section diffs with per-section status |
-| content_hash | VARCHAR(64) | MD5 of live post_content at push time (drift detection) |
-| status | VARCHAR(30) | pending/reviewing/applied/rejected/expired |
-| source | VARCHAR(30) | Origin of the draft (default: 'dashboard') |
-| created_by | BIGINT | User who triggered the push |
-| applied_by | BIGINT | User who applied the changes |
-| applied_at | DATETIME | When changes were merged |
+| id | BIGINT (PK) | Row ID |
+| post_id | BIGINT (KEY, not unique) | Post the draft targets (multiple drafts per post are possible) |
+| status | VARCHAR(20) | pending / applied / dismissed (default 'pending') |
+| sections_json | LONGTEXT | JSON array of section diffs (heading + old_body/new_body + per-section decision) |
+| merged_content | LONGTEXT (nullable) | Final merged HTML, set when applied |
+| content_hash | VARCHAR(32) (nullable) | MD5 of live post_content at **create** time — drift detection (added 1.19.22; NULL for older rows) |
+| trigger_source | VARCHAR(40) | 'manual' / 'evergreen' / 'cron' (default 'manual') |
+| created_at | DATETIME | When the draft was created |
+| reviewed_at | DATETIME (nullable) | When it was applied |
+| reviewed_by | BIGINT (nullable) | User who applied it |
 
-### REST API Endpoints
+### REST API Endpoints (namespace `almaseo/v1`)
 
-**Dashboard push** (auth: Basic Auth via app password — not tier-gated):
-- `POST /wp-json/almaseo/v1/refresh-drafts/push` — Receive content refresh draft
-
-**Admin UI** (auth: `manage_options` + Pro gate):
-- `GET /refresh-drafts` — List drafts (paginated, filtered)
-- `GET /refresh-drafts/stats` — Status counts
-- `GET /refresh-drafts/{id}` — Full draft with sections + drift check
-- `PATCH /refresh-drafts/{id}/sections/{index}` — Accept/reject one section
-- `PATCH /refresh-drafts/{id}/sections/bulk` — Accept all / reject all
-- `POST /refresh-drafts/{id}/apply` — Merge accepted sections into post
-- `POST /refresh-drafts/{id}/reject` — Reject entire draft
-- `DELETE /refresh-drafts/{id}` — Delete draft
+All routes gated by `can_manage()` (= `edit_posts`) **plus** a per-post `edit_post($post_id)` check on create/review/delete. No `/push` route exists.
+- `GET /refresh-drafts` — list drafts (paginated, status/post_id filters)
+- `POST /refresh-drafts` — create a draft (`post_id`, `proposed_content`, `trigger_source`); diffs live vs proposed and stores sections + content_hash
+- `GET /refresh-drafts/{id}` — full draft (sections + `has_drifted` flag)
+- `POST /refresh-drafts/{id}/review` — apply chosen sections (`decisions` map; `confirm_drift` required if drifted, returns 409 otherwise)
+- `DELETE /refresh-drafts/{id}` — soft-delete (sets status='dismissed')
 
 ### Engine Details (`refresh-drafts-engine.php`)
 
-**Section splitting**: Content split at `<h2>`, `<h3>`, `<h4>` boundaries. Content before the first heading = intro section.
+**Section splitting** (`split`): content split at `<h2>`/`<h3>`/`<h4>` boundaries; content before the first heading = intro section. Each section gets a stable `key` = md5(heading + index).
 
-**Heading alignment**: Three passes — (1) exact heading match, (2) fuzzy match via `similar_text()` >60% threshold, (3) unmatched sections marked as "added" or "removed".
+**Diff** (`diff`): sections matched **by index** (not fuzzy heading alignment). Each entry holds `old_body`/`new_body`/`heading`; `changed` is false when normalised (tag-stripped, lowercased, whitespace-collapsed) old and new bodies + headings match. There is no LCS/`<del>`/`<ins>` word-level diff in the engine — visual highlighting (if any) is client-side.
 
-**Word-level diff**: LCS algorithm for content <500 tokens, greedy lookahead approach for longer content. Produces `<del>`/`<ins>` HTML.
+**Selective merge** (`merge`): rebuilds the post from each section's decision — 'accept' uses `new_body`, anything else (reject/pending) uses the stored `old_body`. **Caveat:** old_body is a snapshot from create time, which is why the 1.19.22 drift guard exists (applying after the post was edited would otherwise overwrite those edits).
 
-**Selective merge**: Only accepted sections use draft content. Rejected/pending sections keep live content. `wp_update_post()` auto-creates WordPress revision.
-
-**Content drift detection**: MD5 hash of `post_content` at push time vs current content. Warning shown on review page if content has been edited since draft was pushed.
+**Drift detection** (`has_drifted` in REST, 1.19.22): `md5(current post_content)` vs the stored `content_hash`. NULL hash (legacy rows) → reported as no drift.
 
 ### Pro Feature Gate
 - Feature identifier: `refresh_drafts`
