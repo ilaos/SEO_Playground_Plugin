@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.22
+Stable tag: 1.19.23
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,13 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.23 =
+**Overview dashboard — working Reoptimize button**
+
+* New: The "Reoptimize" button on each row of the Overview's optimization table now works. It re-checks that post's SEO scorecard on demand and updates the score, progress bar, status, and last action in place — useful after you've edited a post. It runs entirely locally with no dashboard connection required. (It previously showed a "coming soon" message.)
+* Fix: The "Fully Optimized" option in the Overview status filter now correctly shows fully-optimized posts instead of hiding everything (an internal status-name mismatch).
+* Change: Removed the non-functional "Rewrite" button from the Overview table. Content rewriting belongs in the post editor, where the SEO panel provides it in context.
 
 = 1.19.22 =
 **Content Refresh — prevent silent loss of edits**

@@ -255,53 +255,20 @@ function seo_playground_render_overview_page() {
                                 $schema_type = get_post_meta($post_id, '_almaseo_schema_type', true);
                                 $keyword_suggestions = get_post_meta($post_id, '_almaseo_kw_suggestions', true);
                                 $focus_keyword = get_post_meta($post_id, '_almaseo_focus_keyword', true);
-                                // No per-post equivalents exist for these in the current
-                                // architecture; they remain unset (their scorecard checks stay false).
-                                $internal_links = '';
-                                $rewrite_data = '';
-                                $reoptimize_flag = '';
 
-                                // Calculate scorecard status (similar to JavaScript logic)
-                                $scorecard_checks = array(
-                                    'seo_title' => !empty($seo_title),
-                                    'meta_description' => !empty($seo_description),
-                                    'focus_keywords' => !empty($focus_keyword) || !empty($keyword_suggestions),
-                                    'internal_links' => !empty($internal_links),
-                                    'schema_type' => !empty($schema_type) && $schema_type !== 'none',
-                                    'ai_rewrite' => !empty($rewrite_data),
-                                    'content_length' => strlen(get_the_content()) >= 300,
-                                    'reoptimization' => empty($reoptimize_flag)
-                                );
-
-                                $passed_checks = count(array_filter($scorecard_checks));
-                                $total_checks = count($scorecard_checks);
-                                $scorecard_percentage = $total_checks > 0 ? round(($passed_checks / $total_checks) * 100) : 0;
-
-                                // Determine status
-                                if ($passed_checks >= 6) {
-                                    $status = 'Fully Optimized';
-                                    $status_class = 'status-optimized';
-                                } elseif ($passed_checks >= 4) {
-                                    $status = 'Needs Review';
-                                    $status_class = 'status-review';
-                                } else {
-                                    $status = 'Missing Data';
-                                    $status_class = 'status-missing';
-                                }
-
-                                // Determine last AI action
-                                $last_ai_action = 'None';
-                                if (!empty($rewrite_data)) {
-                                    $last_ai_action = 'Alma Rewrite';
-                                } elseif (!empty($keyword_suggestions)) {
-                                    $last_ai_action = 'Keyword Suggestions';
-                                } elseif (!empty($seo_title) || !empty($seo_description)) {
-                                    $last_ai_action = 'Metadata';
-                                } elseif (!empty($schema_type) && $schema_type !== 'none') {
-                                    $last_ai_action = 'Schema';
-                                }
+                                // Scorecard (Score/Status/Last Alma Action) comes from the
+                                // shared helper so this table and the per-row Reoptimize AJAX
+                                // handler always compute it the same way.
+                                $card                 = almaseo_overview_compute_scorecard($post_id);
+                                $passed_checks        = $card['passed'];
+                                $total_checks         = $card['total'];
+                                $scorecard_percentage = $card['percentage'];
+                                $status               = $card['status'];
+                                $status_class         = $card['status_class'];
+                                $status_data          = $card['status_data'];
+                                $last_ai_action       = $card['last_ai_action'];
                             ?>
-                            <tr class="almaseo-post-row" data-status="<?php echo esc_attr(strtolower(str_replace(' ', '-', $status ?? ''))); ?>">
+                            <tr class="almaseo-post-row" data-status="<?php echo esc_attr($status_data); ?>">
                                 <td>
                                     <a href="<?php echo esc_url(get_edit_post_link($post_id)); ?>" target="_blank">
                                         <?php echo esc_html(get_the_title()); ?>
@@ -332,11 +299,8 @@ function seo_playground_render_overview_page() {
                                 </td>
                                 <td>
                                     <div class="almaseo-action-buttons">
-                                        <button class="almaseo-action-btn almaseo-reoptimize-btn" data-post-id="<?php echo esc_attr($post_id); ?>" title="Click to auto-check post again for reoptimization">
+                                        <button class="almaseo-action-btn almaseo-reoptimize-btn" data-post-id="<?php echo esc_attr($post_id); ?>" title="Re-check this post's SEO scorecard">
                                             🔄 Reoptimize
-                                        </button>
-                                        <button class="almaseo-action-btn almaseo-rewrite-btn" data-post-id="<?php echo esc_attr($post_id); ?>">
-                                            ✍️ Rewrite
                                         </button>
                                         <button class="almaseo-action-btn almaseo-view-meta-btn"
                                             data-post-id="<?php echo esc_attr($post_id); ?>"
@@ -1198,16 +1162,55 @@ function seo_playground_render_overview_page() {
             }
         });
 
-        // Reoptimize button (placeholder for future implementation)
-        $('.almaseo-reoptimize-btn').on('click', function() {
-            var postId = $(this).data('post-id');
-            alert('Reoptimize functionality will be implemented in a future update for post ID: ' + postId);
-        });
+        // Reoptimize button — re-run this post's SEO scorecard server-side and
+        // refresh the row in place (no dashboard / no remote API needed).
+        var almaseoOverviewNonce = '<?php echo esc_js( wp_create_nonce( 'almaseo_overview_nonce' ) ); ?>';
 
-        // Rewrite button (placeholder for future implementation)
-        $('.almaseo-rewrite-btn').on('click', function() {
-            var postId = $(this).data('post-id');
-            alert('Rewrite functionality will be implemented in a future update for post ID: ' + postId);
+        $('.almaseo-reoptimize-btn').on('click', function() {
+            var $btn  = $(this);
+            var $row  = $btn.closest('tr');
+            var orig  = $btn.html();
+            var postId = $btn.data('post-id');
+
+            $btn.prop('disabled', true).text('Checking…');
+
+            $.post(ajaxurl, {
+                action:  'seo_playground_overview_reoptimize',
+                nonce:   almaseoOverviewNonce,
+                post_id: postId
+            }).done(function(resp) {
+                if (!resp || !resp.success || !resp.data) {
+                    $btn.prop('disabled', false).html(orig);
+                    alert((resp && resp.data && resp.data.message) ? resp.data.message : 'Could not re-check this post.');
+                    return;
+                }
+                var d = resp.data;
+
+                // Score + progress bar
+                $row.find('.almaseo-scorecard-score').text(d.passed + '/' + d.total);
+                $row.find('.almaseo-scorecard-fill').css('width', d.percentage + '%');
+
+                // Status badge (text, tooltip, colour class)
+                $row.find('.almaseo-status-badge')
+                    .text(d.status)
+                    .attr('title', d.status)
+                    .removeClass('status-optimized status-review status-missing')
+                    .addClass(d.status_class);
+
+                // Last Alma action
+                $row.find('.almaseo-ai-action').text(d.last_ai_action);
+
+                // Keep the status filter in sync (update both the attribute and
+                // jQuery's cached .data() value the filter reads).
+                $row.attr('data-status', d.status_data).data('status', d.status_data);
+
+                // Brief confirmation, then restore the label.
+                $btn.prop('disabled', false).text('✓ Re-checked');
+                setTimeout(function() { $btn.html(orig); }, 1500);
+            }).fail(function() {
+                $btn.prop('disabled', false).html(orig);
+                alert('Could not re-check this post. Please try again.');
+            });
         });
     });
     </script>

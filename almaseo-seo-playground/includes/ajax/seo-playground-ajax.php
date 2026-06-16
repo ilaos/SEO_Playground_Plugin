@@ -2015,3 +2015,97 @@ function almaseo_ajax_person_fill_from_user() {
     wp_send_json_success(array('fields' => $fields));
 }
 } // end function_exists guard: almaseo_ajax_person_fill_from_user
+
+/* ────────────────────────────────────────────────────────────────────────
+ * Overview "Reoptimize" — re-run the per-post optimization scorecard.
+ *
+ * The Overview table's Score/Status columns are derived from an 8-check
+ * scorecard computed from the post's current SEO meta + content. The
+ * Reoptimize button re-evaluates that scorecard live (no dashboard / no
+ * remote API) so the row reflects edits made since the page was loaded.
+ *
+ * almaseo_overview_compute_scorecard() is the single source of truth shared
+ * by the Overview template (admin/pages/overview.php) and this handler, so
+ * the two never drift apart.
+ * ──────────────────────────────────────────────────────────────────────── */
+if (!function_exists('almaseo_overview_compute_scorecard')) {
+function almaseo_overview_compute_scorecard($post_id) {
+    $post_id = absint($post_id);
+
+    $seo_title           = get_post_meta($post_id, '_almaseo_title', true);
+    $seo_description     = get_post_meta($post_id, '_almaseo_description', true);
+    $schema_type         = get_post_meta($post_id, '_almaseo_schema_type', true);
+    $keyword_suggestions = get_post_meta($post_id, '_almaseo_kw_suggestions', true);
+    $focus_keyword       = get_post_meta($post_id, '_almaseo_focus_keyword', true);
+
+    $content = (string) get_post_field('post_content', $post_id);
+
+    // Two checks have no per-post data source in the current architecture and
+    // are always false (internal_links, ai_rewrite); reoptimization is always
+    // true. Kept identical to the template's original inline logic.
+    $checks = array(
+        'seo_title'        => ! empty($seo_title),
+        'meta_description' => ! empty($seo_description),
+        'focus_keywords'   => ! empty($focus_keyword) || ! empty($keyword_suggestions),
+        'internal_links'   => false,
+        'schema_type'      => ! empty($schema_type) && $schema_type !== 'none',
+        'ai_rewrite'       => false,
+        'content_length'   => strlen($content) >= 300,
+        'reoptimization'   => true,
+    );
+
+    $passed = count(array_filter($checks));
+    $total  = count($checks);
+    $pct    = $total > 0 ? (int) round(($passed / $total) * 100) : 0;
+
+    if ($passed >= 6) {
+        $status = 'Fully Optimized';
+        $status_class = 'status-optimized';
+        $status_data  = 'optimized';
+    } elseif ($passed >= 4) {
+        $status = 'Needs Review';
+        $status_class = 'status-review';
+        $status_data  = 'needs-review';
+    } else {
+        $status = 'Missing Data';
+        $status_class = 'status-missing';
+        $status_data  = 'missing-data';
+    }
+
+    $last_ai_action = 'None';
+    if (! empty($keyword_suggestions)) {
+        $last_ai_action = 'Keyword Suggestions';
+    } elseif (! empty($seo_title) || ! empty($seo_description)) {
+        $last_ai_action = 'Metadata';
+    } elseif (! empty($schema_type) && $schema_type !== 'none') {
+        $last_ai_action = 'Schema';
+    }
+
+    return array(
+        'passed'         => $passed,
+        'total'          => $total,
+        'percentage'     => $pct,
+        'status'         => $status,
+        'status_class'   => $status_class,
+        'status_data'    => $status_data,
+        'last_ai_action' => $last_ai_action,
+        'checks'         => $checks,
+    );
+}
+}
+
+add_action('wp_ajax_seo_playground_overview_reoptimize', 'seo_playground_ajax_overview_reoptimize');
+if (!function_exists('seo_playground_ajax_overview_reoptimize')) {
+function seo_playground_ajax_overview_reoptimize() {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'almaseo_overview_nonce')) {
+        wp_send_json_error(array('message' => 'Invalid security token'));
+    }
+
+    $post_id = isset($_POST['post_id']) ? intval(wp_unslash($_POST['post_id'])) : 0;
+    if (!$post_id || !current_user_can('edit_post', $post_id)) {
+        wp_send_json_error(array('message' => 'Insufficient permissions'));
+    }
+
+    wp_send_json_success(almaseo_overview_compute_scorecard($post_id));
+}
+} // end function_exists guard: seo_playground_ajax_overview_reoptimize
