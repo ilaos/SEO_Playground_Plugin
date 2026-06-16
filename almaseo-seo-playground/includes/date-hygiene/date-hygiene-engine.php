@@ -350,71 +350,157 @@ class AlmaSEO_Date_Hygiene_Engine {
      *
      * @return array { posts_scanned: int, findings_count: int }
      */
-    public static function scan_all() {
+    /**
+     * Configured post types to scan (with defaults).
+     *
+     * @return string[]
+     */
+    private static function scan_post_types() {
+        $settings = self::get_settings();
+        return ! empty( $settings['scan_post_types'] ) ? $settings['scan_post_types'] : array( 'post', 'page', 'product' );
+    }
+
+    /**
+     * Count of published, scannable posts.
+     *
+     * @param string[] $post_types
+     * @return int
+     */
+    private static function count_scannable( $post_types ) {
         global $wpdb;
-
-        // Scanning every published post can take a while on large sites; keep
-        // going even if the client (browser fetch) has already timed out, so
-        // the findings table finishes populating server-side.
-        @set_time_limit( 0 );      // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-        @ignore_user_abort( true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-
-        $settings     = self::get_settings();
-        $post_types   = ! empty( $settings['scan_post_types'] ) ? $settings['scan_post_types'] : array( 'post', 'page', 'product' );
         $placeholders = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
-
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
-        $total = (int) $wpdb->get_var( $wpdb->prepare(
+        return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type IN ({$placeholders})",
             $post_types
         ) );
+    }
 
-        // Collect dismissed/resolved keys so we can skip re-inserting them.
-        $dismissed_keys = AlmaSEO_Date_Hygiene_Model::get_dismissed_keys();
+    /**
+     * One ordered page of scannable post IDs.
+     *
+     * @param string[] $post_types
+     * @param int      $limit
+     * @param int      $offset
+     * @return int[]
+     */
+    private static function scannable_ids( $post_types, $limit, $offset ) {
+        global $wpdb;
+        $placeholders = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        return array_map( 'intval', $wpdb->get_col( $wpdb->prepare(
+            "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type IN ({$placeholders}) ORDER BY ID LIMIT %d OFFSET %d",
+            array_merge( $post_types, array( (int) $limit, (int) $offset ) )
+        ) ) );
+    }
 
-        // Clear only open findings — resolved/dismissed survive the re-scan.
-        AlmaSEO_Date_Hygiene_Model::clear_open();
+    /**
+     * Scan ONE batch of posts, starting at $offset.
+     *
+     * Drives the chunked, progress-reporting "Scan Now" from the admin UI: the
+     * client calls this repeatedly with the returned next_offset until `done`,
+     * so no single request scans the whole (possibly huge) site and the browser
+     * fetch never times out.
+     *
+     * Important ordering vs the old single-pass scan: open findings are cleared
+     * ONCE on the first batch (offset 0), and the last-scan timestamp is written
+     * ONCE on the final batch — otherwise chunking would wipe earlier batches or
+     * stamp the time prematurely.
+     *
+     * @param int $offset     Starting offset into the ordered post list.
+     * @param int $batch_size Posts to scan this call (clamped 1–200).
+     * @return array { total, processed, scanned, findings, next_offset, done }
+     */
+    public static function scan_batch( $offset = 0, $batch_size = 100 ) {
+        @set_time_limit( 0 );       // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+        @ignore_user_abort( true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
-        $batch_size      = 50;
-        $posts_scanned   = 0;
-        $findings_count  = 0;
+        $offset     = max( 0, (int) $offset );
+        $batch_size = min( 200, max( 1, (int) $batch_size ) );
 
-        for ( $batch_offset = 0; $batch_offset < $total; $batch_offset += $batch_size ) {
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
-            $post_ids = $wpdb->get_col( $wpdb->prepare(
-                "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type IN ({$placeholders}) ORDER BY ID LIMIT %d OFFSET %d",
-                array_merge( $post_types, array( $batch_size, $batch_offset ) )
-            ) );
+        $post_types = self::scan_post_types();
+        $total      = self::count_scannable( $post_types );
 
-            foreach ( $post_ids as $pid ) {
-                $findings = self::scan_post( (int) $pid );
-
-                if ( ! empty( $findings ) ) {
-                    // Filter out findings that were previously dismissed/resolved.
-                    // detected_value must be sanitized the same way the model
-                    // stores it (sanitize_text_field collapses whitespace), or
-                    // multi-word findings won't match their stored key and a
-                    // dismissed finding would reappear after every re-scan.
-                    $findings = array_filter( $findings, function ( $f ) use ( $dismissed_keys ) {
-                        $key = $f['post_id'] . ':' . $f['finding_type'] . ':' . sanitize_text_field( $f['detected_value'] );
-                        return ! isset( $dismissed_keys[ $key ] );
-                    } );
-
-                    if ( ! empty( $findings ) ) {
-                        $findings_count += AlmaSEO_Date_Hygiene_Model::insert_batch( $findings );
-                    }
-                }
-
-                $posts_scanned++;
-            }
+        // First batch only: clear existing OPEN findings so the re-scan starts
+        // clean. Resolved/dismissed survive (re-insertion is blocked by the
+        // dismissed-key filter below).
+        if ( $offset === 0 ) {
+            AlmaSEO_Date_Hygiene_Model::clear_open();
         }
 
-        // Store last scan timestamp.
-        update_option( 'almaseo_dh_last_scan', current_time( 'mysql', true ) );
+        // Dismissed/resolved keys are stable during a scan (the scan only
+        // inserts 'open' rows), so re-reading per batch is safe.
+        $dismissed_keys = AlmaSEO_Date_Hygiene_Model::get_dismissed_keys();
+
+        $post_ids       = self::scannable_ids( $post_types, $batch_size, $offset );
+        $processed      = 0;
+        $findings_count = 0;
+
+        foreach ( $post_ids as $pid ) {
+            $findings = self::scan_post( (int) $pid );
+
+            if ( ! empty( $findings ) ) {
+                // detected_value must be sanitized the same way the model stores
+                // it (sanitize_text_field collapses whitespace), or multi-word
+                // findings won't match their stored key and a dismissed finding
+                // would reappear after every re-scan.
+                $findings = array_filter( $findings, function ( $f ) use ( $dismissed_keys ) {
+                    $key = $f['post_id'] . ':' . $f['finding_type'] . ':' . sanitize_text_field( $f['detected_value'] );
+                    return ! isset( $dismissed_keys[ $key ] );
+                } );
+
+                if ( ! empty( $findings ) ) {
+                    $findings_count += AlmaSEO_Date_Hygiene_Model::insert_batch( $findings );
+                }
+            }
+
+            $processed++;
+        }
+
+        $next_offset = $offset + $processed;
+        $done = ( count( $post_ids ) < $batch_size ) || ( $next_offset >= $total );
+
+        if ( $done ) {
+            update_option( 'almaseo_dh_last_scan', current_time( 'mysql', true ) );
+        }
 
         return array(
-            'posts_scanned'  => $posts_scanned,
-            'findings_count' => $findings_count,
+            'total'       => $total,
+            'processed'   => $processed,
+            'scanned'     => $next_offset,
+            'findings'    => $findings_count,
+            'next_offset' => $next_offset,
+            'done'        => $done,
+        );
+    }
+
+    /**
+     * Full-site scan in one synchronous pass.
+     *
+     * Kept for programmatic/cron callers; the admin UI uses the chunked
+     * scan_batch() instead. Delegates to scan_batch() so the clear-once and
+     * timestamp-on-done semantics stay in one place.
+     *
+     * @return array { posts_scanned, findings_count }
+     */
+    public static function scan_all() {
+        @set_time_limit( 0 );       // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+        @ignore_user_abort( true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+
+        $offset   = 0;
+        $scanned  = 0;
+        $findings = 0;
+
+        do {
+            $r        = self::scan_batch( $offset, 50 );
+            $scanned  = $r['scanned'];
+            $findings += $r['findings'];
+            $offset   = $r['next_offset'];
+        } while ( ! $r['done'] );
+
+        return array(
+            'posts_scanned'  => $scanned,
+            'findings_count' => $findings,
         );
     }
 

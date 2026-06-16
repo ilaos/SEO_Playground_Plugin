@@ -75,6 +75,10 @@ class AlmaSEO_Date_Hygiene_REST {
             'methods'             => WP_REST_Server::CREATABLE,
             'callback'            => array( __CLASS__, 'trigger_scan' ),
             'permission_callback' => array( __CLASS__, 'can_manage_pro' ),
+            'args'                => array(
+                'offset'     => array( 'type' => 'integer', 'default' => 0 ),
+                'batch_size' => array( 'type' => 'integer', 'default' => 100 ),
+            ),
         ) );
 
         /* ── Resolve / Dismiss / Reopen ── */
@@ -225,9 +229,18 @@ class AlmaSEO_Date_Hygiene_REST {
 
     /**
      * POST /date-hygiene/scan
+     *
+     * Scans ONE batch and reports progress. The admin JS calls this repeatedly
+     * with the returned next_offset until `done` is true, so large sites scan
+     * without a single long-running request that the browser fetch would time
+     * out on.
      */
-    public static function trigger_scan() {
-        $result = AlmaSEO_Date_Hygiene_Engine::scan_all();
+    public static function trigger_scan( WP_REST_Request $request ) {
+        $offset     = absint( $request['offset'] );
+        $batch_size = absint( $request['batch_size'] );
+
+        $result = AlmaSEO_Date_Hygiene_Engine::scan_batch( $offset, $batch_size ?: 100 );
+
         return rest_ensure_response( $result );
     }
 

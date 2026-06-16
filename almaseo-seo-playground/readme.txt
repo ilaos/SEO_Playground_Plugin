@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.24
+Stable tag: 1.19.25
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.25 =
+**Date Hygiene — reliable scanning on large sites**
+
+* Fix: "Scan Now" now scans your content in small batches with a live progress count ("Scanning 200 / 1,250…") instead of one long request, so large sites no longer see a false "Scan failed" message when the scan had actually completed. Same chunked approach as the Refresh Queue. Resolved/dismissed findings continue to be preserved across a re-scan.
 
 = 1.19.24 =
 **Refresh Queue — reliable recalculation on large sites**

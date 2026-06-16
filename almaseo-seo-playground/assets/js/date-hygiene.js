@@ -206,35 +206,60 @@
     /* ============================================================
      *  SCAN
      * ============================================================ */
+    var SCAN_BATCH = 100;
+    var scanRunning = false;
+
+    function setScanBusy(busy, label) {
+        if (!scanBtn) return;
+        scanBtn.disabled = busy;
+        if (busy) {
+            scanBtn.innerHTML = '<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite"></span> ' + esc(label || 'Scanning\u2026');
+        } else {
+            scanBtn.innerHTML = '<span class="dashicons dashicons-search"></span> Scan Now';
+        }
+    }
+
     function handleScan() {
-        if (scanBtn) {
-            scanBtn.disabled = true;
-            scanBtn.innerHTML = '<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite"></span> Scanning\u2026';
+        if (scanRunning) return;
+        scanRunning = true;
+        setScanBusy(true, 'Starting\u2026');
+
+        var foundTotal = 0;
+
+        function runBatch(offset) {
+            wp.apiFetch({
+                url: cfg.restBase + '/scan',
+                method: 'POST',
+                data: { offset: offset, batch_size: SCAN_BATCH },
+            }).then(function (data) {
+                var total   = (data && data.total)    ? data.total   : 0;
+                var scanned = (data && data.scanned)  ? data.scanned : 0;
+                foundTotal += (data && data.findings) ? data.findings : 0;
+
+                if (data && !data.done && total > 0) {
+                    setScanBusy(true, 'Scanning ' + scanned + ' / ' + total + '\u2026');
+                    runBatch(data.next_offset);
+                    return;
+                }
+
+                // Done.
+                scanRunning = false;
+                setScanBusy(false);
+
+                var empty = document.querySelector('.almaseo-dh-empty');
+                if (empty) empty.remove();
+                if (table) table.style.display = '';
+
+                loadStats();
+                loadFindings(1);
+            }).catch(function () {
+                scanRunning = false;
+                setScanBusy(false);
+                alert('Scan failed. Please try again.');
+            });
         }
 
-        wp.apiFetch({
-            url: cfg.restBase + '/scan',
-            method: 'POST',
-        }).then(function (data) {
-            if (scanBtn) {
-                scanBtn.disabled = false;
-                scanBtn.innerHTML = '<span class="dashicons dashicons-search"></span> Scan Now';
-            }
-
-            // Remove empty state if present.
-            var empty = document.querySelector('.almaseo-dh-empty');
-            if (empty) empty.remove();
-            if (table) table.style.display = '';
-
-            loadStats();
-            loadFindings(1);
-        }).catch(function () {
-            if (scanBtn) {
-                scanBtn.disabled = false;
-                scanBtn.innerHTML = '<span class="dashicons dashicons-search"></span> Scan Now';
-            }
-            alert('Scan failed. Please try again.');
-        });
+        runBatch(0);
     }
 
     /* ============================================================
