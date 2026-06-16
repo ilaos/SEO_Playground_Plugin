@@ -287,43 +287,124 @@ class AlmaSEO_Refresh_Queue_Engine {
     /* ──────────────────────── Batch Recalculation ── */
 
     /**
-     * Recalculate all published posts.
+     * Post types that are never scored.
      *
-     * Processes in batches to avoid memory issues.
-     * Preserves 'skipped' status for existing entries.
+     * @return string[]
+     */
+    private static function excluded_types() {
+        return array( 'attachment', 'revision', 'nav_menu_item', 'wp_template', 'wp_template_part', 'wp_navigation' );
+    }
+
+    /**
+     * Count of published, scorable posts.
+     *
+     * @return int
+     */
+    public static function count_scorable() {
+        global $wpdb;
+        $types        = self::excluded_types();
+        $placeholders = implode( ', ', array_fill( 0, count( $types ), '%s' ) );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type NOT IN ({$placeholders})",
+            $types
+        ) );
+    }
+
+    /**
+     * One ordered page of scorable post IDs.
+     *
+     * @param int $limit
+     * @param int $offset
+     * @return int[]
+     */
+    private static function scorable_ids( $limit, $offset ) {
+        global $wpdb;
+        $types        = self::excluded_types();
+        $placeholders = implode( ', ', array_fill( 0, count( $types ), '%s' ) );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        return array_map( 'intval', $wpdb->get_col( $wpdb->prepare(
+            "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type NOT IN ({$placeholders}) ORDER BY ID LIMIT %d OFFSET %d",
+            array_merge( $types, array( (int) $limit, (int) $offset ) )
+        ) ) );
+    }
+
+    /**
+     * Score ONE batch of posts, starting at $offset.
+     *
+     * Drives the chunked, progress-reporting recalculation from the admin UI:
+     * the client calls this repeatedly with the returned next_offset until
+     * `done` is true, so no single request scores the whole (possibly huge)
+     * site and the browser fetch never times out. Prunes orphans on the final
+     * batch. upsert() is idempotent, so a post scored twice (if the post set
+     * shifts mid-run) is harmless.
+     *
+     * @param int $offset     Starting offset into the ordered post list.
+     * @param int $batch_size Posts to score this call (clamped 1–200).
+     * @return array { total, processed, scored, next_offset, done }
+     */
+    public static function recalculate_batch( $offset = 0, $batch_size = 100 ) {
+        @set_time_limit( 0 );       // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+        @ignore_user_abort( true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+
+        $offset     = max( 0, (int) $offset );
+        $batch_size = min( 200, max( 1, (int) $batch_size ) );
+
+        $total    = self::count_scorable();
+        $post_ids = self::scorable_ids( $batch_size, $offset );
+
+        $processed = 0;
+        foreach ( $post_ids as $pid ) {
+            $data = self::calculate_priority( $pid );
+            AlmaSEO_Refresh_Queue_Model::upsert( $data );
+            $processed++;
+        }
+
+        $next_offset = $offset + $processed;
+        // Finished when this batch returned fewer rows than requested (end of
+        // list) or we've reached the counted total.
+        $done = ( count( $post_ids ) < $batch_size ) || ( $next_offset >= $total );
+
+        if ( $done ) {
+            AlmaSEO_Refresh_Queue_Model::prune_orphaned();
+        }
+
+        return array(
+            'total'       => $total,
+            'processed'   => $processed,
+            'scored'      => $next_offset,
+            'next_offset' => $next_offset,
+            'done'        => $done,
+        );
+    }
+
+    /**
+     * Recalculate all published posts in one synchronous pass.
+     *
+     * Kept for programmatic/CLI callers; the admin UI uses the chunked
+     * recalculate_batch() instead. Preserves 'skipped' status via upsert().
      *
      * @return int Number of posts scored.
      */
     public static function recalculate_all() {
-        global $wpdb;
-
         // Scoring every published post can take a while on large sites; keep
-        // going even if the client (browser fetch) has already timed out, so
-        // the queue finishes populating server-side.
-        @set_time_limit( 0 );      // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+        // going even if the caller has gone away so the queue finishes.
+        @set_time_limit( 0 );       // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
         @ignore_user_abort( true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
-        $excluded_types = array( 'attachment', 'revision', 'nav_menu_item', 'wp_template', 'wp_template_part', 'wp_navigation' );
-        $placeholders   = implode( ', ', array_fill( 0, count( $excluded_types ), '%s' ) );
-
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
-        $total = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type NOT IN ({$placeholders})",
-            $excluded_types
-        ) );
-
+        $total      = self::count_scorable();
         $batch_size = 50;
         $scored     = 0;
 
         for ( $offset = 0; $offset < $total; $offset += $batch_size ) {
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
-            $post_ids = $wpdb->get_col( $wpdb->prepare(
-                "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type NOT IN ({$placeholders}) ORDER BY ID LIMIT %d OFFSET %d",
-                array_merge( $excluded_types, array( $batch_size, $offset ) )
-            ) );
-
+            $post_ids = self::scorable_ids( $batch_size, $offset );
+            if ( empty( $post_ids ) ) {
+                break;
+            }
             foreach ( $post_ids as $pid ) {
-                $data = self::calculate_priority( (int) $pid );
+                $data = self::calculate_priority( $pid );
                 AlmaSEO_Refresh_Queue_Model::upsert( $data );
                 $scored++;
             }

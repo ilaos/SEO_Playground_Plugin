@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.23
+Stable tag: 1.19.24
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.24 =
+**Refresh Queue — reliable recalculation on large sites**
+
+* Fix: "Recalculate" now scores your posts in small batches with a live progress count ("Scoring 200 / 1,250…") instead of one long request. On large sites the previous single request could make the browser report a failure even though scoring had finished server-side. The new chunked approach avoids the timeout entirely and shows real progress.
 
 = 1.19.23 =
 **Overview dashboard — working Reoptimize button**

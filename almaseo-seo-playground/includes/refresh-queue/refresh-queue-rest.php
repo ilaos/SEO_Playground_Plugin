@@ -67,11 +67,15 @@ class AlmaSEO_Refresh_Queue_REST {
             'permission_callback' => array( __CLASS__, 'can_manage_pro' ),
         ) );
 
-        /* ── Recalculate ── */
+        /* ── Recalculate (one batch per call — see recalculate()) ── */
         register_rest_route( self::NS, '/refresh-queue/recalculate', array(
             'methods'             => WP_REST_Server::CREATABLE,
             'callback'            => array( __CLASS__, 'recalculate' ),
             'permission_callback' => array( __CLASS__, 'can_manage_pro' ),
+            'args'                => array(
+                'offset'     => array( 'type' => 'integer', 'default' => 0 ),
+                'batch_size' => array( 'type' => 'integer', 'default' => 100 ),
+            ),
         ) );
 
         /* ── Skip / Restore ── */
@@ -208,10 +212,19 @@ class AlmaSEO_Refresh_Queue_REST {
 
     /**
      * POST /refresh-queue/recalculate
+     *
+     * Scores ONE batch and reports progress. The admin JS calls this
+     * repeatedly with the returned next_offset until `done` is true, so large
+     * sites recalculate without a single long-running request that the browser
+     * fetch would time out on.
      */
-    public static function recalculate() {
-        $count = AlmaSEO_Refresh_Queue_Engine::recalculate_all();
-        return rest_ensure_response( array( 'scored' => $count ) );
+    public static function recalculate( WP_REST_Request $request ) {
+        $offset     = absint( $request['offset'] );
+        $batch_size = absint( $request['batch_size'] );
+
+        $result = AlmaSEO_Refresh_Queue_Engine::recalculate_batch( $offset, $batch_size ?: 100 );
+
+        return rest_ensure_response( $result );
     }
 
     /* ──────────────── Skip / Restore ── */

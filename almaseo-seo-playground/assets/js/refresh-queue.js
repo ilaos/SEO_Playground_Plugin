@@ -170,37 +170,62 @@
     }
 
     /* ============================================================
-     *  RECALCULATE
+     *  RECALCULATE  (chunked \u2014 one batch per request, with progress)
      * ============================================================ */
+    var RECALC_BATCH = 100;
+    var recalcRunning = false;
+
+    function setRecalcBusy(busy, label) {
+        if (!recalcBtn) return;
+        recalcBtn.disabled = busy;
+        if (busy) {
+            recalcBtn.innerHTML = '<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite"></span> ' + esc(label || 'Recalculating\u2026');
+        } else {
+            recalcBtn.innerHTML = '<span class="dashicons dashicons-update"></span> Recalculate';
+        }
+    }
+
+    function finishRecalculate() {
+        recalcRunning = false;
+        setRecalcBusy(false);
+
+        // Remove empty state if present.
+        var empty = document.querySelector('.almaseo-rq-empty');
+        if (empty) empty.remove();
+        if (table) table.style.display = '';
+
+        loadStats();
+        loadQueue(1);
+    }
+
     function handleRecalculate() {
-        if (recalcBtn) {
-            recalcBtn.disabled = true;
-            recalcBtn.innerHTML = '<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite"></span> Recalculating\u2026';
+        if (recalcRunning) return;
+        recalcRunning = true;
+        setRecalcBusy(true, 'Starting\u2026');
+
+        function runBatch(offset) {
+            wp.apiFetch({
+                url: cfg.restBase + '/recalculate',
+                method: 'POST',
+                data: { offset: offset, batch_size: RECALC_BATCH },
+            }).then(function (data) {
+                var total  = (data && data.total)  ? data.total  : 0;
+                var scored = (data && data.scored) ? data.scored : 0;
+
+                if (data && !data.done && total > 0) {
+                    setRecalcBusy(true, 'Scoring ' + scored + ' / ' + total + '\u2026');
+                    runBatch(data.next_offset);
+                    return;
+                }
+                finishRecalculate();
+            }).catch(function () {
+                recalcRunning = false;
+                setRecalcBusy(false);
+                alert('Recalculation failed. Please try again.');
+            });
         }
 
-        wp.apiFetch({
-            url: cfg.restBase + '/recalculate',
-            method: 'POST',
-        }).then(function (data) {
-            if (recalcBtn) {
-                recalcBtn.disabled = false;
-                recalcBtn.innerHTML = '<span class="dashicons dashicons-update"></span> Recalculate';
-            }
-
-            // Remove empty state if present.
-            var empty = document.querySelector('.almaseo-rq-empty');
-            if (empty) empty.remove();
-            if (table) table.style.display = '';
-
-            loadStats();
-            loadQueue(1);
-        }).catch(function () {
-            if (recalcBtn) {
-                recalcBtn.disabled = false;
-                recalcBtn.innerHTML = '<span class="dashicons dashicons-update"></span> Recalculate';
-            }
-            alert('Recalculation failed. Please try again.');
-        });
+        runBatch(0);
     }
 
     /* ============================================================
