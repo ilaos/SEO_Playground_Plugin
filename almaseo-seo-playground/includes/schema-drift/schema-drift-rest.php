@@ -81,6 +81,10 @@ class AlmaSEO_Schema_Drift_REST {
             'methods'             => WP_REST_Server::CREATABLE,
             'callback'            => array( __CLASS__, 'trigger_scan' ),
             'permission_callback' => array( __CLASS__, 'can_manage_pro' ),
+            'args'                => array(
+                'offset'     => array( 'type' => 'integer', 'default' => 0 ),
+                'batch_size' => array( 'type' => 'integer', 'default' => 50 ),
+            ),
         ) );
 
         /* ── Resolve / Dismiss / Reopen ── */
@@ -247,9 +251,18 @@ class AlmaSEO_Schema_Drift_REST {
 
     /**
      * POST /schema-drift/scan
+     *
+     * Scans ONE batch of baseline-bearing posts and reports progress. The admin
+     * JS calls this repeatedly with the returned next_offset until `done` is
+     * true, so large baseline sets scan without a single long loopback-fetch
+     * run that the browser fetch would time out on.
      */
-    public static function trigger_scan() {
-        if ( AlmaSEO_Schema_Drift_Model::count_baselines() === 0 ) {
+    public static function trigger_scan( WP_REST_Request $request ) {
+        $offset     = absint( $request['offset'] );
+        $batch_size = absint( $request['batch_size'] );
+
+        // Guard only on the first batch — mid-scan calls have offset > 0.
+        if ( $offset === 0 && AlmaSEO_Schema_Drift_Model::count_baselines() === 0 ) {
             return new WP_Error(
                 'no_baselines',
                 'No baselines captured yet. Capture baselines first before scanning for drift.',
@@ -257,7 +270,7 @@ class AlmaSEO_Schema_Drift_REST {
             );
         }
 
-        $result = AlmaSEO_Schema_Drift_Engine::scan_for_drift();
+        $result = AlmaSEO_Schema_Drift_Engine::scan_drift_batch( $offset, $batch_size ?: 50 );
         return rest_ensure_response( $result );
     }
 

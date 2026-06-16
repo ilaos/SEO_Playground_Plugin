@@ -242,35 +242,58 @@
     /* ============================================================
      *  SCAN FOR DRIFT
      * ============================================================ */
+    // Each post is fetched over loopback HTTP (slow), so keep batches small.
+    var SD_SCAN_BATCH = 25;
+    var scanRunning = false;
+
+    function setScanBusy(busy, label) {
+        if (!scanBtn) return;
+        scanBtn.disabled = busy;
+        if (busy) {
+            scanBtn.innerHTML = '<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite"></span> ' + (label || 'Scanning\u2026');
+        } else {
+            scanBtn.innerHTML = '<span class="dashicons dashicons-search"></span> Scan for Drift';
+        }
+    }
+
     function handleScan() {
-        if (scanBtn) {
-            scanBtn.disabled = true;
-            scanBtn.innerHTML = '<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite"></span> Scanning\u2026';
+        if (scanRunning) return;
+        scanRunning = true;
+        setScanBusy(true, 'Starting\u2026');
+
+        function runBatch(offset) {
+            wp.apiFetch({
+                url: cfg.restBase + '/scan',
+                method: 'POST',
+                data: { offset: offset, batch_size: SD_SCAN_BATCH },
+            }).then(function (data) {
+                var total   = (data && data.total)   ? data.total   : 0;
+                var scanned = (data && data.scanned) ? data.scanned : 0;
+
+                if (data && !data.done && total > 0) {
+                    setScanBusy(true, 'Scanning ' + scanned + ' / ' + total + '\u2026');
+                    runBatch(data.next_offset);
+                    return;
+                }
+
+                scanRunning = false;
+                setScanBusy(false);
+
+                var empty = document.querySelector('.almaseo-sd-empty');
+                if (empty) empty.remove();
+                if (table) table.style.display = '';
+
+                loadStats();
+                loadFindings(1);
+            }).catch(function (err) {
+                scanRunning = false;
+                setScanBusy(false);
+                var msg = (err && err.message) ? err.message : 'Scan failed. Please try again.';
+                alert(msg);
+            });
         }
 
-        wp.apiFetch({
-            url: cfg.restBase + '/scan',
-            method: 'POST',
-        }).then(function () {
-            if (scanBtn) {
-                scanBtn.disabled = false;
-                scanBtn.innerHTML = '<span class="dashicons dashicons-search"></span> Scan for Drift';
-            }
-
-            var empty = document.querySelector('.almaseo-sd-empty');
-            if (empty) empty.remove();
-            if (table) table.style.display = '';
-
-            loadStats();
-            loadFindings(1);
-        }).catch(function (err) {
-            if (scanBtn) {
-                scanBtn.disabled = false;
-                scanBtn.innerHTML = '<span class="dashicons dashicons-search"></span> Scan for Drift';
-            }
-            var msg = (err && err.message) ? err.message : 'Scan failed. Please try again.';
-            alert(msg);
-        });
+        runBatch(0);
     }
 
     /* ============================================================

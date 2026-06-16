@@ -200,129 +200,193 @@ class AlmaSEO_Schema_Drift_Engine {
      * @return array { posts_scanned: int, findings_count: int }
      */
     public static function scan_for_drift() {
-        // Each post is fetched over HTTP (loopback), so this is slower than a
-        // DB scan; keep going even if the browser request times out.
-        @set_time_limit( 0 );      // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+        // Full drift scan in one synchronous pass. Kept for the auto-scan hook
+        // and programmatic callers; the admin UI uses the chunked
+        // scan_drift_batch() instead. Delegates so the clear-once and
+        // timestamp-on-done semantics live in one place.
+        @set_time_limit( 0 );       // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
         @ignore_user_abort( true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
-        $baselines = AlmaSEO_Schema_Drift_Model::get_all_baselines();
+        $offset   = 0;
+        $scanned  = 0;
+        $findings = 0;
 
-        // Group baselines by post_id.
-        $by_post = array();
-        foreach ( $baselines as $bl ) {
-            $by_post[ $bl->post_id ][] = $bl;
+        do {
+            $r        = self::scan_drift_batch( $offset, 50 );
+            $scanned  = $r['scanned'];
+            $findings += $r['findings'];
+            $offset   = $r['next_offset'];
+        } while ( ! $r['done'] );
+
+        return array(
+            'posts_scanned'  => $scanned,
+            'findings_count' => $findings,
+        );
+    }
+
+    /**
+     * Scan ONE batch of baseline-bearing posts for drift, starting at $offset.
+     *
+     * Drives the chunked, progress-reporting "Scan for Drift" from the admin
+     * UI: each post is fetched over loopback HTTP (slow), so the client calls
+     * this repeatedly with the returned next_offset until `done` rather than
+     * fetching every post in one request the browser would time out on.
+     *
+     * Open findings are cleared ONCE on the first batch (offset 0) and the
+     * last-scan timestamp is written ONCE on the final batch — otherwise
+     * chunking would wipe earlier batches or stamp the time early.
+     *
+     * @param int $offset     Starting offset into the ordered baseline-post list.
+     * @param int $batch_size Posts to scan this call (clamped 1–100).
+     * @return array { total, processed, scanned, findings, next_offset, done }
+     */
+    public static function scan_drift_batch( $offset = 0, $batch_size = 50 ) {
+        @set_time_limit( 0 );       // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+        @ignore_user_abort( true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+
+        $offset     = max( 0, (int) $offset );
+        $batch_size = min( 100, max( 1, (int) $batch_size ) );
+
+        $total = AlmaSEO_Schema_Drift_Model::count_baseline_posts();
+
+        // First batch only: clear existing open findings before the re-scan.
+        if ( $offset === 0 ) {
+            AlmaSEO_Schema_Drift_Model::clear_open_findings();
         }
 
-        // Clear existing open findings before re-scan.
-        AlmaSEO_Schema_Drift_Model::clear_open_findings();
-
-        $posts_scanned  = 0;
+        $post_ids       = AlmaSEO_Schema_Drift_Model::get_baseline_post_ids( $batch_size, $offset );
+        $processed      = 0;
         $findings_count = 0;
 
-        foreach ( $by_post as $post_id => $post_baselines ) {
-            $url            = get_permalink( $post_id );
-            $current_schemas = self::extract_schemas_from_url( $url );
-            $posts_scanned++;
+        foreach ( $post_ids as $post_id ) {
+            $post_baselines = AlmaSEO_Schema_Drift_Model::get_baselines_for_post( $post_id );
+            $findings_count += self::compare_post_baselines( (int) $post_id, $post_baselines );
+            $processed++;
+        }
 
-            // Fetch failed (loopback blocked / timeout / error) — we can't
-            // compare, so skip rather than reporting false drift for the post.
-            if ( ! is_array( $current_schemas ) ) {
+        $next_offset = $offset + $processed;
+        $done = ( count( $post_ids ) < $batch_size ) || ( $next_offset >= $total );
+
+        if ( $done ) {
+            update_option( 'almaseo_sd_last_scan', current_time( 'mysql', true ) );
+        }
+
+        return array(
+            'total'       => $total,
+            'processed'   => $processed,
+            'scanned'     => $next_offset,
+            'findings'    => $findings_count,
+            'next_offset' => $next_offset,
+            'done'        => $done,
+        );
+    }
+
+    /**
+     * Compare ONE post's live schemas against its stored baselines and insert
+     * any drift findings. Returns the number of findings inserted.
+     *
+     * @param int   $post_id
+     * @param array $post_baselines Baseline rows for this post.
+     * @return int
+     */
+    private static function compare_post_baselines( $post_id, $post_baselines ) {
+        $url             = get_permalink( $post_id );
+        $current_schemas = self::extract_schemas_from_url( $url );
+
+        // Fetch failed (loopback blocked / timeout / error) — we can't compare,
+        // so skip rather than reporting false drift for the post.
+        if ( ! is_array( $current_schemas ) ) {
+            return 0;
+        }
+
+        $findings_count = 0;
+        $baseline_types = array();
+
+        foreach ( $post_baselines as $bl ) {
+            $baseline_types[] = $bl->schema_type;
+            $baseline_data    = json_decode( $bl->schema_json, true );
+
+            if ( ! isset( $current_schemas[ $bl->schema_type ] ) ) {
+                // Schema removed.
+                $finding = array(
+                    'post_id'        => $post_id,
+                    'url'            => $url,
+                    'drift_type'     => 'schema_removed',
+                    'schema_type'    => $bl->schema_type,
+                    'severity'       => 'high',
+                    'baseline_value' => $bl->schema_json,
+                    'current_value'  => null,
+                    'diff_summary'   => $bl->schema_type . ' schema was present in baseline but is now missing.',
+                    'suggestion'     => 'The ' . $bl->schema_type . ' schema has been removed. Check if a plugin update or theme change removed it.',
+                );
+                if ( AlmaSEO_Schema_Drift_Model::insert_finding( $finding ) ) {
+                    $findings_count++;
+                }
                 continue;
             }
 
-            // Check each baseline against current.
-            $baseline_types = array();
-            foreach ( $post_baselines as $bl ) {
-                $baseline_types[] = $bl->schema_type;
-                $baseline_data    = json_decode( $bl->schema_json, true );
+            // Schema exists — check for modifications.
+            $current_data = $current_schemas[ $bl->schema_type ];
+            $diff = self::compare_schemas( $baseline_data, $current_data );
 
-                if ( ! isset( $current_schemas[ $bl->schema_type ] ) ) {
-                    // Schema removed.
-                    $finding = array(
-                        'post_id'        => $post_id,
-                        'url'            => $url,
-                        'drift_type'     => 'schema_removed',
-                        'schema_type'    => $bl->schema_type,
-                        'severity'       => 'high',
-                        'baseline_value' => $bl->schema_json,
-                        'current_value'  => null,
-                        'diff_summary'   => $bl->schema_type . ' schema was present in baseline but is now missing.',
-                        'suggestion'     => 'The ' . $bl->schema_type . ' schema has been removed. Check if a plugin update or theme change removed it.',
-                    );
-                    if ( AlmaSEO_Schema_Drift_Model::insert_finding( $finding ) ) {
-                        $findings_count++;
-                    }
-                    continue;
-                }
-
-                // Schema exists — check for modifications.
-                $current_data = $current_schemas[ $bl->schema_type ];
-                $diff = self::compare_schemas( $baseline_data, $current_data );
-
-                if ( ! empty( $diff ) ) {
-                    $finding = array(
-                        'post_id'        => $post_id,
-                        'url'            => $url,
-                        'drift_type'     => 'schema_modified',
-                        'schema_type'    => $bl->schema_type,
-                        'severity'       => 'medium',
-                        'baseline_value' => $bl->schema_json,
-                        'current_value'  => wp_json_encode( $current_data ),
-                        'diff_summary'   => implode( '; ', array_slice( $diff, 0, 5 ) ),
-                        'suggestion'     => 'The ' . $bl->schema_type . ' schema has been modified. Review the changes to ensure they are intentional.',
-                    );
-                    if ( AlmaSEO_Schema_Drift_Model::insert_finding( $finding ) ) {
-                        $findings_count++;
-                    }
-                }
-            }
-
-            // Check for new schemas not in baseline.
-            foreach ( $current_schemas as $type => $data ) {
-                if ( ! in_array( $type, $baseline_types, true ) ) {
-                    $finding = array(
-                        'post_id'        => $post_id,
-                        'url'            => $url,
-                        'drift_type'     => 'schema_added',
-                        'schema_type'    => $type,
-                        'severity'       => 'low',
-                        'baseline_value' => null,
-                        'current_value'  => wp_json_encode( $data ),
-                        'diff_summary'   => $type . ' schema was not in the baseline but is now present.',
-                        'suggestion'     => 'A new ' . $type . ' schema has appeared. Verify it was intentionally added.',
-                    );
-                    if ( AlmaSEO_Schema_Drift_Model::insert_finding( $finding ) ) {
-                        $findings_count++;
-                    }
-                }
-            }
-
-            // Check for JSON-LD parse errors (empty response but had baselines).
-            if ( empty( $current_schemas ) && ! empty( $post_baselines ) ) {
-                $post = get_post( $post_id );
-                if ( $post && $post->post_status === 'publish' ) {
-                    $finding = array(
-                        'post_id'      => $post_id,
-                        'url'          => $url,
-                        'drift_type'   => 'schema_error',
-                        'schema_type'  => '',
-                        'severity'     => 'medium',
-                        'diff_summary' => 'No JSON-LD schema found on page that previously had ' . count( $post_baselines ) . ' schema type(s).',
-                        'suggestion'   => 'The page returned no JSON-LD. This could indicate a rendering error or plugin conflict.',
-                    );
-                    if ( AlmaSEO_Schema_Drift_Model::insert_finding( $finding ) ) {
-                        $findings_count++;
-                    }
+            if ( ! empty( $diff ) ) {
+                $finding = array(
+                    'post_id'        => $post_id,
+                    'url'            => $url,
+                    'drift_type'     => 'schema_modified',
+                    'schema_type'    => $bl->schema_type,
+                    'severity'       => 'medium',
+                    'baseline_value' => $bl->schema_json,
+                    'current_value'  => wp_json_encode( $current_data ),
+                    'diff_summary'   => implode( '; ', array_slice( $diff, 0, 5 ) ),
+                    'suggestion'     => 'The ' . $bl->schema_type . ' schema has been modified. Review the changes to ensure they are intentional.',
+                );
+                if ( AlmaSEO_Schema_Drift_Model::insert_finding( $finding ) ) {
+                    $findings_count++;
                 }
             }
         }
 
-        update_option( 'almaseo_sd_last_scan', current_time( 'mysql', true ) );
+        // Check for new schemas not in baseline.
+        foreach ( $current_schemas as $type => $data ) {
+            if ( ! in_array( $type, $baseline_types, true ) ) {
+                $finding = array(
+                    'post_id'        => $post_id,
+                    'url'            => $url,
+                    'drift_type'     => 'schema_added',
+                    'schema_type'    => $type,
+                    'severity'       => 'low',
+                    'baseline_value' => null,
+                    'current_value'  => wp_json_encode( $data ),
+                    'diff_summary'   => $type . ' schema was not in the baseline but is now present.',
+                    'suggestion'     => 'A new ' . $type . ' schema has appeared. Verify it was intentionally added.',
+                );
+                if ( AlmaSEO_Schema_Drift_Model::insert_finding( $finding ) ) {
+                    $findings_count++;
+                }
+            }
+        }
 
-        return array(
-            'posts_scanned'  => $posts_scanned,
-            'findings_count' => $findings_count,
-        );
+        // Check for JSON-LD parse errors (empty response but had baselines).
+        if ( empty( $current_schemas ) && ! empty( $post_baselines ) ) {
+            $post = get_post( $post_id );
+            if ( $post && $post->post_status === 'publish' ) {
+                $finding = array(
+                    'post_id'      => $post_id,
+                    'url'          => $url,
+                    'drift_type'   => 'schema_error',
+                    'schema_type'  => '',
+                    'severity'     => 'medium',
+                    'diff_summary' => 'No JSON-LD schema found on page that previously had ' . count( $post_baselines ) . ' schema type(s).',
+                    'suggestion'   => 'The page returned no JSON-LD. This could indicate a rendering error or plugin conflict.',
+                );
+                if ( AlmaSEO_Schema_Drift_Model::insert_finding( $finding ) ) {
+                    $findings_count++;
+                }
+            }
+        }
+
+        return $findings_count;
     }
 
     /* ──────────────────────── Schema Comparison ── */

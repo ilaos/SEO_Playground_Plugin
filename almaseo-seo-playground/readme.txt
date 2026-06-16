@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.25
+Stable tag: 1.19.26
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.26 =
+**Schema Drift — reliable drift scanning on large sites**
+
+* Fix: "Scan for Drift" now checks your pages in small batches with a live progress count ("Scanning 50 / 600…") instead of one long request. Because each page is fetched over HTTP, this scan is the slowest, so on sites with many monitored pages the single request could falsely report a failure even though the scan had completed. The chunked approach removes that timeout. Resolved/dismissed findings are still preserved across a re-scan.
 
 = 1.19.25 =
 **Date Hygiene — reliable scanning on large sites**

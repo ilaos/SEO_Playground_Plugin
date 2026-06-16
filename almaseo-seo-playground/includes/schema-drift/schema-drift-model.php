@@ -83,6 +83,26 @@ class AlmaSEO_Schema_Drift_Model {
     }
 
     /**
+     * One ordered page of distinct post IDs that have baselines.
+     *
+     * Used by the chunked drift scan to page deterministically over
+     * baseline-bearing posts.
+     *
+     * @param int $limit
+     * @param int $offset
+     * @return int[]
+     */
+    public static function get_baseline_post_ids( $limit, $offset ) {
+        global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from baseline_table()
+        return array_map( 'intval', $wpdb->get_col( $wpdb->prepare(
+            "SELECT DISTINCT post_id FROM " . self::baseline_table() . " ORDER BY post_id ASC LIMIT %d OFFSET %d",
+            (int) $limit,
+            (int) $offset
+        ) ) );
+    }
+
+    /**
      * Upsert a baseline entry.
      */
     public static function upsert_baseline( $data ) {
