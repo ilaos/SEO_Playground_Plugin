@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.27
+Stable tag: 1.19.28
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.28 =
+**Orphan Pages: chunked scan (no large-site timeout)**
+
+* Improvement: The Orphan Pages scan (Internal Links > Orphan Pages) now runs in small batches with a live progress indicator instead of one large request, so it no longer times out on sites with many posts. Because orphan detection is a whole-graph calculation, the scan runs in three resumable phases (build link map, analyze links, save results); results are unchanged. The scan now clears old results with DELETE instead of TRUNCATE so it also works on hosts that restrict table privileges.
 
 = 1.19.27 =
 **Fix: stop two PHP notices from flooding the debug log**

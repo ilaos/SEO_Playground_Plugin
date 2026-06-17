@@ -315,9 +315,20 @@ class AlmaSEO_Internal_Links_Controller {
         return rest_ensure_response( AlmaSEO_Internal_Links_Orphan::get_stats() );
     }
 
-    public static function rest_scan_orphans() {
-        $counts = AlmaSEO_Internal_Links_Orphan::scan_all();
-        return rest_ensure_response( $counts );
+    public static function rest_scan_orphans( WP_REST_Request $request ) {
+        // Orphan detection is whole-graph, so the scan runs in chunked phases
+        // (map → scan → write), one batch per request, to avoid a large-site
+        // timeout. The JS loops, passing the returned phase/offset cursor back.
+        $phase = $request->get_param( 'phase' );
+        $phase = $phase ? sanitize_key( $phase ) : 'map';
+        $offset = absint( $request->get_param( 'offset' ) );
+        $batch  = absint( $request->get_param( 'batch_size' ) );
+        if ( $batch < 1 ) {
+            $batch = 50;
+        }
+
+        $result = AlmaSEO_Internal_Links_Orphan::scan_step( $phase, $offset, $batch );
+        return rest_ensure_response( $result );
     }
 
     public static function rest_dismiss_orphan( WP_REST_Request $request ) {

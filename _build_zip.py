@@ -7,7 +7,7 @@ import os
 import sys
 import zipfile
 
-VERSION = "1.19.26"
+VERSION = "1.19.28"
 SRC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "almaseo-seo-playground")
 OUT_ZIP = os.path.join(os.path.dirname(os.path.abspath(__file__)), f"almaseo-seo-playground-v{VERSION}.zip")
 

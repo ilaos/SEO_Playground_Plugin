@@ -196,35 +196,69 @@
     /* ============================================================
      *  SCAN
      * ============================================================ */
-    function handleScan() {
-        if (scanBtn) {
-            scanBtn.disabled = true;
-            scanBtn.innerHTML = '<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite"></span> Scanning\u2026';
-        }
+    // Orphan detection is whole-graph, so the back end scans in chunked phases
+    // (map -> scan -> write), one batch per request. We loop until done, feeding
+    // the returned phase/offset cursor back and showing live progress.
+    var SCAN_BATCH = 50;
 
+    function resetScanBtn() {
+        if (scanBtn) {
+            scanBtn.disabled = false;
+            scanBtn.innerHTML = '<span class="dashicons dashicons-search"></span> Scan Now';
+        }
+    }
+
+    function setScanProgress(phase, processed, total) {
+        if (!scanBtn) return;
+        var label = phase === 'scan' ? 'Analyzing links'
+                  : phase === 'write' ? 'Saving results'
+                  : 'Preparing';
+        var txt = (total > 0 && phase !== 'map')
+            ? label + ': ' + processed + ' / ' + total
+            : label;
+        scanBtn.innerHTML = '<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite"></span> ' + txt + '\u2026';
+    }
+
+    function runScanStep(phase, offset) {
         wp.apiFetch({
             url: cfg.restBase + '/scan',
             method: 'POST',
-        }).then(function () {
-            if (scanBtn) {
-                scanBtn.disabled = false;
-                scanBtn.innerHTML = '<span class="dashicons dashicons-search"></span> Scan Now';
+            data: { phase: phase, offset: offset, batch_size: SCAN_BATCH }
+        }).then(function (res) {
+            res = res || {};
+
+            if (res.error) {
+                resetScanBtn();
+                alert('Scan was interrupted before it finished. Please run it again.');
+                return;
             }
 
-            var empty = document.querySelector('.almaseo-orphan-empty');
-            if (empty) empty.remove();
-            if (table) table.style.display = '';
+            setScanProgress(res.phase, res.processed, res.total);
 
-            loadStats();
-            loadClusters();
-            loadOrphans(1);
+            if (res.done) {
+                resetScanBtn();
+                var empty = document.querySelector('.almaseo-orphan-empty');
+                if (empty) empty.remove();
+                if (table) table.style.display = '';
+                loadStats();
+                loadClusters();
+                loadOrphans(1);
+                return;
+            }
+
+            runScanStep(res.phase, res.offset);
         }).catch(function () {
-            if (scanBtn) {
-                scanBtn.disabled = false;
-                scanBtn.innerHTML = '<span class="dashicons dashicons-search"></span> Scan Now';
-            }
+            resetScanBtn();
             alert('Scan failed. Please try again.');
         });
+    }
+
+    function handleScan() {
+        if (scanBtn) {
+            scanBtn.disabled = true;
+            scanBtn.innerHTML = '<span class="dashicons dashicons-update" style="animation:rotation 1s linear infinite"></span> Preparing\u2026';
+        }
+        runScanStep('map', 0);
     }
 
     /* ============================================================

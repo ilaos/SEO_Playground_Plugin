@@ -17,6 +17,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 class AlmaSEO_Internal_Links_Orphan {
 
     /**
+     * Transient holding the in-progress scan graph (link map + accumulators)
+     * between chunked AJAX steps. Holds the whole-site state mid-scan so each
+     * request stays bounded; cleared when the scan completes.
+     */
+    const SCAN_STATE_KEY = 'almaseo_orphan_scan_state';
+    const SCAN_STATE_TTL = 7200; // 2 hours — generous so a slow multi-step run can't expire mid-scan.
+
+    /**
      * Get the orphan pages table name.
      */
     private static function table() {
@@ -27,102 +35,218 @@ class AlmaSEO_Internal_Links_Orphan {
     /* ──────────────── Scanning ── */
 
     /**
-     * Run a full orphan scan across all published posts.
+     * Run a full orphan scan to completion in one call.
      *
-     * Clears existing data and re-scans in batches.
+     * Orphan detection is a WHOLE-GRAPH computation (a post is an orphan only
+     * if NO other post links to it), so the inbound graph must be built from
+     * every post's content before any verdict is known. To avoid a single
+     * giant request that times out on large sites, the work is split into
+     * three chunked phases — map → scan → write — each bounded to a batch and
+     * resumable via {@see scan_step()}. This method just drives those steps to
+     * completion in-process for cron / programmatic callers; the admin UI
+     * calls scan_step() one batch per AJAX request instead.
      *
      * @return array { total: int, orphans: int, weak: int }
      */
     public static function scan_all() {
-        global $wpdb;
-        $table = self::table();
-
-        // Clear existing data.
-        $wpdb->query( "TRUNCATE TABLE {$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
-
-        $post_types = apply_filters( 'almaseo_orphan_post_types', array( 'post', 'page' ) );
-        $placeholders = implode( ',', array_fill( 0, count( $post_types ), '%s' ) );
-
-        // Get all published posts.
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
-        $posts = $wpdb->get_results( $wpdb->prepare(
-            "SELECT ID, post_title, post_name FROM {$wpdb->posts}
-             WHERE post_status = 'publish' AND post_type IN ({$placeholders})
-             ORDER BY ID ASC",
-            $post_types
-        ) );
-
-        if ( empty( $posts ) ) {
-            return array( 'total' => 0, 'orphans' => 0, 'weak' => 0 );
+        $step  = self::scan_step( 'map', 0, 100 );
+        $guard = 0;
+        // Guard is a runaway backstop; real runs converge in ceil(posts/100)*3 steps.
+        while ( empty( $step['done'] ) && $guard < 100000 ) {
+            $step = self::scan_step( $step['phase'], $step['offset'], 100 );
+            $guard++;
         }
 
-        // Build URL map for all posts.
-        $url_map = array(); // url => post_id
-        foreach ( $posts as $post ) {
-            $url = get_permalink( $post->ID );
+        return ! empty( $step['counts'] )
+            ? $step['counts']
+            : array( 'total' => 0, 'orphans' => 0, 'weak' => 0 );
+    }
+
+    /**
+     * Run ONE chunked step of the orphan scan and return the next cursor.
+     *
+     * Phases run in order, each advancing an offset through the frozen post
+     * list a batch at a time:
+     *   - 'map'   : freeze the candidate post list + build the URL→post_id map.
+     *   - 'scan'  : read each source post's content, accumulate inbound/outbound
+     *               link counts + the primary category for clustering.
+     *   - 'write' : clear old rows (first batch only) + insert the verdicts.
+     * The final 'write' batch stamps the last-scan time, clears the state
+     * transient, and returns done=true with the verdict counts.
+     *
+     * @param string $phase      One of 'map' | 'scan' | 'write'.
+     * @param int    $offset     Offset into the frozen post list for this phase.
+     * @param int    $batch_size Posts to process this step.
+     * @return array { phase, offset, total, processed, done, counts?, error? }
+     */
+    public static function scan_step( $phase = 'map', $offset = 0, $batch_size = 100 ) {
+        $batch_size = max( 1, min( 500, (int) $batch_size ) );
+        $offset     = max( 0, (int) $offset );
+
+        if ( 'scan' === $phase ) {
+            return self::step_scan( $offset, $batch_size );
+        }
+        if ( 'write' === $phase ) {
+            return self::step_write( $offset, $batch_size );
+        }
+        return self::step_map( $offset, $batch_size );
+    }
+
+    /**
+     * Phase 1 — build the URL→post_id map (and, on offset 0, freeze the
+     * candidate post list that the whole scan operates on).
+     */
+    private static function step_map( $offset, $batch_size ) {
+        if ( 0 === $offset ) {
+            global $wpdb;
+            $post_types   = apply_filters( 'almaseo_orphan_post_types', array( 'post', 'page' ) );
+            $placeholders = implode( ',', array_fill( 0, count( $post_types ), '%s' ) );
+
+            // Freeze the candidate post list up front so the set can't shift mid-scan.
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+            $ids = $wpdb->get_col( $wpdb->prepare(
+                "SELECT ID FROM {$wpdb->posts}
+                 WHERE post_status = 'publish' AND post_type IN ({$placeholders})
+                 ORDER BY ID ASC",
+                $post_types
+            ) );
+
+            $state = array(
+                'ids'      => array_map( 'intval', (array) $ids ),
+                'url_map'  => array(),
+                'inbound'  => array(),
+                'outbound' => array(),
+                'cats'     => array(),
+                'clusters' => array(),
+                'counts'   => array( 'total' => 0, 'orphans' => 0, 'weak' => 0 ),
+            );
+        } else {
+            $state = self::get_scan_state();
+            if ( null === $state ) {
+                return self::lost_state();
+            }
+        }
+
+        $total = count( $state['ids'] );
+        $slice = array_slice( $state['ids'], $offset, $batch_size );
+
+        foreach ( $slice as $pid ) {
+            $url = get_permalink( $pid );
             if ( $url ) {
-                $url_map[ $url ] = (int) $post->ID;
+                $state['url_map'][ $url ] = (int) $pid;
                 // Also index a trailing-slash-insensitive path so links written
                 // as /my-post still match a permalink stored as /my-post/.
                 $path = wp_parse_url( $url, PHP_URL_PATH );
                 if ( $path ) {
-                    $url_map[ self::normalize_path_key( $path ) ] = (int) $post->ID;
+                    $state['url_map'][ self::normalize_path_key( $path ) ] = (int) $pid;
                 }
             }
         }
 
-        // Count inbound links for each post by scanning all post content.
-        $inbound_counts = array_fill_keys( wp_list_pluck( $posts, 'ID' ), 0 );
-        $outbound_counts = array_fill_keys( wp_list_pluck( $posts, 'ID' ), 0 );
+        self::save_scan_state( $state );
 
-        // Process in batches of 50.
-        $batch_size = 50;
-        $total_posts = count( $posts );
+        $next = $offset + count( $slice );
+        $done = ( count( $slice ) < $batch_size ) || ( $next >= $total );
 
-        for ( $offset = 0; $offset < $total_posts; $offset += $batch_size ) {
-            $batch = array_slice( $posts, $offset, $batch_size );
+        return $done
+            ? array( 'phase' => 'scan', 'offset' => 0, 'total' => $total, 'processed' => $total, 'done' => false )
+            : array( 'phase' => 'map', 'offset' => $next, 'total' => $total, 'processed' => $next, 'done' => false );
+    }
 
-            foreach ( $batch as $source_post ) {
-                $content = get_post_field( 'post_content', $source_post->ID );
-                if ( empty( $content ) ) {
-                    continue;
-                }
+    /**
+     * Phase 2 — scan each source post's content, accumulating inbound/outbound
+     * link counts across the whole graph plus its primary-category cluster.
+     */
+    private static function step_scan( $offset, $batch_size ) {
+        $state = self::get_scan_state();
+        if ( null === $state ) {
+            return self::lost_state();
+        }
 
-                // Extract all internal links from content.
-                $links = self::extract_internal_links( $content, $url_map );
-                $outbound_counts[ $source_post->ID ] = count( $links );
+        $total = count( $state['ids'] );
+        $slice = array_slice( $state['ids'], $offset, $batch_size );
 
-                foreach ( $links as $target_id ) {
-                    if ( isset( $inbound_counts[ $target_id ] ) && $target_id !== $source_post->ID ) {
-                        $inbound_counts[ $target_id ]++;
-                    }
+        foreach ( $slice as $source_id ) {
+            $source_id = (int) $source_id;
+
+            // Record the primary category now (cheap, term-cached) so the write
+            // phase can compute cluster strengths without re-querying per post.
+            $cats = get_the_category( $source_id );
+            $state['cats'][ $source_id ] = ( ! empty( $cats ) ) ? $cats[0]->slug : 'uncategorized';
+
+            $content = get_post_field( 'post_content', $source_id );
+            if ( empty( $content ) ) {
+                $state['outbound'][ $source_id ] = 0;
+                continue;
+            }
+
+            $links = self::extract_internal_links( $content, $state['url_map'] );
+            $state['outbound'][ $source_id ] = count( $links );
+
+            foreach ( $links as $target_id ) {
+                $target_id = (int) $target_id;
+                if ( $target_id !== $source_id ) {
+                    $state['inbound'][ $target_id ] = ( isset( $state['inbound'][ $target_id ] ) ? $state['inbound'][ $target_id ] : 0 ) + 1;
                 }
             }
         }
 
-        // Determine clusters by primary category.
-        $clusters = self::build_clusters( $posts );
+        self::save_scan_state( $state );
 
-        // Insert results.
-        $counts = array( 'total' => 0, 'orphans' => 0, 'weak' => 0 );
+        $next = $offset + count( $slice );
+        $done = ( count( $slice ) < $batch_size ) || ( $next >= $total );
 
-        foreach ( $posts as $post ) {
-            $pid = (int) $post->ID;
-            $inbound  = isset( $inbound_counts[ $pid ] ) ? $inbound_counts[ $pid ] : 0;
-            $outbound = isset( $outbound_counts[ $pid ] ) ? $outbound_counts[ $pid ] : 0;
+        return $done
+            ? array( 'phase' => 'write', 'offset' => 0, 'total' => $total, 'processed' => $total, 'done' => false )
+            : array( 'phase' => 'scan', 'offset' => $next, 'total' => $total, 'processed' => $next, 'done' => false );
+    }
 
-            if ( $inbound === 0 ) {
+    /**
+     * Phase 3 — write the verdict rows. On the first batch it clears the old
+     * results and computes cluster strengths from the categories collected
+     * during the scan phase. The final batch stamps the last-scan time and
+     * clears the scan state.
+     */
+    private static function step_write( $offset, $batch_size ) {
+        global $wpdb;
+
+        $state = self::get_scan_state();
+        if ( null === $state ) {
+            return self::lost_state();
+        }
+
+        $table = self::table();
+        $total = count( $state['ids'] );
+        $now   = current_time( 'mysql', true );
+
+        if ( 0 === $offset ) {
+            // Clear prior results now that fresh data is ready. DELETE (not
+            // TRUNCATE) so the scan works on locked-down hosts without DROP priv.
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+            $wpdb->query( "DELETE FROM {$table}" );
+            $state['clusters'] = self::build_clusters_from_cats( $state['cats'], $total );
+            $state['counts']   = array( 'total' => 0, 'orphans' => 0, 'weak' => 0 );
+        }
+
+        $slice = array_slice( $state['ids'], $offset, $batch_size );
+
+        foreach ( $slice as $pid ) {
+            $pid      = (int) $pid;
+            $inbound  = isset( $state['inbound'][ $pid ] ) ? (int) $state['inbound'][ $pid ] : 0;
+            $outbound = isset( $state['outbound'][ $pid ] ) ? (int) $state['outbound'][ $pid ] : 0;
+
+            if ( 0 === $inbound ) {
                 $status = 'orphan';
-                $counts['orphans']++;
+                $state['counts']['orphans']++;
             } elseif ( $inbound <= 2 ) {
                 $status = 'weak';
-                $counts['weak']++;
+                $state['counts']['weak']++;
             } else {
                 $status = 'healthy';
             }
 
-            $cluster_id = isset( $clusters[ $pid ] ) ? $clusters[ $pid ]['cluster_id'] : '';
-            $cluster_strength = isset( $clusters[ $pid ] ) ? $clusters[ $pid ]['strength'] : 0;
+            $cluster_id       = isset( $state['clusters'][ $pid ] ) ? $state['clusters'][ $pid ]['cluster_id'] : '';
+            $cluster_strength = isset( $state['clusters'][ $pid ] ) ? $state['clusters'][ $pid ]['strength'] : 0;
 
             $wpdb->insert( $table, array(
                 'post_id'          => $pid,
@@ -132,16 +256,49 @@ class AlmaSEO_Internal_Links_Orphan {
                 'cluster_strength' => $cluster_strength,
                 'is_hub_candidate' => ( $outbound >= 5 && $inbound <= 2 ) ? 1 : 0,
                 'status'           => $status,
-                'scanned_at'       => current_time( 'mysql', true ),
+                'scanned_at'       => $now,
                 'suggestion'       => self::generate_suggestion( $status, $inbound, $outbound, $cluster_id ),
             ) );
 
-            $counts['total']++;
+            $state['counts']['total']++;
         }
 
-        update_option( 'almaseo_orphan_last_scan', current_time( 'mysql', true ) );
+        $next   = $offset + count( $slice );
+        $done   = ( count( $slice ) < $batch_size ) || ( $next >= $total );
+        $counts = $state['counts'];
 
-        return $counts;
+        if ( $done ) {
+            update_option( 'almaseo_orphan_last_scan', $now );
+            self::clear_scan_state();
+            return array( 'phase' => 'done', 'offset' => $total, 'total' => $total, 'processed' => $total, 'done' => true, 'counts' => $counts );
+        }
+
+        self::save_scan_state( $state );
+        return array( 'phase' => 'write', 'offset' => $next, 'total' => $total, 'processed' => $next, 'done' => false, 'counts' => $counts );
+    }
+
+    /* ──────────────── Scan state (transient) ── */
+
+    private static function get_scan_state() {
+        $state = get_transient( self::SCAN_STATE_KEY );
+        return is_array( $state ) ? $state : null;
+    }
+
+    private static function save_scan_state( $state ) {
+        set_transient( self::SCAN_STATE_KEY, $state, self::SCAN_STATE_TTL );
+    }
+
+    private static function clear_scan_state() {
+        delete_transient( self::SCAN_STATE_KEY );
+    }
+
+    /**
+     * The scan-state transient vanished mid-run (expired, or object cache was
+     * flushed). Signal the caller to surface the failure and restart, rather
+     * than writing a partial/empty graph.
+     */
+    private static function lost_state() {
+        return array( 'phase' => 'done', 'offset' => 0, 'total' => 0, 'processed' => 0, 'done' => true, 'error' => 'scan_state_lost' );
     }
 
     /* ──────────────── CRUD ── */
@@ -416,39 +573,30 @@ class AlmaSEO_Internal_Links_Orphan {
     }
 
     /**
-     * Build category-based clusters for posts.
+     * Build category-based clusters from the per-post primary categories that
+     * were collected during the scan phase.
      *
-     * @param array $posts Array of post objects.
+     * Strength is the cluster's size normalized against the whole site (bigger
+     * cluster = more linking potential) — same heuristic as before, just fed
+     * from the pre-collected map so the write phase needs no per-post category
+     * lookups.
+     *
+     * @param array $cats        post_id => cluster_id (primary category slug).
+     * @param int   $total_posts Total posts in the scan.
      * @return array post_id => { cluster_id, strength }.
      */
-    private static function build_clusters( $posts ) {
+    private static function build_clusters_from_cats( $cats, $total_posts ) {
         $clusters = array();
+        $groups   = array();
 
-        foreach ( $posts as $post ) {
-            $cats = get_the_category( $post->ID );
-            if ( ! empty( $cats ) ) {
-                $primary = $cats[0];
-                $cluster_id = $primary->slug;
-            } else {
-                $cluster_id = 'uncategorized';
-            }
-
-            $clusters[ $post->ID ] = array(
-                'cluster_id' => $cluster_id,
-                'strength'   => 0, // Will be calculated below.
-            );
+        foreach ( $cats as $pid => $cluster_id ) {
+            $clusters[ $pid ] = array( 'cluster_id' => $cluster_id, 'strength' => 0 );
+            $groups[ $cluster_id ][] = $pid;
         }
 
-        // Calculate cluster strength (percentage of posts in same cluster that link to each other).
-        $cluster_groups = array();
-        foreach ( $clusters as $pid => $data ) {
-            $cluster_groups[ $data['cluster_id'] ][] = $pid;
-        }
-
-        foreach ( $cluster_groups as $cid => $pids ) {
-            $size = count( $pids );
-            // Strength is simply cluster size normalized (bigger cluster = more linking potential).
-            $strength = min( 100, round( ( $size / max( 1, count( $posts ) ) ) * 100, 2 ) );
+        foreach ( $groups as $cid => $pids ) {
+            $size     = count( $pids );
+            $strength = min( 100, round( ( $size / max( 1, $total_posts ) ) * 100, 2 ) );
             foreach ( $pids as $pid ) {
                 $clusters[ $pid ]['strength'] = $strength;
             }
