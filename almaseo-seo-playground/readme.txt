@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.28
+Stable tag: 1.19.29
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.29 =
+**404 Monitor: accurate "today" and "last 7 days" counts**
+
+* Fix: The 404 Monitor dashboard counts ("404s today", "last 7 days") and the spike detector previously summed each path's lifetime hit count over a date range, so a long-lived URL with thousands of total hits that was touched once this week inflated the totals enormously — and the spike detector flagged nearly every active URL. Hits are now recorded per calendar day in a small rollup table, so range counts and spike detection reflect what actually happened in the window. Note: per-day history can't be reconstructed, so these figures start fresh and build up over the days following the update; the full 404 log list and lifetime hit counts are unchanged. The rollup table self-prunes entries older than 35 days.
 
 = 1.19.28 =
 **Orphan Pages: chunked scan (no large-site timeout)**

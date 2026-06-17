@@ -208,22 +208,22 @@ class AlmaSEO_404_Capture {
                 'hits' => $existing->hits + 1,
                 'last_seen' => $now
             );
-            
+
             // Update referrer if provided and not empty
             if ($referrer) {
                 $update_data['referrer'] = $referrer;
             }
-            
+
             // Update user agent if provided
             if ($user_agent) {
                 $update_data['user_agent'] = $user_agent;
             }
-            
+
             // Update IP if provided
             if ($ip) {
                 $update_data['ip'] = $ip;
             }
-            
+
             // Build format array based on data being updated
             $update_format = array('%d', '%s'); // hits, last_seen
             if (isset($update_data['referrer'])) $update_format[] = '%s';
@@ -237,6 +237,8 @@ class AlmaSEO_404_Capture {
                 $update_format,
                 array('%d')
             );
+
+            $log_id = (int) $existing->id;
         } else {
             // Insert new record
             $wpdb->insert(
@@ -254,8 +256,25 @@ class AlmaSEO_404_Capture {
                 ),
                 array('%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%d')
             );
+
+            $log_id = (int) $wpdb->insert_id;
         }
-        
+
+        // Record this hit against today's calendar day so range stats
+        // (today / last 7 days) are accurate instead of summing the lifetime
+        // `hits` counter. One row per (log_id, day); upserted atomically.
+        if ($log_id) {
+            $daily_table = $wpdb->prefix . 'almaseo_404_daily';
+            $today = current_time('Y-m-d');
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+            $wpdb->query($wpdb->prepare(
+                "INSERT INTO {$daily_table} (log_id, hit_date, hits) VALUES (%d, %s, 1)
+                 ON DUPLICATE KEY UPDATE hits = hits + 1",
+                $log_id,
+                $today
+            ));
+        }
+
         // Clear stats cache
         delete_transient('almaseo_404_stats');
         delete_transient('almaseo_404_top_referrer');

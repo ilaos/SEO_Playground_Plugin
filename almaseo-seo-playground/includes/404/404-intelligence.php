@@ -66,27 +66,35 @@ class AlmaSEO_404_Intelligence {
     }
 
     /**
-     * Detect 404 spikes: paths where 24h hits > 3x the 7-day daily average.
+     * Detect 404 spikes: paths where today's hits > 3x the 7-day daily average.
+     *
+     * Both figures come from the per-day rollup table, so the comparison is
+     * meaningful (the old version summed lifetime hits over a date range, which
+     * inflated both sides equally and flagged essentially every active path).
      *
      * @return array Array of spike records.
      */
     public static function detect_spikes() {
         global $wpdb;
         $table = $wpdb->prefix . 'almaseo_404_log';
+        $daily = $wpdb->prefix . 'almaseo_404_daily';
 
-        $now    = current_time( 'mysql' );
-        $day1   = gmdate( 'Y-m-d H:i:s', strtotime( '-1 day', strtotime( $now ) ) );
-        $day7   = gmdate( 'Y-m-d H:i:s', strtotime( '-7 days', strtotime( $now ) ) );
+        // Use the per-day rollup so "today" and the 7-day average reflect
+        // hits-in-range, not each path's lifetime `hits` counter (which made
+        // every active path look like a spike).
+        $today       = current_time( 'Y-m-d' );
+        $seven_start = gmdate( 'Y-m-d', strtotime( '-6 days', current_time( 'U' ) ) ); // today + 6 prior
 
-        // Get paths with 24h activity.
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        // Get paths with notable activity today.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names from $wpdb->prefix
         $recent = $wpdb->get_results( $wpdb->prepare(
-            "SELECT path, SUM(hits) AS hits_24h
-             FROM {$table}
-             WHERE last_seen >= %s AND is_ignored = 0
-             GROUP BY path
+            "SELECT l.path AS path, SUM(d.hits) AS hits_24h
+             FROM {$daily} d
+             INNER JOIN {$table} l ON l.id = d.log_id
+             WHERE d.hit_date = %s AND l.is_ignored = 0
+             GROUP BY l.path
              HAVING hits_24h >= 3",
-            $day1
+            $today
         ) );
 
         if ( empty( $recent ) ) {
@@ -96,11 +104,13 @@ class AlmaSEO_404_Intelligence {
         $spikes = array();
 
         foreach ( $recent as $row ) {
-            // Get 7-day total for this path.
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+            // Get 7-day total for this path from the rollup.
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names from $wpdb->prefix
             $total_7d = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT SUM(hits) FROM {$table} WHERE path = %s AND last_seen >= %s AND is_ignored = 0",
-                $row->path, $day7
+                "SELECT SUM(d.hits) FROM {$daily} d
+                 INNER JOIN {$table} l ON l.id = d.log_id
+                 WHERE l.path = %s AND d.hit_date >= %s AND l.is_ignored = 0",
+                $row->path, $seven_start
             ) );
 
             $daily_avg = $total_7d / 7;
