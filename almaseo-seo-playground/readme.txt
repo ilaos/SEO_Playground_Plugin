@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.29
+Stable tag: 1.19.30
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.30 =
+**Orphan Pages: dismissed findings now stick**
+
+* Fix: Orphan/weak pages you dismissed no longer reappear when you re-run the scan or when fresh data arrives from the dashboard. Previously every re-scan rebuilt the list from scratch and resurrected dismissed items. Dismissed findings are now preserved across scans and pushes, and are excluded from the orphan/weak totals. Also corrected an inaccurate code comment describing the cluster-strength signal.
 
 = 1.19.29 =
 **404 Monitor: accurate "today" and "last 7 days" counts**

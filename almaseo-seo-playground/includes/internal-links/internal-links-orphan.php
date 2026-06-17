@@ -4,7 +4,8 @@
  *
  * Scans all published posts to find orphan pages (0 inbound internal links)
  * and weak pages (1-2 inbound links). Groups posts into category-based
- * clusters and calculates cluster interconnection density.
+ * clusters; cluster_strength is a rough size signal (cluster size as a % of
+ * all posts), NOT a measure of actual interconnection density.
  *
  * @package AlmaSEO
  * @since   7.7.0
@@ -112,13 +113,14 @@ class AlmaSEO_Internal_Links_Orphan {
             ) );
 
             $state = array(
-                'ids'      => array_map( 'intval', (array) $ids ),
-                'url_map'  => array(),
-                'inbound'  => array(),
-                'outbound' => array(),
-                'cats'     => array(),
-                'clusters' => array(),
-                'counts'   => array( 'total' => 0, 'orphans' => 0, 'weak' => 0 ),
+                'ids'       => array_map( 'intval', (array) $ids ),
+                'url_map'   => array(),
+                'inbound'   => array(),
+                'outbound'  => array(),
+                'cats'      => array(),
+                'clusters'  => array(),
+                'dismissed' => array(), // post_ids the user dismissed — preserved across the re-scan (set at write offset 0).
+                'counts'    => array( 'total' => 0, 'orphans' => 0, 'weak' => 0 ),
             );
         } else {
             $state = self::get_scan_state();
@@ -220,6 +222,12 @@ class AlmaSEO_Internal_Links_Orphan {
         $now   = current_time( 'mysql', true );
 
         if ( 0 === $offset ) {
+            // Preserve findings the user explicitly dismissed so a re-scan
+            // doesn't resurrect them. Capture them BEFORE clearing the table.
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+            $dismissed = $wpdb->get_col( "SELECT post_id FROM {$table} WHERE status = 'dismissed'" );
+            $state['dismissed'] = array_map( 'intval', (array) $dismissed );
+
             // Clear prior results now that fresh data is ready. DELETE (not
             // TRUNCATE) so the scan works on locked-down hosts without DROP priv.
             // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
@@ -227,6 +235,8 @@ class AlmaSEO_Internal_Links_Orphan {
             $state['clusters'] = self::build_clusters_from_cats( $state['cats'], $total );
             $state['counts']   = array( 'total' => 0, 'orphans' => 0, 'weak' => 0 );
         }
+
+        $dismissed = isset( $state['dismissed'] ) ? $state['dismissed'] : array();
 
         $slice = array_slice( $state['ids'], $offset, $batch_size );
 
@@ -237,12 +247,20 @@ class AlmaSEO_Internal_Links_Orphan {
 
             if ( 0 === $inbound ) {
                 $status = 'orphan';
-                $state['counts']['orphans']++;
             } elseif ( $inbound <= 2 ) {
                 $status = 'weak';
-                $state['counts']['weak']++;
             } else {
                 $status = 'healthy';
+            }
+
+            // Keep user-dismissed findings dismissed, and don't let them
+            // re-inflate the orphan/weak counts.
+            if ( in_array( $pid, $dismissed, true ) ) {
+                $status = 'dismissed';
+            } elseif ( 'orphan' === $status ) {
+                $state['counts']['orphans']++;
+            } elseif ( 'weak' === $status ) {
+                $state['counts']['weak']++;
             }
 
             $cluster_id       = isset( $state['clusters'][ $pid ] ) ? $state['clusters'][ $pid ]['cluster_id'] : '';
@@ -498,10 +516,16 @@ class AlmaSEO_Internal_Links_Orphan {
 
             // Upsert by post_id.
             // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
-            $existing = $wpdb->get_var( $wpdb->prepare(
-                "SELECT id FROM {$table} WHERE post_id = %d",
+            $existing = $wpdb->get_row( $wpdb->prepare(
+                "SELECT id, status FROM {$table} WHERE post_id = %d",
                 $post_id
             ) );
+
+            // A dashboard re-push must not resurrect a finding the user
+            // dismissed — keep it dismissed while still refreshing its counts.
+            if ( $existing && 'dismissed' === $existing->status ) {
+                $status = 'dismissed';
+            }
 
             $data = array(
                 'post_id'        => $post_id,
@@ -513,7 +537,7 @@ class AlmaSEO_Internal_Links_Orphan {
             );
 
             if ( $existing ) {
-                $wpdb->update( $table, $data, array( 'id' => $existing ) );
+                $wpdb->update( $table, $data, array( 'id' => $existing->id ) );
             } else {
                 $wpdb->insert( $table, $data );
             }
