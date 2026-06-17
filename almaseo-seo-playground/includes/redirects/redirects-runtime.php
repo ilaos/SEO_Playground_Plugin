@@ -57,7 +57,7 @@ class AlmaSEO_Redirects_Runtime {
         // header. wp_redirect() only accepts 3xx codes and would call wp_die()
         // on these, so they must be handled separately.
         if ($status === 410 || $status === 451) {
-            self::record_hit_async($redirect['id']);
+            self::record_hit($redirect['id']);
             self::serve_gone($status);
             exit;
         }
@@ -69,7 +69,7 @@ class AlmaSEO_Redirects_Runtime {
         }
 
         // Record the hit (async if possible)
-        self::record_hit_async($redirect['id']);
+        self::record_hit($redirect['id']);
 
         // Build the final target URL
         $target_url = self::build_target_url($redirect['target']);
@@ -200,19 +200,20 @@ class AlmaSEO_Redirects_Runtime {
     }
     
     /**
-     * Record hit asynchronously if possible
-     * 
+     * Record a redirect hit.
+     *
+     * This used to defer the increment to a single wp-cron event guarded by
+     * wp_next_scheduled(), which silently DROPPED hits: WordPress dedupes
+     * identical hook+args events within a ~10-minute window, and the
+     * wp_next_scheduled() guard skipped BOTH scheduling and direct recording
+     * while an event was pending — so a busy redirect recorded at most one hit
+     * per cron cycle, and none at all when WP-Cron was disabled. A hit is a
+     * single atomic `hits = hits + 1` UPDATE, so there is no reason to defer it;
+     * record it directly and synchronously for an accurate count.
+     *
      * @param int $redirect_id
      */
-    private static function record_hit_async($redirect_id) {
-        // Try to use wp_schedule_single_event for async processing
-        if (!wp_next_scheduled('almaseo_record_redirect_hit', array($redirect_id))) {
-            if (wp_schedule_single_event(time(), 'almaseo_record_redirect_hit', array($redirect_id))) {
-                return; // Scheduled successfully, don't also record directly
-            }
-        }
-
-        // Fallback to direct recording only if scheduling failed
+    private static function record_hit($redirect_id) {
         if (!class_exists('AlmaSEO_Redirects_Model')) {
             require_once plugin_dir_path(__FILE__) . 'redirects-model.php';
         }
@@ -221,12 +222,14 @@ class AlmaSEO_Redirects_Runtime {
     }
 }
 
-// Hook for async hit recording
+// Back-compat: drain any hit-recording events still queued from older versions
+// (which scheduled this hook). Nothing schedules it anymore; this just records
+// those stragglers once, then WP removes the fired single events.
 add_action('almaseo_record_redirect_hit', function($redirect_id) {
     if (!class_exists('AlmaSEO_Redirects_Model')) {
         require_once plugin_dir_path(__FILE__) . 'redirects-model.php';
     }
-    
+
     AlmaSEO_Redirects_Model::record_hit($redirect_id);
 });
 
