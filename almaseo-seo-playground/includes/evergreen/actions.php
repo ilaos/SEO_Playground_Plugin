@@ -80,6 +80,37 @@ add_action('admin_post_almaseo_eg_analyze_all', function () {
 });
 
 /**
+ * AJAX: analyze one batch of unanalyzed posts.
+ *
+ * Progressive enhancement of the admin-post "Analyze All Posts" form above —
+ * the dashboard JS loops this until `done` so one click scores the whole site
+ * with a live progress bar (no page reload, no "click N times"). The form
+ * remains the no-JS fallback.
+ */
+add_action('wp_ajax_almaseo_eg_analyze_batch', function () {
+    check_ajax_referer('almaseo_eg_ajax', 'nonce');
+
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error(array('message' => __('Forbidden', 'almaseo-seo-playground')), 403);
+    }
+
+    $scheduler = dirname(__FILE__) . '/scheduler.php';
+    if (file_exists($scheduler)) {
+        require_once $scheduler;
+    }
+
+    if (!function_exists('almaseo_eg_analyze_unanalyzed_batch')) {
+        wp_send_json_error(array('message' => __('Analyzer unavailable', 'almaseo-seo-playground')), 500);
+    }
+
+    $batch_size = isset($_POST['batch_size']) ? absint(wp_unslash($_POST['batch_size'])) : 50;
+
+    $result = almaseo_eg_analyze_unanalyzed_batch($batch_size);
+
+    wp_send_json_success($result);
+});
+
+/**
  * Handle the Rebuild Stats action via admin-post.php (optional improvement)
  */
 add_action('admin_post_almaseo_eg_rebuild_stats', function () {

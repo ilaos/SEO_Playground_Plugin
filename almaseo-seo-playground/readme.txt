@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.31
+Stable tag: 1.19.32
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.32 =
+**Evergreen: one-click "Analyze All Posts" with progress bar**
+
+* Improvement: The "Analyze All Posts" button on the Evergreen Content Overview now scores every unanalyzed post in one click, with a live progress bar, instead of processing only 100 per click and making you click repeatedly. It runs in small background batches so it won't time out on large sites, and the page refreshes with updated stats when finished. (If JavaScript is disabled, the button still works the old way — 100 posts per click.)
 
 = 1.19.31 =
 **Redirects: accurate hit counts**

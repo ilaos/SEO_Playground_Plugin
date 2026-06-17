@@ -157,32 +157,35 @@ function almaseo_eg_render_dashboard() {
     <div class="wrap almaseo-eg-dashboard">
         <h1><?php esc_html_e('Evergreen Content Overview', 'almaseo-seo-playground'); ?>
             <?php if ($stats['unanalyzed'] > 0): ?>
-            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="display: inline-block; margin-left: 20px;">
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" id="almaseo-eg-analyze-form" style="display: inline-block; margin-left: 20px;" data-unanalyzed="<?php echo esc_attr(intval($stats['unanalyzed'])); ?>">
                 <?php wp_nonce_field('almaseo_eg_analyze_all'); ?>
                 <input type="hidden" name="action" value="almaseo_eg_analyze_all">
-                <button type="submit" class="button button-primary">
+                <button type="submit" class="button button-primary" id="almaseo-eg-analyze-all-btn">
                     <?php
                     /* translators: %d = unanalyzed count */
                     printf(esc_html__('Analyze All Posts (%d unanalyzed)', 'almaseo-seo-playground'), intval($stats['unanalyzed']));
                     ?>
                 </button>
-                <?php if ($stats['unanalyzed'] > 100): ?>
-                <div style="display: block; margin-top: 5px;">
-                    <small style="color: #d63638;">
-                        ⚠️ <?php
-                        /* translators: %1$d: number of unanalyzed posts, %2$d: number of times to click */
-                        echo esc_html(sprintf(__('Will process 100 posts at a time. You have %1$d unanalyzed posts - you may need to click this %2$d times.', 'almaseo-seo-playground'),
-                            $stats['unanalyzed'],
-                            ceil($stats['unanalyzed'] / 100))); ?>
-                    </small>
+                <?php // With JS, one click auto-continues through every unanalyzed post (see almaseo-eg-analyze-progress). The notice below is the no-JS fallback, where the form processes 100 at a time. ?>
+                <noscript>
+                    <?php if ($stats['unanalyzed'] > 100): ?>
+                    <div style="display: block; margin-top: 5px;">
+                        <small style="color: #d63638;">
+                            ⚠️ <?php
+                            /* translators: %1$d: number of unanalyzed posts, %2$d: number of times to click */
+                            echo esc_html(sprintf(__('Will process 100 posts at a time. You have %1$d unanalyzed posts - you may need to click this %2$d times.', 'almaseo-seo-playground'),
+                                $stats['unanalyzed'],
+                                ceil($stats['unanalyzed'] / 100))); ?>
+                        </small>
+                    </div>
+                    <?php endif; ?>
+                </noscript>
+                <div id="almaseo-eg-analyze-progress" style="display:none; margin-top:8px;">
+                    <div style="background:#e0e0e0; border-radius:4px; height:8px; width:240px; overflow:hidden;">
+                        <div class="almaseo-eg-analyze-bar" style="background:#2271b1; height:100%; width:0; transition:width .2s;"></div>
+                    </div>
+                    <small class="almaseo-eg-analyze-label" style="display:block; margin-top:4px; color:#50575e;"></small>
                 </div>
-                <?php elseif ($stats['unanalyzed'] > 50): ?>
-                <div style="display: block; margin-top: 5px;">
-                    <small style="color: #996800;">
-                        ℹ️ <?php esc_html_e('This may take a moment. The page will refresh when complete.', 'almaseo-seo-playground'); ?>
-                    </small>
-                </div>
-                <?php endif; ?>
             </form>
             <?php endif; ?>
         </h1>

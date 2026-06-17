@@ -180,6 +180,78 @@ function almaseo_eg_recalc_all($limit = 200) {
 }
 
 /**
+ * Analyze ONE chunk of not-yet-analyzed posts.
+ *
+ * Backs the dashboard "Analyze All Posts" AJAX loop: the JS calls this once per
+ * batch and keeps going until `done`, so a single click can score an entire
+ * large site without one giant request that times out — and without the old
+ * "click this N times" friction.
+ *
+ * No offset is needed: a scored post gains a status meta and so drops out of
+ * the "unanalyzed" (NOT EXISTS) set, meaning the next call's first N rows are
+ * always the next batch to do. The `scored === 0` terminator guards against an
+ * infinite loop if a full batch is fetched but none can be scored (those posts
+ * keep no status and would otherwise be re-fetched forever).
+ *
+ * @param int $batch_size Posts to score this step.
+ * @return array { remaining_before, attempted, scored, failed, done }
+ */
+function almaseo_eg_analyze_unanalyzed_batch($batch_size = 50) {
+    require_once dirname(__FILE__) . '/constants.php';
+    require_once dirname(__FILE__) . '/meta.php';
+    require_once dirname(__FILE__) . '/scoring.php';
+    require_once dirname(__FILE__) . '/functions.php';
+
+    $batch_size = max(1, min(200, (int) $batch_size));
+
+    $query = new WP_Query(array(
+        'post_type'              => almaseo_eg_get_supported_post_types(),
+        'post_status'            => 'publish',
+        'posts_per_page'         => $batch_size,
+        'orderby'                => 'ID',
+        'order'                  => 'ASC',
+        'fields'                 => 'ids',
+        'update_post_term_cache' => false,
+        'meta_query'             => array(
+            array(
+                'key'     => ALMASEO_EG_META_STATUS,
+                'compare' => 'NOT EXISTS',
+            ),
+        ),
+    ));
+
+    $remaining_before = (int) $query->found_posts;
+    $ids              = $query->posts;
+    $scored           = 0;
+    $failed           = 0;
+
+    foreach ($ids as $post_id) {
+        // Canonical scorer: persists status + reasons + timestamps (+ Pro
+        // scores) so every path produces the same grade. Returns false if the
+        // post can't be scored.
+        $status = almaseo_eg_calculate_single_post($post_id);
+        if ($status !== false) {
+            $scored++;
+        } else {
+            $failed++;
+        }
+    }
+
+    wp_reset_postdata();
+
+    $attempted = count($ids);
+    $done      = ($attempted < $batch_size) || ($scored === 0);
+
+    return array(
+        'remaining_before' => $remaining_before,
+        'attempted'        => $attempted,
+        'scored'           => $scored,
+        'failed'           => $failed,
+        'done'             => $done,
+    );
+}
+
+/**
  * Generate weekly digest (stub)
  */
 function almaseo_eg_generate_digest() {

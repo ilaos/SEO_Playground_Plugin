@@ -30,7 +30,87 @@
         initTooltips();
         initBulkActions();
         initQuickActions();
+        initAnalyzeAll();
     });
+
+    /**
+     * Progressive enhancement for the "Analyze All Posts" button: intercept the
+     * form submit and loop the analyze-batch AJAX endpoint until every
+     * unanalyzed post is scored, showing a live progress bar. Falls back to the
+     * plain form submit (100 at a time) when JS is unavailable.
+     */
+    function initAnalyzeAll() {
+        var $form = $('#almaseo-eg-analyze-form');
+        if (!$form.length) {
+            return;
+        }
+
+        var BATCH = 50;
+        var $btn = $('#almaseo-eg-analyze-all-btn');
+        var $progress = $('#almaseo-eg-analyze-progress');
+        var $bar = $progress.find('.almaseo-eg-analyze-bar');
+        var $label = $progress.find('.almaseo-eg-analyze-label');
+
+        var total = parseInt($form.data('unanalyzed'), 10) || 0;
+        var scored = 0;
+        var failed = 0;
+
+        function setProgress() {
+            var pct = total > 0 ? Math.min(100, Math.round((scored + failed) / total * 100)) : 100;
+            $bar.css('width', pct + '%');
+            $label.text('Analyzing… ' + (scored + failed) + ' / ' + total + ' posts');
+        }
+
+        function finish() {
+            $bar.css('width', '100%');
+            // Reload with the processed count so the success notice + refreshed
+            // cards/chart show (mirrors the no-JS form's redirect behavior).
+            var url = window.location.href.split('#')[0];
+            url += (url.indexOf('?') === -1 ? '?' : '&') + 'eg_analyzed=' + scored;
+            window.location.href = url;
+        }
+
+        function step() {
+            $.post(almaseoEvergreen.ajaxurl, {
+                action: 'almaseo_eg_analyze_batch',
+                nonce: almaseoEvergreen.nonce,
+                batch_size: BATCH
+            }).done(function (res) {
+                if (!res || !res.success || !res.data) {
+                    $label.text(almaseoEvergreen.i18n.error || 'Error');
+                    $btn.prop('disabled', false);
+                    return;
+                }
+                var d = res.data;
+                // First response carries the authoritative remaining count.
+                if (total === 0 && d.remaining_before) {
+                    total = d.remaining_before;
+                }
+                scored += (d.scored || 0);
+                failed += (d.failed || 0);
+                setProgress();
+
+                if (d.done) {
+                    finish();
+                } else {
+                    step();
+                }
+            }).fail(function () {
+                $label.text(almaseoEvergreen.i18n.network_error || 'Network error occurred');
+                $btn.prop('disabled', false);
+            });
+        }
+
+        $form.on('submit', function (e) {
+            e.preventDefault();
+            $btn.prop('disabled', true);
+            $progress.show();
+            scored = 0;
+            failed = 0;
+            setProgress();
+            step();
+        });
+    }
 
     /**
      * Initialize refresh buttons
