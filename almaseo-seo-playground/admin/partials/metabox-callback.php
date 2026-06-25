@@ -565,7 +565,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     </div>
                 </div>
                 <p class="field-subtext" style="margin: 5px 0 0 0; color: #666; font-size: 12px; display: flex; align-items: center; gap: 8px;">
-                    <button type="button" class="button button-small almaseo-autofill-btn" data-field="title" style="font-size: 11px; line-height: 22px; padding: 0 8px; <?php echo esc_attr($ai_autofill_available ? 'background: linear-gradient(135deg, #f0f0ff, #f5f0ff); border-color: #c4b5fd;' : ''); ?>">
+                    <button type="button" class="button button-small almaseo-autofill-btn" data-field="title" style="font-size: 11px; line-height: 22px; padding: 0 8px; <?php echo esc_attr($ai_autofill_available ? 'background: linear-gradient(135deg, #f0f0ff, #f5f0ff); border-color: #c4b5fd; color: #4c1d95;' : ''); ?>">
                         <span class="dashicons dashicons-edit-page" style="font-size: 14px; line-height: 22px; width: 14px; height: 14px;"></span>
                         <span class="almaseo-autofill-label"><?php echo $ai_autofill_available ? esc_html__('Generate Title', 'almaseo-seo-playground') : esc_html__('Auto-Generate Title', 'almaseo-seo-playground'); ?></span>
                         <?php if ($ai_autofill_available): ?>
@@ -749,7 +749,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     </div>
                 </div>
                 <p class="field-subtext" style="margin: 5px 0 0 0; color: #666; font-size: 12px; display: flex; align-items: center; gap: 8px;">
-                    <button type="button" class="button button-small almaseo-autofill-btn" data-field="description" style="font-size: 11px; line-height: 22px; padding: 0 8px; <?php echo esc_attr($ai_autofill_available ? 'background: linear-gradient(135deg, #f0f0ff, #f5f0ff); border-color: #c4b5fd;' : ''); ?>">
+                    <button type="button" class="button button-small almaseo-autofill-btn" data-field="description" style="font-size: 11px; line-height: 22px; padding: 0 8px; <?php echo esc_attr($ai_autofill_available ? 'background: linear-gradient(135deg, #f0f0ff, #f5f0ff); border-color: #c4b5fd; color: #4c1d95;' : ''); ?>">
                         <span class="dashicons dashicons-edit-page" style="font-size: 14px; line-height: 22px; width: 14px; height: 14px;"></span>
                         <span class="almaseo-autofill-label"><?php echo $ai_autofill_available ? esc_html__('Generate Description', 'almaseo-seo-playground') : esc_html__('Auto-Generate Description', 'almaseo-seo-playground'); ?></span>
                         <?php if ($ai_autofill_available): ?>
@@ -2055,14 +2055,16 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 }
 
                 // Update a trend indicator
-                function updateTrend($el, current, previous, isPosition) {
+                // Note: the position card's "lower is better" colour inversion is
+                // handled in CSS (.gsc-metric-position .gsc-trend-up/down), so no
+                // per-metric flag is needed here.
+                function updateTrend($el, current, previous) {
                     if (previous === null || previous === undefined) {
                         $el.find('.gsc-trend-value').text('--');
                         $el.find('.gsc-trend-arrow').text('');
                         return;
                     }
                     var diff = current - previous;
-                    var pct = previous !== 0 ? Math.abs((diff / previous) * 100).toFixed(1) : 0;
                     var arrow, cls;
 
                     if (Math.abs(diff) < 0.01) {
@@ -2075,18 +2077,25 @@ function almaseo_seo_playground_meta_box_callback($post) {
 
                     $el.removeClass('gsc-trend-up gsc-trend-down gsc-trend-neutral').addClass(cls);
                     $el.find('.gsc-trend-arrow').text(arrow);
-                    $el.find('.gsc-trend-value').text(pct + '%');
+
+                    // With no baseline (previous period was 0) a percentage is
+                    // meaningless — show "New" instead of a misleading 0%.
+                    if (previous === 0) {
+                        $el.find('.gsc-trend-value').text(Math.abs(diff) < 0.01 ? '0%' : 'New');
+                    } else {
+                        $el.find('.gsc-trend-value').text(Math.abs((diff / previous) * 100).toFixed(1) + '%');
+                    }
                 }
 
                 // Render the data view
                 function renderData(data) {
                     var m = data.metrics;
 
-                    // Summary cards
-                    $('#gsc-clicks').text(formatNumber(m.clicks));
-                    $('#gsc-impressions').text(formatNumber(m.impressions));
-                    $('#gsc-ctr').text((m.ctr * 100).toFixed(1) + '%');
-                    $('#gsc-position').text(m.position.toFixed(1));
+                    // Summary cards (coerce to numbers — values come from the API)
+                    $('#gsc-clicks').text(formatNumber(Number(m.clicks) || 0));
+                    $('#gsc-impressions').text(formatNumber(Number(m.impressions) || 0));
+                    $('#gsc-ctr').text(((Number(m.ctr) || 0) * 100).toFixed(1) + '%');
+                    $('#gsc-position').text((Number(m.position) || 0).toFixed(1));
 
                     // Trends (compare to previous period)
                     if (data.previous) {
@@ -2094,7 +2103,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         updateTrend($('#gsc-clicks-trend'), m.clicks, p.clicks);
                         updateTrend($('#gsc-impressions-trend'), m.impressions, p.impressions);
                         updateTrend($('#gsc-ctr-trend'), m.ctr, p.ctr);
-                        updateTrend($('#gsc-position-trend'), m.position, p.position, true);
+                        updateTrend($('#gsc-position-trend'), m.position, p.position);
                     }
 
                     // Queries table
@@ -2104,10 +2113,10 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             $tbody.append(
                                 '<tr>' +
                                 '<td class="gsc-col-query">' + $('<span>').text(q.query).html() + '</td>' +
-                                '<td class="gsc-col-clicks">' + formatNumber(q.clicks) + '</td>' +
-                                '<td class="gsc-col-impressions">' + formatNumber(q.impressions) + '</td>' +
-                                '<td class="gsc-col-ctr">' + (q.ctr * 100).toFixed(1) + '%</td>' +
-                                '<td class="gsc-col-position">' + q.position.toFixed(1) + '</td>' +
+                                '<td class="gsc-col-clicks">' + formatNumber(Number(q.clicks) || 0) + '</td>' +
+                                '<td class="gsc-col-impressions">' + formatNumber(Number(q.impressions) || 0) + '</td>' +
+                                '<td class="gsc-col-ctr">' + ((Number(q.ctr) || 0) * 100).toFixed(1) + '%</td>' +
+                                '<td class="gsc-col-position">' + (Number(q.position) || 0).toFixed(1) + '</td>' +
                                 '</tr>'
                             );
                         });

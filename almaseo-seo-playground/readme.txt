@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.33
+Stable tag: 1.19.34
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,13 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.34 =
+**Search Console hardening + readable AI auto-fill buttons**
+
+* Fix: The SEO Page Health "Generate Title" / "Generate Description" buttons rendered near-invisible light text on their light "AI available" background. They now use a readable dark-purple label that matches the PRO badge.
+* Fix: The Search Console tab now derives the page URL from the post you're editing and verifies you have edit permission for that specific post, instead of trusting a URL from the browser — so a contributor can no longer pull Search Console stats for arbitrary URLs on the site.
+* Improvement: Search Console trend indicators now show "New" instead of a misleading "0%" when the previous period had no data, and metric/query values are coerced to numbers so a malformed API value can't break a row.
 
 = 1.19.33 =
 **SEO Page Health: Readability now shows what to fix, plus accuracy & performance fixes**
