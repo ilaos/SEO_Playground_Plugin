@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.36
+Stable tag: 1.19.37
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,14 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.37 =
+**AI auto-fill uses your unsaved keyword; cleaner SEO Title field**
+
+* Fix: Clicking "Generate Title" / "Generate Description" now uses the focus keyword (and the title/description) exactly as typed in the editor — even before you save the post. Previously generation read the last-saved values, so a keyword you'd just entered was ignored.
+* Change: Removed the Headline Score widget from the SEO Title field. It graded titles on blog/clickbait signals (power words, numbers, question format) that don't suit keyword-focused SEO titles, so it could rate a well-optimized, keyword-rich title as merely "mediocre."
+* Fix: The "Don't forget to click Update" reminder now disappears once the post is saved (previously it stayed until manually dismissed).
+* Fix: Under the Modern/Midnight admin colour schemes, the "SEO Title", "Meta Description", and "Focus Keyword" field names appeared light gray and hard to read on the white card; they now use a readable colour.
 
 = 1.19.36 =
 **Focus Keyword moved to the top of the SEO editor**

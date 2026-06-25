@@ -224,12 +224,16 @@
     font-weight: 600;
 }
 
-/* Force readable text on the white SEO-fields card regardless of the admin
-   colour scheme. Dark schemes (e.g. Modern) leave inherited label/heading
-   text light, which is invisible on this forced-white background. An explicit
-   colour here always beats inherited values, so no !important is needed. */
+/* Force readable text on the white SEO-fields card. The card background is
+   hard-coded #fff, but schema-meta-tab.css paints .almaseo-field-group labels
+   light (#e0e0e0) under the Modern/Midnight admin colour schemes (intended for
+   dark cards elsewhere) — which is invisible here. The admin-color-scheme
+   selectors below out-rank that rule so labels stay dark on the white card
+   under every scheme. */
 .almaseo-seo-fields h4,
-.almaseo-seo-fields label {
+.almaseo-seo-fields label,
+body.admin-color-modern .almaseo-seo-fields .almaseo-field-group label,
+body.admin-color-midnight .almaseo-seo-fields .almaseo-field-group label {
     color: #1d2327;
 }
 .almaseo-seo-fields .label-helper {

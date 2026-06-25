@@ -46,7 +46,7 @@ class AI_Autofill_Generator {
      * @param array $post_ids Array of post IDs (max 10).
      * @return array|false Array of results keyed by post_id, or false on failure.
      */
-    public static function generate_batch( array $post_ids ) {
+    public static function generate_batch( array $post_ids, array $overrides_by_id = array() ) {
         if ( ! self::is_available() ) {
             return false;
         }
@@ -78,9 +78,11 @@ class AI_Autofill_Generator {
             // ── Enrichment signals — give the AI the context a human optimiser
             // would have: the target keyword, any existing meta to refine, the
             // section headings, and the post's taxonomy terms.
-            $focus_keyword = get_post_meta( $pid, '_almaseo_focus_keyword', true );
-            $current_title = get_post_meta( $pid, '_almaseo_title', true );
-            $current_desc  = get_post_meta( $pid, '_almaseo_description', true );
+            // Prefer live values passed from the editor (Option A) over saved meta.
+            $ov            = isset( $overrides_by_id[ $pid ] ) ? $overrides_by_id[ $pid ] : array();
+            $focus_keyword = array_key_exists( 'focus_keyword', $ov ) ? $ov['focus_keyword'] : get_post_meta( $pid, '_almaseo_focus_keyword', true );
+            $current_title = array_key_exists( 'current_title', $ov ) ? $ov['current_title'] : get_post_meta( $pid, '_almaseo_title', true );
+            $current_desc  = array_key_exists( 'current_desc', $ov )  ? $ov['current_desc']  : get_post_meta( $pid, '_almaseo_description', true );
 
             // Section headings (H1–H3) from the raw content, first 8 unique.
             $headings = array();
@@ -188,8 +190,9 @@ class AI_Autofill_Generator {
      * @param string $field   Optional specific field ('title', 'description', 'keyword').
      * @return array|false Generated metadata or false on failure.
      */
-    public static function generate_single( $post_id, $field = '' ) {
-        $batch = self::generate_batch( array( $post_id ) );
+    public static function generate_single( $post_id, $field = '', $overrides = array() ) {
+        $by_id = ! empty( $overrides ) ? array( (int) $post_id => $overrides ) : array();
+        $batch = self::generate_batch( array( $post_id ), $by_id );
         if ( ! $batch || ! isset( $batch[ $post_id ] ) ) {
             return false;
         }

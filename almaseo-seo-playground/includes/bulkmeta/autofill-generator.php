@@ -630,6 +630,20 @@ function almaseo_ajax_autofill_field() {
     $field   = isset( $_POST['field'] ) ? sanitize_text_field( wp_unslash( $_POST['field'] ) ) : '';
     $mode    = isset( $_POST['mode'] ) ? sanitize_text_field( wp_unslash( $_POST['mode'] ) ) : 'auto';
 
+    // Live field values from the editor: generation should reflect what the user
+    // just typed, not only what is saved in post meta (the focus keyword, title
+    // and description aren't persisted until the post is saved). Each is optional.
+    $overrides = array();
+    if ( isset( $_POST['focus_keyword'] ) ) {
+        $overrides['focus_keyword'] = sanitize_text_field( wp_unslash( $_POST['focus_keyword'] ) );
+    }
+    if ( isset( $_POST['current_title'] ) ) {
+        $overrides['current_title'] = sanitize_text_field( wp_unslash( $_POST['current_title'] ) );
+    }
+    if ( isset( $_POST['current_description'] ) ) {
+        $overrides['current_desc'] = sanitize_textarea_field( wp_unslash( $_POST['current_description'] ) );
+    }
+
     if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
         wp_send_json_error( array( 'message' => 'Invalid post or insufficient permissions.' ) );
     }
@@ -675,7 +689,7 @@ function almaseo_ajax_autofill_field() {
     if ( $mode !== 'basic' && ! $tier_blocked ) {
         require_once __DIR__ . '/ai-autofill-generator.php';
         if ( AI_Autofill_Generator::is_available() ) {
-            $ai_result = AI_Autofill_Generator::generate_single( $post_id, $field );
+            $ai_result = AI_Autofill_Generator::generate_single( $post_id, $field, $overrides );
             if ( $ai_result ) {
                 // Extract profile suggestions before using as generated data
                 if ( isset( $ai_result['_profile_suggestions'] ) ) {

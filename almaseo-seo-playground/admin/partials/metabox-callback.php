@@ -723,144 +723,6 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     <span style="font-style: italic; color: #666;"><?php echo $ai_autofill_available ? esc_html__('Alma reads your content and writes a click-worthy title', 'almaseo-seo-playground') : esc_html__('Generate an SEO-optimized title from your content', 'almaseo-seo-playground'); ?></span>
                 </p>
 
-                <!-- Headline Analyzer -->
-                <?php if ( class_exists( 'AlmaSEO_Headline_Analyzer' ) ) : ?>
-                <div id="almaseo-headline-analyzer" class="almaseo-headline-analyzer" style="margin-top: 10px; display: none;">
-                    <div class="headline-score-row" style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #f6f7f7; border: 1px solid #c3c4c7; border-radius: 4px;">
-                        <div class="headline-score-badge" id="headline-score-badge" style="width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: #fff; background: #646970; flex-shrink: 0;">
-                            --
-                        </div>
-                        <div style="flex: 1; min-width: 0;">
-                            <strong style="font-size: 13px;"><?php esc_html_e( 'Headline Score', 'almaseo-seo-playground' ); ?></strong>
-                            <span id="headline-score-label" style="font-size: 12px; color: #646970; margin-left: 6px;"></span>
-                        </div>
-                        <button type="button" id="headline-toggle-details" class="button-link" style="font-size: 12px; white-space: nowrap;">
-                            <?php esc_html_e( 'Show Details', 'almaseo-seo-playground' ); ?>
-                        </button>
-                    </div>
-                    <div id="headline-details" style="display: none; margin-top: 6px; padding: 10px 12px; background: #fff; border: 1px solid #c3c4c7; border-radius: 4px; font-size: 12px;">
-                        <ul id="headline-checks-list" style="margin: 0; list-style: none; padding: 0;"></ul>
-                    </div>
-                </div>
-                <script>
-                (function() {
-                    var powerWords = <?php echo wp_json_encode( AlmaSEO_Headline_Analyzer::get_word_lists()['power'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional JSON output ?>;
-                    var emotionalWords = <?php echo wp_json_encode( AlmaSEO_Headline_Analyzer::get_word_lists()['emotional'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional JSON output ?>;
-                    var commonWords = <?php echo wp_json_encode( AlmaSEO_Headline_Analyzer::get_word_lists()['common'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional JSON output ?>;
-
-                    var $input = document.getElementById('almaseo_seo_title');
-                    var $wrap  = document.getElementById('almaseo-headline-analyzer');
-                    var $badge = document.getElementById('headline-score-badge');
-                    var $label = document.getElementById('headline-score-label');
-                    var $details = document.getElementById('headline-details');
-                    var $list  = document.getElementById('headline-checks-list');
-                    var $toggle = document.getElementById('headline-toggle-details');
-
-                    if (!$input || !$wrap) return;
-
-                    $toggle.addEventListener('click', function() {
-                        var hidden = $details.style.display === 'none';
-                        $details.style.display = hidden ? '' : 'none';
-                        this.textContent = hidden ? '<?php echo esc_js( __( 'Hide Details', 'almaseo-seo-playground' ) ); ?>' : '<?php echo esc_js( __( 'Show Details', 'almaseo-seo-playground' ) ); ?>';
-                    });
-
-                    function countMatches(words, list) {
-                        var lookup = {};
-                        for (var i = 0; i < list.length; i++) lookup[list[i]] = true;
-                        var c = 0;
-                        for (var j = 0; j < words.length; j++) {
-                            if (lookup[words[j].replace(/[^a-z]/g, '')]) c++;
-                        }
-                        return c;
-                    }
-
-                    function analyze(headline) {
-                        headline = (headline || '').trim();
-                        if (!headline) return { score: 0, checks: [] };
-
-                        var words = headline.toLowerCase().split(/\s+/);
-                        var wc = words.length;
-                        var cc = headline.length;
-                        var score = 25; // Base score — any non-empty title starts at 25
-                        var checks = [];
-
-                        // Word count 4-13 (widened range — short branded titles are valid)
-                        var wcP = wc >= 4 && wc <= 13;
-                        if (wcP) score += 20;
-                        checks.push({ label: 'Word Count', pass: wcP, tip: wc + ' words' + (wcP ? ' — good range' : ' — aim for 4–13') });
-
-                        // Char length 40-60 (widened — 40+ is acceptable)
-                        var clP = cc >= 40 && cc <= 60;
-                        if (clP) score += 20;
-                        else if (cc >= 30 && cc < 40) score += 10; // Partial credit for shorter titles
-                        checks.push({ label: 'Character Length', pass: clP, tip: cc + ' chars' + (clP ? ' — fits Google title' : cc < 40 ? ' — a bit short, aim for 40–60' : ' — aim for 40–60') });
-
-                        // Power words (nice to have, not essential)
-                        var pw = countMatches(words, powerWords);
-                        if (pw > 0) score += 10;
-                        checks.push({ label: 'Power Words', pass: pw > 0, tip: pw > 0 ? pw + ' found' : 'Optional: a power word like "expert" or "top" can boost clicks' });
-
-                        // Emotional words (nice to have — especially for blog content)
-                        var ew = countMatches(words, emotionalWords);
-                        if (ew > 0) score += 8;
-                        checks.push({ label: 'Emotional Words', pass: ew > 0, tip: ew > 0 ? ew + ' found' : 'Optional: emotional words work well for blog headlines' });
-
-                        // Number (bonus, not required)
-                        var hn = /\d/.test(headline);
-                        if (hn) score += 7;
-                        checks.push({ label: 'Contains Number', pass: hn, tip: hn ? 'Numbers attract clicks' : 'Optional: numbers work great for list-style content' });
-
-                        // Question (bonus, not required)
-                        var iq = /\?$/.test(headline.trim()) || /^(how|what|why|when|where|who|which|can|do|does|is|are|will|should)\b/i.test(headline);
-                        if (iq) score += 5;
-                        checks.push({ label: 'Question Format', pass: iq, tip: iq ? 'Questions spark curiosity' : 'Optional: question format suits informational content' });
-
-                        // Word balance (wider acceptable range)
-                        var cwc = countMatches(words, commonWords);
-                        var pct = wc > 0 ? (cwc / wc) * 100 : 0;
-                        var bp = pct >= 10 && pct <= 60;
-                        if (bp) score += 10;
-                        checks.push({ label: 'Word Balance', pass: bp, tip: Math.round(pct) + '% common words' + (bp ? ' — good balance' : (pct > 60 ? ' — too generic' : ' — mostly specialized terms')) });
-
-                        return { score: Math.min(100, score), checks: checks };
-                    }
-
-                    function render(result) {
-                        $wrap.style.display = '';
-                        var s = result.score;
-                        $badge.textContent = s;
-
-                        if (s >= 70) { $badge.style.background = '#00a32a'; $label.textContent = 'Great!'; }
-                        else if (s >= 55) { $badge.style.background = '#dba617'; $label.textContent = 'Good — room to improve'; }
-                        else if (s >= 40) { $badge.style.background = '#e6970d'; $label.textContent = 'Decent — see tips below'; }
-                        else { $badge.style.background = '#d63638'; $label.textContent = 'Needs work'; }
-
-                        var html = '';
-                        for (var i = 0; i < result.checks.length; i++) {
-                            var c = result.checks[i];
-                            var dot = c.pass ? '<span style="color:#00a32a;">&#10003;</span>' : '<span style="color:#d63638;">&#10007;</span>';
-                            html += '<li style="padding: 4px 0; border-bottom: 1px solid #f0f0f1;">' + dot + ' <strong>' + c.label + '</strong> — ' + c.tip + '</li>';
-                        }
-                        $list.innerHTML = html;
-                    }
-
-                    // Initial
-                    var val = $input.value;
-                    if (val.trim()) render(analyze(val));
-
-                    // Live update
-                    var timer;
-                    $input.addEventListener('input', function() {
-                        clearTimeout(timer);
-                        timer = setTimeout(function() {
-                            var v = $input.value;
-                            if (v.trim()) { render(analyze(v)); }
-                            else { $wrap.style.display = 'none'; }
-                        }, 200);
-                    });
-                })();
-                </script>
-                <?php endif; ?>
 
 
             </div>
@@ -5971,6 +5833,25 @@ function almaseo_seo_playground_meta_box_callback($post) {
             }
         }
 
+        // Clear the save reminder once the post is actually saved. The block
+        // editor saves via AJAX with no page reload, so nothing removed the
+        // banner before. Re-arm it (saveReminderShown=false) so it can show
+        // again after the next generation.
+        if (window.wp && wp.data && typeof wp.data.subscribe === 'function') {
+            var _wasSaving = false;
+            wp.data.subscribe(function() {
+                var ed = wp.data.select('core/editor');
+                if (!ed || typeof ed.isSavingPost !== 'function') return;
+                var saving = ed.isSavingPost() && !ed.isAutosavingPost();
+                if (_wasSaving && !saving) {
+                    var b = document.getElementById('almaseo-save-reminder');
+                    if (b) b.remove();
+                    saveReminderShown = false;
+                }
+                _wasSaving = saving;
+            });
+        }
+
         btns.forEach(function(btn) {
             // Update button label if AI is available
             if (aiAvailable) {
@@ -6008,6 +5889,17 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 fd.append('field', field);
                 fd.append('nonce', nonce);
                 fd.append('mode', 'auto');
+
+                // Send the values currently on screen so generation uses what the
+                // user just typed — the focus keyword, title and description are
+                // only in the DB after a post save, but generation should reflect
+                // the live fields (e.g. set keyword, then Generate without saving).
+                var fkEl = document.getElementById('almaseo_focus_keyword');
+                var tEl  = document.getElementById('almaseo_seo_title');
+                var dEl  = document.getElementById('almaseo_seo_description');
+                if (fkEl) fd.append('focus_keyword', fkEl.value);
+                if (tEl)  fd.append('current_title', tEl.value);
+                if (dEl)  fd.append('current_description', dEl.value);
 
                 var xhr = new XMLHttpRequest();
                 xhr.open('POST', ajaxurl, true);
