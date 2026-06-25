@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.32
+Stable tag: 1.19.33
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,16 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.33 =
+**SEO Page Health: Readability now shows what to fix, plus accuracy & performance fixes**
+
+* New: The Readability signal on the SEO Page Health panel now has a "Show what to fix" toggle that lists all six sub-checks (Flesch Reading Ease, sentence length, passive voice, transition words, sentence variety, subheading distribution) with a pass/fail mark and a specific tip for each — so a low score like "1/6 checks pass" finally tells you which checks failed and how to improve them. (Existing posts: click Recalculate once to populate the breakdown.)
+* Fix: Readability scoring was inconsistent between first page load and clicking Recalculate. The subheading-distribution sub-check relied on content that wasn't available during the AJAX recalculation, so it could silently fail on longer posts; it now uses the same rendered content in both paths (and is correct for Elementor/shortcode-built pages).
+* Fix: The transition-words sub-check matched words as substrings, so "thus" was counted inside "enthusiasm", "then" inside "strengthen", etc. — inflating the score. It now matches on word boundaries for an accurate count.
+* Fix: The "Keyword in First 100 Words" signal card did not visually refresh when you clicked Recalculate (the overall score updated, but that one card kept its old state). Signal cards are now matched precisely and all refresh correctly.
+* Fix: The SEO Title and Meta Description "auto-generate" buttons always rendered their non-AI fallback label even when AI autofill was available, and emitted PHP notices, because an availability flag was read before it was set. The flag is now computed before the panel renders.
+* Improvement: Health-score calculation no longer makes a live HTTP request to /robots.txt on every post save and recalculation — the result is cached briefly site-wide, cutting a synchronous network round-trip out of every save.
 
 = 1.19.32 =
 **Evergreen: one-click "Analyze All Posts" with progress bar**

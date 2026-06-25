@@ -363,7 +363,18 @@ function almaseo_seo_playground_meta_box_callback($post) {
     $user_tier = almaseo_get_user_tier();
     $can_use_ai = almaseo_can_use_ai_features();
     $generations_info = almaseo_get_remaining_generations();
-    
+
+    // Expose AI autofill availability. Computed up here (not at the bottom of
+    // the callback) because the SEO Title / Meta Description autofill buttons
+    // read $ai_autofill_available while rendering far above — previously it was
+    // only assigned near the end of the function, so those buttons always saw
+    // an undefined (falsy) value and rendered the non-Pro fallback label.
+    $ai_autofill_available = false;
+    if ( file_exists( dirname( __DIR__, 2 ) . '/includes/bulkmeta/ai-autofill-generator.php' ) ) {
+        require_once dirname( __DIR__, 2 ) . '/includes/bulkmeta/ai-autofill-generator.php';
+        $ai_autofill_available = \AlmaSEO\BulkMeta\AI_Autofill_Generator::is_available();
+    }
+
     // Get motivational quote
     $quotes = array(
         "Great content is the foundation of great SEO.",
@@ -1070,7 +1081,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     $extra_style = 'border: 2px solid #dc3232; background: #fff5f5;';
                 }
             ?>
-            <div class="almaseo-health-signal <?php echo esc_attr($status_class . $extra_class); ?>"<?php echo $extra_style ? ' style="' . esc_attr($extra_style) . '"' : ''; ?>>
+            <div class="almaseo-health-signal <?php echo esc_attr($status_class . $extra_class); ?>" data-signal="<?php echo esc_attr($signal); ?>"<?php echo $extra_style ? ' style="' . esc_attr($extra_style) . '"' : ''; ?>>
                 <div class="signal-header">
                     <span class="signal-icon"><?php echo esc_html($icon); ?></span>
                     <span class="signal-label">
@@ -1098,6 +1109,28 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 <div class="signal-note">
                     <?php echo esc_html($result['note']); ?>
                 </div>
+
+                <?php if ($signal === 'readability'): ?>
+                <div class="signal-readability-detail" style="margin-top: 8px;">
+                    <?php if (!empty($result['checks'])): ?>
+                    <button type="button" class="signal-detail-toggle button-link" style="font-size: 12px; cursor: pointer;">
+                        <?php esc_html_e('Show what to fix', 'almaseo-seo-playground'); ?> ▾
+                    </button>
+                    <ul class="signal-detail-list" style="display: none; list-style: none; margin: 8px 0 0; padding: 8px 10px; background: #f6f7f7; border: 1px solid #e0e0e0; border-radius: 4px;">
+                        <?php foreach ($result['checks'] as $check): ?>
+                        <li style="padding: 4px 0; border-bottom: 1px solid #f0f0f1; font-size: 12px;">
+                            <span class="signal-detail-icon" style="color: <?php echo !empty($check['pass']) ? '#00a32a' : '#d63638'; ?>;"><?php echo !empty($check['pass']) ? '✓' : '✗'; ?></span>
+                            <strong><?php echo esc_html($check['label']); ?></strong> — <?php echo esc_html($check['tip']); ?>
+                        </li>
+                        <?php endforeach; ?>
+                    </ul>
+                    <?php else: ?>
+                    <span class="signal-detail-hint" style="font-size: 12px; color: #646970; font-style: italic;">
+                        <?php esc_html_e('Click Recalculate to see the per-check breakdown.', 'almaseo-seo-playground'); ?>
+                    </span>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
             </div>
             <?php endforeach; ?>
         </div>
@@ -1255,10 +1288,11 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             // Update signals
                             if (response.data.breakdown) {
                                 $.each(response.data.breakdown, function(signal, result) {
-                                    const $signal = $('.almaseo-health-signal').filter(function() {
-                                        return $(this).find('.signal-label').text().toLowerCase().includes(signal.replace('_', ' '));
-                                    });
-                                    
+                                    // Match by data-signal (exact). The old fuzzy label-text
+                                    // match dropped 'kw_intro' — "kw intro" isn't a substring
+                                    // of "Keyword in First 100 Words", so that card never refreshed.
+                                    const $signal = $('.almaseo-health-signal[data-signal="' + signal + '"]');
+
                                     if ($signal.length) {
                                         // Update icon
                                         $signal.find('.signal-icon').text(result.pass ? '✅' : '❌');
@@ -1281,6 +1315,12 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                         } else {
                                             $signal.find('.signal-goto-btn').show();
                                         }
+
+                                        // Rebuild the readability per-check breakdown so
+                                        // "what to fix" reflects the fresh calculation.
+                                        if (signal === 'readability') {
+                                            renderReadabilityDetail($signal, result.checks);
+                                        }
                                     }
                                 });
                                 
@@ -1302,6 +1342,52 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 });
             });
             
+            // Expand / collapse the Readability "what to fix" breakdown.
+            // Delegated so it keeps working after a recalc rebuilds the list.
+            $(document).on('click', '.signal-detail-toggle', function() {
+                const $list = $(this).siblings('.signal-detail-list');
+                const showing = $list.is(':visible');
+                $list.toggle(!showing);
+                $(this).text(showing
+                    ? '<?php echo esc_js(__('Show what to fix', 'almaseo-seo-playground')); ?> ▾'
+                    : '<?php echo esc_js(__('Hide breakdown', 'almaseo-seo-playground')); ?> ▴');
+            });
+
+            // (Re)build the per-check readability list from an AJAX response.
+            function renderReadabilityDetail($signal, checks) {
+                const $wrap = $signal.find('.signal-readability-detail');
+                if (!$wrap.length) return;
+
+                if (!checks || !checks.length) {
+                    $wrap.html('<span class="signal-detail-hint" style="font-size: 12px; color: #646970; font-style: italic;"><?php echo esc_js(__('Click Recalculate to see the per-check breakdown.', 'almaseo-seo-playground')); ?></span>');
+                    return;
+                }
+
+                let items = '';
+                checks.forEach(function(c) {
+                    const color = c.pass ? '#00a32a' : '#d63638';
+                    const mark = c.pass ? '✓' : '✗';
+                    items += '<li style="padding: 4px 0; border-bottom: 1px solid #f0f0f1; font-size: 12px;">'
+                        + '<span class="signal-detail-icon" style="color: ' + color + ';">' + mark + '</span> '
+                        + '<strong></strong> — <span class="signal-detail-tip"></span></li>';
+                });
+                const $list = $('<ul class="signal-detail-list" style="display: none; list-style: none; margin: 8px 0 0; padding: 8px 10px; background: #f6f7f7; border: 1px solid #e0e0e0; border-radius: 4px;"></ul>').html(items);
+                // Set label/tip via .text() to avoid injecting markup from the API.
+                $list.find('li').each(function(i) {
+                    $(this).find('strong').text(checks[i].label || '');
+                    $(this).find('.signal-detail-tip').text(checks[i].tip || '');
+                });
+
+                // Preserve whether the user had it expanded.
+                const wasOpen = $wrap.find('.signal-detail-list').is(':visible');
+                $wrap.empty()
+                    .append('<button type="button" class="signal-detail-toggle button-link" style="font-size: 12px; cursor: pointer;"><?php echo esc_js(__('Show what to fix', 'almaseo-seo-playground')); ?> ▾</button>')
+                    .append($list);
+                if (wasOpen) {
+                    $wrap.find('.signal-detail-toggle').trigger('click');
+                }
+            }
+
             // Handle Go to Field buttons
             $('.signal-goto-btn').on('click', function() {
                 const fieldId = $(this).data('field');
@@ -5781,15 +5867,8 @@ function almaseo_seo_playground_meta_box_callback($post) {
         </div>
     </div>
     <!-- Auto-Fill Buttons Handler -->
-    <?php
-    // Expose AI autofill availability to JS
-    $ai_autofill_available = false;
-    if ( file_exists( __DIR__ . '/../../includes/bulkmeta/ai-autofill-generator.php' ) ) {
-        require_once dirname( __DIR__, 2 ) . '/includes/bulkmeta/ai-autofill-generator.php';
-        $ai_autofill_available = \AlmaSEO\BulkMeta\AI_Autofill_Generator::is_available();
-    }
-    ?>
     <script>
+    // $ai_autofill_available is computed once at the top of this callback.
     var almaseoAiAutofillAvailable = <?php echo esc_js($ai_autofill_available ? 'true' : 'false'); ?>;
     var almaseoDashboardUrl = '<?php echo esc_js( defined('ALMASEO_DASHBOARD_URL') ? ALMASEO_DASHBOARD_URL : 'https://app.almaseo.com' ); ?>';
     (function() {

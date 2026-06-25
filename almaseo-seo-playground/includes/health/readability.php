@@ -88,7 +88,7 @@ class AlmaSEO_Readability_Analyzer {
         $results['passive_voice'] = self::passive_voice_check( $sentences );
 
         // 4. Transition words
-        $results['transition_words'] = self::transition_word_check( $sentences, $text );
+        $results['transition_words'] = self::transition_word_check( $sentences );
 
         // 5. Consecutive sentence starts
         $results['consecutive_starts'] = self::consecutive_starts_check( $sentences );
@@ -222,21 +222,29 @@ class AlmaSEO_Readability_Analyzer {
      * Check transition word usage.
      * Ideal: ≥30% of sentences contain a transition word.
      */
-    private static function transition_word_check( $sentences, $text ) {
+    private static function transition_word_check( $sentences ) {
         if ( empty( $sentences ) ) {
             return array( 'pass' => true, 'label' => __( 'Transition Words', 'almaseo-seo-playground' ), 'value' => 0, 'tip' => __( 'No sentences found.', 'almaseo-seo-playground' ) );
         }
 
         $with_transition = 0;
-        $lower_text = strtolower( $text );
+
+        // Match on word boundaries so transition words aren't counted as
+        // substrings inside larger words ("thus" in "enthusiasm", "then" in
+        // "strengthen", "still" in "distill") — that previously inflated the
+        // percentage. Phrases like "for example" still match correctly since
+        // \b sits at each end of the alternation.
+        $alternation = implode( '|', array_map(
+            static function ( $tw ) {
+                return preg_quote( $tw, '/' );
+            },
+            self::$transition_words
+        ) );
+        $pattern = '/\b(?:' . $alternation . ')\b/i';
 
         foreach ( $sentences as $s ) {
-            $lower_s = strtolower( trim( $s ) );
-            foreach ( self::$transition_words as $tw ) {
-                if ( strpos( $lower_s, $tw ) !== false ) {
-                    $with_transition++;
-                    break; // Count each sentence only once
-                }
+            if ( preg_match( $pattern, $s ) ) {
+                $with_transition++; // Count each sentence only once
             }
         }
 

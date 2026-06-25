@@ -81,7 +81,7 @@ function almaseo_health_calculate($post_id) {
     }
     
     // Signal 8: Readability
-    $breakdown['readability'] = almaseo_health_check_readability($plain_content);
+    $breakdown['readability'] = almaseo_health_check_readability($plain_content, $content, $post_id);
     if ($breakdown['readability']['pass'] && isset($weights['readability'])) {
         $total_score += $weights['readability'];
     }
@@ -409,7 +409,7 @@ function almaseo_health_check_image_alt($content, $post_id) {
 /**
  * Check readability (uses enhanced analyzer when available).
  */
-function almaseo_health_check_readability($plain_content) {
+function almaseo_health_check_readability($plain_content, $html = '', $post_id = 0) {
     if (empty($plain_content)) {
         return array(
             'pass' => false,
@@ -419,9 +419,15 @@ function almaseo_health_check_readability($plain_content) {
 
     // Use enhanced readability analyzer if available
     if (class_exists('AlmaSEO_Readability_Analyzer')) {
-        $post_id = get_the_ID();
-        $html = '';
-        if ($post_id) {
+        // Prefer the rendered HTML the caller already computed so the subheading
+        // sub-check sees the same content the text analysis does. Fall back to
+        // get_the_ID()/raw post_content only when nothing was passed in — note
+        // get_the_ID() is unset in AJAX recalc, which used to leave $html empty
+        // and silently fail the subheading check there.
+        if (!$post_id) {
+            $post_id = get_the_ID();
+        }
+        if ('' === $html && $post_id) {
             $post = get_post($post_id);
             if ($post) {
                 $html = $post->post_content;
@@ -434,6 +440,21 @@ function almaseo_health_check_readability($plain_content) {
             set_transient('almaseo_readability_' . $post_id, $result, HOUR_IN_SECONDS);
         }
 
+        // Surface the per-sub-check detail (label + pass + tip) alongside the
+        // pass/note so the metabox can show users *which* checks failed. This
+        // travels with the breakdown into post meta and the recalc AJAX
+        // response, so it stays available even after the transient expires.
+        $detail = array();
+        if (!empty($result['checks']) && is_array($result['checks'])) {
+            foreach ($result['checks'] as $check) {
+                $detail[] = array(
+                    'label' => isset($check['label']) ? $check['label'] : '',
+                    'pass'  => !empty($check['pass']),
+                    'tip'   => isset($check['tip']) ? $check['tip'] : '',
+                );
+            }
+        }
+
         return array(
             'pass' => $result['overall_pass'],
             'note' => $result['overall_pass']
@@ -441,6 +462,7 @@ function almaseo_health_check_readability($plain_content) {
                 ? sprintf(__('Good readability (%1$d/%2$d checks pass)', 'almaseo-seo-playground'), $result['pass_count'], $result['total_checks'])
                 /* translators: %1$d: number of checks passed, %2$d: total number of checks */
                 : sprintf(__('Readability needs work (%1$d/%2$d checks pass)', 'almaseo-seo-playground'), $result['pass_count'], $result['total_checks']),
+            'checks' => $detail,
         );
     }
 
@@ -559,7 +581,17 @@ function almaseo_health_check_robots($post_id) {
  */
 function almaseo_check_robots_txt_comprehensive() {
     $result = array('blocked' => false, 'reason' => '');
-    
+
+    // robots.txt is site-wide and rarely changes, but this runs on every health
+    // calculation (post save, inline Recalculate, first uncached metabox render).
+    // Cache the parsed verdict briefly so we don't make a synchronous HTTP
+    // round-trip to /robots.txt on every save. Cleared by the 15-min TTL.
+    $cache_key = 'almaseo_robots_txt_verdict';
+    $cached = get_transient($cache_key);
+    if (is_array($cached) && isset($cached['blocked'])) {
+        return $cached;
+    }
+
     // Try to fetch robots.txt
     $robots_url = home_url('/robots.txt');
     $response = wp_remote_get($robots_url, array('timeout' => 5));
@@ -611,7 +643,9 @@ function almaseo_check_robots_txt_comprehensive() {
             }
         }
     }
-    
+
+    set_transient($cache_key, $result, 15 * MINUTE_IN_SECONDS);
+
     return $result;
 }
 
