@@ -2168,7 +2168,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 </div>
                 <div class="almaseo-card-body">
                     <div class="almaseo-meta-robots-grid">
-                        <!-- Index/NoIndex Pair (Mutually Exclusive) -->
+                        <!-- Index toggle (off = noindex) -->
                         <div class="meta-robots-option">
                             <label class="toggle-label">
                                 <input type="checkbox" 
@@ -2182,20 +2182,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             <p class="option-description">Allow search engines to show this page in search results</p>
                         </div>
                         
-                        <div class="meta-robots-option">
-                            <label class="toggle-label">
-                                <input type="checkbox" 
-                                       id="almaseo_robots_noindex" 
-                                       name="almaseo_robots_noindex" 
-                                       value="1" 
-                                       <?php checked(get_post_meta($post->ID, '_almaseo_robots_index', true) === 'noindex'); ?>>
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-text">NoIndex</span>
-                            </label>
-                            <p class="option-description">Hide this page from search results</p>
-                        </div>
-                        
-                        <!-- Follow/NoFollow Pair (Mutually Exclusive) -->
+                        <!-- Follow toggle (off = nofollow) -->
                         <div class="meta-robots-option">
                             <label class="toggle-label">
                                 <input type="checkbox" 
@@ -2207,19 +2194,6 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 <span class="toggle-text">Follow</span>
                             </label>
                             <p class="option-description">Allow search engines to follow links on this page</p>
-                        </div>
-                        
-                        <div class="meta-robots-option">
-                            <label class="toggle-label">
-                                <input type="checkbox" 
-                                       id="almaseo_robots_nofollow" 
-                                       name="almaseo_robots_nofollow" 
-                                       value="1" 
-                                       <?php checked(get_post_meta($post->ID, '_almaseo_robots_follow', true) === 'nofollow'); ?>>
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-text">NoFollow</span>
-                            </label>
-                            <p class="option-description">Tell search engines not to follow links</p>
                         </div>
                         
                         <div class="meta-robots-option">
@@ -2297,7 +2271,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         <input type="url" 
                                id="almaseo_canonical_url" 
                                name="almaseo_canonical_url" 
-                               value="<?php echo esc_attr(get_post_meta($post->ID, '_almaseo_canonical_url', true) ?: get_permalink($post->ID)); ?>" 
+                               value="<?php echo esc_attr(get_post_meta($post->ID, '_almaseo_canonical_url', true)); ?>"
                                placeholder="<?php echo esc_attr(get_permalink($post->ID)); ?>"
                                class="almaseo-input">
                         <p class="field-hint">Leave empty to use the default permalink. Only change if this content exists at another URL.</p>
@@ -2346,7 +2320,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             foreach ($schema_options as $option): ?>
                                 <option value="<?php echo esc_attr($option['value']); ?>" 
                                         <?php selected($current_schema, $option['value']); ?>
-                                        <?php echo esc_attr($option['locked'] ? 'disabled aria-disabled="true" class="is-locked"' : ''); ?>
+                                        <?php if ($option['locked']) { echo 'disabled aria-disabled="true" class="is-locked"'; } ?>
                                         data-locked="<?php echo esc_attr($option['locked'] ? '1' : '0'); ?>">
                                     <?php echo esc_html($option['label']); ?><?php echo esc_html($option['locked'] ? ' 🔒' : ''); ?>
                                 </option>

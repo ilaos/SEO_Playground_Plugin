@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.37
+Stable tag: 1.19.38
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,15 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.38 =
+**Schema & Meta panel: consistent light UI + Meta Robots cleanup**
+
+* Fix: The Schema & Meta panel rendered as a dark theme under the Modern/Midnight admin colour schemes (dark cards, and unreadable light-gray text in the Advanced Schema section), unlike the rest of the editor. Removed the dark-mode styling so the panel matches the clean light look of the SEO Page Health panel under every admin scheme.
+* Fix: The Meta Robots section showed redundant, non-functional "NoIndex" and "NoFollow" switches — the save only ever read the Index/Follow toggles. Removed them; each setting is now a single toggle (on = index/follow, off = noindex/nofollow), consistent with the Archive/Snippet/Image/Translate toggles.
+* Fix: The Canonical URL field pre-filled the current permalink into the box, so it was never truly empty and the permalink got hard-saved — which could go stale if the slug later changed. The field is now blank by default (the placeholder still shows the default permalink), so "leave empty to use the default" works as intended.
+* Fix: Locked (Pro) schema-type dropdown options weren't getting their lock styling because the attribute string was being HTML-encoded.
+* Cleanup: Removed a dead save branch (`_almaseo_article_author`) that had no corresponding field.
 
 = 1.19.37 =
 **AI auto-fill uses your unsaved keyword; cleaner SEO Title field**

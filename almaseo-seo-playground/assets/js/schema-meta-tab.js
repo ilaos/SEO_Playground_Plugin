@@ -4,112 +4,24 @@
  */
 
 jQuery(document).ready(function($) {
-    // Implement mutual exclusivity for robots pairs
-    function setupRobotsMutualExclusivity() {
-        // Index/NoIndex pair
-        $('#almaseo_robots_index').on('change', function() {
-            if ($(this).is(':checked')) {
-                $('#almaseo_robots_noindex').prop('checked', false);
-                $(this).attr('aria-pressed', 'true');
-                $('#almaseo_robots_noindex').attr('aria-pressed', 'false');
-            } else {
-                $('#almaseo_robots_noindex').prop('checked', true);
-                $(this).attr('aria-pressed', 'false');
-                $('#almaseo_robots_noindex').attr('aria-pressed', 'true');
-            }
-            updateMetaRobotsPreview();
-        });
-        
-        $('#almaseo_robots_noindex').on('change', function() {
-            if ($(this).is(':checked')) {
-                $('#almaseo_robots_index').prop('checked', false);
-                $(this).attr('aria-pressed', 'true');
-                $('#almaseo_robots_index').attr('aria-pressed', 'false');
-            } else {
-                $('#almaseo_robots_index').prop('checked', true);
-                $(this).attr('aria-pressed', 'false');
-                $('#almaseo_robots_index').attr('aria-pressed', 'true');
-            }
-            updateMetaRobotsPreview();
-        });
-        
-        // Follow/NoFollow pair
-        $('#almaseo_robots_follow').on('change', function() {
-            if ($(this).is(':checked')) {
-                $('#almaseo_robots_nofollow').prop('checked', false);
-                $(this).attr('aria-pressed', 'true');
-                $('#almaseo_robots_nofollow').attr('aria-pressed', 'false');
-            } else {
-                $('#almaseo_robots_nofollow').prop('checked', true);
-                $(this).attr('aria-pressed', 'false');
-                $('#almaseo_robots_nofollow').attr('aria-pressed', 'true');
-            }
-            updateMetaRobotsPreview();
-        });
-        
-        $('#almaseo_robots_nofollow').on('change', function() {
-            if ($(this).is(':checked')) {
-                $('#almaseo_robots_follow').prop('checked', false);
-                $(this).attr('aria-pressed', 'true');
-                $('#almaseo_robots_follow').attr('aria-pressed', 'false');
-            } else {
-                $('#almaseo_robots_follow').prop('checked', true);
-                $(this).attr('aria-pressed', 'false');
-                $('#almaseo_robots_follow').attr('aria-pressed', 'true');
-            }
-            updateMetaRobotsPreview();
-        });
-        
-        // Initialize aria-pressed states
-        $('#almaseo_robots_index').attr('aria-pressed', $('#almaseo_robots_index').is(':checked') ? 'true' : 'false');
-        $('#almaseo_robots_noindex').attr('aria-pressed', $('#almaseo_robots_noindex').is(':checked') ? 'true' : 'false');
-        $('#almaseo_robots_follow').attr('aria-pressed', $('#almaseo_robots_follow').is(':checked') ? 'true' : 'false');
-        $('#almaseo_robots_nofollow').attr('aria-pressed', $('#almaseo_robots_nofollow').is(':checked') ? 'true' : 'false');
-    }
-    
-    // Update Meta Robots preview with proper order
+    // Build the Meta Robots preview from the toggle states. Index and Follow
+    // are single toggles: ON = index/follow, OFF = noindex/nofollow (the save
+    // handler derives the same way), so there are no separate NoIndex/NoFollow
+    // switches to keep in sync.
     function updateMetaRobotsPreview() {
         var robotsParts = [];
-        
-        // Index/NoIndex (exactly one must be active)
-        if ($('#almaseo_robots_noindex').is(':checked')) {
-            robotsParts.push('noindex');
-        } else {
-            robotsParts.push('index');
-        }
-        
-        // Follow/NoFollow (exactly one must be active)
-        if ($('#almaseo_robots_nofollow').is(':checked')) {
-            robotsParts.push('nofollow');
-        } else {
-            robotsParts.push('follow');
-        }
-        
-        // Independent directives
-        var archive = $('#almaseo_robots_archive').is(':checked');
-        var snippet = $('#almaseo_robots_snippet').is(':checked');
-        var imageindex = $('#almaseo_robots_imageindex').is(':checked');
-        var translate = $('#almaseo_robots_translate').is(':checked');
-        
-        if (!archive) robotsParts.push('noarchive');
-        if (!snippet) robotsParts.push('nosnippet');
-        if (!imageindex) robotsParts.push('noimageindex');
-        if (!translate) robotsParts.push('notranslate');
-        
-        // Update preview with proper order
-        var robotsContent = robotsParts.join(', ');
-        $('#meta-robots-preview-code').text('<meta name="robots" content="' + robotsContent + '" />');
+        robotsParts.push($('#almaseo_robots_index').is(':checked') ? 'index' : 'noindex');
+        robotsParts.push($('#almaseo_robots_follow').is(':checked') ? 'follow' : 'nofollow');
+        if (!$('#almaseo_robots_archive').is(':checked'))    { robotsParts.push('noarchive'); }
+        if (!$('#almaseo_robots_snippet').is(':checked'))    { robotsParts.push('nosnippet'); }
+        if (!$('#almaseo_robots_imageindex').is(':checked')) { robotsParts.push('noimageindex'); }
+        if (!$('#almaseo_robots_translate').is(':checked'))  { robotsParts.push('notranslate'); }
+        $('#meta-robots-preview-code').text('<meta name="robots" content="' + robotsParts.join(', ') + '" />');
     }
-    
-    // Initialize robots mutual exclusivity
-    setupRobotsMutualExclusivity();
-    
-    // Attach event listeners to independent robots checkboxes
-    $('#almaseo_robots_archive, #almaseo_robots_snippet, #almaseo_robots_imageindex, #almaseo_robots_translate').on('change', updateMetaRobotsPreview);
-    
-    // Initialize preview on page load
+
+    // Update the preview whenever any robots toggle changes, and on load.
+    $('#almaseo_robots_index, #almaseo_robots_follow, #almaseo_robots_archive, #almaseo_robots_snippet, #almaseo_robots_imageindex, #almaseo_robots_translate').on('change', updateMetaRobotsPreview);
     updateMetaRobotsPreview();
-    
     // Collapsible toggle functionality - Fixed to work with all toggles
     $(document).on('click', '.almaseo-collapsible-toggle', function(e) {
         e.preventDefault();

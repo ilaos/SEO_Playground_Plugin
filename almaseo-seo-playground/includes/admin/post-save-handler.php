@@ -193,11 +193,6 @@ function almaseo_save_seo_playground_meta($post_id) {
         update_post_meta($post_id, '_almaseo_schema_disable', false);
     }
 
-    // Article Author (for Article schema)
-    if (isset($_POST['almaseo_article_author'])) {
-        update_post_meta($post_id, '_almaseo_article_author', sanitize_text_field(wp_unslash($_POST['almaseo_article_author'])));
-    }
-
     // LocalBusiness fields (v8.5.0)
     if (isset($_POST['almaseo_lb_subtype'])) {
         $lb_subtype = sanitize_text_field(wp_unslash($_POST['almaseo_lb_subtype']));
