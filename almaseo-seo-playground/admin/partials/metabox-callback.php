@@ -540,6 +540,154 @@ function almaseo_seo_playground_meta_box_callback($post) {
         <div class="almaseo-seo-fields">
             <h4><?php esc_html_e('SEO Editor', 'almaseo-seo-playground'); ?></h4>
             <div class="almaseo-field-group">
+                <label for="almaseo_focus_keyword">
+                    Focus Keyword
+                    <span class="label-helper">(Choose a realistic target that matches search intent.)</span>
+                </label>
+                <input type="text"
+                       id="almaseo_focus_keyword"
+                       name="almaseo_focus_keyword"
+                       value="<?php echo esc_attr($seo_focus_keyword ?? ''); ?>"
+                       placeholder="<?php esc_attr_e('Choose a keyword or phrase that matches search intent', 'almaseo-seo-playground'); ?>"
+                       class="almaseo-input" />
+                <p class="field-subtext" style="margin: 5px 0 0 0; color: #666; font-size: 12px; font-style: italic;">
+                    <?php esc_html_e('Choose a realistic keyword that matches what people actually search for.', 'almaseo-seo-playground'); ?>
+                </p>
+                <!-- Google Keyword Suggestions Dropdown -->
+                <div id="almaseo-keyword-suggestions-wrap" style="position: relative; margin-top: 4px;">
+                    <ul id="almaseo-keyword-suggestions" style="
+                        display: none;
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        z-index: 1000;
+                        background: #fff;
+                        border: 1px solid #ddd;
+                        border-radius: 4px;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                        list-style: none;
+                        margin: 0;
+                        padding: 4px 0;
+                        max-height: 260px;
+                        overflow-y: auto;
+                    "></ul>
+                </div>
+                <script>
+                (function(){
+                    var input = document.getElementById('almaseo_focus_keyword');
+                    var list  = document.getElementById('almaseo-keyword-suggestions');
+                    if (!input || !list) return;
+
+                    var debounceTimer = null;
+                    var currentXhr    = null;
+
+                    function fetchSuggestions(query) {
+                        if (currentXhr) { currentXhr.abort(); currentXhr = null; }
+                        if (query.length < 2) { list.style.display = 'none'; return; }
+
+                        var nonce = (typeof almaseo_health !== 'undefined' && almaseo_health.nonce)
+                                    ? almaseo_health.nonce
+                                    : '<?php echo esc_js(wp_create_nonce('almaseo_nonce')); ?>';
+
+                        var url = '<?php echo esc_js(admin_url('admin-ajax.php')); ?>'
+                                + '?action=almaseo_keyword_suggest&nonce=' + encodeURIComponent(nonce)
+                                + '&q=' + encodeURIComponent(query);
+
+                        currentXhr = new XMLHttpRequest();
+                        currentXhr.open('GET', url, true);
+                        currentXhr.onreadystatechange = function() {
+                            if (this.readyState !== 4) return;
+                            currentXhr = null;
+                            if (this.status !== 200) { list.style.display = 'none'; return; }
+                            try {
+                                var resp = JSON.parse(this.responseText);
+                                if (resp.success && resp.data && resp.data.suggestions && resp.data.suggestions.length) {
+                                    renderSuggestions(resp.data.suggestions);
+                                } else {
+                                    list.style.display = 'none';
+                                }
+                            } catch(e) { list.style.display = 'none'; }
+                        };
+                        currentXhr.send();
+                    }
+
+                    function renderSuggestions(items) {
+                        list.innerHTML = '';
+                        items.forEach(function(text) {
+                            var li = document.createElement('li');
+                            li.textContent = text;
+                            li.style.cssText = 'padding: 8px 12px; cursor: pointer; font-size: 13px; color: #333; border-bottom: 1px solid #f0f0f0; transition: background 0.15s;';
+                            li.addEventListener('mouseenter', function(){ this.style.background = '#f0f4ff'; });
+                            li.addEventListener('mouseleave', function(){ this.style.background = ''; });
+                            li.addEventListener('mousedown', function(e){
+                                e.preventDefault();
+                                input.value = text;
+                                list.style.display = 'none';
+                                input.dispatchEvent(new Event('input', {bubbles: true}));
+                                input.dispatchEvent(new Event('change', {bubbles: true}));
+                            });
+                            list.appendChild(li);
+                        });
+                        var last = list.lastElementChild;
+                        if (last) last.style.borderBottom = 'none';
+                        list.style.display = 'block';
+                    }
+
+                    input.addEventListener('input', function() {
+                        clearTimeout(debounceTimer);
+                        var val = this.value.trim();
+                        debounceTimer = setTimeout(function(){ fetchSuggestions(val); }, 300);
+                    });
+
+                    input.addEventListener('blur', function() {
+                        setTimeout(function(){ list.style.display = 'none'; }, 200);
+                    });
+
+                    input.addEventListener('focus', function() {
+                        if (this.value.trim().length >= 2 && list.children.length > 0) {
+                            list.style.display = 'block';
+                        }
+                    });
+
+                    input.addEventListener('keydown', function(e) {
+                        if (list.style.display === 'none') return;
+                        var items = list.querySelectorAll('li');
+                        var active = list.querySelector('li[data-active]');
+                        var idx = -1;
+                        if (active) {
+                            for (var i = 0; i < items.length; i++) { if (items[i] === active) { idx = i; break; } }
+                        }
+                        if (e.key === 'ArrowDown') {
+                            e.preventDefault();
+                            if (active) { active.removeAttribute('data-active'); active.style.background = ''; }
+                            idx = (idx + 1) % items.length;
+                            items[idx].setAttribute('data-active', '1');
+                            items[idx].style.background = '#f0f4ff';
+                            items[idx].scrollIntoView({block: 'nearest'});
+                        } else if (e.key === 'ArrowUp') {
+                            e.preventDefault();
+                            if (active) { active.removeAttribute('data-active'); active.style.background = ''; }
+                            idx = idx <= 0 ? items.length - 1 : idx - 1;
+                            items[idx].setAttribute('data-active', '1');
+                            items[idx].style.background = '#f0f4ff';
+                            items[idx].scrollIntoView({block: 'nearest'});
+                        } else if (e.key === 'Enter' && active) {
+                            e.preventDefault();
+                            input.value = active.textContent;
+                            list.style.display = 'none';
+                            input.dispatchEvent(new Event('input', {bubbles: true}));
+                            input.dispatchEvent(new Event('change', {bubbles: true}));
+                        } else if (e.key === 'Escape') {
+                            list.style.display = 'none';
+                        }
+                    });
+                })();
+                </script>
+            </div>
+
+
+            <div class="almaseo-field-group">
                 <label for="almaseo_seo_title">
                     SEO Title
                     <span class="label-helper">(Google recommends ≤ 60 characters. Use strong keywords naturally — <a href="https://developers.google.com/search/docs/appearance/title-link?hl=en&sjid=17527460305754617133-NA&visit_id=638911458818141308-2932973546&rd=1" target="_blank" rel="noopener">Google Guidelines</a>)</span>
@@ -759,154 +907,6 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     <span style="font-style: italic; color: #666;"><?php echo $ai_autofill_available ? esc_html__('Alma writes a compelling 155-char description from your content', 'almaseo-seo-playground') : esc_html__('Generate from your page content', 'almaseo-seo-playground'); ?></span>
                 </p>
             </div>
-
-            <div class="almaseo-field-group">
-                <label for="almaseo_focus_keyword">
-                    Focus Keyword
-                    <span class="label-helper">(Choose a realistic target that matches search intent.)</span>
-                </label>
-                <input type="text"
-                       id="almaseo_focus_keyword"
-                       name="almaseo_focus_keyword"
-                       value="<?php echo esc_attr($seo_focus_keyword ?? ''); ?>"
-                       placeholder="<?php esc_attr_e('Choose a keyword or phrase that matches search intent', 'almaseo-seo-playground'); ?>"
-                       class="almaseo-input" />
-                <p class="field-subtext" style="margin: 5px 0 0 0; color: #666; font-size: 12px; font-style: italic;">
-                    <?php esc_html_e('Choose a realistic keyword that matches what people actually search for.', 'almaseo-seo-playground'); ?>
-                </p>
-                <!-- Google Keyword Suggestions Dropdown -->
-                <div id="almaseo-keyword-suggestions-wrap" style="position: relative; margin-top: 4px;">
-                    <ul id="almaseo-keyword-suggestions" style="
-                        display: none;
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        right: 0;
-                        z-index: 1000;
-                        background: #fff;
-                        border: 1px solid #ddd;
-                        border-radius: 4px;
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                        list-style: none;
-                        margin: 0;
-                        padding: 4px 0;
-                        max-height: 260px;
-                        overflow-y: auto;
-                    "></ul>
-                </div>
-                <script>
-                (function(){
-                    var input = document.getElementById('almaseo_focus_keyword');
-                    var list  = document.getElementById('almaseo-keyword-suggestions');
-                    if (!input || !list) return;
-
-                    var debounceTimer = null;
-                    var currentXhr    = null;
-
-                    function fetchSuggestions(query) {
-                        if (currentXhr) { currentXhr.abort(); currentXhr = null; }
-                        if (query.length < 2) { list.style.display = 'none'; return; }
-
-                        var nonce = (typeof almaseo_health !== 'undefined' && almaseo_health.nonce)
-                                    ? almaseo_health.nonce
-                                    : '<?php echo esc_js(wp_create_nonce('almaseo_nonce')); ?>';
-
-                        var url = '<?php echo esc_js(admin_url('admin-ajax.php')); ?>'
-                                + '?action=almaseo_keyword_suggest&nonce=' + encodeURIComponent(nonce)
-                                + '&q=' + encodeURIComponent(query);
-
-                        currentXhr = new XMLHttpRequest();
-                        currentXhr.open('GET', url, true);
-                        currentXhr.onreadystatechange = function() {
-                            if (this.readyState !== 4) return;
-                            currentXhr = null;
-                            if (this.status !== 200) { list.style.display = 'none'; return; }
-                            try {
-                                var resp = JSON.parse(this.responseText);
-                                if (resp.success && resp.data && resp.data.suggestions && resp.data.suggestions.length) {
-                                    renderSuggestions(resp.data.suggestions);
-                                } else {
-                                    list.style.display = 'none';
-                                }
-                            } catch(e) { list.style.display = 'none'; }
-                        };
-                        currentXhr.send();
-                    }
-
-                    function renderSuggestions(items) {
-                        list.innerHTML = '';
-                        items.forEach(function(text) {
-                            var li = document.createElement('li');
-                            li.textContent = text;
-                            li.style.cssText = 'padding: 8px 12px; cursor: pointer; font-size: 13px; color: #333; border-bottom: 1px solid #f0f0f0; transition: background 0.15s;';
-                            li.addEventListener('mouseenter', function(){ this.style.background = '#f0f4ff'; });
-                            li.addEventListener('mouseleave', function(){ this.style.background = ''; });
-                            li.addEventListener('mousedown', function(e){
-                                e.preventDefault();
-                                input.value = text;
-                                list.style.display = 'none';
-                                input.dispatchEvent(new Event('input', {bubbles: true}));
-                                input.dispatchEvent(new Event('change', {bubbles: true}));
-                            });
-                            list.appendChild(li);
-                        });
-                        var last = list.lastElementChild;
-                        if (last) last.style.borderBottom = 'none';
-                        list.style.display = 'block';
-                    }
-
-                    input.addEventListener('input', function() {
-                        clearTimeout(debounceTimer);
-                        var val = this.value.trim();
-                        debounceTimer = setTimeout(function(){ fetchSuggestions(val); }, 300);
-                    });
-
-                    input.addEventListener('blur', function() {
-                        setTimeout(function(){ list.style.display = 'none'; }, 200);
-                    });
-
-                    input.addEventListener('focus', function() {
-                        if (this.value.trim().length >= 2 && list.children.length > 0) {
-                            list.style.display = 'block';
-                        }
-                    });
-
-                    input.addEventListener('keydown', function(e) {
-                        if (list.style.display === 'none') return;
-                        var items = list.querySelectorAll('li');
-                        var active = list.querySelector('li[data-active]');
-                        var idx = -1;
-                        if (active) {
-                            for (var i = 0; i < items.length; i++) { if (items[i] === active) { idx = i; break; } }
-                        }
-                        if (e.key === 'ArrowDown') {
-                            e.preventDefault();
-                            if (active) { active.removeAttribute('data-active'); active.style.background = ''; }
-                            idx = (idx + 1) % items.length;
-                            items[idx].setAttribute('data-active', '1');
-                            items[idx].style.background = '#f0f4ff';
-                            items[idx].scrollIntoView({block: 'nearest'});
-                        } else if (e.key === 'ArrowUp') {
-                            e.preventDefault();
-                            if (active) { active.removeAttribute('data-active'); active.style.background = ''; }
-                            idx = idx <= 0 ? items.length - 1 : idx - 1;
-                            items[idx].setAttribute('data-active', '1');
-                            items[idx].style.background = '#f0f4ff';
-                            items[idx].scrollIntoView({block: 'nearest'});
-                        } else if (e.key === 'Enter' && active) {
-                            e.preventDefault();
-                            input.value = active.textContent;
-                            list.style.display = 'none';
-                            input.dispatchEvent(new Event('input', {bubbles: true}));
-                            input.dispatchEvent(new Event('change', {bubbles: true}));
-                        } else if (e.key === 'Escape') {
-                            list.style.display = 'none';
-                        }
-                    });
-                })();
-                </script>
-            </div>
-
 
             <!-- Google SERP Preview -->
             <div class="almaseo-serp-preview">

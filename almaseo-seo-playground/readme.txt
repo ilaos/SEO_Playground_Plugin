@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.35
+Stable tag: 1.19.36
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.36 =
+**Focus Keyword moved to the top of the SEO editor**
+
+* Improvement: On the SEO Page Health panel, the Focus Keyword field now sits above the SEO Title and Meta Description fields. This matches the natural workflow — set your target keyword first, then click the AI "Generate" buttons, and the generated title and description are built around that keyword (see 1.19.35).
 
 = 1.19.35 =
 **Sharper AI auto-fill + readable field labels**
