@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.34
+Stable tag: 1.19.35
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,12 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.35 =
+**Sharper AI auto-fill + readable field labels**
+
+* Improvement: AI title/description generation now sends the AI more context — your focus keyword (so it can actually target it), any existing SEO title/description (to refine rather than start blind), the page's section headings, and its categories/tags. Results are more on-topic and keyword-aligned, especially when you've set a focus keyword.
+* Fix: On the SEO Page Health panel, the "SEO Title", "Meta Description", and "Focus Keyword" field labels (and their helper text) could appear near-invisible on the white card under dark admin colour schemes. They now use an explicit readable colour.
 
 = 1.19.34 =
 **Search Console hardening + readable AI auto-fill buttons**

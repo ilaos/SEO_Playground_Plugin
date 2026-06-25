@@ -224,6 +224,22 @@
     font-weight: 600;
 }
 
+/* Force readable text on the white SEO-fields card regardless of the admin
+   colour scheme. Dark schemes (e.g. Modern) leave inherited label/heading
+   text light, which is invisible on this forced-white background. An explicit
+   colour here always beats inherited values, so no !important is needed. */
+.almaseo-seo-fields h4,
+.almaseo-seo-fields label {
+    color: #1d2327;
+}
+.almaseo-seo-fields .label-helper {
+    color: #50575e;
+    font-weight: 400;
+}
+.almaseo-seo-fields .label-helper a {
+    color: #2271b1;
+}
+
 /* Recalculate button */
 #almaseo-health-recalculate {
     display: inline-flex;

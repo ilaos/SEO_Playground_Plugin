@@ -75,12 +75,46 @@ class AI_Autofill_Generator {
                 }
             }
 
+            // ── Enrichment signals — give the AI the context a human optimiser
+            // would have: the target keyword, any existing meta to refine, the
+            // section headings, and the post's taxonomy terms.
+            $focus_keyword = get_post_meta( $pid, '_almaseo_focus_keyword', true );
+            $current_title = get_post_meta( $pid, '_almaseo_title', true );
+            $current_desc  = get_post_meta( $pid, '_almaseo_description', true );
+
+            // Section headings (H1–H3) from the raw content, first 8 unique.
+            $headings = array();
+            if ( preg_match_all( '/<h[1-3][^>]*>(.*?)<\/h[1-3]>/is', $post->post_content, $hmatch ) ) {
+                foreach ( $hmatch[1] as $h ) {
+                    $h = trim( wp_strip_all_tags( $h ) );
+                    if ( $h !== '' ) {
+                        $headings[] = $h;
+                    }
+                }
+            }
+            $headings = array_slice( array_values( array_unique( $headings ) ), 0, 8 );
+
+            // Categories + tags (names), first 10 unique. Pages return none.
+            $terms = array();
+            foreach ( array( 'category', 'post_tag' ) as $tax ) {
+                $names = wp_get_post_terms( $pid, $tax, array( 'fields' => 'names' ) );
+                if ( ! is_wp_error( $names ) && ! empty( $names ) ) {
+                    $terms = array_merge( $terms, $names );
+                }
+            }
+            $terms = array_slice( array_values( array_unique( $terms ) ), 0, 10 );
+
             $posts_payload[] = array(
-                'post_id'   => $pid,
-                'title'     => $post->post_title,
-                'content'   => $content,
-                'post_type' => $post->post_type,
-                'excerpt'   => $post->post_excerpt ?: '',
+                'post_id'       => $pid,
+                'title'         => $post->post_title,
+                'content'       => $content,
+                'post_type'     => $post->post_type,
+                'excerpt'       => $post->post_excerpt ?: '',
+                'focus_keyword' => is_string( $focus_keyword ) ? $focus_keyword : '',
+                'current_title' => is_string( $current_title ) ? $current_title : '',
+                'current_desc'  => is_string( $current_desc ) ? $current_desc : '',
+                'headings'      => $headings,
+                'terms'         => $terms,
             );
         }
 
