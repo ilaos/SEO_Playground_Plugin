@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.39
+Stable tag: 1.19.40
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,12 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.40 =
+**Schema & Meta: unified FAQ/How-To control + Service details**
+
+* Improvement: Removed the redundant standalone "Treat this page as FAQPage / HowTo" checkboxes. FAQPage and HowTo are now added in one clear place — either as the primary Schema Type or via "Also describe this page as" — so there's a single way to add them (no more two overlapping controls).
+* New: Choosing "Service" as the schema type now reveals a Service Details panel (Service Type and Area Served), which output `serviceType` and `areaServed` in the Service structured data. Name and description still come from your SEO title/description.
 
 = 1.19.39 =
 **Schema & Meta: guided, top-down schema flow**

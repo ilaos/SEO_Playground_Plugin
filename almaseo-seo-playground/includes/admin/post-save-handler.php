@@ -172,18 +172,16 @@ function almaseo_save_seo_playground_meta($post_id) {
         update_post_meta($post_id, '_almaseo_schema_secondary_types', wp_json_encode($clean_secondary));
     }
 
-    // Advanced Schema - FAQPage toggle (Pro)
-    if (isset($_POST['almaseo_schema_is_faqpage'])) {
-        update_post_meta($post_id, '_almaseo_schema_is_faqpage', true);
-    } else {
-        update_post_meta($post_id, '_almaseo_schema_is_faqpage', false);
-    }
+    // FAQPage / HowTo are now added via the "Also describe this page as"
+    // secondary types (or chosen as the primary type), so the old standalone
+    // is_faqpage / is_howto toggles were removed in 1.19.40.
 
-    // Advanced Schema - HowTo toggle (Pro)
-    if (isset($_POST['almaseo_schema_is_howto'])) {
-        update_post_meta($post_id, '_almaseo_schema_is_howto', true);
-    } else {
-        update_post_meta($post_id, '_almaseo_schema_is_howto', false);
+    // Service schema fields
+    if (isset($_POST['almaseo_service_type'])) {
+        update_post_meta($post_id, '_almaseo_service_type', sanitize_text_field(wp_unslash($_POST['almaseo_service_type'])));
+    }
+    if (isset($_POST['almaseo_service_area'])) {
+        update_post_meta($post_id, '_almaseo_service_area', sanitize_text_field(wp_unslash($_POST['almaseo_service_area'])));
     }
 
     // Advanced Schema - Disable toggle (Pro)

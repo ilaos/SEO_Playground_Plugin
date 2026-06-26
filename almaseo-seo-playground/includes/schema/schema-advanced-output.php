@@ -666,6 +666,16 @@ function almaseo_build_service_node($post) {
         'url' => get_permalink($post->ID),
     );
 
+    // Optional service specifics from the Service detail panel.
+    $service_type = get_post_meta($post->ID, '_almaseo_service_type', true);
+    if (!empty($service_type)) {
+        $node['serviceType'] = $service_type;
+    }
+    $service_area = get_post_meta($post->ID, '_almaseo_service_area', true);
+    if (!empty($service_area)) {
+        $node['areaServed'] = $service_area;
+    }
+
     // Link to provider (Knowledge Graph if exists)
     $node['provider'] = array(
         '@type' => 'Organization',

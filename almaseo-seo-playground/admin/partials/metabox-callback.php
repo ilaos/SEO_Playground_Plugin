@@ -2391,8 +2391,6 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             <!-- Pro Tier: Full Controls -->
                             <?php
                             $primary_type = get_post_meta($post->ID, '_almaseo_schema_primary_type', true);
-                            $is_faqpage = get_post_meta($post->ID, '_almaseo_schema_is_faqpage', true);
-                            $is_howto = get_post_meta($post->ID, '_almaseo_schema_is_howto', true);
                             $disable_advanced = get_post_meta($post->ID, '_almaseo_schema_disable', true);
                             ?>
 
@@ -3130,6 +3128,25 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 </div>
                             </div>
 
+                            <!-- Service Fields (shown when Service selected) -->
+                            <?php
+                            $show_service = ( $primary_type === 'Service' || $current_schema === 'Service' );
+                            $service_type = get_post_meta($post->ID, '_almaseo_service_type', true);
+                            $service_area = get_post_meta($post->ID, '_almaseo_service_area', true);
+                            ?>
+                            <div id="almaseo-service-fields" style="<?php echo esc_attr(($show_service ? '' : 'display:none; ') . 'margin-top: 15px; padding: 15px; background: #f9fafb; border: 1px solid #e2e4e7; border-radius: 6px;'); ?>">
+                                <h4 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 600; color: #1d2327;">🛠️ <?php esc_html_e('Service Details', 'almaseo-seo-playground'); ?></h4>
+                                <p class="field-hint" style="margin: 0 0 12px 0;"><?php esc_html_e('Describes a service you offer. The name and description come from your SEO title/description above; the fields below add specifics.', 'almaseo-seo-playground'); ?></p>
+                                <div class="almaseo-field-group">
+                                    <label for="almaseo_service_type" style="font-size: 12px; font-weight: 600;"><?php esc_html_e('Service Type', 'almaseo-seo-playground'); ?></label>
+                                    <input type="text" id="almaseo_service_type" name="almaseo_service_type" class="almaseo-input" style="width: 100%;" value="<?php echo esc_attr($service_type); ?>" placeholder="<?php esc_attr_e('e.g. Property Management', 'almaseo-seo-playground'); ?>" />
+                                </div>
+                                <div class="almaseo-field-group">
+                                    <label for="almaseo_service_area" style="font-size: 12px; font-weight: 600;"><?php esc_html_e('Area Served', 'almaseo-seo-playground'); ?></label>
+                                    <input type="text" id="almaseo_service_area" name="almaseo_service_area" class="almaseo-input" style="width: 100%;" value="<?php echo esc_attr($service_area); ?>" placeholder="<?php esc_attr_e('e.g. Ferndale, MI', 'almaseo-seo-playground'); ?>" />
+                                </div>
+                            </div>
+
                             <!-- Recipe Fields (shown when Recipe selected) -->
                             <?php
                             $recipe_cuisine       = get_post_meta($post->ID, '_almaseo_recipe_cuisine', true);
@@ -3235,7 +3252,8 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                     'Product':      'almaseo-product-fields',
                                     'Event':        'almaseo-event-fields',
                                     'Recipe':       'almaseo-recipe-fields',
-                                    'LocalBusiness': 'almaseo-localbusiness-fields'
+                                    'LocalBusiness': 'almaseo-localbusiness-fields',
+                                    'Service':      'almaseo-service-fields'
                                 };
 
                                 function getActiveTypes() {
@@ -3298,26 +3316,6 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 }
                             })();
                             </script>
-
-                            <div class="almaseo-field-group">
-                                <label>
-                                    <input type="checkbox"
-                                           name="almaseo_schema_is_faqpage"
-                                           value="1"
-                                           <?php checked($is_faqpage, true); ?>>
-                                    <?php esc_html_e('Treat this page as FAQPage (when it contains Q&A content)', 'almaseo-seo-playground'); ?>
-                                </label>
-                            </div>
-
-                            <div class="almaseo-field-group">
-                                <label>
-                                    <input type="checkbox"
-                                           name="almaseo_schema_is_howto"
-                                           value="1"
-                                           <?php checked($is_howto, true); ?>>
-                                    <?php esc_html_e('Treat this page as HowTo (step-by-step instructions)', 'almaseo-seo-playground'); ?>
-                                </label>
-                            </div>
 
                             <div class="almaseo-field-group">
                                 <label>
