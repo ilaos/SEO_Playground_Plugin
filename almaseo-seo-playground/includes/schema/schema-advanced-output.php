@@ -530,8 +530,39 @@ function almaseo_build_faqpage_node($post) {
         'url' => get_permalink($post->ID),
     );
 
-    // Try to extract Q&A pairs from content
-    $qa_pairs = almaseo_extract_qa_pairs($post->post_content);
+    // Prefer Q&A pairs authored in the metabox repeater (_almaseo_faq_pairs).
+    // These are editor-agnostic and don't depend on the page content. Only when
+    // none are entered do we fall back to scraping question-headings from the
+    // body (legacy behavior — kept so existing pages don't regress).
+    $qa_pairs = array();
+    $stored = get_post_meta($post->ID, '_almaseo_faq_pairs', true);
+    if ($stored) {
+        $decoded = is_array($stored) ? $stored : json_decode($stored, true);
+        if (is_array($decoded)) {
+            foreach ($decoded as $pair) {
+                if (!is_array($pair)) {
+                    continue;
+                }
+                $q = isset($pair['question']) ? trim($pair['question']) : '';
+                $a = isset($pair['answer']) ? trim($pair['answer']) : '';
+                if ($q === '' || $a === '') {
+                    continue;
+                }
+                $qa_pairs[] = array(
+                    '@type' => 'Question',
+                    'name' => $q,
+                    'acceptedAnswer' => array(
+                        '@type' => 'Answer',
+                        'text' => $a,
+                    ),
+                );
+            }
+        }
+    }
+
+    if (empty($qa_pairs)) {
+        $qa_pairs = almaseo_extract_qa_pairs($post->post_content);
+    }
 
     if (!empty($qa_pairs)) {
         $node['mainEntity'] = $qa_pairs;
@@ -587,8 +618,11 @@ if (!function_exists('almaseo_build_howto_node')) {
 function almaseo_build_howto_node($post) {
     $seo_title = get_post_meta($post->ID, '_almaseo_title', true);
     $seo_description = get_post_meta($post->ID, '_almaseo_description', true);
-    $name = $seo_title ?: get_the_title($post->ID);
-    $description = $seo_description ?: wp_trim_words(wp_strip_all_tags($post->post_content), 30);
+    // Metabox How-To name/description take precedence; then SEO meta; then post.
+    $howto_name = get_post_meta($post->ID, '_almaseo_howto_name', true);
+    $howto_desc = get_post_meta($post->ID, '_almaseo_howto_description', true);
+    $name = $howto_name ?: ($seo_title ?: get_the_title($post->ID));
+    $description = $howto_desc ?: ($seo_description ?: wp_trim_words(wp_strip_all_tags($post->post_content), 30));
 
     $node = array(
         '@type' => 'HowTo',
@@ -598,8 +632,30 @@ function almaseo_build_howto_node($post) {
         'url' => get_permalink($post->ID),
     );
 
-    // Try to extract steps from content (ordered/unordered lists or numbered headings)
-    $steps = almaseo_extract_howto_steps($post->post_content);
+    // Prefer steps authored in the metabox (_almaseo_howto_steps, one per line);
+    // fall back to scraping the first list in the content (legacy behavior).
+    $steps = array();
+    $stored_steps = get_post_meta($post->ID, '_almaseo_howto_steps', true);
+    if ($stored_steps) {
+        $lines = preg_split('/\r\n|\r|\n/', $stored_steps);
+        foreach ($lines as $line) {
+            $text = trim(wp_strip_all_tags($line));
+            if ($text === '') {
+                continue;
+            }
+            $steps[] = array(
+                '@type' => 'HowToStep',
+                'text' => $text,
+            );
+            if (count($steps) >= 20) {
+                break;
+            }
+        }
+    }
+
+    if (empty($steps)) {
+        $steps = almaseo_extract_howto_steps($post->post_content);
+    }
 
     if (!empty($steps)) {
         $node['step'] = $steps;

@@ -3293,6 +3293,119 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 </div>
                             </div>
 
+                            <!-- FAQ Fields (shown when FAQPage is the primary type OR a checked
+                                 secondary type). Editor-agnostic by design: the Q&A repeater lives
+                                 in the metabox so Classic Editor / page-builder users can author
+                                 FAQ schema without the Gutenberg FAQ block. Saved to
+                                 _almaseo_faq_pairs (JSON array of {question, answer}). -->
+                            <?php
+                            $faq_pairs_raw = get_post_meta($post->ID, '_almaseo_faq_pairs', true);
+                            $faq_pairs = array();
+                            if ($faq_pairs_raw) {
+                                $faq_decoded = is_array($faq_pairs_raw) ? $faq_pairs_raw : json_decode($faq_pairs_raw, true);
+                                if (is_array($faq_decoded)) {
+                                    foreach ($faq_decoded as $fp) {
+                                        if (!is_array($fp)) continue;
+                                        $faq_pairs[] = array(
+                                            'question' => isset($fp['question']) ? $fp['question'] : '',
+                                            'answer'   => isset($fp['answer']) ? $fp['answer'] : '',
+                                        );
+                                    }
+                                }
+                            }
+                            $show_faq = ( $primary_type === 'FAQPage' || $current_schema === 'FAQPage' );
+                            ?>
+                            <div id="almaseo-faqpage-fields" style="<?php echo esc_attr(($show_faq ? '' : 'display:none; ') . 'margin-top: 15px; padding: 15px; background: #f9fafb; border: 1px solid #e2e4e7; border-radius: 6px;'); ?>">
+                                <h4 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 600; color: #1d2327;">❓ <?php esc_html_e('FAQ (Questions &amp; Answers)', 'almaseo-seo-playground'); ?></h4>
+                                <div style="margin-bottom: 14px; padding: 10px 12px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 12px; color: #475569; line-height: 1.5;">
+                                    <?php esc_html_e('Add the questions and answers you want Google to show as an FAQ rich result. You write them here directly — they do not need to appear in the page content. Enter at least one full question and answer, then click Update to save.', 'almaseo-seo-playground'); ?>
+                                </div>
+                                <div id="almaseo-faq-rows">
+                                    <?php
+                                    $faq_render = !empty($faq_pairs) ? $faq_pairs : array(array('question' => '', 'answer' => ''));
+                                    foreach ($faq_render as $i => $fp):
+                                    ?>
+                                    <div class="almaseo-faq-row" style="margin-bottom: 12px; padding: 12px; background: #fff; border: 1px solid #e2e4e7; border-radius: 5px;">
+                                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                                            <span style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.4px;"><?php esc_html_e('Question', 'almaseo-seo-playground'); ?></span>
+                                            <button type="button" class="button-link almaseo-faq-remove" style="margin-left: auto; color: #b32d2e; text-decoration: none; font-size: 12px;" aria-label="<?php esc_attr_e('Remove this question', 'almaseo-seo-playground'); ?>">✕ <?php esc_html_e('Remove', 'almaseo-seo-playground'); ?></button>
+                                        </div>
+                                        <input type="text" name="almaseo_faq[<?php echo (int)$i; ?>][question]" value="<?php echo esc_attr($fp['question']); ?>" class="almaseo-input" style="width: 100%; margin-bottom: 8px;" placeholder="<?php esc_attr_e('e.g. How long does shipping take?', 'almaseo-seo-playground'); ?>" />
+                                        <span style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.4px; display: block; margin-bottom: 4px;"><?php esc_html_e('Answer', 'almaseo-seo-playground'); ?></span>
+                                        <textarea name="almaseo_faq[<?php echo (int)$i; ?>][answer]" rows="3" class="almaseo-input" style="width: 100%;" placeholder="<?php esc_attr_e('Most orders arrive within 3–5 business days.', 'almaseo-seo-playground'); ?>"><?php echo esc_textarea($fp['answer']); ?></textarea>
+                                    </div>
+                                    <?php endforeach; ?>
+                                </div>
+                                <button type="button" id="almaseo-faq-add" class="button button-secondary" style="font-size: 12px;">＋ <?php esc_html_e('Add question', 'almaseo-seo-playground'); ?></button>
+                                <script>
+                                (function(){
+                                    var wrap = document.getElementById('almaseo-faqpage-fields');
+                                    if (!wrap || wrap.getAttribute('data-faq-init')) return;
+                                    wrap.setAttribute('data-faq-init', '1');
+                                    var rows = document.getElementById('almaseo-faq-rows');
+                                    var addBtn = document.getElementById('almaseo-faq-add');
+                                    // Monotonic index so dynamically-added rows never collide with
+                                    // existing ones; PHP re-indexes on save, so gaps are harmless.
+                                    var counter = rows ? rows.querySelectorAll('.almaseo-faq-row').length : 0;
+                                    function rowHTML(i){
+                                        return '<div class="almaseo-faq-row" style="margin-bottom:12px;padding:12px;background:#fff;border:1px solid #e2e4e7;border-radius:5px;">'
+                                          + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'
+                                          + '<span style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.4px;"><?php echo esc_js(__('Question', 'almaseo-seo-playground')); ?></span>'
+                                          + '<button type="button" class="button-link almaseo-faq-remove" style="margin-left:auto;color:#b32d2e;text-decoration:none;font-size:12px;">✕ <?php echo esc_js(__('Remove', 'almaseo-seo-playground')); ?></button>'
+                                          + '</div>'
+                                          + '<input type="text" name="almaseo_faq['+i+'][question]" value="" class="almaseo-input" style="width:100%;margin-bottom:8px;" placeholder="<?php echo esc_js(__('e.g. How long does shipping take?', 'almaseo-seo-playground')); ?>" />'
+                                          + '<span style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.4px;display:block;margin-bottom:4px;"><?php echo esc_js(__('Answer', 'almaseo-seo-playground')); ?></span>'
+                                          + '<textarea name="almaseo_faq['+i+'][answer]" rows="3" class="almaseo-input" style="width:100%;" placeholder="<?php echo esc_js(__('Most orders arrive within 3–5 business days.', 'almaseo-seo-playground')); ?>"></textarea>'
+                                          + '</div>';
+                                    }
+                                    if (addBtn) {
+                                        addBtn.addEventListener('click', function(){
+                                            var tmp = document.createElement('div');
+                                            tmp.innerHTML = rowHTML(counter++);
+                                            rows.appendChild(tmp.firstChild);
+                                        });
+                                    }
+                                    // Event-delegated remove so it survives Gutenberg re-renders.
+                                    wrap.addEventListener('click', function(e){
+                                        var btn = e.target.closest ? e.target.closest('.almaseo-faq-remove') : null;
+                                        if (!btn) return;
+                                        e.preventDefault();
+                                        var row = btn.closest('.almaseo-faq-row');
+                                        if (row && row.parentNode) row.parentNode.removeChild(row);
+                                    });
+                                })();
+                                </script>
+                            </div>
+
+                            <!-- How-To Fields (shown when HowTo is the primary type OR a checked
+                                 secondary type). Editor-agnostic steps editor → _almaseo_howto_*
+                                 meta; no Gutenberg How-To block required. -->
+                            <?php
+                            $howto_name        = get_post_meta($post->ID, '_almaseo_howto_name', true);
+                            $howto_description = get_post_meta($post->ID, '_almaseo_howto_description', true);
+                            $howto_steps       = get_post_meta($post->ID, '_almaseo_howto_steps', true);
+                            $show_howto = ( $primary_type === 'HowTo' || $current_schema === 'HowTo' );
+                            ?>
+                            <div id="almaseo-howto-fields" style="<?php echo esc_attr(($show_howto ? '' : 'display:none; ') . 'margin-top: 15px; padding: 15px; background: #f9fafb; border: 1px solid #e2e4e7; border-radius: 6px;'); ?>">
+                                <h4 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 600; color: #1d2327;">🧭 <?php esc_html_e('How-To Steps', 'almaseo-seo-playground'); ?></h4>
+                                <div style="margin-bottom: 14px; padding: 10px 12px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 12px; color: #475569; line-height: 1.5;">
+                                    <?php esc_html_e('Describe a task as a numbered set of steps for a How-To rich result. Name and description are optional — they fall back to your SEO title/description above. Enter one step per line, then click Update to save.', 'almaseo-seo-playground'); ?>
+                                </div>
+                                <div class="almaseo-field-group">
+                                    <label for="almaseo_howto_name" style="font-size: 12px; font-weight: 600;"><?php esc_html_e('How-To Name (optional)', 'almaseo-seo-playground'); ?></label>
+                                    <input type="text" id="almaseo_howto_name" name="almaseo_howto_name" class="almaseo-input" style="width: 100%;" value="<?php echo esc_attr($howto_name); ?>" placeholder="<?php esc_attr_e('e.g. How to reset your password', 'almaseo-seo-playground'); ?>" />
+                                </div>
+                                <div class="almaseo-field-group">
+                                    <label for="almaseo_howto_description" style="font-size: 12px; font-weight: 600;"><?php esc_html_e('Short Description (optional)', 'almaseo-seo-playground'); ?></label>
+                                    <textarea id="almaseo_howto_description" name="almaseo_howto_description" rows="2" class="almaseo-input" style="width: 100%;" placeholder="<?php esc_attr_e('A one-sentence summary of what this guide covers.', 'almaseo-seo-playground'); ?>"><?php echo esc_textarea($howto_description); ?></textarea>
+                                </div>
+                                <div class="almaseo-field-group" style="margin-bottom: 0;">
+                                    <label for="almaseo_howto_steps" style="font-size: 12px; font-weight: 600;"><?php esc_html_e('Steps', 'almaseo-seo-playground'); ?></label>
+                                    <textarea id="almaseo_howto_steps" name="almaseo_howto_steps" rows="6" class="almaseo-input" style="width: 100%; font-family: monospace; font-size: 12px;" placeholder="<?php esc_attr_e('Open Settings &gt; Account.&#10;Click Reset password.&#10;Enter your new password twice.&#10;Click Save.', 'almaseo-seo-playground'); ?>"><?php echo esc_textarea($howto_steps); ?></textarea>
+                                    <p class="field-hint" style="margin: 3px 0 0 0; font-size: 11px;"><?php esc_html_e('One step per line. Each becomes a HowToStep. Up to 20 steps.', 'almaseo-seo-playground'); ?></p>
+                                </div>
+                            </div>
+
                             <!-- Generic typed-panel show/hide based on selected schema type
                                  AND the "Also describe this page as:" secondary checkboxes.
                                  A panel shows if its type is the primary OR a checked secondary.
@@ -3307,7 +3420,9 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                     'Event':        'almaseo-event-fields',
                                     'Recipe':       'almaseo-recipe-fields',
                                     'LocalBusiness': 'almaseo-localbusiness-fields',
-                                    'Service':      'almaseo-service-fields'
+                                    'Service':      'almaseo-service-fields',
+                                    'FAQPage':      'almaseo-faqpage-fields',
+                                    'HowTo':        'almaseo-howto-fields'
                                 };
 
                                 function getActiveTypes() {
@@ -3419,8 +3534,8 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 // Build secondary checkbox list from the same options as the
                                 // primary dropdown, minus Article (default fallback — no panel).
                                 $secondary_hints = array(
-                                    'FAQPage'       => 'only if the page has a visible Q&A section',
-                                    'HowTo'         => 'only if it has step-by-step instructions',
+                                    'FAQPage'       => 'opens a Q&A editor below — no page content needed',
+                                    'HowTo'         => 'opens a step-by-step editor below',
                                     'LocalBusiness' => 'only if customers visit a physical address',
                                     'Service'       => 'only for a specific service you offer',
                                     'Product'       => 'only for a sellable product (price/availability)',

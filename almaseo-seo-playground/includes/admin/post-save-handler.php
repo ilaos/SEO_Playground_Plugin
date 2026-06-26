@@ -176,6 +176,37 @@ function almaseo_save_seo_playground_meta($post_id) {
     // secondary types (or chosen as the primary type), so the old standalone
     // is_faqpage / is_howto toggles were removed in 1.19.40.
 
+    // FAQ Q&A pairs (FAQPage schema) — authored in the metabox repeater so the
+    // markup never depends on the page content or the Gutenberg FAQ block.
+    // Stored as a JSON array of {question, answer}; empty rows are dropped and
+    // the list is re-indexed. Only touched when the field is submitted.
+    if (isset($_POST['almaseo_faq']) && is_array($_POST['almaseo_faq'])) {
+        $faq_clean = array();
+        foreach (wp_unslash($_POST['almaseo_faq']) as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+            $q = isset($row['question']) ? sanitize_text_field($row['question']) : '';
+            $a = isset($row['answer']) ? sanitize_textarea_field($row['answer']) : '';
+            if ($q === '' || $a === '') {
+                continue;
+            }
+            $faq_clean[] = array('question' => $q, 'answer' => $a);
+        }
+        update_post_meta($post_id, '_almaseo_faq_pairs', wp_json_encode($faq_clean));
+    }
+
+    // How-To fields (HowTo schema) — name/description optional, steps one per line.
+    if (isset($_POST['almaseo_howto_name'])) {
+        update_post_meta($post_id, '_almaseo_howto_name', sanitize_text_field(wp_unslash($_POST['almaseo_howto_name'])));
+    }
+    if (isset($_POST['almaseo_howto_description'])) {
+        update_post_meta($post_id, '_almaseo_howto_description', sanitize_textarea_field(wp_unslash($_POST['almaseo_howto_description'])));
+    }
+    if (isset($_POST['almaseo_howto_steps'])) {
+        update_post_meta($post_id, '_almaseo_howto_steps', sanitize_textarea_field(wp_unslash($_POST['almaseo_howto_steps'])));
+    }
+
     // Service schema fields
     if (isset($_POST['almaseo_service_type'])) {
         update_post_meta($post_id, '_almaseo_service_type', sanitize_text_field(wp_unslash($_POST['almaseo_service_type'])));

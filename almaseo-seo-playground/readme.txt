@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.45
+Stable tag: 1.20.0
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,14 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.20.0 =
+**Schema & Meta: author FAQ and How-To rich results right in the editor**
+
+* New: FAQPage now opens a Questions & Answers editor in the Schema & Meta tab. Add Q&A pairs directly — they no longer have to exist as headings in your page content, and you don't need the Gutenberg FAQ block. Works in the Classic Editor and with page builders.
+* New: HowTo now opens a How-To editor (optional name/description plus one step per line) in the Schema & Meta tab, the same editor-agnostic way.
+* Fix: Selecting FAQPage or HowTo used to emit empty, invalid schema (no questions/steps) because it silently scraped the content for a specific HTML pattern. The schema now builds from what you enter, so it validates and shows up in Google's Rich Results Test. Existing pages that relied on content-scraping still work as a fallback.
+* Both types remain available as the primary type and as additional "Also describe this page as" types, so multi-schema pages are unchanged.
 
 = 1.19.45 =
 **LLM Optimization: accurate analysis input, out of beta**
