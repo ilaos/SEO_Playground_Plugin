@@ -2429,6 +2429,84 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             </small>
                         </div>
 
+                        <?php
+                        // --- Additional Schema Types (multi-schema) ---
+                        // A page can describe multiple things at once (e.g. a band that's
+                        // also a venue → MusicGroup + LocalBusiness). The primary type above
+                        // is what the page IS; these are additional facets. Output is a
+                        // JSON-LD @graph with one node per checked type.
+                        $secondary_raw = get_post_meta($post->ID, '_almaseo_schema_secondary_types', true);
+                        $secondary_active = array();
+                        if ($secondary_raw) {
+                            $decoded = is_array($secondary_raw) ? $secondary_raw : json_decode($secondary_raw, true);
+                            if (is_array($decoded)) {
+                                $secondary_active = array_values(array_filter($decoded));
+                            }
+                        }
+                        // Gated behind its own Pro feature flag (schema_multi) rather than
+                        // the broader schema_advanced gate, so multi-schema can be priced/
+                        // marketed independently. During dev both flags pass because
+                        // almaseo_is_pro_active() defaults to 'pro'; flips to enforced
+                        // when the tier-sync endpoint goes live.
+                        $multi_schema_unlocked = almaseo_feature_available('schema_multi');
+                        if ($multi_schema_unlocked):
+                        ?>
+                        <div style="margin-top: 18px; padding-top: 14px; border-top: 1px dashed #dcdcde;">
+                            <label style="font-weight: 600; font-size: 13px; display: block; margin-bottom: 4px;">
+                                <?php esc_html_e('Also describe this page as:', 'almaseo-seo-playground'); ?>
+                                <span style="font-weight: normal; color: #94a3b8; font-size: 11px; margin-left: 4px;"><?php esc_html_e('(optional — adds a separate node to the JSON-LD @graph)', 'almaseo-seo-playground'); ?></span>
+                                <span class="almaseo-tier-badge almaseo-tier-pro" style="display: inline-block; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 1px 5px; border-radius: 3px; line-height: 1.4; vertical-align: middle; margin-left: 4px; background: rgba(107, 33, 168, 0.15); color: #6b21a8;">PRO</span>
+                            </label>
+                            <p class="field-hint" style="margin: 0 0 8px 0; font-size: 11px;">
+                                <?php esc_html_e('Use when one page genuinely represents more than one entity. Each checked type opens its own field panel below.', 'almaseo-seo-playground'); ?>
+                            </p>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px 12px; padding: 10px 12px; background: #f9fafb; border: 1px solid #e2e4e7; border-radius: 4px;">
+                                <?php
+                                // Build secondary checkbox list from the same options as the
+                                // primary dropdown, minus Article (default fallback — no panel).
+                                $secondary_hints = array(
+                                    'FAQPage'       => 'opens a Q&A editor below — no page content needed',
+                                    'HowTo'         => 'opens a step-by-step editor below',
+                                    'LocalBusiness' => 'only if customers visit a physical address',
+                                    'Service'       => 'only for a specific service you offer',
+                                    'Product'       => 'only for a sellable product (price/availability)',
+                                    'Event'         => 'only for a specific dated event',
+                                    'Person'        => 'only for a page about one individual',
+                                    'Organization'  => 'usually only on the homepage / about page',
+                                    'MusicGroup'    => 'only for a band or artist page',
+                                    'Recipe'        => 'only for a cooking recipe',
+                                );
+                                foreach ($schema_options as $opt) {
+                                    if ($opt['value'] === 'Article' || $opt['locked']) continue;
+                                    $opt_hint = isset($secondary_hints[$opt['value']]) ? $secondary_hints[$opt['value']] : '';
+                                    $is_checked = in_array($opt['value'], $secondary_active, true);
+                                    $is_primary = ($opt['value'] === $current_schema);
+                                    ?>
+                                    <label style="display: flex; align-items: flex-start; gap: 6px; font-size: 12px; cursor: <?php echo $is_primary ? 'not-allowed' : 'pointer'; ?>; opacity: <?php echo $is_primary ? '0.45' : '1'; ?>;">
+                                        <input type="checkbox"
+                                               class="almaseo-secondary-schema-cb"
+                                               name="almaseo_schema_secondary_types[]"
+                                               value="<?php echo esc_attr($opt['value']); ?>"
+                                               data-type="<?php echo esc_attr($opt['value']); ?>"
+                                               <?php checked($is_checked); ?>
+                                               <?php disabled($is_primary); ?>
+                                               style="margin-top: 2px;" />
+                                        <span>
+                                            <?php echo esc_html(preg_replace('/\s*\(.*$/', '', $opt['label'])); ?>
+                                            <?php if ($is_primary): ?><em style="color: #94a3b8; font-size: 10px;"> <?php esc_html_e('(primary)', 'almaseo-seo-playground'); ?></em><?php endif; ?>
+                                            <?php if ($opt_hint): ?><br><span style="color: #94a3b8; font-size: 10px;"><?php echo esc_html($opt_hint); ?></span><?php endif; ?>
+                                        </span>
+                                    </label>
+                                <?php } ?>
+                            </div>
+                            <!-- LocalBusiness-specific guidance: most-misused schema type. -->
+                            <div id="almaseo-lb-usage-note" style="display: none; margin-top: 8px; padding: 8px 12px; background: #fff8e5; border-left: 3px solid #dba617; border-radius: 3px; font-size: 11px; color: #5c4a00; line-height: 1.5;">
+                                <strong>⚠ <?php esc_html_e('LocalBusiness usage tip:', 'almaseo-seo-playground'); ?></strong>
+                                <?php esc_html_e('Use this only when customers physically visit your address (storefront, restaurant, clinic, studio). For service-area businesses that travel to clients (wedding bands, plumbers, mobile groomers), prefer the primary type with `areaServed` instead — adding LocalBusiness without a real visitable address can mislead Google\'s entity resolution and trigger the wrong rich result.', 'almaseo-seo-playground'); ?>
+                            </div>
+                        </div>
+                        <?php endif; // $multi_schema_unlocked ?>
+
                     <!-- Advanced Schema (Pro) -->
                     <div class="almaseo-field-group" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #dcdcde;">
                         <h4 style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #1d2327;">
@@ -3517,83 +3595,6 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             </div>
                         <?php endif; ?>
                     </div>
-                        <?php
-                        // --- Additional Schema Types (multi-schema) ---
-                        // A page can describe multiple things at once (e.g. a band that's
-                        // also a venue → MusicGroup + LocalBusiness). The primary type above
-                        // is what the page IS; these are additional facets. Output is a
-                        // JSON-LD @graph with one node per checked type.
-                        $secondary_raw = get_post_meta($post->ID, '_almaseo_schema_secondary_types', true);
-                        $secondary_active = array();
-                        if ($secondary_raw) {
-                            $decoded = is_array($secondary_raw) ? $secondary_raw : json_decode($secondary_raw, true);
-                            if (is_array($decoded)) {
-                                $secondary_active = array_values(array_filter($decoded));
-                            }
-                        }
-                        // Gated behind its own Pro feature flag (schema_multi) rather than
-                        // the broader schema_advanced gate, so multi-schema can be priced/
-                        // marketed independently. During dev both flags pass because
-                        // almaseo_is_pro_active() defaults to 'pro'; flips to enforced
-                        // when the tier-sync endpoint goes live.
-                        $multi_schema_unlocked = almaseo_feature_available('schema_multi');
-                        if ($multi_schema_unlocked):
-                        ?>
-                        <div style="margin-top: 18px; padding-top: 14px; border-top: 1px dashed #dcdcde;">
-                            <label style="font-weight: 600; font-size: 13px; display: block; margin-bottom: 4px;">
-                                <?php esc_html_e('Also describe this page as:', 'almaseo-seo-playground'); ?>
-                                <span style="font-weight: normal; color: #94a3b8; font-size: 11px; margin-left: 4px;"><?php esc_html_e('(optional — adds a separate node to the JSON-LD @graph)', 'almaseo-seo-playground'); ?></span>
-                                <span class="almaseo-tier-badge almaseo-tier-pro" style="display: inline-block; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 1px 5px; border-radius: 3px; line-height: 1.4; vertical-align: middle; margin-left: 4px; background: rgba(107, 33, 168, 0.15); color: #6b21a8;">PRO</span>
-                            </label>
-                            <p class="field-hint" style="margin: 0 0 8px 0; font-size: 11px;">
-                                <?php esc_html_e('Use when one page genuinely represents more than one entity. Each checked type opens its own field panel below.', 'almaseo-seo-playground'); ?>
-                            </p>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px 12px; padding: 10px 12px; background: #f9fafb; border: 1px solid #e2e4e7; border-radius: 4px;">
-                                <?php
-                                // Build secondary checkbox list from the same options as the
-                                // primary dropdown, minus Article (default fallback — no panel).
-                                $secondary_hints = array(
-                                    'FAQPage'       => 'opens a Q&A editor below — no page content needed',
-                                    'HowTo'         => 'opens a step-by-step editor below',
-                                    'LocalBusiness' => 'only if customers visit a physical address',
-                                    'Service'       => 'only for a specific service you offer',
-                                    'Product'       => 'only for a sellable product (price/availability)',
-                                    'Event'         => 'only for a specific dated event',
-                                    'Person'        => 'only for a page about one individual',
-                                    'Organization'  => 'usually only on the homepage / about page',
-                                    'MusicGroup'    => 'only for a band or artist page',
-                                    'Recipe'        => 'only for a cooking recipe',
-                                );
-                                foreach ($schema_options as $opt) {
-                                    if ($opt['value'] === 'Article' || $opt['locked']) continue;
-                                    $opt_hint = isset($secondary_hints[$opt['value']]) ? $secondary_hints[$opt['value']] : '';
-                                    $is_checked = in_array($opt['value'], $secondary_active, true);
-                                    $is_primary = ($opt['value'] === $current_schema);
-                                    ?>
-                                    <label style="display: flex; align-items: flex-start; gap: 6px; font-size: 12px; cursor: <?php echo $is_primary ? 'not-allowed' : 'pointer'; ?>; opacity: <?php echo $is_primary ? '0.45' : '1'; ?>;">
-                                        <input type="checkbox"
-                                               class="almaseo-secondary-schema-cb"
-                                               name="almaseo_schema_secondary_types[]"
-                                               value="<?php echo esc_attr($opt['value']); ?>"
-                                               data-type="<?php echo esc_attr($opt['value']); ?>"
-                                               <?php checked($is_checked); ?>
-                                               <?php disabled($is_primary); ?>
-                                               style="margin-top: 2px;" />
-                                        <span>
-                                            <?php echo esc_html(preg_replace('/\s*\(.*$/', '', $opt['label'])); ?>
-                                            <?php if ($is_primary): ?><em style="color: #94a3b8; font-size: 10px;"> <?php esc_html_e('(primary)', 'almaseo-seo-playground'); ?></em><?php endif; ?>
-                                            <?php if ($opt_hint): ?><br><span style="color: #94a3b8; font-size: 10px;"><?php echo esc_html($opt_hint); ?></span><?php endif; ?>
-                                        </span>
-                                    </label>
-                                <?php } ?>
-                            </div>
-                            <!-- LocalBusiness-specific guidance: most-misused schema type. -->
-                            <div id="almaseo-lb-usage-note" style="display: none; margin-top: 8px; padding: 8px 12px; background: #fff8e5; border-left: 3px solid #dba617; border-radius: 3px; font-size: 11px; color: #5c4a00; line-height: 1.5;">
-                                <strong>⚠ <?php esc_html_e('LocalBusiness usage tip:', 'almaseo-seo-playground'); ?></strong>
-                                <?php esc_html_e('Use this only when customers physically visit your address (storefront, restaurant, clinic, studio). For service-area businesses that travel to clients (wedding bands, plumbers, mobile groomers), prefer the primary type with `areaServed` instead — adding LocalBusiness without a real visitable address can mislead Google\'s entity resolution and trigger the wrong rich result.', 'almaseo-seo-playground'); ?>
-                            </div>
-                        </div>
-                        <?php endif; // $multi_schema_unlocked ?>
                     </div>
 
                     <!-- Validator callout — a prominent card (not plain buttons) so

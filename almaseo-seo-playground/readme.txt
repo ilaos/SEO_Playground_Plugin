@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.20.1
+Stable tag: 1.20.2
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.20.2 =
+**Schema & Meta: type detail fields now sit below the selectors**
+
+* Moved the "Also describe this page as" picker above the type detail panels, so when you choose a type (primary or additional) its fields open underneath the picker where you'd expect — instead of above it.
 
 = 1.20.1 =
 **No duplicate FAQ/How-To schema when a block is also used**
