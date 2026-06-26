@@ -513,13 +513,76 @@ function almaseo_build_article_node($post, $type = 'Article') {
 } // end function_exists guard: almaseo_build_article_node
 
 /**
+ * Whether the post content contains a populated AlmaSEO schema block.
+ *
+ * Used to avoid emitting a duplicate FAQPage/HowTo node from the metabox when
+ * the matching Gutenberg block (which renders its own JSON-LD from the visible
+ * content) is already present. Recurses into innerBlocks so a block nested in
+ * a Group/Columns layout is still detected. "Populated" means at least one item
+ * with a non-empty field — mirroring each block's own "skip if empty" rule, so
+ * an empty block placeholder does NOT suppress the metabox node.
+ *
+ * @param WP_Post $post
+ * @param string  $block_name e.g. 'almaseo/faq'
+ * @param string  $attr_key   array attribute holding the items, e.g. 'questions'
+ * @return bool
+ */
+if (!function_exists('almaseo_content_has_schema_block')) {
+function almaseo_content_has_schema_block($post, $block_name, $attr_key) {
+    if (!$post || empty($post->post_content)) {
+        return false;
+    }
+    if (!function_exists('has_block') || !has_block($block_name, $post)) {
+        return false;
+    }
+    if (!function_exists('parse_blocks')) {
+        return true; // has_block matched; assume populated without a parser
+    }
+    $stack = parse_blocks($post->post_content);
+    while (!empty($stack)) {
+        $block = array_pop($stack);
+        if (isset($block['blockName']) && $block['blockName'] === $block_name) {
+            $items = isset($block['attrs'][$attr_key]) ? $block['attrs'][$attr_key] : null;
+            if (is_array($items)) {
+                foreach ($items as $item) {
+                    if (is_array($item)) {
+                        foreach ($item as $val) {
+                            if (trim((string) $val) !== '') {
+                                return true;
+                            }
+                        }
+                    } elseif (trim((string) $item) !== '') {
+                        return true;
+                    }
+                }
+            }
+        }
+        if (!empty($block['innerBlocks'])) {
+            foreach ($block['innerBlocks'] as $inner) {
+                $stack[] = $inner;
+            }
+        }
+    }
+    return false;
+}
+} // end function_exists guard: almaseo_content_has_schema_block
+
+/**
  * Build FAQPage node
  *
  * @param WP_Post $post Current post
- * @return array FAQPage node
+ * @return array|null FAQPage node, or null when an FAQ block already owns it
  */
 if (!function_exists('almaseo_build_faqpage_node')) {
 function almaseo_build_faqpage_node($post) {
+    // Defer to a populated FAQ block: it emits its own FAQPage JSON-LD from the
+    // visible Q&A, so emitting here too would put two FAQPage nodes on the page
+    // (Google flags duplicate FAQ markup). The block wins because its content is
+    // visible, which is what Google wants FAQ structured data to match.
+    if (almaseo_content_has_schema_block($post, 'almaseo/faq', 'questions')) {
+        return null;
+    }
+
     $seo_title = get_post_meta($post->ID, '_almaseo_title', true);
     $headline = $seo_title ?: get_the_title($post->ID);
 
@@ -616,6 +679,12 @@ function almaseo_extract_qa_pairs($content) {
  */
 if (!function_exists('almaseo_build_howto_node')) {
 function almaseo_build_howto_node($post) {
+    // Defer to a populated How-To block (same duplicate-avoidance rationale as
+    // the FAQ guard above): it emits its own HowTo JSON-LD from visible steps.
+    if (almaseo_content_has_schema_block($post, 'almaseo/howto', 'steps')) {
+        return null;
+    }
+
     $seo_title = get_post_meta($post->ID, '_almaseo_title', true);
     $seo_description = get_post_meta($post->ID, '_almaseo_description', true);
     // Metabox How-To name/description take precedence; then SEO meta; then post.

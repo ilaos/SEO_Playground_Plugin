@@ -3314,12 +3314,23 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 }
                             }
                             $show_faq = ( $primary_type === 'FAQPage' || $current_schema === 'FAQPage' );
+                            // If a populated FAQ block is already in the content, the schema
+                            // output defers to it (no duplicate FAQPage node) — warn here so the
+                            // user understands why the fields below won't take effect.
+                            $faq_block_present = function_exists('almaseo_content_has_schema_block')
+                                && almaseo_content_has_schema_block($post, 'almaseo/faq', 'questions');
                             ?>
                             <div id="almaseo-faqpage-fields" style="<?php echo esc_attr(($show_faq ? '' : 'display:none; ') . 'margin-top: 15px; padding: 15px; background: #f9fafb; border: 1px solid #e2e4e7; border-radius: 6px;'); ?>">
                                 <h4 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 600; color: #1d2327;">❓ <?php esc_html_e('FAQ (Questions &amp; Answers)', 'almaseo-seo-playground'); ?></h4>
                                 <div style="margin-bottom: 14px; padding: 10px 12px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 12px; color: #475569; line-height: 1.5;">
                                     <?php esc_html_e('Add the questions and answers you want Google to show as an FAQ rich result. You write them here directly — they do not need to appear in the page content. Enter at least one full question and answer, then click Update to save.', 'almaseo-seo-playground'); ?>
                                 </div>
+                                <?php if ($faq_block_present): ?>
+                                <div style="margin: 0 0 12px 0; padding: 8px 12px; background: #fff8e5; border-left: 3px solid #dba617; border-radius: 3px; font-size: 11px; color: #5c4a00; line-height: 1.5;">
+                                    <strong>⚠ <?php esc_html_e('FAQ block detected in this page.', 'almaseo-seo-playground'); ?></strong>
+                                    <?php esc_html_e('That block already outputs FAQ schema from its visible Q&A, so to avoid duplicate markup the questions below are ignored while it is present. Remove the FAQ block if you would rather manage the FAQ here.', 'almaseo-seo-playground'); ?>
+                                </div>
+                                <?php endif; ?>
                                 <div id="almaseo-faq-rows">
                                     <?php
                                     $faq_render = !empty($faq_pairs) ? $faq_pairs : array(array('question' => '', 'answer' => ''));
@@ -3385,12 +3396,20 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             $howto_description = get_post_meta($post->ID, '_almaseo_howto_description', true);
                             $howto_steps       = get_post_meta($post->ID, '_almaseo_howto_steps', true);
                             $show_howto = ( $primary_type === 'HowTo' || $current_schema === 'HowTo' );
+                            $howto_block_present = function_exists('almaseo_content_has_schema_block')
+                                && almaseo_content_has_schema_block($post, 'almaseo/howto', 'steps');
                             ?>
                             <div id="almaseo-howto-fields" style="<?php echo esc_attr(($show_howto ? '' : 'display:none; ') . 'margin-top: 15px; padding: 15px; background: #f9fafb; border: 1px solid #e2e4e7; border-radius: 6px;'); ?>">
                                 <h4 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 600; color: #1d2327;">🧭 <?php esc_html_e('How-To Steps', 'almaseo-seo-playground'); ?></h4>
                                 <div style="margin-bottom: 14px; padding: 10px 12px; background: #fff; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 12px; color: #475569; line-height: 1.5;">
                                     <?php esc_html_e('Describe a task as a numbered set of steps for a How-To rich result. Name and description are optional — they fall back to your SEO title/description above. Enter one step per line, then click Update to save.', 'almaseo-seo-playground'); ?>
                                 </div>
+                                <?php if ($howto_block_present): ?>
+                                <div style="margin: 0 0 12px 0; padding: 8px 12px; background: #fff8e5; border-left: 3px solid #dba617; border-radius: 3px; font-size: 11px; color: #5c4a00; line-height: 1.5;">
+                                    <strong>⚠ <?php esc_html_e('How-To block detected in this page.', 'almaseo-seo-playground'); ?></strong>
+                                    <?php esc_html_e('That block already outputs How-To schema from its visible steps, so to avoid duplicate markup the fields below are ignored while it is present. Remove the How-To block if you would rather manage the steps here.', 'almaseo-seo-playground'); ?>
+                                </div>
+                                <?php endif; ?>
                                 <div class="almaseo-field-group">
                                     <label for="almaseo_howto_name" style="font-size: 12px; font-weight: 600;"><?php esc_html_e('How-To Name (optional)', 'almaseo-seo-playground'); ?></label>
                                     <input type="text" id="almaseo_howto_name" name="almaseo_howto_name" class="almaseo-input" style="width: 100%;" value="<?php echo esc_attr($howto_name); ?>" placeholder="<?php esc_attr_e('e.g. How to reset your password', 'almaseo-seo-playground'); ?>" />

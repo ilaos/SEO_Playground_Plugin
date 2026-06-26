@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.20.0
+Stable tag: 1.20.1
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,12 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.20.1 =
+**No duplicate FAQ/How-To schema when a block is also used**
+
+* If a page uses the FAQ block or How-To block (which output their own schema from the visible content), the matching metabox editor now steps aside so the page never ships two FAQPage/HowTo nodes. The Schema & Meta tab shows a notice explaining the block is in control.
+* Empty block placeholders do not suppress the metabox editor — only a block with real questions/steps does.
 
 = 1.20.0 =
 **Schema & Meta: author FAQ and How-To rich results right in the editor**
