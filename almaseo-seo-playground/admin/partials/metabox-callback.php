@@ -402,7 +402,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 </button>
                 <button type="button" class="almaseo-tab-btn" data-tab="search-console">
                     <span class="tab-icon">📈</span>
-                    <span class="tab-label">Search Console</span>
+                    <span class="tab-label">Google Search Console</span>
                 </button>
                 <button type="button" class="almaseo-tab-btn" data-tab="schema-meta">
                     <span class="tab-icon">🧩</span>
@@ -410,7 +410,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 </button>
                 <button type="button" class="almaseo-tab-btn" data-tab="analytics">
                     <span class="tab-icon">📊</span>
-                    <span class="tab-label">Analytics</span>
+                    <span class="tab-label">Google Analytics</span>
                 </button>
                 <button type="button" class="almaseo-tab-btn" data-tab="llm-optimization">
                     <span class="tab-icon">🤖</span>
@@ -1416,6 +1416,9 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             <span class="gsc-badge-dot"></span>
                             Indexed by Google
                         </div>
+                        <div style="margin-top: 16px;">
+                            <button type="button" id="gsc-nodata-refresh" class="gsc-state-btn gsc-btn-secondary">Refresh data</button>
+                        </div>
                     </div>
                 </div>
 
@@ -2116,6 +2119,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     setTimeout(function() { $('#gsc-refresh-btn').removeClass('spinning'); }, 1000);
                 });
                 $('#gsc-retry-btn').on('click', fetchGSCData);
+                $(document).on('click', '#gsc-nodata-refresh', fetchGSCData);
 
                 // "Connect Search Console" button — triggers the first data fetch
                 // to check if GSC is actually connected on the dashboard
@@ -4152,6 +4156,9 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         <p class="gsc-state-description">
                             This page hasn't recorded any visits in the selected time period. This is normal for newer or low-traffic pages.
                         </p>
+                        <div style="margin-top: 8px;">
+                            <button type="button" id="ga-nodata-refresh" class="gsc-state-btn gsc-btn-secondary">Refresh data</button>
+                        </div>
                     </div>
                 </div>
 
@@ -4514,6 +4521,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     setTimeout(function() { $('#ga-refresh-btn').removeClass('spinning'); }, 1000);
                 });
                 $('#ga-retry-btn').on('click', fetchGAData);
+                $(document).on('click', '#ga-nodata-refresh', fetchGAData);
                 $(document).on('click', '#ga-connect-btn', function(e) { e.preventDefault(); fetchGAData(); });
 
                 // Auto-load the first time the Analytics tab is opened (and after a

@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.42
+Stable tag: 1.19.43
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,12 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.43 =
+**Google Search Console & Google Analytics tabs: branding + refresh**
+
+* The "Search Console" and "Analytics" editor tabs are now labeled "Google Search Console" and "Google Analytics".
+* Added a Refresh button to the "no data yet" state of both tabs, so you can re-check without reloading the page (previously the refresh control only appeared once data was already showing).
 
 = 1.19.42 =
 **Analytics tab: auto-load data + per-post security**
