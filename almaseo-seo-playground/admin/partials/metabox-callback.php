@@ -1522,6 +1522,9 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         </div>
                     </div>
 
+                    <!-- Opportunities (computed client-side from the queries above) -->
+                    <div class="gsc-opportunities" id="gsc-opportunities" style="display: none; padding: 0 20px;"></div>
+
                     <!-- Last Updated -->
                     <div class="gsc-last-updated" id="gsc-last-updated"></div>
                 </div>
@@ -1950,6 +1953,53 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 }
 
                 // Render the data view
+                // Surface actionable opportunities from the top-queries list:
+                //  - CTR opportunities: page-1 queries (pos <= 10) with meaningful
+                //    impressions but lower CTR than typical for their position.
+                //  - Striking distance: page-2 queries (pos 11-20) close to page 1.
+                function renderOpportunities(queries) {
+                    var $box = $('#gsc-opportunities').empty();
+                    if (!queries || !queries.length) { $box.hide(); return; }
+
+                    function expectedCtr(pos) {
+                        var t = {1:0.28,2:0.15,3:0.11,4:0.08,5:0.06,6:0.04,7:0.035,8:0.03,9:0.028,10:0.025};
+                        return t[Math.max(1, Math.min(10, Math.round(pos)))] || 0.025;
+                    }
+                    var ctrOpps = [], striking = [];
+                    queries.forEach(function(q) {
+                        var pos = Number(q.position) || 0, impr = Number(q.impressions) || 0, ctr = Number(q.ctr) || 0;
+                        if (pos >= 1 && pos <= 10 && impr >= 20 && ctr < expectedCtr(pos) * 0.6) { ctrOpps.push(q); }
+                        else if (pos > 10 && pos <= 20 && impr >= 10) { striking.push(q); }
+                    });
+                    function topBy(a, n) {
+                        return a.sort(function(x, y){ return (Number(y.impressions)||0) - (Number(x.impressions)||0); }).slice(0, n);
+                    }
+                    ctrOpps = topBy(ctrOpps, 3); striking = topBy(striking, 3);
+                    if (!ctrOpps.length && !striking.length) { $box.hide(); return; }
+
+                    function groupHtml(title, sub, color, items, showCtr) {
+                        var h = '<div style="margin: 0 0 10px; padding: 12px 14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;">';
+                        h += '<div style="font-size:12px; font-weight:700; color:' + color + ';">' + title + '</div>';
+                        h += '<p style="font-size:11px; color:#64748b; margin:4px 0 8px;">' + sub + '</p>';
+                        h += '<ul style="margin:0; padding:0; list-style:none;">';
+                        items.forEach(function(q) {
+                            var meta = 'pos ' + (Number(q.position)||0).toFixed(1) + (showCtr ? ' &middot; ' + ((Number(q.ctr)||0)*100).toFixed(1) + '% CTR' : '') + ' &middot; ' + formatNumber(Number(q.impressions)||0) + ' impr';
+                            h += '<li style="padding:4px 0; border-bottom:1px solid #eef2f7; font-size:12px; color:#334155;"><span class="gsc-opp-q" style="font-weight:600;"></span> <span style="color:#94a3b8; font-size:11px;">' + meta + '</span></li>';
+                        });
+                        return h + '</ul></div>';
+                    }
+
+                    var html = '<div style="font-size:13px; font-weight:700; color:#1e293b; margin:14px 0 8px;">Opportunities for this page</div>';
+                    if (ctrOpps.length) { html += groupHtml('&uarr; Improve click-through', 'You rank on page 1 for these but get fewer clicks than typical for that position — a sharper title or meta description could win them.', '#b45309', ctrOpps, true); }
+                    if (striking.length) { html += groupHtml('&#9678; Almost on page 1', 'These rank just below page 1 — a little optimization could push them up.', '#1d4ed8', striking, false); }
+
+                    $box.html(html);
+                    // Inject the query text via .text() so a query string can't break the markup.
+                    var allQ = ctrOpps.concat(striking);
+                    $box.find('.gsc-opp-q').each(function(i){ $(this).text(allQ[i] ? allQ[i].query : ''); });
+                    $box.show();
+                }
+
                 function renderData(data) {
                     var m = data.metrics;
 
@@ -1991,6 +2041,9 @@ function almaseo_seo_playground_meta_box_callback($post) {
 
                     // Last updated
                     $('#gsc-last-updated').text('Data last updated: ' + (data.last_updated || 'just now'));
+
+                    // Actionable opportunities computed from the query data
+                    renderOpportunities(data.queries);
 
                     showState('gsc-state-data');
                 }
@@ -2050,6 +2103,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
 
                 // Track whether GSC has been confirmed connected this session
                 var gscConfirmed = false;
+                var gscAttempted = false;
 
                 // Event handlers (only active once data view is showing)
                 $('#gsc-date-range').on('change', function() {
@@ -2078,12 +2132,16 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     origRenderData(data);
                 };
 
-                // Tab activation — only auto-fetch if GSC was previously confirmed
+                // Tab activation — auto-load the data the first time the tab is
+                // opened on this page (and again after a reload), so it persists
+                // without re-clicking "Load Search Data". Attempt at most once per
+                // page load even if GSC isn't connected or returns no data; the
+                // refresh button and date-range selector handle re-fetching after.
                 $(document).on('click', '.almaseo-tab-btn[data-tab="search-console"]', function() {
-                    if (gscConfirmed) {
+                    if (!gscAttempted) {
+                        gscAttempted = true;
                         fetchGSCData();
                     }
-                    // Otherwise State 2 stays visible — user clicks "Connect Search Console"
                 });
             });
             </script>

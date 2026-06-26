@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.40
+Stable tag: 1.19.41
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,12 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.41 =
+**Search Console: auto-load data + actionable opportunities**
+
+* Fix: The Search Console tab now loads this page's data automatically the first time you open the tab (and after a page reload), instead of resetting to the "Load Search Data" prompt every time. The 5-minute cache keeps repeat loads fast; the refresh button and date-range selector still re-fetch on demand.
+* New: An "Opportunities" section under the query table highlights actionable wins from your own query data — page-1 queries with lower-than-typical click-through (sharpen the title/description) and "almost on page 1" queries (positions 11–20) where a little optimization could push them onto page 1.
 
 = 1.19.40 =
 **Schema & Meta: unified FAQ/How-To control + Service details**
