@@ -415,7 +415,6 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 <button type="button" class="almaseo-tab-btn" data-tab="llm-optimization">
                     <span class="tab-icon">🤖</span>
                     <span class="tab-label">LLM Optimization</span>
-                    <span class="tab-badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2px 6px; border-radius: 10px; font-size: 10px; margin-left: 4px;">BETA</span>
                 </button>
                 <button type="button" class="almaseo-tab-btn" data-tab="notes-history">
                     <span class="tab-icon">🗒️</span>
@@ -5717,7 +5716,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
 
             // Check if Pro style is selected but user is not Pro
             if ((selectedStyle === 'qa' || selectedStyle === 'ai_answer') && !isPro) {
-                alert('This summary style requires Pro. Please upgrade to access Q&A Format and LLM Answer styles.');
+                $('.almaseo-llm-status').text('The Q&A / LLM Answer styles require Pro.').css('color', '#b45309').show();
                 $(this).val('concise'); // Reset to concise
                 return;
             }

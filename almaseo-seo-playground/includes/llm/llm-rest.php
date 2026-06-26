@@ -107,11 +107,14 @@ function almaseo_llm_analysis_handler(WP_REST_Request $request) {
  * @return array Post data
  */
 function almaseo_llm_gather_post_data($post_id, $post) {
-    // Get SEO meta fields
-    $seo_title = get_post_meta($post_id, '_seo_playground_title', true);
-    $meta_description = get_post_meta($post_id, '_seo_playground_description', true);
-    $schema_type = get_post_meta($post_id, '_seo_playground_schema_type', true);
-    $keyword_suggestions = get_post_meta($post_id, '_seo_playground_keyword_suggestions', true);
+    // Get SEO meta fields. Read the current _almaseo_* keys first (what the
+    // editor actually saves), falling back to legacy _seo_playground_* keys for
+    // posts last saved by an old version. Without this the analysis was sent an
+    // empty meta description / schema type on every modern post.
+    $seo_title = get_post_meta($post_id, '_almaseo_title', true) ?: get_post_meta($post_id, '_seo_playground_title', true);
+    $meta_description = get_post_meta($post_id, '_almaseo_description', true) ?: get_post_meta($post_id, '_seo_playground_description', true);
+    $schema_type = get_post_meta($post_id, '_almaseo_schema_type', true) ?: get_post_meta($post_id, '_seo_playground_schema_type', true);
+    $keyword_suggestions = get_post_meta($post_id, '_almaseo_focus_keyword', true) ?: get_post_meta($post_id, '_seo_playground_keyword_suggestions', true);
 
     // Strip shortcodes before analysis to prevent [shortcode] text from
     // polluting word counts, entity extraction, and paragraph analysis

@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.44
+Stable tag: 1.19.45
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,13 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.45 =
+**LLM Optimization: accurate analysis input, out of beta**
+
+* Fix: The LLM Optimization analysis was reading legacy meta keys, so on modern posts it analyzed the page with an empty meta description and schema type. It now reads the SEO title, meta description, and schema type you actually set (with legacy fallback), so the analysis reflects the real page.
+* The LLM Optimization tab is no longer labeled "BETA".
+* The Pro-only summary-style notice is now an inline message instead of a browser pop-up alert.
 
 = 1.19.44 =
 **Schema & Meta: remove the persistent save reminder**
