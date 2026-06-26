@@ -2291,7 +2291,8 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 <div class="almaseo-card-body">
                     <div class="almaseo-field-group">
                         <label for="almaseo_schema_type">Schema Type</label>
-                        <select id="almaseo_schema_type" 
+                        <p class="field-hint" style="margin: 0 0 8px 0;">Pick the type that matches the <strong>main</strong> content actually on this page. Schema should describe what's really there — don't add a type for content the page doesn't have.</p>
+                        <select id="almaseo_schema_type"
                                 name="almaseo_schema_type" 
                                 class="almaseo-select">
                             <?php 
@@ -2309,6 +2310,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 array('value' => 'FAQPage',       'label' => 'FAQPage',                      'locked' => !$advanced_unlocked),
                                 array('value' => 'HowTo',         'label' => 'HowTo',                        'locked' => !$advanced_unlocked),
                                 array('value' => 'LocalBusiness', 'label' => 'LocalBusiness',                'locked' => !$advanced_unlocked),
+                                array('value' => 'Service',       'label' => 'Service (Service / Offering)',  'locked' => !$advanced_unlocked),
                                 array('value' => 'MusicGroup',    'label' => 'MusicGroup (Band/Artist)',     'locked' => !$advanced_unlocked),
                                 array('value' => 'Person',        'label' => 'Person (Author/Profile)',      'locked' => !$advanced_unlocked),
                                 array('value' => 'Organization',  'label' => 'Organization (Company/NGO)',   'locked' => !$advanced_unlocked),
@@ -2366,135 +2368,12 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             </small>
                         </div>
 
-                        <?php
-                        // --- Additional Schema Types (multi-schema) ---
-                        // A page can describe multiple things at once (e.g. a band that's
-                        // also a venue → MusicGroup + LocalBusiness). The primary type above
-                        // is what the page IS; these are additional facets. Output is a
-                        // JSON-LD @graph with one node per checked type.
-                        $secondary_raw = get_post_meta($post->ID, '_almaseo_schema_secondary_types', true);
-                        $secondary_active = array();
-                        if ($secondary_raw) {
-                            $decoded = is_array($secondary_raw) ? $secondary_raw : json_decode($secondary_raw, true);
-                            if (is_array($decoded)) {
-                                $secondary_active = array_values(array_filter($decoded));
-                            }
-                        }
-                        // Gated behind its own Pro feature flag (schema_multi) rather than
-                        // the broader schema_advanced gate, so multi-schema can be priced/
-                        // marketed independently. During dev both flags pass because
-                        // almaseo_is_pro_active() defaults to 'pro'; flips to enforced
-                        // when the tier-sync endpoint goes live.
-                        $multi_schema_unlocked = almaseo_feature_available('schema_multi');
-                        if ($multi_schema_unlocked):
-                        ?>
-                        <div style="margin-top: 18px; padding-top: 14px; border-top: 1px dashed #dcdcde;">
-                            <label style="font-weight: 600; font-size: 13px; display: block; margin-bottom: 4px;">
-                                <?php esc_html_e('Also describe this page as:', 'almaseo-seo-playground'); ?>
-                                <span style="font-weight: normal; color: #94a3b8; font-size: 11px; margin-left: 4px;"><?php esc_html_e('(optional — adds a separate node to the JSON-LD @graph)', 'almaseo-seo-playground'); ?></span>
-                                <span class="almaseo-tier-badge almaseo-tier-pro" style="display: inline-block; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 1px 5px; border-radius: 3px; line-height: 1.4; vertical-align: middle; margin-left: 4px; background: rgba(107, 33, 168, 0.15); color: #6b21a8;">PRO</span>
-                            </label>
-                            <p class="field-hint" style="margin: 0 0 8px 0; font-size: 11px;">
-                                <?php esc_html_e('Use when one page genuinely represents more than one entity. Each checked type opens its own field panel below.', 'almaseo-seo-playground'); ?>
-                            </p>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px 12px; padding: 10px 12px; background: #f9fafb; border: 1px solid #e2e4e7; border-radius: 4px;">
-                                <?php
-                                // Build secondary checkbox list from the same options as the
-                                // primary dropdown, minus Article (default fallback — no panel).
-                                foreach ($schema_options as $opt) {
-                                    if ($opt['value'] === 'Article' || $opt['locked']) continue;
-                                    $is_checked = in_array($opt['value'], $secondary_active, true);
-                                    $is_primary = ($opt['value'] === $current_schema);
-                                    ?>
-                                    <label style="display: flex; align-items: flex-start; gap: 6px; font-size: 12px; cursor: <?php echo $is_primary ? 'not-allowed' : 'pointer'; ?>; opacity: <?php echo $is_primary ? '0.45' : '1'; ?>;">
-                                        <input type="checkbox"
-                                               class="almaseo-secondary-schema-cb"
-                                               name="almaseo_schema_secondary_types[]"
-                                               value="<?php echo esc_attr($opt['value']); ?>"
-                                               data-type="<?php echo esc_attr($opt['value']); ?>"
-                                               <?php checked($is_checked); ?>
-                                               <?php disabled($is_primary); ?>
-                                               style="margin-top: 2px;" />
-                                        <span>
-                                            <?php echo esc_html(preg_replace('/\s*\(.*$/', '', $opt['label'])); ?>
-                                            <?php if ($is_primary): ?><em style="color: #94a3b8; font-size: 10px;"> <?php esc_html_e('(primary)', 'almaseo-seo-playground'); ?></em><?php endif; ?>
-                                        </span>
-                                    </label>
-                                <?php } ?>
-                            </div>
-                            <!-- LocalBusiness-specific guidance: most-misused schema type. -->
-                            <div id="almaseo-lb-usage-note" style="display: none; margin-top: 8px; padding: 8px 12px; background: #fff8e5; border-left: 3px solid #dba617; border-radius: 3px; font-size: 11px; color: #5c4a00; line-height: 1.5;">
-                                <strong>⚠ <?php esc_html_e('LocalBusiness usage tip:', 'almaseo-seo-playground'); ?></strong>
-                                <?php esc_html_e('Use this only when customers physically visit your address (storefront, restaurant, clinic, studio). For service-area businesses that travel to clients (wedding bands, plumbers, mobile groomers), prefer the primary type with `areaServed` instead — adding LocalBusiness without a real visitable address can mislead Google\'s entity resolution and trigger the wrong rich result.', 'almaseo-seo-playground'); ?>
-                            </div>
-                        </div>
-                        <?php endif; // $multi_schema_unlocked ?>
-                    </div>
-
-                    <!-- Validator callout — a prominent card (not plain buttons) so
-                         users actually notice they can test. Both tools fetch the
-                         live public URL, so the notice tells users to publish/save
-                         first; the validators check what's deployed, not the editor. -->
-                    <?php
-                    $perma = get_permalink($post->ID);
-                    $is_published = ($post->post_status === 'publish' && !empty($perma));
-                    $rr_url  = 'https://search.google.com/test/rich-results?url=' . rawurlencode($perma);
-                    $sch_url = 'https://validator.schema.org/?url=' . rawurlencode($perma);
-                    ?>
-                    <div class="almaseo-schema-validator" style="margin-top: 20px; padding: 16px; background: linear-gradient(135deg, #eef5ff 0%, #f5f0ff 100%); border: 1px solid #c7d7f0; border-radius: 8px;">
-                        <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 700; color: #1d2327; display: flex; align-items: center; gap: 6px;">
-                            <span class="dashicons dashicons-search" style="color: #2271b1;"></span>
-                            <?php esc_html_e('Test your structured data', 'almaseo-seo-playground'); ?>
-                        </h4>
-                        <p style="margin: 0 0 12px 0; font-size: 12px; color: #50575e; line-height: 1.5;">
-                            <?php esc_html_e('Run this page through the official Google and Schema.org validators to confirm the markup is valid and eligible for rich results.', 'almaseo-seo-playground'); ?>
-                        </p>
-                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                            <a href="<?php echo $is_published ? esc_url($rr_url) : '#'; ?>"
-                               target="_blank" rel="noopener noreferrer"
-                               class="button button-primary button-hero"
-                               style="<?php echo $is_published ? '' : 'pointer-events:none; opacity:0.5;'; ?>"
-                               <?php echo $is_published ? '' : 'aria-disabled="true"'; ?>>
-                                🔍 <?php esc_html_e('Test in Google Rich Results', 'almaseo-seo-playground'); ?>
-                            </a>
-                            <a href="<?php echo $is_published ? esc_url($sch_url) : '#'; ?>"
-                               target="_blank" rel="noopener noreferrer"
-                               class="button button-secondary button-hero"
-                               style="<?php echo $is_published ? '' : 'pointer-events:none; opacity:0.5;'; ?>"
-                               <?php echo $is_published ? '' : 'aria-disabled="true"'; ?>>
-                                ✓ <?php esc_html_e('Validate on Schema.org', 'almaseo-seo-playground'); ?>
-                            </a>
-                        </div>
-                        <p style="margin: 12px 0 0 0; padding: 8px 10px; background: #fffbe6; border: 1px solid #f5d76e; border-radius: 4px; font-size: 11px; color: #5c4a00; line-height: 1.5;">
-                            <?php if (!$is_published): ?>
-                                <strong>⚠ <?php esc_html_e('Publish this page first.', 'almaseo-seo-playground'); ?></strong>
-                                <?php esc_html_e('The validators load the page\'s live public URL, which does not exist until the page is published.', 'almaseo-seo-playground'); ?>
-                            <?php else: ?>
-                                <strong>💾 <?php esc_html_e('Save your changes before testing.', 'almaseo-seo-playground'); ?></strong>
-                                <?php esc_html_e('These tools fetch the live published page — they validate what is currently public, not unsaved edits in this editor. Click Update first, then test.', 'almaseo-seo-playground'); ?>
-                            <?php endif; ?>
-                        </p>
-                    </div>
-
-                    <!-- Collapsible Schema Preview -->
-                    <div class="almaseo-collapsible" style="margin-top: 20px;">
-                        <button type="button" class="almaseo-collapsible-toggle" data-target="schema-jsonld-preview" style="width: 100%; text-align: left; padding: 10px; background: #f6f7f7; border: 1px solid #c3c4c7; border-radius: 3px; cursor: pointer;">
-                            <span class="dashicons dashicons-arrow-down-alt2" style="margin-right: 5px;"></span>
-                            Preview: <span id="schema-preview-type-label">Schema</span> JSON-LD
-                        </button>
-                        <div id="schema-jsonld-preview" class="almaseo-collapsible-content" style="display: none; margin-top: 10px; padding: 15px; background: #2c3338; border-radius: 3px;">
-                            <div style="position: relative;">
-                                <button type="button" class="copy-json-btn" style="position: absolute; top: 5px; right: 5px; padding: 5px 10px; background: #2271b1; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 12px;">Copy JSON</button>
-                                <pre id="schema-json-preview" style="color: #50fa7b; font-family: 'Courier New', monospace; font-size: 12px; overflow-x: auto; margin: 0;">Loading preview...</pre>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Advanced Schema (Pro) -->
                     <div class="almaseo-field-group" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #dcdcde;">
-                        <h4 style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600; color: #1d2327;">
-                            Advanced Schema (Pro)
+                        <h4 style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #1d2327;">
+                            Type Details &amp; Advanced Schema (Pro)
                         </h4>
+                        <p class="field-hint" style="margin: 0 0 15px 0;">Configure details for the schema type you selected above — the right fields appear automatically based on your choice (e.g. address &amp; hours for LocalBusiness).</p>
 
                         <?php if (!almaseo_feature_available('schema_advanced')): ?>
                             <!-- Free Tier: Lock Card -->
@@ -3452,6 +3331,144 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             </div>
                         <?php endif; ?>
                     </div>
+                        <?php
+                        // --- Additional Schema Types (multi-schema) ---
+                        // A page can describe multiple things at once (e.g. a band that's
+                        // also a venue → MusicGroup + LocalBusiness). The primary type above
+                        // is what the page IS; these are additional facets. Output is a
+                        // JSON-LD @graph with one node per checked type.
+                        $secondary_raw = get_post_meta($post->ID, '_almaseo_schema_secondary_types', true);
+                        $secondary_active = array();
+                        if ($secondary_raw) {
+                            $decoded = is_array($secondary_raw) ? $secondary_raw : json_decode($secondary_raw, true);
+                            if (is_array($decoded)) {
+                                $secondary_active = array_values(array_filter($decoded));
+                            }
+                        }
+                        // Gated behind its own Pro feature flag (schema_multi) rather than
+                        // the broader schema_advanced gate, so multi-schema can be priced/
+                        // marketed independently. During dev both flags pass because
+                        // almaseo_is_pro_active() defaults to 'pro'; flips to enforced
+                        // when the tier-sync endpoint goes live.
+                        $multi_schema_unlocked = almaseo_feature_available('schema_multi');
+                        if ($multi_schema_unlocked):
+                        ?>
+                        <div style="margin-top: 18px; padding-top: 14px; border-top: 1px dashed #dcdcde;">
+                            <label style="font-weight: 600; font-size: 13px; display: block; margin-bottom: 4px;">
+                                <?php esc_html_e('Also describe this page as:', 'almaseo-seo-playground'); ?>
+                                <span style="font-weight: normal; color: #94a3b8; font-size: 11px; margin-left: 4px;"><?php esc_html_e('(optional — adds a separate node to the JSON-LD @graph)', 'almaseo-seo-playground'); ?></span>
+                                <span class="almaseo-tier-badge almaseo-tier-pro" style="display: inline-block; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 1px 5px; border-radius: 3px; line-height: 1.4; vertical-align: middle; margin-left: 4px; background: rgba(107, 33, 168, 0.15); color: #6b21a8;">PRO</span>
+                            </label>
+                            <p class="field-hint" style="margin: 0 0 8px 0; font-size: 11px;">
+                                <?php esc_html_e('Use when one page genuinely represents more than one entity. Each checked type opens its own field panel below.', 'almaseo-seo-playground'); ?>
+                            </p>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px 12px; padding: 10px 12px; background: #f9fafb; border: 1px solid #e2e4e7; border-radius: 4px;">
+                                <?php
+                                // Build secondary checkbox list from the same options as the
+                                // primary dropdown, minus Article (default fallback — no panel).
+                                $secondary_hints = array(
+                                    'FAQPage'       => 'only if the page has a visible Q&A section',
+                                    'HowTo'         => 'only if it has step-by-step instructions',
+                                    'LocalBusiness' => 'only if customers visit a physical address',
+                                    'Service'       => 'only for a specific service you offer',
+                                    'Product'       => 'only for a sellable product (price/availability)',
+                                    'Event'         => 'only for a specific dated event',
+                                    'Person'        => 'only for a page about one individual',
+                                    'Organization'  => 'usually only on the homepage / about page',
+                                    'MusicGroup'    => 'only for a band or artist page',
+                                    'Recipe'        => 'only for a cooking recipe',
+                                );
+                                foreach ($schema_options as $opt) {
+                                    if ($opt['value'] === 'Article' || $opt['locked']) continue;
+                                    $opt_hint = isset($secondary_hints[$opt['value']]) ? $secondary_hints[$opt['value']] : '';
+                                    $is_checked = in_array($opt['value'], $secondary_active, true);
+                                    $is_primary = ($opt['value'] === $current_schema);
+                                    ?>
+                                    <label style="display: flex; align-items: flex-start; gap: 6px; font-size: 12px; cursor: <?php echo $is_primary ? 'not-allowed' : 'pointer'; ?>; opacity: <?php echo $is_primary ? '0.45' : '1'; ?>;">
+                                        <input type="checkbox"
+                                               class="almaseo-secondary-schema-cb"
+                                               name="almaseo_schema_secondary_types[]"
+                                               value="<?php echo esc_attr($opt['value']); ?>"
+                                               data-type="<?php echo esc_attr($opt['value']); ?>"
+                                               <?php checked($is_checked); ?>
+                                               <?php disabled($is_primary); ?>
+                                               style="margin-top: 2px;" />
+                                        <span>
+                                            <?php echo esc_html(preg_replace('/\s*\(.*$/', '', $opt['label'])); ?>
+                                            <?php if ($is_primary): ?><em style="color: #94a3b8; font-size: 10px;"> <?php esc_html_e('(primary)', 'almaseo-seo-playground'); ?></em><?php endif; ?>
+                                            <?php if ($opt_hint): ?><br><span style="color: #94a3b8; font-size: 10px;"><?php echo esc_html($opt_hint); ?></span><?php endif; ?>
+                                        </span>
+                                    </label>
+                                <?php } ?>
+                            </div>
+                            <!-- LocalBusiness-specific guidance: most-misused schema type. -->
+                            <div id="almaseo-lb-usage-note" style="display: none; margin-top: 8px; padding: 8px 12px; background: #fff8e5; border-left: 3px solid #dba617; border-radius: 3px; font-size: 11px; color: #5c4a00; line-height: 1.5;">
+                                <strong>⚠ <?php esc_html_e('LocalBusiness usage tip:', 'almaseo-seo-playground'); ?></strong>
+                                <?php esc_html_e('Use this only when customers physically visit your address (storefront, restaurant, clinic, studio). For service-area businesses that travel to clients (wedding bands, plumbers, mobile groomers), prefer the primary type with `areaServed` instead — adding LocalBusiness without a real visitable address can mislead Google\'s entity resolution and trigger the wrong rich result.', 'almaseo-seo-playground'); ?>
+                            </div>
+                        </div>
+                        <?php endif; // $multi_schema_unlocked ?>
+                    </div>
+
+                    <!-- Validator callout — a prominent card (not plain buttons) so
+                         users actually notice they can test. Both tools fetch the
+                         live public URL, so the notice tells users to publish/save
+                         first; the validators check what's deployed, not the editor. -->
+                    <?php
+                    $perma = get_permalink($post->ID);
+                    $is_published = ($post->post_status === 'publish' && !empty($perma));
+                    $rr_url  = 'https://search.google.com/test/rich-results?url=' . rawurlencode($perma);
+                    $sch_url = 'https://validator.schema.org/?url=' . rawurlencode($perma);
+                    ?>
+                    <div class="almaseo-schema-validator" style="margin-top: 20px; padding: 16px; background: linear-gradient(135deg, #eef5ff 0%, #f5f0ff 100%); border: 1px solid #c7d7f0; border-radius: 8px;">
+                        <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 700; color: #1d2327; display: flex; align-items: center; gap: 6px;">
+                            <span class="dashicons dashicons-search" style="color: #2271b1;"></span>
+                            <?php esc_html_e('Test your structured data', 'almaseo-seo-playground'); ?>
+                        </h4>
+                        <p style="margin: 0 0 12px 0; font-size: 12px; color: #50575e; line-height: 1.5;">
+                            <?php esc_html_e('Run this page through the official Google and Schema.org validators to confirm the markup is valid and eligible for rich results.', 'almaseo-seo-playground'); ?>
+                        </p>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a href="<?php echo $is_published ? esc_url($rr_url) : '#'; ?>"
+                               target="_blank" rel="noopener noreferrer"
+                               class="button button-primary button-hero"
+                               style="<?php echo $is_published ? '' : 'pointer-events:none; opacity:0.5;'; ?>"
+                               <?php echo $is_published ? '' : 'aria-disabled="true"'; ?>>
+                                🔍 <?php esc_html_e('Test in Google Rich Results', 'almaseo-seo-playground'); ?>
+                            </a>
+                            <a href="<?php echo $is_published ? esc_url($sch_url) : '#'; ?>"
+                               target="_blank" rel="noopener noreferrer"
+                               class="button button-secondary button-hero"
+                               style="<?php echo $is_published ? '' : 'pointer-events:none; opacity:0.5;'; ?>"
+                               <?php echo $is_published ? '' : 'aria-disabled="true"'; ?>>
+                                ✓ <?php esc_html_e('Validate on Schema.org', 'almaseo-seo-playground'); ?>
+                            </a>
+                        </div>
+                        <p style="margin: 12px 0 0 0; padding: 8px 10px; background: #fffbe6; border: 1px solid #f5d76e; border-radius: 4px; font-size: 11px; color: #5c4a00; line-height: 1.5;">
+                            <?php if (!$is_published): ?>
+                                <strong>⚠ <?php esc_html_e('Publish this page first.', 'almaseo-seo-playground'); ?></strong>
+                                <?php esc_html_e('The validators load the page\'s live public URL, which does not exist until the page is published.', 'almaseo-seo-playground'); ?>
+                            <?php else: ?>
+                                <strong>💾 <?php esc_html_e('Save your changes before testing.', 'almaseo-seo-playground'); ?></strong>
+                                <?php esc_html_e('These tools fetch the live published page — they validate what is currently public, not unsaved edits in this editor. Click Update first, then test.', 'almaseo-seo-playground'); ?>
+                            <?php endif; ?>
+                        </p>
+                    </div>
+
+                    <!-- Collapsible Schema Preview -->
+                    <div class="almaseo-collapsible" style="margin-top: 20px;">
+                        <button type="button" class="almaseo-collapsible-toggle" data-target="schema-jsonld-preview" style="width: 100%; text-align: left; padding: 10px; background: #f6f7f7; border: 1px solid #c3c4c7; border-radius: 3px; cursor: pointer;">
+                            <span class="dashicons dashicons-arrow-down-alt2" style="margin-right: 5px;"></span>
+                            Preview: <span id="schema-preview-type-label">Schema</span> JSON-LD
+                        </button>
+                        <div id="schema-jsonld-preview" class="almaseo-collapsible-content" style="display: none; margin-top: 10px; padding: 15px; background: #2c3338; border-radius: 3px;">
+                            <div style="position: relative;">
+                                <button type="button" class="copy-json-btn" style="position: absolute; top: 5px; right: 5px; padding: 5px 10px; background: #2271b1; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 12px;">Copy JSON</button>
+                                <pre id="schema-json-preview" style="color: #50fa7b; font-family: 'Courier New', monospace; font-size: 12px; overflow-x: auto; margin: 0;">Loading preview...</pre>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 

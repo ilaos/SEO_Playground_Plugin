@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.38
+Stable tag: 1.19.39
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,14 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.39 =
+**Schema & Meta: guided, top-down schema flow**
+
+* Improvement: Reorganized the Schema section into a clearer top-down flow. The type-specific detail fields (LocalBusiness address & hours, Person, Organization, etc.) now appear directly under the Schema Type dropdown — right where you pick the type — instead of far below the validator and preview.
+* New: Added "Service" as a schema type, for service/offering pages.
+* New: A short guideline under the Schema Type dropdown — pick the type that matches the main content actually on the page (schema should describe what's really there).
+* New: Each "Also describe this page as" option now shows an eligibility hint (e.g. "FAQPage — only if the page has a visible Q&A section") so it's clear when each one applies.
 
 = 1.19.38 =
 **Schema & Meta panel: consistent light UI + Meta Robots cleanup**
