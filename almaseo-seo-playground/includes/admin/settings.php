@@ -479,7 +479,7 @@ class AlmaSEO_Settings {
                 </div>
 
                 <!-- Advanced Schema Section (Pro) -->
-                <div class="almaseo-settings-section" style="margin-top: 30px;">
+                <div id="almaseo-advanced-schema" class="almaseo-settings-section" style="margin-top: 30px;">
                     <h2><?php esc_html_e('Advanced Schema (Pro)', 'almaseo-seo-playground'); ?></h2>
 
                     <?php if (!almaseo_feature_available('schema_advanced')): ?>

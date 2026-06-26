@@ -2350,6 +2350,25 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     <p class="almaseo-card-description">Add structured data to help search engines understand your content</p>
                 </div>
                 <div class="almaseo-card-body">
+                    <?php
+                    // Master-switch guard. The per-post schema fields below only emit on
+                    // the front end when the site-wide "Enable Advanced Schema" toggle is
+                    // on (almaseo_schema_advanced_settings['enabled'], default OFF). Those
+                    // fields are shown based on Pro status, so without this notice a user
+                    // can fill in a full FAQ/LocalBusiness/etc. and get nothing on the page.
+                    // Only warn when the user CAN use advanced schema (Pro) but the global
+                    // output switch is off — free users see the lock card instead.
+                    $almaseo_adv_global    = get_option('almaseo_schema_advanced_settings', array());
+                    $almaseo_adv_output_on = !empty($almaseo_adv_global['enabled']);
+                    if (almaseo_feature_available('schema_advanced') && !$almaseo_adv_output_on):
+                        $almaseo_schema_settings_url = admin_url('admin.php?page=almaseo-settings#almaseo-advanced-schema');
+                    ?>
+                    <div style="margin: 0 0 16px 0; padding: 12px 14px; background: #fff8e5; border-left: 4px solid #dba617; border-radius: 4px; font-size: 12px; color: #5c4a00; line-height: 1.55;">
+                        <strong>⚠ <?php esc_html_e('Advanced schema output is turned off site-wide.', 'almaseo-seo-playground'); ?></strong><br>
+                        <?php esc_html_e('Schema types and details you set here (FAQ, How-To, LocalBusiness, Service, etc.) will not appear on your pages until you turn on the master switch.', 'almaseo-seo-playground'); ?>
+                        <a href="<?php echo esc_url($almaseo_schema_settings_url); ?>" style="font-weight: 600; color: #8a6d00;"><?php esc_html_e('Enable it in Settings → Advanced Schema →', 'almaseo-seo-playground'); ?></a>
+                    </div>
+                    <?php endif; ?>
                     <div class="almaseo-field-group">
                         <label for="almaseo_schema_type">Schema Type</label>
                         <p class="field-hint" style="margin: 0 0 8px 0;">Pick the type that matches the <strong>main</strong> content actually on this page. Schema should describe what's really there — don't add a type for content the page doesn't have.</p>
