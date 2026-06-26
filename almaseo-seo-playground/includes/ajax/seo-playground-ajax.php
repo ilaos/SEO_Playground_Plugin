@@ -1717,8 +1717,13 @@ function almaseo_ajax_fetch_ga_page_data() {
         return;
     }
 
-    if (!current_user_can('edit_posts')) {
-        wp_send_json_error(array('message' => 'Insufficient permissions'));
+    // Resolve and authorize the target post. The page URL is derived from the
+    // post the user is editing rather than trusted from the client, so a user
+    // can only pull GA data for a post they can actually edit — not for any
+    // arbitrary URL on the site. The editor panel always sends post_id.
+    $post_id = isset($_POST['post_id']) ? intval(wp_unslash($_POST['post_id'])) : 0;
+    if (!$post_id || !current_user_can('edit_post', $post_id)) {
+        wp_send_json_error(array('message' => 'Invalid post or insufficient permissions'));
         return;
     }
 
@@ -1729,11 +1734,11 @@ function almaseo_ajax_fetch_ga_page_data() {
     }
 
     // Get parameters
-    $page_url = isset($_POST['page_url']) ? esc_url_raw(wp_unslash($_POST['page_url'])) : '';
+    $page_url = get_permalink($post_id);
     $days = isset($_POST['days']) ? intval($_POST['days']) : 28;
 
     if (empty($page_url)) {
-        wp_send_json_error(array('message' => 'page_url is required'));
+        wp_send_json_error(array('message' => 'Could not resolve the page URL for this post'));
         return;
     }
 

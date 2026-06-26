@@ -4312,6 +4312,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 var nonce = $container.data('nonce');
                 var isConnected = $container.data('connected') === 1 || $container.data('connected') === '1';
                 var gaConfirmed = false;
+                var gaAttempted = false;
 
                 function showState(stateId) {
                     $container.find('.almaseo-ga-state').hide();
@@ -4515,8 +4516,14 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 $('#ga-retry-btn').on('click', fetchGAData);
                 $(document).on('click', '#ga-connect-btn', function(e) { e.preventDefault(); fetchGAData(); });
 
+                // Auto-load the first time the Analytics tab is opened (and after a
+                // reload), so the data persists without re-clicking. Attempt once per
+                // page load; the refresh button and date-range selector re-fetch after.
                 $(document).on('click', '.almaseo-tab-btn[data-tab="analytics"]', function() {
-                    if (gaConfirmed) fetchGAData();
+                    if (!gaAttempted) {
+                        gaAttempted = true;
+                        fetchGAData();
+                    }
                 });
             });
             </script>

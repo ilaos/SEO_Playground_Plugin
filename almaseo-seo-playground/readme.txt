@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.19.41
+Stable tag: 1.19.42
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,12 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.19.42 =
+**Analytics tab: auto-load data + per-post security**
+
+* Fix: The Analytics (GA4) tab now loads this page's data automatically the first time you open the tab (and after a page reload), instead of resetting to the "Load Analytics Data" prompt each time — matching the Search Console behavior from 1.19.41.
+* Fix (security): The Analytics data request now derives the page URL from the post you're editing and verifies you can edit that specific post, instead of trusting a URL from the browser — so a contributor can no longer pull Analytics for arbitrary URLs on the site.
 
 = 1.19.41 =
 **Search Console: auto-load data + actionable opportunities**
