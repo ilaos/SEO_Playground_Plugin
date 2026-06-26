@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.20.3
+Stable tag: 1.20.4
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,13 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.20.4 =
+**Notes & History tab: notes that actually save, and a removed fake history table**
+
+* Fixed: SEO Notes now save to the post on the server, so they're durable and visible to anyone who can edit the page. Previously they lived only in the current browser (and silently failed to sync), so they vanished on another device or after clearing browser data. Existing browser-stored notes are migrated to the post on first load.
+* Removed: the Post History Tracker, which displayed fabricated sample rows ("John Doe / Jane Smith") as if they were the post's real edit history. Real SEO-meta change history remains in the Metadata History card below.
+* New: a deletable sample note seeded on posts with no notes yet, summarizing recent Google changes (FAQ/How-To rich-result deprecation, Helpful Content, E-E-A-T, AI Overviews). Delete it anytime; it won't return once you've started your own notes.
 
 = 1.20.3 =
 **Schema & Meta: warn when advanced schema output is off site-wide**

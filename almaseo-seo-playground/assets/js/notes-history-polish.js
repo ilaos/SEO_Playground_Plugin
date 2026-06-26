@@ -28,12 +28,12 @@
      */
     function initializeNotesHistory() {
         initializeSEONotes();
-        initializePostHistory();
         initializeSearch();
         initializeSorting();
         initializeAccessibility();
         loadNotes();
-        loadPostHistory();
+        // Post History Tracker removed in 1.20.4 (it showed fabricated placeholder
+        // rows). Real SEO-meta history lives in the Metadata History card.
     }
 
     /**
@@ -480,14 +480,20 @@
             </div>
         `);
         
-        // Load from localStorage first
+        // Render the localStorage cache first for an instant paint, but the
+        // database is the source of truth (see sync below).
+        const SAMPLE_ID = 'almaseo_sample_seo_tips';
+        let cached = [];
         const savedNotes = localStorage.getItem(key);
         if (savedNotes) {
-            seoNotes = JSON.parse(savedNotes);
-            filteredNotes = [...seoNotes];
-            renderNotes();
+            try { cached = JSON.parse(savedNotes) || []; } catch (e) { cached = []; }
+            if (cached.length) {
+                seoNotes = cached;
+                filteredNotes = [...seoNotes];
+                renderNotes();
+            }
         }
-        
+
         // Then sync with database
         $.ajax({
             url: ajaxurl,
@@ -498,9 +504,24 @@
                 nonce: $('#almaseo_nonce').val()
             },
             success: function(response) {
-                if (response.success && response.data) {
-                    seoNotes = response.data;
-                    filteredNotes = [...seoNotes];
+                if (response.success && Array.isArray(response.data)) {
+                    const server = response.data;
+                    const serverSeedOnly = server.length === 1 && server[0] && server[0].id === SAMPLE_ID;
+                    const cacheHasRealNotes = cached.length > 0 &&
+                        !(cached.length === 1 && cached[0] && cached[0].id === SAMPLE_ID);
+                    if (serverSeedOnly && cacheHasRealNotes) {
+                        // Migration: this post has never had notes in the DB, but the
+                        // browser holds real notes from before notes persisted server-side
+                        // (pre-1.20.4 localStorage-only). Keep them and push them to the DB.
+                        seoNotes = cached;
+                        filteredNotes = [...seoNotes];
+                        renderNotes();
+                        saveNotes();
+                    } else {
+                        seoNotes = server;
+                        filteredNotes = [...seoNotes];
+                        renderNotes();
+                    }
                 } else {
                     // No notes exist - set empty arrays
                     seoNotes = [];
@@ -523,27 +544,10 @@
      * Get post history (mock data - replace with actual AJAX)
      */
     function getPostHistory() {
-        // This would normally come from the database
-        return [
-            {
-                id: 'rev_1',
-                timestamp: new Date(Date.now() - 86400000).toISOString(),
-                editor: 'John Doe',
-                summary: 'Updated SEO title and meta description'
-            },
-            {
-                id: 'rev_2',
-                timestamp: new Date(Date.now() - 172800000).toISOString(),
-                editor: 'Jane Smith',
-                summary: 'Added schema markup and internal links'
-            },
-            {
-                id: 'rev_3',
-                timestamp: new Date(Date.now() - 604800000).toISOString(),
-                editor: 'John Doe',
-                summary: 'Initial post creation with basic SEO setup'
-            }
-        ];
+        // Post History Tracker was removed in 1.20.4. It previously returned
+        // fabricated demo rows here, which rendered as if they were the post's
+        // real edit history. Return nothing so no placeholder data can surface.
+        return [];
     }
 
     /**

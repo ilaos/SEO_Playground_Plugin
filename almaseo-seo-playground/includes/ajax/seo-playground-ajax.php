@@ -1596,6 +1596,119 @@ function seo_playground_ajax_get_note() {
 } // end function_exists guard: seo_playground_ajax_get_note
 
 // ════════════════════════════════════════════════════════════════
+// SEO Notes (multi-note list) — durable, per-post, server-side store.
+//
+// The Notes & History tab's notes list is the canonical notes feature. It
+// stores a JSON array of note objects in the _almaseo_seo_notes post meta so
+// notes are durable and visible to every editor of the post (the list used to
+// sync to unregistered actions and effectively lived only in the browser's
+// localStorage — fixed in 1.20.4). Nonce: 'almaseo_nonce' (the metabox-wide
+// hidden field #almaseo_nonce). Capability: per-post edit_post.
+// ════════════════════════════════════════════════════════════════
+
+if (!function_exists('almaseo_seo_notes_seed_note')) {
+/**
+ * A deletable sample note seeded for posts that have never had notes saved.
+ * Doubles as a primer on recent Google changes so the tab teaches as well as
+ * stores. It is a normal note object (deletable like any other) and never
+ * reappears once the user has saved any notes — including an empty list.
+ *
+ * @return array
+ */
+function almaseo_seo_notes_seed_note() {
+    $text = "\xF0\x9F\x91\x8B Welcome to SEO Notes — jot strategies, keyword ideas, and reminders for this page here. They save to this post and are visible to anyone who can edit it. (This is a sample note — delete it anytime with the trash button.)\n\n"
+        . "A few Google changes worth keeping in mind:\n\n"
+        . "\xE2\x80\xA2 FAQ rich results: since Aug 2023 Google only shows them for well-known government & health sites. FAQ schema is still valid and still helps other engines and AI Overviews — it just won't show a FAQ drop-down in Google for most sites.\n\n"
+        . "\xE2\x80\xA2 How-To rich results: fully retired by Google (Sept 2023), desktop included. How-To schema no longer produces a Google rich result.\n\n"
+        . "\xE2\x80\xA2 Helpful Content: folded into the core algorithm (2024). Google rewards people-first, experience-based content and demotes pages written mainly to rank.\n\n"
+        . "\xE2\x80\xA2 E-E-A-T: the extra 'E' is Experience — show first-hand expertise, real author bylines, and credentials, especially for money/health (YMYL) topics.\n\n"
+        . "\xE2\x80\xA2 AI Overviews: clear, directly-answered questions plus clean structured data make your content easier for AI answer engines to quote.";
+
+    return array(
+        'id'        => 'almaseo_sample_seo_tips',
+        'text'      => $text,
+        'timestamp' => current_time('c'),
+        'author'    => 'AlmaSEO',
+        'edited'    => false,
+        'sample'    => true,
+    );
+}
+} // end function_exists guard: almaseo_seo_notes_seed_note
+
+add_action('wp_ajax_almaseo_get_notes', 'almaseo_ajax_get_notes');
+if (!function_exists('almaseo_ajax_get_notes')) {
+function almaseo_ajax_get_notes() {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'almaseo_nonce')) {
+        wp_send_json_error(array('message' => 'Invalid security token'));
+        return;
+    }
+    $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+    if (!$post_id || !current_user_can('edit_post', $post_id)) {
+        wp_send_json_error(array('message' => 'Insufficient permissions'));
+        return;
+    }
+
+    $stored = get_post_meta($post_id, '_almaseo_seo_notes', true);
+    // Empty string = meta never set = post has never had notes → offer the
+    // deletable sample note. A stored "[]" (user cleared all notes) is NOT
+    // empty-string, so the sample never comes back once they've engaged.
+    if ($stored === '' || $stored === false) {
+        wp_send_json_success(array(almaseo_seo_notes_seed_note()));
+        return;
+    }
+    $notes = is_array($stored) ? $stored : json_decode($stored, true);
+    if (!is_array($notes)) {
+        $notes = array();
+    }
+    wp_send_json_success(array_values($notes));
+}
+} // end function_exists guard: almaseo_ajax_get_notes
+
+add_action('wp_ajax_almaseo_save_notes', 'almaseo_ajax_save_notes');
+if (!function_exists('almaseo_ajax_save_notes')) {
+function almaseo_ajax_save_notes() {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'almaseo_nonce')) {
+        wp_send_json_error(array('message' => 'Invalid security token'));
+        return;
+    }
+    $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+    if (!$post_id || !current_user_can('edit_post', $post_id)) {
+        wp_send_json_error(array('message' => 'Insufficient permissions'));
+        return;
+    }
+
+    $raw = isset($_POST['notes']) ? wp_unslash($_POST['notes']) : '[]';
+    $decoded = json_decode($raw, true);
+    if (!is_array($decoded)) {
+        $decoded = array();
+    }
+
+    $clean = array();
+    foreach ($decoded as $n) {
+        if (!is_array($n)) {
+            continue;
+        }
+        $note_text = isset($n['text']) ? sanitize_textarea_field($n['text']) : '';
+        if ($note_text === '') {
+            continue;
+        }
+        $clean[] = array(
+            'id'        => isset($n['id']) ? sanitize_text_field($n['id']) : 'note_' . substr(md5($note_text . microtime()), 0, 10),
+            'text'      => $note_text,
+            'timestamp' => isset($n['timestamp']) ? sanitize_text_field($n['timestamp']) : current_time('c'),
+            'author'    => isset($n['author']) ? sanitize_text_field($n['author']) : '',
+            'edited'    => !empty($n['edited']),
+        );
+    }
+
+    // Always persist (even an empty array) so a cleared list stays cleared and
+    // the sample note does not reappear.
+    update_post_meta($post_id, '_almaseo_seo_notes', wp_json_encode($clean));
+    wp_send_json_success(array('count' => count($clean)));
+}
+} // end function_exists guard: almaseo_ajax_save_notes
+
+// ════════════════════════════════════════════════════════════════
 // GSC Page Data — Fetch Search Console data for a specific page
 // ════════════════════════════════════════════════════════════════
 

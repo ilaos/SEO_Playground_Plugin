@@ -4761,59 +4761,11 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 </div>
             </div>
             
-            <!-- Post History Tracker Panel -->
-            <?php if ($is_connected): ?>
-            <div class="history-tracker-panel">
-                <div class="almaseo-field-group" role="region" aria-labelledby="history-heading">
-                    <div class="panel-header">
-                        <div class="panel-title" id="history-heading">
-                            <span class="panel-icon" aria-hidden="true">📜</span>
-                            <span>Post History Tracker</span>
-                            <span class="panel-tooltip" role="tooltip" aria-label="Track all edits and changes to this post">ⓘ</span>
-                        </div>
-                    </div>
-                    
-                    <!-- History Filters -->
-                    <div class="history-filters">
-                        <input type="date" 
-                               id="history-date-filter" 
-                               class="history-filter-input" 
-                               aria-label="Filter by date">
-                        
-                        <select id="history-user-filter" class="history-filter-select" aria-label="Filter by user">
-                            <option value="all">All Users</option>
-                            <?php
-                            // Get users who can edit posts
-                            $users = get_users(array(
-                                'capability' => 'edit_posts'
-                            ));
-                            foreach ($users as $user) {
-                                echo '<option value="' . esc_attr($user->display_name) . '">' . esc_html($user->display_name) . '</option>';
-                            }
-                            ?>
-                        </select>
-                    </div>
-                    
-                    <!-- History Table -->
-                    <div class="history-table-container">
-                        <table class="history-table" role="table" aria-label="Post edit history">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Date/Time</th>
-                                    <th scope="col">Editor</th>
-                                    <th scope="col">Summary</th>
-                                    <th scope="col">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="history-table-tbody">
-                                <!-- History entries will be populated by JavaScript -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
-            
+            <!-- Post History Tracker removed in 1.20.4: it rendered fabricated
+                 placeholder rows (sample 'John Doe / Jane Smith' edits), not real
+                 data. Real SEO-meta change history is the Metadata History card
+                 below (almaseo_history_render_card), which tracks actual snapshots. -->
+
             <!-- Metadata History Card -->
             <?php
             // Render metadata history card if available
