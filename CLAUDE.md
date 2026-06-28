@@ -493,13 +493,15 @@ Free local analysis always works. Dashboard data overlays/enhances when availabl
 
 ## Tab Order (Page Optimization Panel)
 
-1. SEO Page Health (default) - meta title, description, focus keyword, SERP preview
-2. Search Console
-3. Schema & Meta
-4. AI Tools
-5. LLM Optimization
-6. Notes & History
-7. Unlock AI Features (conditional - only when not connected)
+> **Doc corrected 2026-06-28:** the live `data-tab` markup in `metabox-callback.php` does NOT contain an "AI Tools" tab. The actual tabs are listed below. The old "AI Tools" entry referred to a tab that was removed; its AJAX handlers still sit orphaned in `includes/ajax/seo-playground-ajax.php` (lines ~132–767) pointing at `app.almaseo.com/api/v1/*` endpoints that don't exist server-side — dead code, flagged for removal. See `memory/project_dead_ai_tools_handlers.md`.
+
+1. SEO Page Health / SEO Overview (default, `seo-overview`) - meta title, description, focus keyword, SERP preview
+2. Search Console (`search-console`) — **dashboard-dependent** (GSC page data)
+3. Schema & Meta (`schema-meta`) — includes LocalBusiness "Fill from AlmaSEO" NAP autofill (**dashboard-dependent**)
+4. Analytics (`analytics`) — **dashboard-dependent** (GA4 page data; frontend gtag.js tracking is local)
+5. LLM Optimization (`llm-optimization`) — local heuristics with optional dashboard enhancement
+6. Notes & History (`notes-history`)
+7. Unlock Features (`unlock-features`, conditional - only when not connected)
 
 ## Module Pattern
 All feature modules follow the same structure (used by redirects, 404, bulkmeta, internal-links, refresh-drafts, refresh-queue, date-hygiene):
