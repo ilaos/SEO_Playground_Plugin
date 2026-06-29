@@ -47,14 +47,6 @@ class AlmaSEO_Schema_Drift_Controller {
             wp_die(esc_html__( 'You do not have sufficient permissions to access this page.', 'almaseo-seo-playground' ) );
         }
 
-        // Pro gate.
-        if ( function_exists( 'almaseo_feature_available' ) && ! almaseo_feature_available( 'schema_drift' ) ) {
-            if ( function_exists( 'almaseo_render_feature_locked' ) ) {
-                almaseo_render_feature_locked( 'schema_drift' );
-            }
-            return;
-        }
-
         require_once plugin_dir_path( dirname( __DIR__ ) ) . 'admin/pages/schema-drift.php';
     }
 

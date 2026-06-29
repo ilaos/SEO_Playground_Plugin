@@ -457,11 +457,6 @@ class AlmaSEO_Schema_Drift_Engine {
             return;
         }
 
-        // Check Pro gate.
-        if ( function_exists( 'almaseo_feature_available' ) && ! almaseo_feature_available( 'schema_drift' ) ) {
-            return;
-        }
-
         self::scan_for_drift();
     }
 }

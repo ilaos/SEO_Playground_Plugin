@@ -37,11 +37,6 @@ class AlmaSEO_Woo_Schema {
      * Constructor
      */
     private function __construct() {
-        // Only load if Pro feature is available
-        if ( ! almaseo_feature_available('woocommerce') ) {
-            return;
-        }
-
         // Only load if WooCommerce is active
         if ( ! class_exists('WooCommerce') ) {
             return;

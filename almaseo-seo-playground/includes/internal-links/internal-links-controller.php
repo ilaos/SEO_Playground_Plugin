@@ -72,14 +72,6 @@ class AlmaSEO_Internal_Links_Controller {
             wp_die(esc_html__( 'You do not have sufficient permissions to access this page.', 'almaseo-seo-playground' ) );
         }
 
-        // Pro gate
-        if ( ! almaseo_feature_available( 'internal_links' ) ) {
-            if ( function_exists( 'almaseo_render_feature_locked' ) ) {
-                almaseo_render_feature_locked( 'internal_links' );
-            }
-            return;
-        }
-
         // Include the admin page template
         require_once plugin_dir_path( dirname( dirname( __FILE__ ) ) ) . 'admin/pages/internal-links.php';
     }

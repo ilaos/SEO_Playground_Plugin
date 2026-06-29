@@ -136,13 +136,7 @@ class AlmaSEO_Schema_Drift_REST {
     /* ──────────────── Permission callbacks ── */
 
     public static function can_manage_pro() {
-        if ( ! current_user_can( 'manage_options' ) ) {
-            return false;
-        }
-        if ( function_exists( 'almaseo_feature_available' ) && ! almaseo_feature_available( 'schema_drift' ) ) {
-            return new WP_Error( 'pro_required', 'Schema Drift Monitor requires Pro.', array( 'status' => 403 ) );
-        }
-        return true;
+        return current_user_can( 'manage_options' );
     }
 
     /* ──────────────── Dashboard push ── */

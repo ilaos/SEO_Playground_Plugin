@@ -124,13 +124,7 @@ class AlmaSEO_Date_Hygiene_REST {
     /* ──────────────── Permission callbacks ── */
 
     public static function can_manage_pro() {
-        if ( ! current_user_can( 'manage_options' ) ) {
-            return false;
-        }
-        if ( function_exists( 'almaseo_feature_available' ) && ! almaseo_feature_available( 'date_hygiene' ) ) {
-            return new WP_Error( 'pro_required', 'Date Hygiene Scanner requires Pro.', array( 'status' => 403 ) );
-        }
-        return true;
+        return current_user_can( 'manage_options' );
     }
 
     /* ──────────────── Dashboard push ── */

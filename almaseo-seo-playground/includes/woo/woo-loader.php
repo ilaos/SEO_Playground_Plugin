@@ -37,11 +37,6 @@ class AlmaSEO_Woo_Loader {
      * Constructor
      */
     private function __construct() {
-        // Check if Pro feature is available
-        if ( ! almaseo_feature_available('woocommerce') ) {
-            return;
-        }
-
         // Check if WooCommerce is active
         if (!$this->is_woocommerce_active()) {
             return;
@@ -318,9 +313,7 @@ class AlmaSEO_Woo_Loader {
     }
 }
 
-// Initialize if Pro feature available and WooCommerce is active
+// Initialize when WooCommerce is active (the loader self-guards on WC).
 add_action('plugins_loaded', function() {
-    if (almaseo_feature_available('woocommerce')) {
-        AlmaSEO_Woo_Loader::get_instance();
-    }
+    AlmaSEO_Woo_Loader::get_instance();
 }, 20);

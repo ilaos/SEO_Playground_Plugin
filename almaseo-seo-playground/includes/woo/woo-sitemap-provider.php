@@ -25,11 +25,6 @@ class Alma_Provider_WC_Products {
      * @return array Array of sitemap entries
      */
     public function get_entries() {
-        // Only load if Pro feature is available
-        if ( ! almaseo_feature_available('woocommerce') ) {
-            return array();
-        }
-
         // Only load if WooCommerce is active
         if ( ! class_exists('WooCommerce') ) {
             return array();

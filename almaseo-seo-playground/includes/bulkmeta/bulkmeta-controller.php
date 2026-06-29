@@ -26,10 +26,6 @@ class BulkMeta_Controller {
      * Add submenu page
      */
     public static function add_menu() {
-        if (!almaseo_is_pro()) {
-            return;
-        }
-        
         add_submenu_page(
             'seo-playground',
             __('Bulk Metadata Editor', 'almaseo-seo-playground'),
@@ -122,12 +118,6 @@ class BulkMeta_Controller {
     public static function render_page() {
         if (!current_user_can('manage_options')) {
             wp_die(esc_html__('You do not have sufficient permissions to access this page.', 'almaseo-seo-playground'));
-        }
-
-        // Check if bulk metadata feature is available (Pro feature)
-        if ( ! almaseo_feature_available( 'bulkmeta' ) ) {
-            almaseo_render_feature_locked( 'bulkmeta' );
-            return;
         }
 
         require_once(dirname(dirname(dirname(__FILE__))) . '/admin/pages/bulk-meta.php');

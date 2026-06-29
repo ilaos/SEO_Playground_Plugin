@@ -273,17 +273,9 @@ class BulkMeta_REST {
     /**
      * Check permission for REST requests.
      *
-     * Mirrors the page render gate (almaseo_feature_available('bulkmeta'))
-     * so REST and UI agree on access. Also requires manage_options.
+     * Requires the manage_options capability.
      */
     public static function check_permission() {
-        if ( function_exists( 'almaseo_feature_available' ) && ! almaseo_feature_available( 'bulkmeta' ) ) {
-            return new \WP_Error(
-                'feature_locked',
-                __( 'This feature requires AlmaSEO Pro.', 'almaseo-seo-playground' ),
-                array( 'status' => 403 )
-            );
-        }
         return current_user_can( 'manage_options' );
     }
     

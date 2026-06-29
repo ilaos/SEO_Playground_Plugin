@@ -1655,8 +1655,8 @@ add_action('admin_menu', function() {
         'almaseo_connector_settings_page'
     );
     
-    // Add WooCommerce SEO submenu (Pro feature)
-    if (class_exists('WooCommerce') && function_exists('almaseo_is_pro') && almaseo_is_pro()) {
+    // Add WooCommerce SEO submenu (shown when WooCommerce is active)
+    if (class_exists('WooCommerce')) {
         add_submenu_page(
             'seo-playground',
             'WooCommerce SEO - SEO Playground by AlmaSEO',

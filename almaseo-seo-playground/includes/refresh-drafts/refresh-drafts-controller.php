@@ -52,14 +52,6 @@ class AlmaSEO_Refresh_Drafts_Controller {
             wp_die(esc_html__( 'You do not have sufficient permissions to access this page.', 'almaseo-seo-playground' ) );
         }
 
-        // Pro gate
-        if ( function_exists( 'almaseo_feature_available' ) && ! almaseo_feature_available( 'refresh_drafts' ) ) {
-            if ( function_exists( 'almaseo_render_feature_locked' ) ) {
-                almaseo_render_feature_locked( 'refresh_drafts' );
-            }
-            return;
-        }
-
         $review_id = isset( $_GET['review'] ) ? absint( wp_unslash( $_GET['review'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
         if ( $review_id ) {
