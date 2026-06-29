@@ -155,7 +155,7 @@ if ( file_exists( $autofill_ai_file ) ) {
             <label for="autofill-mode" style="font-size: 12px; color: #50575e; margin-left: 6px;">
                 <?php esc_html_e('Mode:', 'almaseo-seo-playground'); ?>
             </label>
-            <select id="autofill-mode" style="font-size: 12px;" <?php if ( ! $ai_autofill_available ) echo 'disabled'; ?> title="<?php echo esc_attr( $ai_autofill_available ? __('Choose Alma mode for AI-quality output, or Basic to use the local generator.', 'almaseo-seo-playground') : __('Connect AlmaSEO to add Alma mode.', 'almaseo-seo-playground') ); ?>">
+            <select id="autofill-mode" style="font-size: 12px;" title="<?php echo esc_attr( $ai_autofill_available ? __('Choose Alma mode for AI-quality output, or Basic to use the local generator.', 'almaseo-seo-playground') : __('Basic mode runs locally. Connect AlmaSEO to add Alma mode.', 'almaseo-seo-playground') ); ?>">
                 <?php if ( $ai_autofill_available ) : ?>
                     <option value="auto" selected><?php esc_html_e('Auto (Alma)', 'almaseo-seo-playground'); ?></option>
                     <option value="basic"><?php esc_html_e('Basic (Local)', 'almaseo-seo-playground'); ?></option>

@@ -298,36 +298,6 @@ jQuery(document).ready(function($) {
     
     // Handle locked schema selection — delegated from document so it survives
     // Gutenberg metabox re-renders that orphan direct bindings.
-    $(document).on('change', '#almaseo_schema_type', function(e) {
-        var $selected = $(this).find('option:selected');
-        var $notice = $('#schema-locked-notice');
-        
-        if ($selected.attr('data-locked') === '1') {
-            e.preventDefault();
-            // Revert to previous value or Article
-            var previousValue = $(this).data('previous') || 'Article';
-            $(this).val(previousValue);
-            
-            // Show upsell notice with enhanced message
-            $notice.html('<small style="color: #2c3338;">' +
-                'Advanced schema types require an AlmaSEO connection. ' +
-                '<a href="#tab-unlock-features" class="almaseo-tab-link">Connect now →</a>' +
-                '</small>');
-            $notice.slideDown();
-            
-            // Auto-hide after 6 seconds
-            clearTimeout($(this).data('hideTimeout'));
-            var hideTimeout = setTimeout(function() {
-                $notice.slideUp();
-            }, 6000);
-            $(this).data('hideTimeout', hideTimeout);
-        } else {
-            // Store valid selection
-            $(this).data('previous', $(this).val());
-            // Hide notice if showing
-            $notice.slideUp();
-        }
-    });
     
     // Store initial value
     $('#almaseo_schema_type').data('previous', $('#almaseo_schema_type').val());
@@ -415,24 +385,6 @@ jQuery(document).ready(function($) {
             $('.schema-article-fields').slideUp();
         }
         
-        // Check if premium schema is selected when not connected
-        var isPremium = $(this).find('option:selected').prop('disabled');
-        if (isPremium) {
-            // Reset to Article if premium is selected without access
-            $(this).val('Article');
-            $('.schema-article-fields').slideDown();
-            
-            // Show upgrade message
-            if (!$('.schema-upgrade-notice').length) {
-                $(this).after('<p class="schema-upgrade-notice" style="color: #d63638; margin-top: 10px;">🔒 This schema type requires AlmaSEO Pro or Max. <a href="' + seoPlaygroundData.connectionUrl + '" style="color: #667eea;">Upgrade now</a></p>');
-            }
-            
-            setTimeout(function() {
-                $('.schema-upgrade-notice').fadeOut(function() {
-                    $(this).remove();
-                });
-            }, 5000);
-        }
     });
     
     // Image URL preview for Open Graph

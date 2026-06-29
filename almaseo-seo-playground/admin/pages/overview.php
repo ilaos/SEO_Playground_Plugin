@@ -429,25 +429,7 @@ function seo_playground_render_overview_page() {
             </div>
         </div>
 
-        <!-- Pro Feature Teaser Strip -->
-        <?php if (!$is_pro): ?>
-            <div class="almaseo-pro-teaser-strip">
-                <div class="almaseo-pro-teaser-content">
-                    <div class="almaseo-pro-teaser-icon">
-                        <span class="dashicons dashicons-star-filled"></span>
-                    </div>
-                    <div class="almaseo-pro-teaser-text">
-                        <h3>Unlock Advanced SEO Features with AlmaSEO Pro</h3>
-                        <p>Get access to <strong>LLM Optimization</strong> (optimize for ChatGPT & LLM-powered search), 301 Redirects, Bulk Meta Editor, WooCommerce SEO, Advanced Schema, 404 Monitoring, and more!</p>
-                    </div>
-                    <div class="almaseo-pro-teaser-action">
-                        <a href="https://almaseo.com/pricing" target="_blank" class="almaseo-pro-upgrade-btn">
-                            Upgrade to Pro &rarr;
-                        </a>
-                    </div>
-                </div>
-            </div>
-        <?php endif; ?>
+
 
         <!-- View Meta Modal -->
         <div id="almaseo-view-meta-modal" class="almaseo-modal">

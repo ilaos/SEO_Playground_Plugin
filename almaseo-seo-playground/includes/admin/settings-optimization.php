@@ -130,9 +130,7 @@ $languages = [
                         <option value="gsc" <?php selected($current_provider, 'gsc'); ?>>
                             Google Search Console (Beta)
                         </option>
-                        <option value="dataforseo" <?php selected($current_provider, 'dataforseo'); ?> disabled>
-                            DataForSEO (Coming Soon) 🔜
-                        </option>
+
                     </select>
                     <p class="description">
                         Select the data source for keyword metrics. Sample Data requires no configuration.
@@ -227,7 +225,7 @@ $languages = [
 
                 <p style="font-size: 15px; line-height: 1.7; color: #555;">
                     We're building powerful keyword intelligence features powered by DataForSEO's industry-leading SERP data.
-                    This premium integration will bring professional-grade SEO insights directly to your WordPress editor.
+                    This planned integration will bring professional-grade SEO insights directly to your WordPress editor.
                 </p>
 
                 <div style="background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 15px; margin: 20px 0;">
@@ -249,22 +247,7 @@ $languages = [
                     </p>
                 </div>
 
-                <?php if (almaseo_is_pro_active()): ?>
-                    <div style="background: #e7f5e9; border: 1px solid #46b450; border-radius: 6px; padding: 15px; text-align: center;">
-                        <span class="dashicons dashicons-yes-alt" style="color: #46b450; font-size: 24px; vertical-align: middle;"></span>
-                        <strong style="color: #2c662d; font-size: 15px;">Included in Your Pro Plan</strong>
-                        <p style="margin: 10px 0 0; color: #2c662d; font-size: 14px;">
-                            You'll get automatic access when this feature launches. No additional purchase needed!
-                        </p>
-                    </div>
-                <?php else: ?>
-                    <div style="text-align: center; margin-top: 20px;">
-                        <a href="https://almaseo.com/pro#dataforseo" class="button button-primary button-large" target="_blank" style="background: #f7b731; border-color: #f7b731; text-shadow: none; box-shadow: 0 2px 4px rgba(247, 183, 49, 0.3);">
-                            <span class="dashicons dashicons-unlock" style="vertical-align: middle;"></span>
-                            Upgrade to Pro for Early Access
-                        </a>
-                    </div>
-                <?php endif; ?>
+
 
                 <p style="margin-top: 20px; font-size: 13px; color: #666; text-align: center;">
                     Want to be notified when this launches?

@@ -118,19 +118,7 @@ function almaseo_render_dataforseo_coming_soon() {
 
                 <!-- CTA Buttons -->
                 <div class="almaseo-coming-soon-actions">
-                    <?php if ( ! $is_pro ) : ?>
-                        <!-- Free Tier: Upgrade CTA -->
-                        <a href="https://almaseo.com/pro#dataforseo" class="button button-primary button-hero" target="_blank">
-                            <span class="dashicons dashicons-unlock"></span>
-                            Upgrade to Pro for Early Access
-                        </a>
-                    <?php else : ?>
-                        <!-- Pro Tier: Already Included -->
-                        <div class="almaseo-pro-waiting-message">
-                            <span class="dashicons dashicons-info"></span>
-                            You'll get automatic access when this feature launches. No additional purchase needed!
-                        </div>
-                    <?php endif; ?>
+
 
                     <a href="<?php echo esc_url( admin_url( 'admin.php?page=seo-playground' ) ); ?>" class="button button-secondary">
                         <span class="dashicons dashicons-arrow-left-alt"></span>

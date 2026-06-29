@@ -480,22 +480,10 @@ class AlmaSEO_Settings {
 
                 <!-- Advanced Schema Section (Pro) -->
                 <div id="almaseo-advanced-schema" class="almaseo-settings-section" style="margin-top: 30px;">
-                    <h2><?php esc_html_e('Advanced Schema (Pro)', 'almaseo-seo-playground'); ?></h2>
+                    <h2><?php esc_html_e('Advanced Schema', 'almaseo-seo-playground'); ?></h2>
 
                     <?php if (!almaseo_feature_available('schema_advanced')): ?>
-                        <!-- Free Tier: Lock Card -->
-                        <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 2px dashed #cbd5e1; border-radius: 8px; padding: 30px; text-align: center;">
-                            <div style="margin-bottom: 16px;">
-                                <span class="dashicons dashicons-lock" style="font-size: 48px; width: 48px; height: 48px; color: #94a3b8;"></span>
-                            </div>
-                            <h3 style="margin: 0 0 8px 0;"><?php esc_html_e('Advanced Schema Features', 'almaseo-seo-playground'); ?></h3>
-                            <p style="color: #64748b; margin-bottom: 20px;">
-                                <?php esc_html_e('Unlock Knowledge Graph, BreadcrumbList, FAQPage, HowTo, and advanced schema types to make your content stand out in search results.', 'almaseo-seo-playground'); ?>
-                            </p>
-                            <a href="https://almaseo.com/pricing" target="_blank" class="button button-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
-                                <?php esc_html_e('Upgrade to Pro', 'almaseo-seo-playground'); ?>
-                            </a>
-                        </div>
+
                     <?php else: ?>
                         <!-- Pro Tier: Full Controls -->
                         <?php
@@ -627,19 +615,7 @@ class AlmaSEO_Settings {
                     </p>
 
                     <?php if (!almaseo_feature_available('evergreen_advanced')): ?>
-                        <!-- Free Tier: Lock Card -->
-                        <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 2px dashed #cbd5e1; border-radius: 8px; padding: 24px; text-align: center; margin-bottom: 20px;">
-                            <span class="dashicons dashicons-lock" style="font-size: 48px; width: 48px; height: 48px; color: #94a3b8; margin-bottom: 12px;"></span>
-                            <h3 style="margin: 0 0 8px 0; font-weight: 600; color: #1e293b; font-size: 18px;">
-                                <?php esc_html_e('Evergreen Advanced Features', 'almaseo-seo-playground'); ?>
-                            </h3>
-                            <p style="margin: 0 0 16px 0; color: #475569; max-width: 600px; margin-left: auto; margin-right: auto;">
-                                <?php esc_html_e('Unlock advanced freshness scoring, Alma-powered prioritization, traffic trend analysis, and intelligent refresh matrices. Available in Pro and Agency tiers.', 'almaseo-seo-playground'); ?>
-                            </p>
-                            <a href="https://almaseo.com/pricing" target="_blank" class="button button-primary" style="background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%); border: none; box-shadow: 0 4px 6px rgba(99, 102, 241, 0.25); text-shadow: none;">
-                                <?php esc_html_e('Upgrade to Pro', 'almaseo-seo-playground'); ?>
-                            </a>
-                        </div>
+
                     <?php else: ?>
                         <!-- Pro Tier: Full Controls -->
                         <?php
