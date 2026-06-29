@@ -8,3 +8,6 @@ tmp-probes/
 
 # Release zip output directory.
 dist/
+
+# Local Claude Code settings — per-machine, not shared.
+.claude/settings.local.json
