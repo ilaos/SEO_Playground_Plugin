@@ -54,7 +54,6 @@ function almaseo_is_pro_active() {
  * - 'evergreen_advanced': Advanced evergreen content filters
  * - 'schema_advanced': Advanced schema markup options
  * - 'schema_multi': Multi-schema (additional @graph nodes per page)
- * - 'optimization_dataforseo': DataForSEO keyword provider
  * - 'internal_links': Internal links auto-linker
  * - 'refresh_drafts': Content refresh drafts
  * - 'refresh_queue': Refresh queue autoprioritization
@@ -190,7 +189,6 @@ function almaseo_get_pro_features() {
         'evergreen_advanced',
         'schema_advanced',
         'schema_multi',
-        'optimization_dataforseo',
         'internal_links',
         'refresh_drafts',
         'refresh_queue',

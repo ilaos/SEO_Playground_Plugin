@@ -57,7 +57,6 @@ AlmaSEO SEO Playground is a complete SEO toolkit for WordPress that combines fre
 * Orphan Page Detection
 * Schema Drift Monitor
 * Featured Snippet Targeting
-* DataForSEO Integration
 
 **Alma-Enhanced (when connected to AlmaSEO dashboard):**
 

@@ -33,16 +33,6 @@ if (isset($_POST['almaseo_save_optimization_settings'])) {
         // Note: OAuth credentials would be handled separately
     }
 
-    // Update DataForSEO credentials if provided
-    if (sanitize_text_field(wp_unslash($_POST['almaseo_keyword_provider'])) === 'dataforseo') {
-        if (isset($_POST['almaseo_dataforseo_login'])) {
-            update_option('almaseo_dataforseo_login', sanitize_text_field(wp_unslash($_POST['almaseo_dataforseo_login'])));
-        }
-        if (isset($_POST['almaseo_dataforseo_password'])) {
-            update_option('almaseo_dataforseo_password', sanitize_text_field(wp_unslash($_POST['almaseo_dataforseo_password'])));
-        }
-    }
-    
     echo '<div class="notice notice-success"><p>Settings saved successfully!</p></div>';
 }
 
@@ -51,7 +41,6 @@ $current_provider = get_option('almaseo_keyword_provider', 'stub');
 $target_country = get_option('almaseo_target_country', 'US');
 $target_language = get_option('almaseo_target_language', 'en');
 $gsc_site_url = get_option('almaseo_gsc_site_url', '');
-$dataforseo_login = get_option('almaseo_dataforseo_login', '');
 
 // Countries list (ISO 3166-1 alpha-2)
 $countries = [
@@ -151,7 +140,7 @@ $languages = [
                         <?php endforeach; ?>
                     </select>
                     <p class="description">
-                        Country for localized keyword data (used with DataForSEO).
+                        Country for localized keyword data.
                     </p>
                 </td>
             </tr>
@@ -210,52 +199,6 @@ $languages = [
             </table>
         </div>
         
-        <!-- DataForSEO Settings - Coming Soon -->
-        <div id="dataforseo-settings" style="<?php echo esc_attr($current_provider === 'dataforseo' ? '' : 'display:none;'); ?>">
-            <div style="background: #fff9e6; border: 2px solid #f7b731; border-radius: 8px; padding: 20px; margin: 20px 0; position: relative; overflow: hidden;">
-                <!-- Gold Coming Soon Badge -->
-                <div style="position: absolute; top: 15px; right: -35px; width: 200px; text-align: center; transform: rotate(45deg); background: linear-gradient(135deg, #f5a623 0%, #f7b731 100%); box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2); z-index: 1;">
-                    <span style="display: block; padding: 8px 0; color: #fff; font-weight: 700; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);">COMING SOON</span>
-                </div>
-
-                <h2 style="margin-top: 0; display: flex; align-items: center; gap: 10px;">
-                    <span class="dashicons dashicons-chart-line" style="font-size: 32px; color: #f7b731;"></span>
-                    DataForSEO Keyword Intelligence
-                </h2>
-
-                <p style="font-size: 15px; line-height: 1.7; color: #555;">
-                    We're building powerful keyword intelligence features powered by DataForSEO's industry-leading SERP data.
-                    This planned integration will bring professional-grade SEO insights directly to your WordPress editor.
-                </p>
-
-                <div style="background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 15px; margin: 20px 0;">
-                    <h3 style="margin-top: 0; font-size: 16px;">Coming Features:</h3>
-                    <ul style="margin: 10px 0; padding-left: 25px; line-height: 1.8;">
-                        <li><strong>Advanced SERP Metrics</strong> - Real-time search volume and trends</li>
-                        <li><strong>Competitor Analysis</strong> - See who's ranking and analyze strategies</li>
-                        <li><strong>Keyword Difficulty</strong> - Accurate difficulty metrics for quick wins</li>
-                        <li><strong>Live SERP Snapshots</strong> - Capture and analyze search results</li>
-                        <li><strong>CPC & Ad Intelligence</strong> - Cost-per-click and advertising data</li>
-                        <li><strong>International Data</strong> - Target specific countries and languages</li>
-                    </ul>
-                </div>
-
-                <div style="background: #f0f9ff; border: 1px solid #3b82f6; border-radius: 6px; padding: 15px; margin: 20px 0;">
-                    <p style="margin: 0; font-size: 14px; color: #1e40af;">
-                        <strong>📅 Development Status:</strong> Active development in progress<br>
-                        <strong>🚀 Expected Release:</strong> Q2 2025
-                    </p>
-                </div>
-
-
-
-                <p style="margin-top: 20px; font-size: 13px; color: #666; text-align: center;">
-                    Want to be notified when this launches?
-                    <a href="https://almaseo.com/notify" target="_blank" style="color: #f7b731; font-weight: 500;">Join our notification list</a>
-                </p>
-            </div>
-        </div>
-        
         <!-- Information Box -->
         <div class="notice notice-info" style="margin-top: 20px;">
             <p>
@@ -264,7 +207,6 @@ $languages = [
             <ul style="list-style: disc; margin-left: 20px;">
                 <li><strong>Sample Data:</strong> Uses generated data for testing. No API required.</li>
                 <li><strong>Google Search Console:</strong> Provides real ranking data from your Search Console account. Limited to your own site's keywords.</li>
-                <li><strong>DataForSEO (Coming Soon):</strong> Advanced SERP analytics with search volume, keyword difficulty, competitor analysis, and more. Expected Q2 2025.</li>
             </ul>
         </div>
         
@@ -276,7 +218,6 @@ $languages = [
             <ul style="list-style: disc; margin-left: 20px;">
                 <li>Maximum 50 keyword refreshes per 10 minutes per user</li>
                 <li>Google Search Console: 10 requests per minute</li>
-                <li>DataForSEO: 50 requests per minute (depends on your plan)</li>
             </ul>
         </div>
         
@@ -296,13 +237,11 @@ jQuery(document).ready(function($) {
         var provider = $(this).val();
         
         // Hide all provider settings
-        $('#gsc-settings, #dataforseo-settings').hide();
-        
+        $('#gsc-settings').hide();
+
         // Show selected provider settings
         if (provider === 'gsc') {
             $('#gsc-settings').show();
-        } else if (provider === 'dataforseo') {
-            $('#dataforseo-settings').show();
         }
     });
 });

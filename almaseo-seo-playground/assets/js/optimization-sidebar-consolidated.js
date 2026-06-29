@@ -111,8 +111,7 @@
         getProviderDisplayName(providerId) {
             const names = {
                 'stub': 'Sample Data',
-                'gsc': 'Google Search Console',
-                'dataforseo': 'DataForSEO'
+                'gsc': 'Google Search Console'
             };
             return names[providerId] || 'Unknown';
         }

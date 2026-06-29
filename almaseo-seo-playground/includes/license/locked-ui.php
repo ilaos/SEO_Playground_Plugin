@@ -294,11 +294,6 @@ function almaseo_get_locked_feature_content( $feature ) {
             'description' => 'Unlock advanced schema types, custom properties, and enhanced structured data capabilities.',
             'url'         => 'https://almaseo.com/pro#schema',
         ),
-        'optimization_dataforseo' => array(
-            'name'        => 'DataForSEO Integration',
-            'description' => 'Access real-time keyword data, search volume, difficulty scores, and competitive analysis with DataForSEO integration.',
-            'url'         => 'https://almaseo.com/pro#dataforseo',
-        ),
         'internal_links' => array(
             'name'        => 'Internal Links',
             'description' => 'Build a stronger internal linking structure without editing a single post. Create keyword-to-page rules and AlmaSEO automatically inserts the right links when visitors view your content. Built-in guardrails prevent over-linking, and your original content is never modified.',
