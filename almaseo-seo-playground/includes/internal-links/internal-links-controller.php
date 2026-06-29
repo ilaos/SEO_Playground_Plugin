@@ -84,14 +84,6 @@ class AlmaSEO_Internal_Links_Controller {
             wp_die(esc_html__( 'You do not have sufficient permissions to access this page.', 'almaseo-seo-playground' ) );
         }
 
-        // Pro gate.
-        if ( function_exists( 'almaseo_feature_available' ) && ! almaseo_feature_available( 'orphan_detection' ) ) {
-            if ( function_exists( 'almaseo_render_feature_locked' ) ) {
-                almaseo_render_feature_locked( 'orphan_detection' );
-            }
-            return;
-        }
-
         require_once plugin_dir_path( dirname( dirname( __FILE__ ) ) ) . 'admin/pages/internal-links-orphans.php';
     }
 
@@ -254,13 +246,7 @@ class AlmaSEO_Internal_Links_Controller {
     /* ── Orphan permission check ── */
 
     public static function can_manage_orphans() {
-        if ( ! current_user_can( 'manage_options' ) ) {
-            return false;
-        }
-        if ( function_exists( 'almaseo_feature_available' ) && ! almaseo_feature_available( 'orphan_detection' ) ) {
-            return new WP_Error( 'pro_required', 'Orphan Detection requires Pro.', array( 'status' => 403 ) );
-        }
-        return true;
+        return current_user_can( 'manage_options' );
     }
 
     /* ── Orphan REST callbacks ── */
