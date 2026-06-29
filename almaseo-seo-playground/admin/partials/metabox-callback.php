@@ -561,7 +561,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         top: 0;
                         left: 0;
                         right: 0;
-                        z-index: 1000;
+                        z-index: 100000;
                         background: #fff;
                         border: 1px solid #ddd;
                         border-radius: 4px;
@@ -573,6 +573,96 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         overflow-y: auto;
                     "></ul>
                 </div>
+
+                <!-- AlmaSEO-powered Keyword Suggestions (real search volume when connected) -->
+                <?php $almaseo_kw_pid = ( isset( $post ) && is_object( $post ) ) ? (int) $post->ID : (int) get_the_ID(); ?>
+                <div class="almaseo-kw-suggest-panel" style="margin-top:12px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                        <strong style="font-size:12px;"><?php esc_html_e('Keyword Suggestions', 'almaseo-seo-playground'); ?></strong>
+                        <a href="#" id="almaseo-kw-refresh" style="font-size:12px; text-decoration:none;">↻ <?php esc_html_e('Refresh', 'almaseo-seo-playground'); ?></a>
+                    </div>
+                    <div id="almaseo-kw-suggest-list">
+                        <span class="spinner is-active" style="float:none; margin:0;"></span>
+                        <?php esc_html_e('Loading keyword suggestions…', 'almaseo-seo-playground'); ?>
+                    </div>
+                </div>
+                <script>
+                (function($){
+                    var $list  = $('#almaseo-kw-suggest-list');
+                    var $input = $('#almaseo_focus_keyword');
+                    if (!$list.length) return;
+                    var postId   = <?php echo (int) $almaseo_kw_pid; ?>;
+                    var ajaxUrl  = <?php echo wp_json_encode( admin_url('admin-ajax.php') ); ?>;
+                    var nonce    = <?php echo wp_json_encode( wp_create_nonce('almaseo_health_nonce') ); ?>;
+                    var lastSeed = null, timer = null, xhr = null;
+                    function esc(s){ return $('<div>').text(s == null ? '' : String(s)).html(); }
+                    function spinner(){
+                        $list.html('<span class="spinner is-active" style="float:none; margin:0;"></span> ' + esc(<?php echo wp_json_encode( __('Loading…', 'almaseo-seo-playground') ); ?>));
+                    }
+                    function fmt(n){
+                        n = parseInt(n, 10) || 0;
+                        if (n >= 1000000) return (n/1000000).toFixed(1).replace(/\.0$/,'') + 'M';
+                        if (n >= 1000)    return (n/1000).toFixed(1).replace(/\.0$/,'') + 'K';
+                        return String(n);
+                    }
+                    function render(r){
+                        if (r && r.success && r.data && r.data.keywords && r.data.keywords.length) {
+                            var html = '<div class="keyword-chips">';
+                            r.data.keywords.forEach(function(k){
+                                var stats = [];
+                                if (k.impressions) { stats.push(fmt(k.impressions) + ' impr'); }
+                                if (k.position)    { stats.push('#' + Number(k.position).toFixed(1)); }
+                                if (k.opportunity) { stats.push('opp ' + k.opportunity); }
+                                if (k.volume)      { stats.push(k.volume + '/mo'); }
+                                var label = esc(k.term);
+                                if (stats.length) { label += ' <small style="color:#777;">· ' + esc(stats.join(' · ')) + '</small>'; }
+                                html += '<span class="keyword-chip almaseo-kw-pick" data-kw="' + esc(k.term) + '" title="' + esc(<?php echo wp_json_encode( __('Use as focus keyword', 'almaseo-seo-playground') ); ?>) + '" style="cursor:pointer;">' + label + '</span> ';
+                            });
+                            html += '</div>';
+                            if (r.data.has_real_metrics) {
+                                html += '<p class="description" style="margin-top:8px; color:#777;">📡 ' + esc(<?php echo wp_json_encode( __('From your own Google Search Console — keywords you already rank for. Click one to set it as your focus keyword.', 'almaseo-seo-playground') ); ?>) + '</p>';
+                            } else if (r.data.enrichment_nudge) {
+                                html += '<p class="description" style="margin-top:8px;">💡 ' + esc(r.data.enrichment_nudge) + '</p>';
+                            }
+                            $list.html(html);
+                        } else {
+                            var msg = (r && r.data && r.data.message) ? r.data.message : <?php echo wp_json_encode( __('Type a focus keyword above to see suggestions.', 'almaseo-seo-playground') ); ?>;
+                            $list.html('<p class="description">' + esc(msg) + '</p>');
+                        }
+                    }
+                    function fetchSuggestions(seed){
+                        seed = (seed || '').trim();
+                        lastSeed = seed;
+                        if (xhr) { xhr.abort(); xhr = null; }
+                        spinner();
+                        xhr = $.post(ajaxUrl, { action: 'almaseo_get_keyword_suggestions', post_id: postId, nonce: nonce, keyword: seed })
+                            .done(render)
+                            .fail(function(st){
+                                if (st && st.statusText === 'abort') { return; }
+                                $list.html('<p class="description">' + esc(<?php echo wp_json_encode( __('Could not load keyword suggestions.', 'almaseo-seo-playground') ); ?>) + '</p>');
+                            });
+                    }
+                    // Initial load: use whatever is in the focus keyword field now
+                    // (server falls back to the saved keyword / post title if empty).
+                    fetchSuggestions($input.val());
+                    // Live refetch when the focus keyword changes — no save/reload needed.
+                    $input.on('input', function(){
+                        var v = $(this).val().trim();
+                        clearTimeout(timer);
+                        if (v.length < 2 || v === lastSeed) { return; }
+                        timer = setTimeout(function(){ fetchSuggestions(v); }, 700);
+                    });
+                    $('#almaseo-kw-refresh').on('click', function(e){ e.preventDefault(); fetchSuggestions($input.val()); });
+                    // Click a suggestion to make it the focus keyword, then reseed
+                    // the panel around it (without popping the autocomplete dropdown).
+                    $list.on('click', '.almaseo-kw-pick', function(){
+                        var kw = $(this).data('kw');
+                        if (!kw) { return; }
+                        $input.val(kw).trigger('change');
+                        fetchSuggestions(kw);
+                    });
+                })(jQuery);
+                </script>
                 <script>
                 (function(){
                     var input = document.getElementById('almaseo_focus_keyword');
