@@ -263,10 +263,6 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/eeat/eeat-loader.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/eeat/eeat-loader.php';
 }
 
-// Include GSC Monitor module (v7.5.0+) - Pro feature
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/gsc-monitor/gsc-monitor-loader.php')) {
-    require_once plugin_dir_path(__FILE__) . 'includes/gsc-monitor/gsc-monitor-loader.php';
-}
 
 // Include Schema Drift Monitor module (v7.8.0+) - Pro feature
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/schema-drift/schema-drift-loader.php')) {

@@ -319,11 +319,6 @@ function almaseo_get_locked_feature_content( $feature ) {
             'description' => 'Scan your content for missing trust signals: author attribution, credentials, biographical info, author schema, and citation links. Build the Experience, Expertise, Authoritativeness, and Trustworthiness that Google looks for.',
             'url'         => 'https://almaseo.com/pro#eeat',
         ),
-        'gsc_monitor' => array(
-            'name'        => 'GSC Monitor',
-            'description' => 'Track indexation drift, rich result changes, and snippet rewrites detected from your Google Search Console data. Get alerted when Google drops pages from the index, removes rich results, or rewrites your titles and descriptions.',
-            'url'         => 'https://almaseo.com/pro#gsc-monitor',
-        ),
         'orphan_detection' => array(
             'name'        => 'Orphan Page Detection',
             'description' => 'Find pages with no internal links pointing to them. Discover orphan pages invisible to search crawlers, identify weak pages with too few links, and detect hub candidates that could become cornerstone content with better linking.',

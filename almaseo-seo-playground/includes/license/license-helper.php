@@ -59,7 +59,6 @@ function almaseo_is_pro_active() {
  * - 'refresh_queue': Refresh queue autoprioritization
  * - 'date_hygiene': Date hygiene scanner
  * - 'eeat_enforcement': E-E-A-T enforcement
- * - 'gsc_monitor': GSC Monitor
  * - 'orphan_detection': Orphan page detection
  * - 'schema_drift': Schema drift monitor
  * - 'author_entity_dashboard': RESERVED (not yet enforced) — future dashboard-powered
@@ -194,7 +193,6 @@ function almaseo_get_pro_features() {
         'refresh_queue',
         'date_hygiene',
         'eeat_enforcement',
-        'gsc_monitor',
         'orphan_detection',
         'schema_drift',
         'author_entity_dashboard', // RESERVED — see almaseo_feature_available()

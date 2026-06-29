@@ -2187,25 +2187,18 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     fetchGSCData();
                 });
 
-                // On successful data load, mark GSC as confirmed so future
-                // tab visits auto-fetch without showing the connect screen
+                // On successful data load, mark GSC as confirmed so the refresh
+                // and date-range controls become active for this session.
                 var origRenderData = renderData;
                 renderData = function(data) {
                     gscConfirmed = true;
                     origRenderData(data);
                 };
 
-                // Tab activation — auto-load the data the first time the tab is
-                // opened on this page (and again after a reload), so it persists
-                // without re-clicking "Load Search Data". Attempt at most once per
-                // page load even if GSC isn't connected or returns no data; the
-                // refresh button and date-range selector handle re-fetching after.
-                $(document).on('click', '.almaseo-tab-btn[data-tab="search-console"]', function() {
-                    if (!gscAttempted) {
-                        gscAttempted = true;
-                        fetchGSCData();
-                    }
-                });
+                // Search Console data is fetched only when the user explicitly
+                // clicks "Load Search Data" (#gsc-connect-btn) above. The tab does
+                // not auto-fetch on open, so no remote request is made until the
+                // user opts in.
             });
             </script>
         </div>
@@ -4706,15 +4699,10 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 $(document).on('click', '#ga-nodata-refresh', fetchGAData);
                 $(document).on('click', '#ga-connect-btn', function(e) { e.preventDefault(); fetchGAData(); });
 
-                // Auto-load the first time the Analytics tab is opened (and after a
-                // reload), so the data persists without re-clicking. Attempt once per
-                // page load; the refresh button and date-range selector re-fetch after.
-                $(document).on('click', '.almaseo-tab-btn[data-tab="analytics"]', function() {
-                    if (!gaAttempted) {
-                        gaAttempted = true;
-                        fetchGAData();
-                    }
-                });
+                // Analytics data is fetched only when the user explicitly clicks
+                // "Load Analytics" (#ga-connect-btn) above. The tab does not
+                // auto-fetch on open, so no remote request is made until the user
+                // opts in.
             });
             </script>
         </div>

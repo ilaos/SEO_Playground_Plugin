@@ -759,10 +759,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                     <td><?php esc_html_e( 'Scan for trust signal gaps: missing author, bio, credentials, citations, review attribution', 'almaseo-seo-playground' ); ?></td>
                 </tr>
                 <tr>
-                    <td><?php esc_html_e( 'GSC Monitor', 'almaseo-seo-playground' ); ?></td>
-                    <td><?php esc_html_e( 'Track indexation drift, rich result changes, and Google snippet rewrites', 'almaseo-seo-playground' ); ?></td>
-                </tr>
-                <tr>
                     <td><?php esc_html_e( '404 Intelligence', 'almaseo-seo-playground' ); ?></td>
                     <td><?php esc_html_e( 'Smart redirect suggestions, spike detection, impact scoring, redirect chain detection', 'almaseo-seo-playground' ); ?></td>
                 </tr>
