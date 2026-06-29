@@ -14,7 +14,7 @@ Professional SEO optimization plugin with Alma-powered content generation, compr
 
 AlmaSEO SEO Playground is a complete SEO toolkit for WordPress that combines free competitive-parity features with optional Alma-powered enhancements.
 
-**Free Features:**
+**Features (all included, no paid tier):**
 
 * SEO Health Score with 10 weighted signals
 * Meta title, description, and focus keyword editor
@@ -40,9 +40,6 @@ AlmaSEO SEO Playground is a complete SEO toolkit for WordPress that combines fre
 * Image SEO (auto alt/title templates)
 * Setup wizard for first-run
 * Evergreen content tracker
-
-**Pro Features:**
-
 * Bulk Metadata Editor
 * WooCommerce SEO
 * Internal Links Auto-Linker

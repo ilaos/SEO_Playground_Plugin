@@ -49,7 +49,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
             <li><a href="#cat-management"><?php esc_html_e( 'Site Management', 'almaseo-seo-playground' ); ?></a> <span class="almaseo-docs-toc-count">(7)</span></li>
             <li><a href="#cat-blocks"><?php esc_html_e( 'Block Editor Enhancements', 'almaseo-seo-playground' ); ?></a> <span class="almaseo-docs-toc-count">(2)</span></li>
             <li><a href="#cat-dashboard"><?php esc_html_e( 'Alma-Powered Dashboard Enhancements', 'almaseo-seo-playground' ); ?></a></li>
-            <li><a href="#cat-pro"><?php esc_html_e( 'Pro Features', 'almaseo-seo-playground' ); ?></a></li>
+            <li><a href="#cat-pro"><?php esc_html_e( 'Advanced Features', 'almaseo-seo-playground' ); ?></a></li>
         </ol>
     </div>
 
@@ -725,11 +725,11 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 
     <!-- ════════════════════════════════════════════════════════════ -->
-    <!-- Pro Features (informational section)                        -->
+    <!-- Advanced Features (informational section)                   -->
     <!-- ════════════════════════════════════════════════════════════ -->
     <div class="almaseo-docs-info-section" id="cat-pro">
-        <h2><?php esc_html_e( 'Pro Features', 'almaseo-seo-playground' ); ?></h2>
-        <p><?php esc_html_e( 'For teams needing advanced automation and intelligence. Pro features require a license.', 'almaseo-seo-playground' ); ?></p>
+        <h2><?php esc_html_e( 'Advanced Features', 'almaseo-seo-playground' ); ?></h2>
+        <p><?php esc_html_e( 'Advanced automation and intelligence tools — all included free with this plugin.', 'almaseo-seo-playground' ); ?></p>
         <table class="almaseo-docs-table">
             <thead>
                 <tr>
@@ -769,13 +769,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
                 <tr>
                     <td><?php esc_html_e( 'Schema Drift Monitor', 'almaseo-seo-playground' ); ?></td>
                     <td><?php esc_html_e( 'Detect when structured data changes unexpectedly after plugin/theme updates', 'almaseo-seo-playground' ); ?></td>
-                </tr>
-                <tr>
-                    <td>
-                        <?php esc_html_e( 'Featured Snippet Targeting', 'almaseo-seo-playground' ); ?>
-                        <em style="color:#646970; font-weight:normal;"><?php esc_html_e( '(coming soon)', 'almaseo-seo-playground' ); ?></em>
-                    </td>
-                    <td><?php esc_html_e( 'Win Google\'s "position zero" with draft editor, live preview, and one-click content insertion', 'almaseo-seo-playground' ); ?></td>
                 </tr>
             </tbody>
         </table>
