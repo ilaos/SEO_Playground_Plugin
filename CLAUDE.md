@@ -1,5 +1,12 @@
 # AlmaSEO SEO Playground Plugin
 
+> **⚠️ WordPress.org submission compliance:** Before changing any feature with a
+> free/premium split, read [`COMPLIANCE.md`](COMPLIANCE.md). It encodes WP.org
+> Guidelines 5 (Trialware) / 6 (Serviceware): no locked/disabled controls, no
+> quotas, and **no premium logic gated inside the free codebase** — premium must
+> live in a separate plugin and switch on via a hook handoff. The current
+> `almaseo_feature_available()` gates and lock screens are the cleanup surface.
+
 ## Project Overview
 - **Plugin Version:** 1.8.0
 - **Plugin Source:** `almaseo-seo-playground/` (root of this repo)
