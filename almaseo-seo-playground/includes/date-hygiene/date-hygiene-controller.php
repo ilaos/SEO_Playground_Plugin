@@ -3,7 +3,7 @@
  * Date Hygiene Scanner – Admin Controller
  *
  * Registers the "Date Hygiene" submenu page, enqueues assets,
- * and handles the Pro feature gate.
+ * and registers its assets and REST routes.
  *
  * @package AlmaSEO
  * @since   7.3.0

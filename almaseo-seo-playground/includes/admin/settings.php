@@ -83,7 +83,7 @@ class AlmaSEO_Settings {
             'sanitize_callback' => array($this, 'sanitize_schema_control')
         ));
 
-        // Advanced schema settings (Pro feature)
+        // Advanced schema settings
         register_setting('almaseo_settings', 'almaseo_schema_advanced_settings', array(
             'type' => 'array',
             'default' => array(
@@ -97,7 +97,7 @@ class AlmaSEO_Settings {
             'sanitize_callback' => array($this, 'sanitize_schema_advanced_settings')
         ));
 
-        // Evergreen Advanced settings (Pro feature)
+        // Evergreen Advanced settings
         register_setting('almaseo_settings', 'almaseo_evergreen_advanced_settings', array(
             'type' => 'array',
             'default' => array(
@@ -478,14 +478,11 @@ class AlmaSEO_Settings {
                     </table>
                 </div>
 
-                <!-- Advanced Schema Section (Pro) -->
+                <!-- Advanced Schema Section -->
                 <div id="almaseo-advanced-schema" class="almaseo-settings-section" style="margin-top: 30px;">
                     <h2><?php esc_html_e('Advanced Schema', 'almaseo-seo-playground'); ?></h2>
 
-                    <?php if (!almaseo_feature_available('schema_advanced')): ?>
-
-                    <?php else: ?>
-                        <!-- Pro Tier: Full Controls -->
+                    
                         <?php
                         $adv_settings = get_option('almaseo_schema_advanced_settings', array(
                             'enabled' => false,
@@ -604,20 +601,17 @@ class AlmaSEO_Settings {
                             </tr>
 
                         </table>
-                    <?php endif; ?>
+                    
                 </div>
 
-                <!-- Evergreen Advanced (Pro) Section -->
+                <!-- Evergreen Advanced Section -->
                 <div class="almaseo-settings-section" style="margin-top: 40px; padding-top: 40px; border-top: 2px solid #e5e7eb;">
                     <h2><?php esc_html_e('Evergreen (Advanced)', 'almaseo-seo-playground'); ?></h2>
                     <p class="description" style="margin-bottom: 20px;">
                         <?php esc_html_e('Advanced content freshness analysis with Alma-powered scoring, traffic trend integration, and intelligent refresh prioritization.', 'almaseo-seo-playground'); ?>
                     </p>
 
-                    <?php if (!almaseo_feature_available('evergreen_advanced')): ?>
-
-                    <?php else: ?>
-                        <!-- Pro Tier: Full Controls -->
+                    
                         <?php
                         $evergreen_adv_settings = get_option('almaseo_evergreen_advanced_settings', array(
                             'enabled' => false,
@@ -780,7 +774,7 @@ class AlmaSEO_Settings {
                                 </td>
                             </tr>
                         </table>
-                    <?php endif; ?>
+                    
                 </div>
 
                 <?php

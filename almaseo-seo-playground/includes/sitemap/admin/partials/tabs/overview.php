@@ -336,7 +336,7 @@ if (function_exists('almaseo_get_health_summary')) {
             <button type="button" class="button" disabled aria-disabled="true" 
                     title="<?php esc_attr_e('Configure IndexNow key in Updates & I/O tab first', 'almaseo-seo-playground'); ?>">
                 <span class="dashicons dashicons-megaphone"></span>
-                <?php esc_html_e('IndexNow', 'almaseo-seo-playground'); ?> <span class="dashicons dashicons-lock" style="font-size: 12px; margin-left: 4px;"></span>
+                <?php esc_html_e('IndexNow', 'almaseo-seo-playground'); ?>
             </button>
             <?php endif; ?>
             

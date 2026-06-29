@@ -59,9 +59,6 @@ function seo_playground_render_overview_page() {
         $error_404_count = isset($stats_404['unique_7d']) ? (int) $stats_404['unique_7d'] : 0;
     }
 
-    // Check if Pro is active
-    $is_pro = almaseo_is_pro_active();
-
     ?>
     <div class="wrap almaseo-overview-wrap">
         <!-- Header / Hero Bar -->

@@ -3,7 +3,7 @@
  * Refresh Queue – Admin Controller
  *
  * Registers the "Refresh Queue" submenu page, enqueues assets,
- * and handles the Pro feature gate.
+ * and registers its assets and REST routes.
  *
  * @package AlmaSEO
  * @since   7.2.0

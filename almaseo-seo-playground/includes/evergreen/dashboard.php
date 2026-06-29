@@ -494,8 +494,7 @@ function almaseo_eg_render_dashboard() {
         </div>
 
         <?php
-        // Advanced Evergreen Panels (Pro Only)
-        if (almaseo_feature_available('evergreen_advanced')) {
+        // Advanced Evergreen Panels.
             $adv_settings = get_option('almaseo_evergreen_advanced_settings', array('enabled' => false));
             if (!empty($adv_settings['enabled'])) {
                 // Get advanced summary data
@@ -684,7 +683,6 @@ function almaseo_eg_render_dashboard() {
                 </div>
                 <?php
             }
-        }
         ?>
 
     </div>

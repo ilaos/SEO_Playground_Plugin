@@ -88,16 +88,6 @@ add_action( 'admin_init', function () {
 // at the top of this file. If we reach this point, no conflicting SEO
 // plugin is active on the frontend (or this is an admin/AJAX/REST request).
 
-// Include License & Tier Helper (centralized license checking)
-// This MUST be loaded early before any feature modules that check licensing
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/license/license-helper.php')) {
-    require_once plugin_dir_path(__FILE__) . 'includes/license/license-helper.php';
-}
-
-// Include Locked Feature UI Helper (for Pro feature upsells)
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/license/locked-ui.php')) {
-    require_once plugin_dir_path(__FILE__) . 'includes/license/locked-ui.php';
-}
 
 // Include schema implementation (clean version to avoid conflicts)
 if (file_exists(ALMASEO_PLUGIN_DIR . 'includes/schema-clean.php')) {
@@ -139,7 +129,7 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/schema-meta-registration.p
     require_once plugin_dir_path(__FILE__) . 'includes/schema-meta-registration.php';
 }
 
-// Include Advanced Schema (Pro feature)
+// Include Advanced Schema
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/schema/schema-advanced-output.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/schema/schema-advanced-output.php';
     add_action('wp_head', 'almaseo_output_advanced_schema', 40);
@@ -176,7 +166,7 @@ if (!$is_activating && file_exists(plugin_dir_path(__FILE__) . 'includes/optimiz
     require_once plugin_dir_path(__FILE__) . 'includes/optimization/optimization-loader-v12.php';
 }
 
-// Include WooCommerce SEO features (Pro tier only)
+// Include WooCommerce SEO features
 if (!$is_activating && file_exists(plugin_dir_path(__FILE__) . 'includes/woo/woo-loader.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/woo/woo-loader.php';
 }
@@ -218,17 +208,17 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/robots/robots-controller.p
     require_once plugin_dir_path(__FILE__) . 'includes/robots/robots-ajax.php';
 }
 
-// Include Redirects Manager module (v6.1.0+) - Pro feature
+// Include Redirects Manager module (v6.1.0+)
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/redirects/redirects-loader.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/redirects/redirects-loader.php';
 }
 
-// Include 404 Tracker module (v6.2.0+) - Pro feature
+// Include 404 Tracker module (v6.2.0+)
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/404/404-loader.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/404/404-loader.php';
 }
 
-// Include Bulk Metadata Editor module (v6.3.0+) - Pro feature
+// Include Bulk Metadata Editor module (v6.3.0+)
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/bulkmeta/bulkmeta-loader.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/bulkmeta/bulkmeta-loader.php';
 }
@@ -243,28 +233,28 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/internal-links/internal-li
     require_once plugin_dir_path(__FILE__) . 'includes/internal-links/internal-links-loader.php';
 }
 
-// Include Content Refresh Drafts module (v7.1.0+) - Pro feature
+// Include Content Refresh Drafts module (v7.1.0+)
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/refresh-drafts/refresh-drafts-loader.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/refresh-drafts/refresh-drafts-loader.php';
 }
 
-// Include Refresh Queue module (v7.2.0+) - Pro feature
+// Include Refresh Queue module (v7.2.0+)
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/refresh-queue/refresh-queue-loader.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/refresh-queue/refresh-queue-loader.php';
 }
 
-// Include Date Hygiene Scanner module (v7.3.0+) - Pro feature
+// Include Date Hygiene Scanner module (v7.3.0+)
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/date-hygiene/date-hygiene-loader.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/date-hygiene/date-hygiene-loader.php';
 }
 
-// Include E-E-A-T Enforcement module (v7.4.0+) - Pro feature
+// Include E-E-A-T Enforcement module (v7.4.0+)
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/eeat/eeat-loader.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/eeat/eeat-loader.php';
 }
 
 
-// Include Schema Drift Monitor module (v7.8.0+) - Pro feature
+// Include Schema Drift Monitor module (v7.8.0+)
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/schema-drift/schema-drift-loader.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/schema-drift/schema-drift-loader.php';
 }
@@ -429,15 +419,6 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/documentation.php'))
 }
 
 
-// Ensure almaseo_is_pro function exists as fallback
-// This should rarely be reached since bulkmeta-loader.php defines it first
-if (!function_exists('almaseo_is_pro')) {
-    function almaseo_is_pro() {
-        // Use centralized license helper as fallback
-        // This ensures consistent behavior across all modules
-        return almaseo_is_pro_active();
-    }
-}
 
 // Self-hosted auto-update checker removed for the WordPress.org build.
 // The plugin updates through the WordPress.org plugin directory.

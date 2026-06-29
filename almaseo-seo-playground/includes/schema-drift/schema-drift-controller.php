@@ -3,7 +3,7 @@
  * Schema Drift Monitor – Admin Controller
  *
  * Registers the "Schema Drift" submenu page, enqueues assets,
- * and handles the Pro feature gate.
+ * and registers its assets and REST routes.
  *
  * @package AlmaSEO
  * @since   7.8.0

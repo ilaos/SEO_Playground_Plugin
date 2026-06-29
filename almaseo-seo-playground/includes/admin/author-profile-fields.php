@@ -12,10 +12,10 @@
  * comes from the user's existing WordPress profile, so these two fields are the
  * only manual additions needed to reach E-E-A-T author parity.
  *
- * Free feature: author identity in schema is table-stakes (Yoast/Rank Math do
- * it free). The Pro/agency layer is the dashboard-powered enhancement
- * (auto-fill author identity from the AlmaSEO client profile, AI bios, etc.) —
- * reserved as 'author_entity_dashboard' in license-helper.php, not enforced here.
+ * Author identity in schema is table-stakes (Yoast/Rank Math do it free).
+ * Connecting AlmaSEO can additionally enrich the author entity from the
+ * dashboard (profile-powered identity, generated bios); that enhancement lives
+ * on the dashboard side and is not gated here.
  *
  * @package AlmaSEO
  */

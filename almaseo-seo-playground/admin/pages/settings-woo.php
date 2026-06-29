@@ -76,12 +76,7 @@ if (isset($_POST['almaseo_woo_settings_nonce']) &&
 
 <div class="wrap almaseo-woo-settings">
     <h1><?php esc_html_e('WooCommerce SEO Settings', 'almaseo-seo-playground'); ?></h1>
-    
-    <div class="almaseo-pro-badge">
-        <span class="dashicons dashicons-awards"></span>
-        <?php esc_html_e('Pro Feature', 'almaseo-seo-playground'); ?>
-    </div>
-    
+
     <p class="description">
         <?php esc_html_e('Optimize your WooCommerce store for search engines with advanced SEO features.', 'almaseo-seo-playground'); ?>
     </p>

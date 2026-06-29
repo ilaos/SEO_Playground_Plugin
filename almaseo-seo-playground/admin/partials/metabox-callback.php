@@ -187,7 +187,7 @@ add_action('admin_enqueue_scripts', 'almaseo_enqueue_seo_playground_styles');
  */
 if (!function_exists('almaseo_render_llm_optimization_panel')) {
 function almaseo_render_llm_optimization_panel($post) {
-    $is_pro = almaseo_feature_available('llm_optimization');
+    $is_pro = true; // LLM Optimization ships free
     $is_connected = seo_playground_is_alma_connected();
     ?>
     <div class="almaseo-llm-panel" data-post-id="<?php echo esc_attr($post->ID); ?>" data-is-pro-llm="<?php echo esc_attr($is_pro ? '1' : '0'); ?>">
@@ -2413,7 +2413,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     // output switch is off — free users see the lock card instead.
                     $almaseo_adv_global    = get_option('almaseo_schema_advanced_settings', array());
                     $almaseo_adv_output_on = !empty($almaseo_adv_global['enabled']);
-                    if (almaseo_feature_available('schema_advanced') && !$almaseo_adv_output_on):
+                    if (!$almaseo_adv_output_on):
                         $almaseo_schema_settings_url = admin_url('admin.php?page=almaseo-settings#almaseo-advanced-schema');
                     ?>
                     <div style="margin: 0 0 16px 0; padding: 12px 14px; background: #fff8e5; border-left: 4px solid #dba617; border-radius: 4px; font-size: 12px; color: #5c4a00; line-height: 1.55;">
@@ -2501,12 +2501,8 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 $secondary_active = array_values(array_filter($decoded));
                             }
                         }
-                        // Gated behind its own Pro feature flag (schema_multi) rather than
-                        // the broader schema_advanced gate, so multi-schema can be priced/
-                        // marketed independently. During dev both flags pass because
-                        // almaseo_is_pro_active() defaults to 'pro'; flips to enforced
-                        // when the tier-sync endpoint goes live.
-                        $show_multi_schema = true; // multi-schema (additional @graph nodes) ships free
+                        // Multi-schema (additional @graph nodes) ships free.
+                        $show_multi_schema = true;
                         if ($show_multi_schema):
                         ?>
                         <div style="margin-top: 18px; padding-top: 14px; border-top: 1px dashed #dcdcde;">
@@ -2572,10 +2568,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         </h4>
                         <p class="field-hint" style="margin: 0 0 15px 0;">Configure details for the schema type you selected above — the right fields appear automatically based on your choice (e.g. address &amp; hours for LocalBusiness).</p>
 
-                        <?php if (!almaseo_feature_available('schema_advanced')): ?>
-
-                        <?php else: ?>
-                            <!-- Pro Tier: Full Controls -->
+                        
                             <?php
                             $primary_type = get_post_meta($post->ID, '_almaseo_schema_primary_type', true);
                             $disable_advanced = get_post_meta($post->ID, '_almaseo_schema_disable', true);
@@ -2692,7 +2685,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                     });
                                 })();
                                 </script>
-                                <?php endif; ?>
+                                
 
                                 <div class="almaseo-field-group" style="margin-bottom: 10px;">
                                     <label for="almaseo_lb_subtype" style="font-size: 12px; font-weight: 600;">Business Type</label>
@@ -5047,7 +5040,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
             // Top Issues
             renderTopIssues(data);
 
-            // Pro Features: Insights
+            // Insights
             var $insights = $('.almaseo-llm-insights');
             if ($insights.length) {
                 $insights.removeClass('almaseo-llm-loading');
@@ -5424,22 +5417,16 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 sectionsHtml += '<span class="value" style="color: ' + clarityColor + ';">' + section.clarity_score + '</span>';
                 sectionsHtml += '</div>';
 
-                // AI Readiness & Answer Strength (Pro only or show locked)
-                if (isPro) {
-                    sectionsHtml += '<div class="almaseo-llm-section-score-pill" style="border-color: ' + llmColor + ';">';
-                    sectionsHtml += '<span class="label">LLM Readiness:</span>';
-                    sectionsHtml += '<span class="value" style="color: ' + llmColor + ';">' + section.llm_readiness + '</span>';
-                    sectionsHtml += '</div>';
+                // LLM Readiness & Answer Strength.
+                sectionsHtml += '<div class="almaseo-llm-section-score-pill" style="border-color: ' + llmColor + ';">';
+                sectionsHtml += '<span class="label">LLM Readiness:</span>';
+                sectionsHtml += '<span class="value" style="color: ' + llmColor + ';">' + section.llm_readiness + '</span>';
+                sectionsHtml += '</div>';
 
-                    sectionsHtml += '<div class="almaseo-llm-section-score-pill" style="border-color: ' + answerColor + ';">';
-                    sectionsHtml += '<span class="label">Answer Strength:</span>';
-                    sectionsHtml += '<span class="value" style="color: ' + answerColor + ';">' + section.answerability + '</span>';
-                    sectionsHtml += '</div>';
-                } else {
-                    sectionsHtml += '<div class="almaseo-llm-section-score-pill-locked">';
-                    sectionsHtml += '<span class="dashicons dashicons-lock"></span> Pro';
-                    sectionsHtml += '</div>';
-                }
+                sectionsHtml += '<div class="almaseo-llm-section-score-pill" style="border-color: ' + answerColor + ';">';
+                sectionsHtml += '<span class="label">Answer Strength:</span>';
+                sectionsHtml += '<span class="value" style="color: ' + answerColor + ';">' + section.answerability + '</span>';
+                sectionsHtml += '</div>';
 
                 sectionsHtml += '</div>';
 
@@ -5523,13 +5510,6 @@ function almaseo_seo_playground_meta_box_callback($post) {
             var selectedStyle = $(this).val();
             var $panel = $('.almaseo-llm-panel');
             var isPro = $panel.data('is-pro-llm') === 1;
-
-            // Check if Pro style is selected but user is not Pro
-            if ((selectedStyle === 'qa' || selectedStyle === 'ai_answer') && !isPro) {
-                $('.almaseo-llm-status').text('The Q&A / LLM Answer styles require Pro.').css('color', '#b45309').show();
-                $(this).val('concise'); // Reset to concise
-                return;
-            }
 
             // Reload analysis with new style
             loadLLMAnalysis();

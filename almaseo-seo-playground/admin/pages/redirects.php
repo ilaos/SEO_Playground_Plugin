@@ -201,7 +201,7 @@ if (!current_user_can('manage_options')) {
     </div>
 </div>
 
-<!-- Stats Summary (Pro Feature Highlight) -->
+<!-- Stats Summary -->
 <div class="almaseo-redirects-stats">
     <h3><?php esc_html_e('Redirect Statistics', 'almaseo-seo-playground'); ?></h3>
     <div class="stats-grid">

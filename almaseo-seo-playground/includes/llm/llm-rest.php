@@ -327,11 +327,11 @@ function almaseo_llm_generate_summary($content, $style = 'concise') {
             return wp_trim_words($first_paragraph, 50) . ' [Academic summary]';
 
         case 'qa':
-            // Pro feature - Q&A format
+            // Q&A format
             return 'Q: What is this about? A: ' . wp_trim_words($first_paragraph, 40);
 
         case 'ai_answer':
-            // Pro feature - AI answer format
+            // LLM answer format
             return 'AI Answer: ' . wp_trim_words($content, 60);
 
         default:
@@ -604,8 +604,7 @@ function almaseo_llm_detect_consistency_issues($content) {
 function almaseo_llm_generate_schema_hint($post_data) {
     $hints = array();
 
-    // Check if Advanced Schema is available and enabled
-    if (function_exists('almaseo_feature_available') && almaseo_feature_available('schema_advanced')) {
+    // Emit advanced-schema hints when the site has enabled them.
         $adv_settings = get_option('almaseo_schema_advanced_settings', array('enabled' => false));
 
         if (!empty($adv_settings['enabled'])) {
@@ -631,7 +630,6 @@ function almaseo_llm_generate_schema_hint($post_data) {
                 return implode('. ', $hints);
             }
         }
-    }
 
     // If no schema, suggest based on content
     if (empty($post_data['schema_type']) || $post_data['schema_type'] === 'none') {
@@ -659,11 +657,6 @@ function almaseo_llm_generate_schema_hint($post_data) {
  * @since 6.5.0
  */
 function almaseo_llm_generate_evergreen_hint($post_data) {
-    // Check if Evergreen Advanced is available
-    if (!function_exists('almaseo_feature_available') || !almaseo_feature_available('evergreen_advanced')) {
-        return '';
-    }
-
     $adv_settings = get_option('almaseo_evergreen_advanced_settings', array('enabled' => false));
 
     if (empty($adv_settings['enabled'])) {

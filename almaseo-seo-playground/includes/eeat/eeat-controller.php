@@ -3,7 +3,7 @@
  * E-E-A-T Enforcement – Admin Controller
  *
  * Registers the "E-E-A-T" submenu page, enqueues assets,
- * and handles the Pro feature gate.
+ * and registers its assets and REST routes.
  *
  * @package AlmaSEO
  * @since   7.4.0
