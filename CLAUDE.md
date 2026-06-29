@@ -14,22 +14,13 @@
 
 > **Versioning history note:** This file contains historical references to features shipped under a `v8.x` scheme (e.g. "Full Migration System (v8.7.0)"). Those numbers are accurate to when the work landed. The version was reset to `1.x` in commit `a2ee9a4` (fixing a header/constant drift) and continues from there. Treat `v8.x` mentions in section titles as historical timestamps, not the current line.
 
-## Live Testing Workflow
-> **The canonical test site is `submittal-test-site`.** `my-playground` exists for historical reasons but is NOT where the user tests. See `memory/project_canonical_test_site.md`.
+## Build & Ship Workflow
+> **No local test-site copy step.** As of 2026-06-28 the `submittal-test-site` manual-copy gate is retired (user directive). After editing source, do NOT copy files to any Local site — go straight to publishing the next plugin version via the release/broadcast chain. The user tests on the published version.
 
 - **Source:** `C:\Users\ishla\Desktop\SEO ACTUAL PLAYGROUND PLUGIN\SEO_Playground_Plugin\almaseo-seo-playground\`
-- **submittal-test-site (canonical test target):** `C:\Users\ishla\Local Sites\submittal-test-site\app\public\wp-content\plugins\almaseo-seo-playground\` — **real directory, no junction.** Junction was removed 2026-05-02 because WP auto-update wiped the source folder twice through it. Edits to source do NOT propagate here automatically.
-- **my-playground (legacy, NOT the test site):** `C:\Users\ishla\Local Sites\my-playground\app\public\wp-content\plugins\almaseo-seo-playground\` — junction → source. Edits flow here, but the user does not test here.
-- **PHP Binary:** `C:\Users\ishla\AppData\Roaming\Local\lightning-services\php-8.2.27+1\bin\win64\php.exe`
+- **PHP Binary (for `php -l` lint only):** `C:\Users\ishla\AppData\Roaming\Local\lightning-services\php-8.2.27+1\bin\win64\php.exe`
 
-**After editing source, manually copy the changed files to submittal before claiming the change is live.** Bash example:
-```bash
-SRC="C:/Users/ishla/Desktop/SEO ACTUAL PLAYGROUND PLUGIN/SEO_Playground_Plugin/almaseo-seo-playground"
-DST="C:/Users/ishla/Local Sites/submittal-test-site/app/public/wp-content/plugins/almaseo-seo-playground"
-cp "$SRC/path/to/file.php" "$DST/path/to/file.php"
-```
-
-If the user wants automatic propagation back, the options are: (a) re-junction submittal (re-introduces wipe risk — needs WP auto-update suppression first), or (b) flip the junction over from my-playground.
+**After editing source: lint, bump the version, then run the full release/broadcast chain (zip → SCP → manifest → constant → gunicorn restart).** Each change ships as the next plugin version; there is no separate "copy to test site" step. See `memory/project_canonical_test_site.md` (now records the retirement) and the release workflow below.
 
 ## Local WordPress Site
 - **Platform:** Local by Flywheel
