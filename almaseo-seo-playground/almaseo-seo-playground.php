@@ -432,11 +432,6 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/documentation.php'))
     AlmaSEO_Documentation::init();
 }
 
-// Include Tier Labels — visual Free/Pro badges in sidebar (v8.6.0+)
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/tier-labels.php')) {
-    require_once plugin_dir_path(__FILE__) . 'includes/admin/tier-labels.php';
-    AlmaSEO_Tier_Labels::init();
-}
 
 // Ensure almaseo_is_pro function exists as fallback
 // This should rarely be reached since bulkmeta-loader.php defines it first
@@ -448,10 +443,8 @@ if (!function_exists('almaseo_is_pro')) {
     }
 }
 
-// Initialize auto-update system (v5.0.0+)
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/almaseo-update.php')) {
-    require_once plugin_dir_path(__FILE__) . 'includes/almaseo-update.php';
-}
+// Self-hosted auto-update checker removed for the WordPress.org build.
+// The plugin updates through the WordPress.org plugin directory.
 
 // Dequeue legacy styles from old plugin versions
 add_action('admin_enqueue_scripts', function($hook) {
@@ -2010,39 +2003,8 @@ if ( ! function_exists( 'almaseo_playground_set_activation_redirect' ) ) {
 function almaseo_playground_set_activation_redirect() {
     add_option('almaseo_playground_do_activation_redirect', true);
 
-    // Check for existing dashboard connection on activation
-    if (function_exists('almaseo_sync_from_dashboard')) {
-        almaseo_sync_from_dashboard();
-    }
-
-    // Attempt automatic connection on activation
-    $current_user_id = get_current_user_id();
-    if ($current_user_id) {
-        $user = get_user_by('ID', $current_user_id);
-        if ($user && user_can($user, 'manage_options')) {
-            $existing_password = get_option('almaseo_app_password', '');
-
-            // Only generate if no password exists
-            if (!$existing_password && function_exists('wp_is_application_passwords_available') && function_exists('wp_generate_application_password')) {
-                if (wp_is_application_passwords_available()) {
-                    $label = 'AlmaSEO Auto-Connect ' . wp_date('Y-m-d');
-                    $new_password = wp_generate_application_password($user->ID, array(
-                        'name' => $label,
-                        'app_id' => 'almaseo-seo-playground'
-                    ));
-
-                    if (is_wp_error($new_password)) {
-                        error_log('AlmaSEO: Auto-connect failed: ' . $new_password->get_error_message());
-                    } elseif ($new_password && is_array($new_password)) {
-                        update_option('almaseo_app_password', $new_password[0]);
-                        update_option('almaseo_connected_user', $user->user_login);
-                        update_option('almaseo_connected_date', current_time('mysql'));
-                        update_option('almaseo_auto_connected', true);
-                    }
-                }
-            }
-        }
-    }
+    // Activation no longer contacts AlmaSEO or auto-generates credentials.
+    // All AlmaSEO communication is opt-in via the Connection settings page.
 }
 } // end function_exists guard: almaseo_playground_set_activation_redirect
 register_activation_hook(__FILE__, 'almaseo_playground_set_activation_redirect');
@@ -2317,235 +2279,8 @@ if (!function_exists('almaseo_connector_register_settings')) {
     add_action('admin_init', 'almaseo_connector_register_settings');
 }
 
-// ========================================
-// TIER DETECTION AND MANAGEMENT
-// ========================================
-
-/**
- * Fetch user tier and limits from AlmaSEO dashboard
- * @return array User tier information
- */
-if (!function_exists('almaseo_fetch_user_tier')) {
-function almaseo_fetch_user_tier() {
-    // Check if connected first
-    if (!seo_playground_is_alma_connected()) {
-        return array(
-            'tier' => 'unconnected',
-            'limits' => array(),
-            'error' => 'Not connected to AlmaSEO'
-        );
-    }
-    
-    // Get stored credentials
-    $app_password = get_option('almaseo_app_password', '');
-    $username = get_option('almaseo_connected_user', '');
-    $site_url = get_site_url();
-    
-    if (!$app_password || !$username) {
-        return array(
-            'tier' => 'unconnected',
-            'limits' => array(),
-            'error' => 'Missing credentials'
-        );
-    }
-    
-    // Check if we have cached tier data (valid for 1 hour)
-    $cached_tier = get_transient('almaseo_user_tier_data');
-    if ($cached_tier !== false) {
-        return $cached_tier;
-    }
-    
-    // Fetch tier information from AlmaSEO API
-    $api_url = 'https://api.almaseo.com/api/plugin/connection-status';
-    
-    $response = wp_remote_post($api_url, array(
-        'timeout' => 15,
-        'headers' => array(
-            'Content-Type' => 'application/json',
-            'Authorization' => 'Basic ' . base64_encode($username . ':' . $app_password)
-        ),
-        'body' => json_encode(array(
-            'site_url' => $site_url,
-            'plugin_version' => ALMASEO_PLUGIN_VERSION
-        ))
-    ));
-    
-    if (is_wp_error($response)) {
-        // Log error — default to max tier for connected users when API is unreachable
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('[AlmaSEO] Tier fetch failed: ' . $response->get_error_message());
-        }
-        return array(
-            'tier' => 'max',
-            'limits' => array(
-                'monthly_articles' => -1,
-                'ai_generations' => -1
-            ),
-            'error' => $response->get_error_message()
-        );
-    }
-    
-    $response_code = wp_remote_retrieve_response_code($response);
-    $response_body = wp_remote_retrieve_body($response);
-    
-    if ($response_code === 200) {
-        $data = json_decode($response_body, true);
-        
-        // Structure the tier data
-        $tier_data = array(
-            'tier' => isset($data['tier']) ? strtolower($data['tier']) : 'max',
-            'limits' => array(
-                'monthly_articles' => isset($data['limits']['monthly_articles']) ? intval($data['limits']['monthly_articles']) : 0,
-                'ai_generations' => isset($data['limits']['ai_generations']) ? intval($data['limits']['ai_generations']) : 0,
-                'remaining_articles' => isset($data['remaining']['articles']) ? intval($data['remaining']['articles']) : 0,
-                'remaining_generations' => isset($data['remaining']['generations']) ? intval($data['remaining']['generations']) : 0,
-            ),
-            'usage' => array(
-                'articles_used' => isset($data['usage']['articles']) ? intval($data['usage']['articles']) : 0,
-                'generations_used' => isset($data['usage']['generations']) ? intval($data['usage']['generations']) : 0,
-            ),
-            'reset_date' => isset($data['reset_date']) ? $data['reset_date'] : '',
-            'fetched_at' => current_time('U')
-        );
-        
-        // Cache the tier data for 1 hour
-        set_transient('almaseo_user_tier_data', $tier_data, HOUR_IN_SECONDS);
-
-        // Also store in options for persistent access
-        update_option('almaseo_user_tier', $tier_data['tier']);
-        update_option('almaseo_tier_limits', $tier_data['limits']);
-        update_option('almaseo_tier_usage', $tier_data['usage']);
-
-        // Sync the license tier used for feature gating (license-helper.php)
-        // Map API tiers to license tiers: 'max' → 'agency', others pass through
-        $license_tier_map = array('free' => 'free', 'pro' => 'pro', 'max' => 'agency');
-        $mapped_tier = isset($license_tier_map[$tier_data['tier']]) ? $license_tier_map[$tier_data['tier']] : 'free';
-        update_option('almaseo_license_tier', $mapped_tier);
-        
-        return $tier_data;
-    } else {
-        // API returned non-200 — default to max tier for connected users
-        return array(
-            'tier' => 'max',
-            'limits' => array(
-                'monthly_articles' => -1,
-                'ai_generations' => -1
-            ),
-            'error' => 'API returned status code: ' . $response_code
-        );
-    }
-}
-} // end function_exists guard: almaseo_fetch_user_tier
-
-/**
- * Get current user tier (with caching)
- * @return string User tier: 'unconnected', 'free', 'pro', 'max'
- */
-if (!function_exists('almaseo_get_user_tier')) {
-function almaseo_get_user_tier() {
-    // Check if we have cached tier data (set by almaseo_fetch_user_tier with 1-hour expiry)
-    $cached_tier = get_transient('almaseo_user_tier_data');
-    if ($cached_tier !== false && isset($cached_tier['tier'])) {
-        return $cached_tier['tier'];
-    }
-
-    // No valid cache — fetch fresh tier data
-    $tier_data = almaseo_fetch_user_tier();
-    return $tier_data['tier'];
-}
-} // end function_exists guard: almaseo_get_user_tier
-
-/**
- * Check if user has access to AI features
- * @return bool
- */
-if (!function_exists('almaseo_can_use_ai_features')) {
-function almaseo_can_use_ai_features() {
-    $tier = almaseo_get_user_tier();
-    return in_array($tier, array('pro', 'max'));
-}
-} // end function_exists guard: almaseo_can_use_ai_features
-
-/**
- * Get remaining AI generations for current month
- * @return array
- */
-if (!function_exists('almaseo_get_remaining_generations')) {
-function almaseo_get_remaining_generations() {
-    $tier_data = almaseo_fetch_user_tier();
-    
-    if ($tier_data['tier'] === 'max') {
-        return array(
-            'remaining' => 'unlimited',
-            'total' => 'unlimited',
-            'used' => $tier_data['usage']['generations_used'] ?? 0
-        );
-    }
-    
-    return array(
-        'remaining' => $tier_data['limits']['remaining_generations'] ?? 0,
-        'total' => $tier_data['limits']['ai_generations'] ?? 0,
-        'used' => $tier_data['usage']['generations_used'] ?? 0
-    );
-}
-} // end function_exists guard: almaseo_get_remaining_generations
-
-/**
- * Track AI generation usage
- * @param string $type Type of generation (title, description, rewrite)
- * @return bool
- */
-if (!function_exists('almaseo_track_ai_usage')) {
-function almaseo_track_ai_usage($type) {
-    // Get current usage
-    $usage = get_option('almaseo_tier_usage', array(
-        'generations_used' => 0,
-        'articles_used' => 0
-    ));
-    
-    // Increment generation count
-    $usage['generations_used'] = ($usage['generations_used'] ?? 0) + 1;
-    
-    // If it's a full article rewrite, increment article count too
-    if ($type === 'article_rewrite') {
-        $usage['articles_used'] = ($usage['articles_used'] ?? 0) + 1;
-    }
-    
-    // Save updated usage
-    update_option('almaseo_tier_usage', $usage);
-    
-    // Also track in user meta for reporting
-    $current_user_id = get_current_user_id();
-    if ($current_user_id) {
-        $user_usage = get_user_meta($current_user_id, 'almaseo_ai_usage_' . gmdate('Y_m'), true);
-        if (!is_array($user_usage)) {
-            $user_usage = array();
-        }
-        
-        $user_usage[$type] = ($user_usage[$type] ?? 0) + 1;
-        $user_usage['total'] = ($user_usage['total'] ?? 0) + 1;
-        $user_usage['last_used'] = current_time('U');
-        
-        update_user_meta($current_user_id, 'almaseo_ai_usage_' . gmdate('Y_m'), $user_usage);
-    }
-    
-    // Clear tier cache to force refresh on next check
-    delete_transient('almaseo_user_tier_data');
-    
-    return true;
-}
-} // end function_exists guard: almaseo_track_ai_usage
-
-/**
- * Refresh tier data on connection
- */
-add_action('almaseo_connection_established', function() {
-    // Clear any cached tier data
-    delete_transient('almaseo_user_tier_data');
-    
-    // Fetch fresh tier information
-    almaseo_fetch_user_tier();
-});
+// Remote tier/quota detection removed — this is a single free plugin.
+// AlmaSEO dashboard enhancements are opt-in via the Connection page.
 
 // ========================================
 // SEO PLAYGROUND FUNCTIONALITY

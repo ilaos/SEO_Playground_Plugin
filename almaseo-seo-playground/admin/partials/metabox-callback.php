@@ -151,8 +151,7 @@ function almaseo_enqueue_seo_playground_styles() {
                 'ai-tools-polish',
                 'notes-history-polish',
                 'new-features', // New features JavaScript
-                'unlock-features', // Unlock Features tab JavaScript
-                'tier-management' // Tier management JavaScript
+                'unlock-features' // Unlock Features tab JavaScript
             );
             
             foreach ($tab_scripts as $script) {
@@ -360,9 +359,11 @@ function almaseo_seo_playground_meta_box_callback($post) {
     
     // Check connection status and tier
     $is_connected = seo_playground_is_alma_connected();
-    $user_tier = almaseo_get_user_tier();
-    $can_use_ai = almaseo_can_use_ai_features();
-    $generations_info = almaseo_get_remaining_generations();
+    // Local-only plugin: no remote tier/quota. AlmaSEO enhancements are an
+    // optional, opt-in benefit surfaced via the connection status above.
+    $user_tier = $is_connected ? 'connected' : 'unconnected';
+    $can_use_ai = $is_connected;
+    $generations_info = array('remaining' => 'unlimited', 'total' => 'unlimited', 'used' => 0);
 
     // Expose AI autofill availability. Computed up here (not at the bottom of
     // the callback) because the SEO Title / Meta Description autofill buttons

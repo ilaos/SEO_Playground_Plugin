@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Check if Pro license is currently active
  *
  * When the site is connected to AlmaSEO, the tier is validated server-side
- * via almaseo_fetch_user_tier() and synced to almaseo_license_tier.
+ * WordPress.org build: tier sync removed; helpers are free no-op shims.
  * When not connected, defaults to 'pro' for backward compatibility.
  *
  * Valid tier values:
@@ -34,10 +34,9 @@ function almaseo_is_pro_active() {
     // default ALL sites to 'pro'. Once the tier sync endpoint is live and
     // almaseo_license_tier is reliably set by the server, change the connected
     // default back to 'free'.
-    $tier = get_option( 'almaseo_license_tier', 'pro' );
-
-    // Pro and Agency tiers have Pro features enabled
-    return in_array( $tier, array( 'pro', 'agency' ), true );
+    // WordPress.org build: single free plugin, no paid tiers. Always "active".
+    // No-op shim; gate call sites are removed in the Phase 2 cleanup.
+    return true;
 }
 } // end function_exists guard: almaseo_is_pro_active
 
@@ -88,36 +87,8 @@ function almaseo_is_pro_active() {
  */
 if (!function_exists('almaseo_feature_available')) {
 function almaseo_feature_available( $feature ) {
-    // Define which features require Pro or higher
-    $pro_features = array(
-        'bulkmeta',               // Bulk metadata editor
-        'woocommerce',            // WooCommerce SEO
-        'llm_optimization',       // LLM Optimization advanced features
-        'evergreen_advanced',     // Advanced evergreen filters
-        'schema_advanced',        // Advanced schema options
-        'schema_multi',           // Multi-schema (additional @graph nodes per page)
-        'optimization_dataforseo', // DataForSEO provider
-        'internal_links',         // Internal links auto-linker
-        'refresh_drafts',         // Content refresh drafts
-        'refresh_queue',          // Refresh queue autoprioritization
-        'date_hygiene',           // Date hygiene scanner
-        'eeat_enforcement',       // E-E-A-T enforcement
-        'gsc_monitor',            // GSC Monitor
-        'orphan_detection',       // Orphan page detection
-        'schema_drift',           // Schema drift monitor
-        'meta_autogen',           // Profile-aware title/description generation (per-post button)
-        'author_entity_dashboard', // RESERVED (not yet enforced) — dashboard/AI author enrichment; baseline author schema is FREE
-    );
-
-    // Check if this feature requires Pro tier
-    $requires_pro = in_array( $feature, $pro_features, true );
-
-    if ( $requires_pro ) {
-        // Pro features are only available if Pro is active
-        return almaseo_is_pro_active();
-    }
-
-    // Free features are always available
+    // WordPress.org build: every feature in this plugin is free.
+    // No-op shim; gate call sites are removed in the Phase 2 cleanup.
     return true;
 }
 } // end function_exists guard: almaseo_feature_available
@@ -167,7 +138,9 @@ function almaseo_set_license_tier( $tier ) {
  */
 if (!function_exists('almaseo_is_free_tier')) {
 function almaseo_is_free_tier() {
-    return almaseo_get_license_tier() === 'free';
+    // WordPress.org build: no free/paid split, so never a "free tier"
+    // (prevents legacy lock/unlock UI). No-op shim pending Phase 2 removal.
+    return false;
 }
 } // end function_exists guard: almaseo_is_free_tier
 
