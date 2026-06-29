@@ -115,13 +115,7 @@ class AlmaSEO_Refresh_Queue_REST {
     /* ──────────────── Permission callbacks ── */
 
     public static function can_manage_pro() {
-        if ( ! current_user_can( 'manage_options' ) ) {
-            return false;
-        }
-        if ( function_exists( 'almaseo_feature_available' ) && ! almaseo_feature_available( 'refresh_queue' ) ) {
-            return new WP_Error( 'pro_required', 'Refresh Queue requires Pro.', array( 'status' => 403 ) );
-        }
-        return true;
+        return current_user_can( 'manage_options' );
     }
 
     /* ──────────────── Dashboard push ── */

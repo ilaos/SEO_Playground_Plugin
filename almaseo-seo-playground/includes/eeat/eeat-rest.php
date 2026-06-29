@@ -122,13 +122,7 @@ class AlmaSEO_EEAT_REST {
     /* ──────────────── Permission callbacks ── */
 
     public static function can_manage_pro() {
-        if ( ! current_user_can( 'manage_options' ) ) {
-            return false;
-        }
-        if ( function_exists( 'almaseo_feature_available' ) && ! almaseo_feature_available( 'eeat_enforcement' ) ) {
-            return new WP_Error( 'pro_required', 'E-E-A-T Enforcement requires Pro.', array( 'status' => 403 ) );
-        }
-        return true;
+        return current_user_can( 'manage_options' );
     }
 
     /* ──────────────── Dashboard push ── */

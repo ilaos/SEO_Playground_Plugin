@@ -162,7 +162,7 @@ function almaseo_welcome_screen_page() {
 
             <div style="padding: 20px; background: #f0f8ff; border-radius: 8px; margin-bottom: 30px;">
                 <p style="margin: 0; font-size: 16px; color: #0073aa;">
-                    <strong>🚀 Getting Started:</strong> Connect to AlmaSEO to unlock Alma-powered features that will help you create SEO-optimized content in minutes, not hours.
+                    <strong>🚀 Getting Started:</strong> Your SEO tools work right away. Connect AlmaSEO to add dashboard-powered features that help you create SEO-optimized content in minutes, not hours.
                 </p>
             </div>
 

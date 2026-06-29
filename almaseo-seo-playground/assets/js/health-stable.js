@@ -568,11 +568,11 @@
                     html += '</div>';
                     $container.html(html);
                 } else if (!response.data || !response.data.is_connected) {
-                    $container.html('<p class="description">Connect to AlmaSEO to unlock live keyword suggestions</p>');
+                    $container.html('<p class="description">Keyword suggestions run locally. Connect AlmaSEO to add live search data</p>');
                 }
             })
             .fail(function() {
-                $container.html('<p class="description">Connect to AlmaSEO to unlock live keyword suggestions</p>');
+                $container.html('<p class="description">Keyword suggestions run locally. Connect AlmaSEO to add live search data</p>');
             });
         }
         

@@ -47,14 +47,6 @@ class AlmaSEO_EEAT_Controller {
             wp_die(esc_html__( 'You do not have sufficient permissions to access this page.', 'almaseo-seo-playground' ) );
         }
 
-        // Pro gate.
-        if ( function_exists( 'almaseo_feature_available' ) && ! almaseo_feature_available( 'eeat_enforcement' ) ) {
-            if ( function_exists( 'almaseo_render_feature_locked' ) ) {
-                almaseo_render_feature_locked( 'eeat_enforcement' );
-            }
-            return;
-        }
-
         require_once plugin_dir_path( dirname( __DIR__ ) ) . 'admin/pages/eeat.php';
     }
 

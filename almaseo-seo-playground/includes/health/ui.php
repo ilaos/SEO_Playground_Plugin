@@ -404,7 +404,7 @@ function almaseo_health_meta_box_callback($post) {
             <?php else: ?>
                 <div class="keyword-suggestions-placeholder">
                     <p class="description"><?php esc_html_e('📝 Currently using local content analysis for keyword extraction', 'almaseo-seo-playground'); ?></p>
-                    <p><?php esc_html_e('Connect to AlmaSEO Dashboard to unlock:', 'almaseo-seo-playground'); ?></p>
+                    <p><?php esc_html_e('Connect AlmaSEO to also get:', 'almaseo-seo-playground'); ?></p>
                     <ul>
                         <li><?php esc_html_e('✨ Live keyword suggestions from search data', 'almaseo-seo-playground'); ?></li>
                         <li><?php esc_html_e('📊 Search volume and competition metrics', 'almaseo-seo-playground'); ?></li>

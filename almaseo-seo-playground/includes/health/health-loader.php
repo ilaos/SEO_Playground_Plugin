@@ -336,7 +336,7 @@ class AlmaSEO_Health_Loader {
         // AlmaSEO-powered keyword suggestions: real monthly search volume +
         // competition pulled from the dashboard. Free / disconnected sites keep
         // the local Google Suggest autocomplete on the focus-keyword field; this
-        // volume panel is the connected (premium) enhancement.
+        // volume panel is the connected-AlmaSEO enhancement (the local field stays free).
         $username  = get_option('almaseo_connected_user', '');
         $password  = get_option('almaseo_app_password', '');
         $connected = ! empty($username) && ! empty($password);
@@ -346,7 +346,7 @@ class AlmaSEO_Health_Loader {
 
         if (! $connected) {
             wp_send_json_error(array(
-                'message'      => __('Connect to AlmaSEO to unlock AlmaSEO-powered keyword suggestions built from your own Google Search Console — the keywords you already rank for, with real impressions and average position. No other SEO plugin does this.', 'almaseo-seo-playground'),
+                'message'      => __('Keyword help runs locally on the focus-keyword field. Connect AlmaSEO to also see the keywords you already rank for in Google Search Console, with real impressions and average position.', 'almaseo-seo-playground'),
                 'is_connected' => false
             ));
             return;
@@ -510,7 +510,7 @@ class AlmaSEO_Health_Loader {
                 'unsaved_changes' => __('Changes not saved—click Update to keep them', 'almaseo-seo-playground'),
                 'unsaved_changes_improved' => __('You have unsaved changes. Click "Update" to save your SEO improvements.', 'almaseo-seo-playground'),
                 'score_tooltip' => $this->get_score_tooltip_text(),
-                'connect_for_keywords' => __('🔓 Unlock AlmaSEO-powered keyword suggestions — real monthly search volume & competition shown next to every keyword. No other SEO plugin does this. Connect AlmaSEO to switch it on.', 'almaseo-seo-playground'),
+                'connect_for_keywords' => __('Keyword suggestions run locally in WordPress. Connect AlmaSEO to also see real search-volume and competition data next to every keyword.', 'almaseo-seo-playground'),
                 'no_keywords' => __('No keyword suggestions available', 'almaseo-seo-playground'),
                 'keyword_error' => __('Failed to load keyword suggestions', 'almaseo-seo-playground')
             )

@@ -81,7 +81,7 @@ if ( file_exists( $autofill_ai_file ) ) {
                     <?php if ( ! $ai_autofill_available ) : ?>
                         <p style="margin: 12px 0 0 0; font-size: 12px; color: #7c3aed;">
                             <a href="<?php echo esc_url( admin_url('admin.php?page=seo-playground-connection') ); ?>" style="color: #7c3aed; text-decoration: underline;">
-                                <?php esc_html_e('Connect to AlmaSEO to unlock Alma mode', 'almaseo-seo-playground'); ?>
+                                <?php esc_html_e('Connect AlmaSEO to add Alma mode', 'almaseo-seo-playground'); ?>
                             </a>
                         </p>
                     <?php endif; ?>
@@ -155,7 +155,7 @@ if ( file_exists( $autofill_ai_file ) ) {
             <label for="autofill-mode" style="font-size: 12px; color: #50575e; margin-left: 6px;">
                 <?php esc_html_e('Mode:', 'almaseo-seo-playground'); ?>
             </label>
-            <select id="autofill-mode" style="font-size: 12px;" <?php if ( ! $ai_autofill_available ) echo 'disabled'; ?> title="<?php echo esc_attr( $ai_autofill_available ? __('Choose Alma mode for AI-quality output, or Basic to use the local generator.', 'almaseo-seo-playground') : __('Connect to AlmaSEO to unlock Alma mode.', 'almaseo-seo-playground') ); ?>">
+            <select id="autofill-mode" style="font-size: 12px;" <?php if ( ! $ai_autofill_available ) echo 'disabled'; ?> title="<?php echo esc_attr( $ai_autofill_available ? __('Choose Alma mode for AI-quality output, or Basic to use the local generator.', 'almaseo-seo-playground') : __('Connect AlmaSEO to add Alma mode.', 'almaseo-seo-playground') ); ?>">
                 <?php if ( $ai_autofill_available ) : ?>
                     <option value="auto" selected><?php esc_html_e('Auto (Alma)', 'almaseo-seo-playground'); ?></option>
                     <option value="basic"><?php esc_html_e('Basic (Local)', 'almaseo-seo-playground'); ?></option>

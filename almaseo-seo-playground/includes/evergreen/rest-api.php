@@ -570,15 +570,6 @@ class AlmaSEO_Evergreen_REST_API {
      * @return WP_REST_Response|WP_Error Response object or error
      */
     public function get_advanced_summary($request) {
-        // Check Pro tier
-        if (!almaseo_feature_available('evergreen_advanced')) {
-            return new WP_Error(
-                'evergreen_advanced_required',
-                __('Advanced Evergreen features require Pro or Agency tier.', 'almaseo-seo-playground'),
-                array('status' => 403)
-            );
-        }
-
         $post_type = $request->get_param('post_type');
 
         // Load dashboard functions if needed
@@ -599,22 +590,6 @@ class AlmaSEO_Evergreen_REST_API {
      * @return WP_REST_Response|WP_Error Response object or error
      */
     public function get_filtered_list($request) {
-        // Check Pro tier for advanced filters
-        $has_advanced_filters = (
-            !empty($request->get_param('risk_level')) ||
-            !empty($request->get_param('ai_freshness_min')) ||
-            !empty($request->get_param('ai_freshness_max')) ||
-            !empty($request->get_param('bucket'))
-        );
-
-        if ($has_advanced_filters && !almaseo_feature_available('evergreen_advanced')) {
-            return new WP_Error(
-                'evergreen_advanced_required',
-                __('Advanced filtering requires Pro or Agency tier.', 'almaseo-seo-playground'),
-                array('status' => 403)
-            );
-        }
-
         global $wpdb;
 
         // Get parameters

@@ -681,12 +681,10 @@ function almaseo_ajax_autofill_field() {
         }
     }
 
-    $tier_blocked = ( $mode !== 'basic' )
-        && function_exists( 'almaseo_feature_available' )
-        && ! almaseo_feature_available( 'meta_autogen' );
-
-    // Try AlmaSEO-powered generation if mode is 'ai' or 'auto', tier permits, and site is connected
-    if ( $mode !== 'basic' && ! $tier_blocked ) {
+    // Try AlmaSEO-powered generation when the user asked for it ('ai'/'auto').
+    // AI_Autofill_Generator::is_available() gates this on the AlmaSEO connection;
+    // local generation always runs as the free fallback below.
+    if ( $mode !== 'basic' ) {
         require_once __DIR__ . '/ai-autofill-generator.php';
         if ( AI_Autofill_Generator::is_available() ) {
             $ai_result = AI_Autofill_Generator::generate_single( $post_id, $field, $overrides );
@@ -711,8 +709,9 @@ function almaseo_ajax_autofill_field() {
     // generator ran and whether the business profile was reachable.
     if ( $ai_used ) {
         $resolution = $profile_ready ? 'ai_with_profile' : 'ai';
-    } elseif ( $tier_blocked ) {
-        $resolution = 'local_locked';
+    } elseif ( $mode !== 'basic' ) {
+        // Local generation ran; an AlmaSEO connection adds profile-aware generation.
+        $resolution = 'local_connect_offer';
     } else {
         $resolution = $profile_ready ? 'local_with_profile' : 'local';
     }

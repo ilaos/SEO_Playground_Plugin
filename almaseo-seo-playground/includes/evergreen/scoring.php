@@ -392,9 +392,6 @@ function almaseo_eg_get_settings() {
  * @since 6.5.0
  */
 function almaseo_eg_compute_ai_freshness_score($post) {
-    if (!almaseo_feature_available('evergreen_advanced')) {
-        return 0;
-    }
 
     if (is_numeric($post)) {
         $post_id = $post;
@@ -478,9 +475,6 @@ function almaseo_eg_compute_ai_freshness_score($post) {
  * @since 6.5.0
  */
 function almaseo_eg_compute_refresh_score($post) {
-    if (!almaseo_feature_available('evergreen_advanced')) {
-        return 0;
-    }
 
     if (is_numeric($post)) {
         $post_id = $post;
@@ -592,9 +586,6 @@ function almaseo_eg_compute_refresh_score($post) {
  * @since 6.5.0
  */
 function almaseo_eg_determine_risk_level($post) {
-    if (!almaseo_feature_available('evergreen_advanced')) {
-        return 'low';
-    }
 
     // Get refresh score
     $refresh_score = almaseo_eg_compute_refresh_score($post);
@@ -632,9 +623,6 @@ function almaseo_eg_determine_risk_level($post) {
  * @since 6.5.0
  */
 function almaseo_eg_update_advanced_scores($post) {
-    if (!almaseo_feature_available('evergreen_advanced')) {
-        return false;
-    }
 
     if (is_numeric($post)) {
         $post_id = $post;
