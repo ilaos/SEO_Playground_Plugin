@@ -55,7 +55,6 @@ AlmaSEO SEO Playground is a complete SEO toolkit for WordPress that combines fre
 * E-E-A-T Enforcement
 * Orphan Page Detection
 * Schema Drift Monitor
-* Featured Snippet Targeting
 
 **Alma-Enhanced (when connected to AlmaSEO dashboard):**
 
@@ -64,6 +63,65 @@ AlmaSEO SEO Playground is a complete SEO toolkit for WordPress that combines fre
 * Alma Readability Benchmarks
 * Alma Image Alt Text generation
 * Alma Cornerstone Content detection
+
+== External services ==
+
+This plugin can communicate with the third-party services listed below. Each one
+is optional and is only contacted under the specific condition described —
+nothing is sent until you connect an account, enable a setting, or take the
+action that triggers it. The plugin does not phone home on activation.
+
+= AlmaSEO dashboard (app.almaseo.com, api.almaseo.com) =
+Used only after you connect your site to AlmaSEO. Once connected, the plugin
+contacts AlmaSEO when you connect or test the connection, when you use an
+Alma-enhanced feature (keyword suggestions, headline, readability, or LLM
+analysis; meta autofill; or the Search Console / Analytics editor tabs, which
+load on an explicit button click), and via a once-daily background refresh of
+your cached site profile (only while connected). Data sent: your site URL and
+domain, the plugin version, your AlmaSEO connection credentials (application
+password) on authenticated calls, and the post title/content or keywords you are
+analyzing. Data received: SEO analysis and suggestions, your AlmaSEO site/business
+profile, and connection status. If you never connect, none of these calls are
+made. Privacy policy: https://almaseo.com/privacy — Terms: https://almaseo.com/terms
+
+= Google Search Console API (www.googleapis.com, oauth2.googleapis.com) =
+Contacted only if you select Google Search Console as the keyword data source
+(SEO Playground → Optimization) or use the Evergreen Search Console integration,
+and have authorized Google access. It runs on the related user action (for
+example, loading keyword positions for the page you are editing), not
+automatically. Data sent: the page URL being analyzed and your Google OAuth
+token. Data received: Search Console metrics (clicks, impressions, average
+position). Privacy policy: https://policies.google.com/privacy
+
+= Google Analytics 4 / Google tag (www.googletagmanager.com) =
+The plugin outputs the standard gtag.js snippet on your public site (front end)
+only when you enter a GA4 Measurement ID in the Analytics settings (empty by
+default). When set, your visitors' browsers load gtag.js from Google and send
+standard analytics events to your own GA4 property. The wp-admin area is not
+tracked. Privacy policy: https://policies.google.com/privacy
+
+= Google Suggest / autocomplete (suggestqueries.google.com) =
+Contacted only when you use the Keyword Suggestions tool and type a query. The
+text you type is sent to Google's public autocomplete endpoint and the returned
+suggestions are cached locally. Privacy policy: https://policies.google.com/privacy
+
+= IndexNow (api.indexnow.org) =
+Contacted only if you enable IndexNow in the Sitemap settings (disabled by
+default). When enabled, the URLs of content you publish or update — together with
+your IndexNow key — are submitted to api.indexnow.org, which shares submissions
+with participating search engines (Bing, Yandex, Seznam). You can also trigger a
+submission manually with the "Ping" button. More info: https://www.indexnow.org/
+
+= Search engine sitemap ping (www.google.com, www.bing.com) =
+Used only when you explicitly run the optional WP-CLI sitemap ping command. The
+public URL of your sitemap is sent to Google and Bing so they can re-crawl it.
+
+= Vimeo oEmbed (vimeo.com) =
+When the Video sitemap is generated and your content embeds a Vimeo video, the
+plugin requests public oEmbed metadata (title, description, thumbnail, duration)
+for that video from vimeo.com. Only the public Vimeo URL already present in your
+content is sent. YouTube embeds are parsed locally and are not sent anywhere.
+Privacy policy: https://vimeo.com/privacy
 
 == Installation ==
 
