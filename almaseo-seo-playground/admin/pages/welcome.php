@@ -155,64 +155,105 @@ function almaseo_welcome_screen_page() {
         </style>
 
         <div class="almaseo-welcome-container">
+            <?php $is_connected = function_exists( 'seo_playground_is_alma_connected' ) && seo_playground_is_alma_connected(); ?>
+
             <div class="almaseo-welcome-header">
                 <h1 class="almaseo-welcome-title">🎯 Welcome to SEO Playground by AlmaSEO</h1>
-                <p class="almaseo-welcome-subtitle">Your Alma-powered WordPress SEO optimization toolkit is ready to transform your content</p>
+                <p class="almaseo-welcome-subtitle">Your complete WordPress SEO toolkit is ready &mdash; no account required.</p>
             </div>
 
-            <div style="padding: 20px; background: #f0f8ff; border-radius: 8px; margin-bottom: 30px;">
-                <p style="margin: 0; font-size: 16px; color: #0073aa;">
-                    <strong>🚀 Getting Started:</strong> Connect to AlmaSEO to unlock Alma-powered features that will help you create SEO-optimized content in minutes, not hours.
+            <?php if ( $is_connected ) : ?>
+            <div style="padding: 20px; background: #ecf9f0; border-left: 4px solid #46b450; border-radius: 8px; margin-bottom: 30px;">
+                <p style="margin: 0; font-size: 16px; color: #1e7e34;">
+                    <strong>✅ You're connected to AlmaSEO.</strong> Everything below is active, including the AlmaSEO-powered enhancements. Head to your SEO Overview whenever you're ready.
                 </p>
             </div>
+            <?php else : ?>
+            <div style="padding: 20px; background: #ecf9f0; border-left: 4px solid #46b450; border-radius: 8px; margin-bottom: 30px;">
+                <p style="margin: 0; font-size: 16px; color: #1e7e34;">
+                    <strong>✅ You're all set &mdash; for free.</strong> Every core SEO feature below works right now, with no account, sign-up, or connection. Connecting a free AlmaSEO account later is entirely optional &mdash; it just layers on a few cloud-powered extras.
+                </p>
+            </div>
+            <?php endif; ?>
 
-            <h2 style="font-size: 24px; margin-bottom: 25px; color: #23282d;">✨ Key Features</h2>
+            <h2 style="font-size: 24px; margin-bottom: 25px; color: #23282d;">
+                ✨ What you can do right now
+                <span style="display:inline-block; background:#46b450; color:#fff; font-size:12px; font-weight:600; padding:3px 10px; border-radius:12px; vertical-align:middle; margin-left:8px; text-transform:uppercase;">Free</span>
+            </h2>
 
             <div class="almaseo-features-checklist">
                 <div class="almaseo-feature-item">
                     <span class="dashicons dashicons-yes-alt"></span>
-                    <span><strong>Alma Meta Titles & Descriptions</strong> - Generate optimized metadata instantly</span>
+                    <span><strong>Meta Titles &amp; Descriptions</strong> - write and preview them with a live Google SERP snippet</span>
                 </div>
                 <div class="almaseo-feature-item">
                     <span class="dashicons dashicons-yes-alt"></span>
-                    <span><strong>Focus Keyword Suggestions</strong> - Alma-powered keyword recommendations</span>
+                    <span><strong>Focus Keyword Analysis</strong> - readability, headline and meta health scoring</span>
                 </div>
                 <div class="almaseo-feature-item">
                     <span class="dashicons dashicons-yes-alt"></span>
-                    <span><strong>Post Intelligence</strong> - Alma analysis of your content quality</span>
+                    <span><strong>XML Sitemaps</strong> - posts, pages, images, plus video &amp; news</span>
                 </div>
                 <div class="almaseo-feature-item">
                     <span class="dashicons dashicons-yes-alt"></span>
-                    <span><strong>Keyword Intelligence</strong> - Deep keyword insights and difficulty</span>
+                    <span><strong>Schema Markup</strong> - Article, FAQ, How-To, LocalBusiness, breadcrumbs</span>
                 </div>
                 <div class="almaseo-feature-item">
                     <span class="dashicons dashicons-yes-alt"></span>
-                    <span><strong>Schema Analyzer</strong> - Structured data optimization</span>
+                    <span><strong>301 Redirects &amp; 404 Monitoring</strong> - keep your links healthy</span>
                 </div>
                 <div class="almaseo-feature-item">
                     <span class="dashicons dashicons-yes-alt"></span>
-                    <span><strong>Meta Health Score</strong> - Real-time SEO scoring</span>
+                    <span><strong>Robots.txt &amp; LLMs.txt Editors</strong> - control crawlers and AI bots</span>
                 </div>
                 <div class="almaseo-feature-item">
                     <span class="dashicons dashicons-yes-alt"></span>
-                    <span><strong>Search Console Keywords</strong> - Real GSC data integration</span>
+                    <span><strong>Bulk Metadata Editor</strong> - edit titles and descriptions across your site</span>
                 </div>
                 <div class="almaseo-feature-item">
                     <span class="dashicons dashicons-yes-alt"></span>
-                    <span><strong>Content Aging Monitor</strong> - Track and refresh old content</span>
+                    <span><strong>Import from Yoast, Rank Math &amp; AIOSEO</strong> - titles, meta, redirects, term data</span>
                 </div>
                 <div class="almaseo-feature-item">
                     <span class="dashicons dashicons-yes-alt"></span>
-                    <span><strong>SEO Notes</strong> - Private notes for optimization strategy</span>
+                    <span><strong>Internal Linking &amp; Cornerstone Content</strong> - structure your site for search</span>
                 </div>
                 <div class="almaseo-feature-item">
                     <span class="dashicons dashicons-yes-alt"></span>
-                    <span><strong>Alma Rewrite Assistant</strong> - Optimize existing content</span>
+                    <span><strong>Keyword Suggestions</strong> - real ideas straight from Google Suggest</span>
                 </div>
             </div>
 
+            <?php if ( ! $is_connected ) : ?>
+            <h2 style="font-size: 24px; margin: 40px 0 20px; color: #23282d;">
+                🔗 Want more later?
+                <span style="display:inline-block; background:#667eea; color:#fff; font-size:12px; font-weight:600; padding:3px 10px; border-radius:12px; vertical-align:middle; margin-left:8px; text-transform:uppercase;">Optional</span>
+            </h2>
+            <div style="padding: 25px 30px; background: #f7f8fc; border-left: 4px solid #667eea; border-radius: 8px; margin-bottom: 10px;">
+                <p style="margin: 0 0 18px; font-size: 14px; color: #555;">Connecting a free AlmaSEO account is optional and never required &mdash; it simply adds cloud-powered extras on top of everything above:</p>
+                <div class="almaseo-features-checklist" style="background: transparent; padding: 0; margin: 0;">
+                    <div class="almaseo-feature-item">
+                        <span class="dashicons dashicons-cloud" style="color:#667eea;"></span>
+                        <span><strong>Real Search Console Data</strong> - actual keywords, clicks &amp; impressions per page</span>
+                    </div>
+                    <div class="almaseo-feature-item">
+                        <span class="dashicons dashicons-cloud" style="color:#667eea;"></span>
+                        <span><strong>AlmaSEO-powered Keyword Research</strong> - real search volume &amp; difficulty</span>
+                    </div>
+                    <div class="almaseo-feature-item">
+                        <span class="dashicons dashicons-cloud" style="color:#667eea;"></span>
+                        <span><strong>Content Freshness Intelligence</strong> - spot and refresh aging content</span>
+                    </div>
+                    <div class="almaseo-feature-item">
+                        <span class="dashicons dashicons-cloud" style="color:#667eea;"></span>
+                        <span><strong>Multi-Site Dashboard</strong> - manage every site's SEO in one place</span>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+
             <?php
-            // Detect what other AlmaSEO/SEO plugins are active so Step 2 can be specific.
+            // Detect what other AlmaSEO/SEO plugins are active so the deactivate step can be specific.
             $connector_active = function_exists( 'almaseo_detect_active_connector' )
                 ? almaseo_detect_active_connector()
                 : false;
@@ -222,65 +263,84 @@ function almaseo_welcome_screen_page() {
             $plugins_page_url = admin_url( 'plugins.php' );
             ?>
 
+            <h2 style="font-size: 24px; margin: 40px 0 20px; color: #23282d;">🚀 Get started in a few quick steps</h2>
+
             <div class="almaseo-features-grid">
                 <div class="almaseo-feature-card">
                     <h3 class="almaseo-feature-title">
-                        <span class="dashicons dashicons-admin-settings"></span>
-                        Step 1: Connect to AlmaSEO
-                    </h3>
-                    <p class="almaseo-feature-description">
-                        Click "Connect to AlmaSEO" below to link your site and enable all Alma-powered features. The connection process takes less than a minute.
-                    </p>
-                </div>
-
-                <div class="almaseo-feature-card">
-                    <h3 class="almaseo-feature-title">
-                        <span class="dashicons dashicons-dismiss"></span>
-                        Step 2: Deactivate Other Plugins
-                    </h3>
-                    <p class="almaseo-feature-description">
-                        <?php if ( $connector_active && ! empty( $seo_conflicts ) ) : ?>
-                            We detected the AlmaSEO Connector and another SEO plugin (<?php echo esc_html( implode( ', ', $seo_conflicts ) ); ?>). SEO Playground replaces both — deactivate them on your <a href="<?php echo esc_url( $plugins_page_url ); ?>">Plugins page</a> to avoid conflicts.
-                        <?php elseif ( $connector_active ) : ?>
-                            We detected the AlmaSEO Connector plugin. SEO Playground includes everything the Connector does plus a full SEO toolkit, so deactivate the Connector on your <a href="<?php echo esc_url( $plugins_page_url ); ?>">Plugins page</a>. Your connection settings are preserved.
-                        <?php elseif ( ! empty( $seo_conflicts ) ) : ?>
-                            We detected another SEO plugin (<?php echo esc_html( implode( ', ', $seo_conflicts ) ); ?>). To avoid conflicts, deactivate it on your <a href="<?php echo esc_url( $plugins_page_url ); ?>">Plugins page</a> — Step 4 below will help you bring your existing SEO data over first.
-                        <?php else : ?>
-                            If you have the AlmaSEO Connector plugin or another SEO plugin (Yoast, Rank Math, AIOSEO, etc.) active, deactivate it on your <a href="<?php echo esc_url( $plugins_page_url ); ?>">Plugins page</a>. SEO Playground replaces them. You can skip this step if neither is installed.
-                        <?php endif; ?>
-                    </p>
-                </div>
-
-                <div class="almaseo-feature-card">
-                    <h3 class="almaseo-feature-title">
                         <span class="dashicons dashicons-admin-tools"></span>
-                        Step 3: Run the Setup Wizard
+                        Step 1: Run the Setup Wizard
                     </h3>
                     <p class="almaseo-feature-description">
-                        Configure social profiles, search appearance templates, and your sitemap in a quick guided flow. <a href="<?php echo esc_url( admin_url( 'admin.php?page=almaseo-setup-wizard' ) ); ?>">Open the Setup Wizard</a>.
+                        Configure your social profiles, title templates, and sitemap in a quick guided flow &mdash; about two minutes, and every step is skippable. <a href="<?php echo esc_url( admin_url( 'admin.php?page=almaseo-setup-wizard' ) ); ?>">Open the Setup Wizard</a>.
                     </p>
                 </div>
 
                 <div class="almaseo-feature-card">
                     <h3 class="almaseo-feature-title">
                         <span class="dashicons dashicons-migrate"></span>
-                        Step 4: Import Your SEO Data
+                        Step 2: Import Your SEO Data
                     </h3>
                     <p class="almaseo-feature-description">
-                        Replacing Yoast, Rank Math, or AIOSEO? Use the <a href="<?php echo esc_url( admin_url( 'admin.php?page=almaseo-import' ) ); ?>">Import &amp; Migrate</a> tool to bring your titles, descriptions, redirects, and term metadata across in 5 steps.
+                        Coming from Yoast, Rank Math, or AIOSEO? Use the <a href="<?php echo esc_url( admin_url( 'admin.php?page=almaseo-import' ) ); ?>">Import &amp; Migrate</a> tool to bring your titles, descriptions, redirects, and term metadata across in 5 steps &mdash; before you switch the old plugin off.
                     </p>
                 </div>
+
+                <div class="almaseo-feature-card">
+                    <h3 class="almaseo-feature-title">
+                        <span class="dashicons dashicons-dismiss"></span>
+                        Step 3: Deactivate Other SEO Plugins
+                    </h3>
+                    <p class="almaseo-feature-description">
+                        <?php if ( $connector_active && ! empty( $seo_conflicts ) ) : ?>
+                            We detected the AlmaSEO Connector and another SEO plugin (<?php echo esc_html( implode( ', ', $seo_conflicts ) ); ?>). SEO Playground replaces both &mdash; deactivate them on your <a href="<?php echo esc_url( $plugins_page_url ); ?>">Plugins page</a> to avoid conflicts.
+                        <?php elseif ( $connector_active ) : ?>
+                            We detected the AlmaSEO Connector plugin. SEO Playground includes everything the Connector does plus a full SEO toolkit, so deactivate the Connector on your <a href="<?php echo esc_url( $plugins_page_url ); ?>">Plugins page</a>. Your connection settings are preserved.
+                        <?php elseif ( ! empty( $seo_conflicts ) ) : ?>
+                            We detected another SEO plugin (<?php echo esc_html( implode( ', ', $seo_conflicts ) ); ?>). Run the Import step above first, then deactivate it on your <a href="<?php echo esc_url( $plugins_page_url ); ?>">Plugins page</a> to avoid duplicate meta tags.
+                        <?php else : ?>
+                            Running another SEO plugin (Yoast, Rank Math, AIOSEO, etc.) or the AlmaSEO Connector? Deactivate it on your <a href="<?php echo esc_url( $plugins_page_url ); ?>">Plugins page</a> &mdash; SEO Playground replaces them. You can skip this step if neither is installed.
+                        <?php endif; ?>
+                    </p>
+                </div>
+
+                <?php if ( ! $is_connected ) : ?>
+                <div class="almaseo-feature-card">
+                    <h3 class="almaseo-feature-title">
+                        <span class="dashicons dashicons-cloud"></span>
+                        Optional: Connect to AlmaSEO
+                    </h3>
+                    <p class="almaseo-feature-description">
+                        Only if you want the cloud extras above. Link a free AlmaSEO account to add Search Console data, keyword research, and content-freshness intelligence. <a href="<?php echo esc_url( admin_url( 'admin.php?page=seo-playground-connection' ) ); ?>">Connect AlmaSEO</a>.
+                    </p>
+                </div>
+                <?php endif; ?>
             </div>
 
             <div class="almaseo-cta-section">
-                <h2 style="font-size: 24px; margin-bottom: 10px;">Ready to supercharge your SEO?</h2>
-                <p style="color: #666; font-size: 16px;">Choose an action to get started:</p>
-
+                <?php if ( $is_connected ) : ?>
+                <h2 style="font-size: 24px; margin-bottom: 10px;">You're ready to go</h2>
+                <p style="color: #666; font-size: 16px;">Jump into your dashboard or fine-tune your setup:</p>
                 <div class="almaseo-cta-buttons">
-                    <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>" class="almaseo-btn-primary">
-                        🔗 Connect to AlmaSEO
+                    <a href="<?php echo esc_url( admin_url( 'admin.php?page=seo-playground' ) ); ?>" class="almaseo-btn-primary">
+                        📊 Go to SEO Overview
+                    </a>
+                    <a href="<?php echo esc_url( admin_url( 'admin.php?page=almaseo-setup-wizard' ) ); ?>" class="almaseo-btn-secondary">
+                        ⚙️ Run the Setup Wizard
                     </a>
                 </div>
+                <?php else : ?>
+                <h2 style="font-size: 24px; margin-bottom: 10px;">Ready to set up your SEO?</h2>
+                <p style="color: #666; font-size: 16px;">Start with the free setup &mdash; no account needed.</p>
+                <div class="almaseo-cta-buttons">
+                    <a href="<?php echo esc_url( admin_url( 'admin.php?page=almaseo-setup-wizard' ) ); ?>" class="almaseo-btn-primary">
+                        ⚙️ Set Up Your SEO
+                    </a>
+                    <a href="<?php echo esc_url( admin_url( 'admin.php?page=seo-playground-connection' ) ); ?>" class="almaseo-btn-secondary">
+                        🔗 Connect AlmaSEO (optional)
+                    </a>
+                </div>
+                <?php endif; ?>
 
                 <p style="margin-top: 20px; color: #999; font-size: 14px;">
                     Need help? Visit our <a href="https://docs.almaseo.com/" target="_blank" rel="noopener">documentation</a> or <a href="https://webstuffguylabs.com/support/" target="_blank" rel="noopener">contact support</a>.

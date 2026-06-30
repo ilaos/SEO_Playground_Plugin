@@ -15,6 +15,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 <div class="wrap almaseo-gsc-wrap">
 
+    <?php
+    // A silently auto-generated app password with no dashboard linkage is NOT a
+    // connection (see almaseo_get_connection_status()), so this agrees with the
+    // rest of the UI: a free / no-account user is treated as not connected.
+    $is_connected = function_exists( 'seo_playground_is_alma_connected' )
+        ? seo_playground_is_alma_connected()
+        : (bool) get_option( 'almaseo_app_password', '' );
+    ?>
+
     <h1 class="almaseo-gsc-title"><?php esc_html_e( 'GSC Monitor', 'almaseo-seo-playground' ); ?></h1>
 
     <!-- Feature Intro -->
@@ -32,28 +41,29 @@ if ( ! defined( 'ABSPATH' ) ) {
             </ol>
         </div>
 
-        <div class="almaseo-gsc-connection-notice">
-            <span class="dashicons dashicons-warning"></span>
-            <div>
-                <strong><?php esc_html_e( 'Connection Required', 'almaseo-seo-playground' ); ?></strong>
-                <p><?php esc_html_e( 'GSC Monitor does not scan locally — all data is pushed from the AlmaSEO dashboard. For findings to appear here, your site must be connected to AlmaSEO and your Google Search Console property must be linked in the dashboard. Without this connection, the table below will remain empty.', 'almaseo-seo-playground' ); ?></p>
-                <?php
-                $is_connected = (bool) get_option( 'almaseo_app_password', '' );
-                if ( ! $is_connected ) : ?>
-                    <p class="almaseo-gsc-connect-action">
-                        <a href="<?php echo esc_url( admin_url( 'admin.php?page=almaseo-settings' ) ); ?>" class="button button-primary button-small">
-                            <?php esc_html_e( 'Connect to AlmaSEO', 'almaseo-seo-playground' ); ?>
-                        </a>
-                    </p>
-                <?php endif; ?>
-            </div>
-        </div>
-
         <p class="almaseo-gsc-intro-note">
             <span class="dashicons dashicons-info"></span>
             <?php esc_html_e( 'GSC Monitor complements the Health Score and Evergreen modules: it catches external visibility changes that on-page analysis cannot detect.', 'almaseo-seo-playground' ); ?>
         </p>
     </div>
+
+    <?php if ( ! $is_connected ) : ?>
+
+    <!-- Free / not-connected: calm sign-up CTA in place of the empty, non-functional monitor UI -->
+    <div class="almaseo-gsc-connect-card" style="max-width:620px;margin:24px 0;padding:32px;background:#fff;border:1px solid #dcdcde;border-left:4px solid #4f46e5;border-radius:8px;text-align:center;">
+        <span class="dashicons dashicons-chart-line" style="font-size:48px;width:48px;height:48px;color:#4f46e5;"></span>
+        <h2 style="margin:12px 0 8px;font-size:20px;"><?php esc_html_e( 'Monitor your Google Search visibility', 'almaseo-seo-playground' ); ?></h2>
+        <p style="color:#555;font-size:14px;max-width:480px;margin:0 auto 20px;line-height:1.6;">
+            <?php esc_html_e( 'GSC Monitor watches your Google Search Console data for indexation drops, lost rich results, and Google rewriting your titles & descriptions — then flags them here so you can act. Connect your site to AlmaSEO to turn it on.', 'almaseo-seo-playground' ); ?>
+        </p>
+        <a href="https://app.almaseo.com/register" target="_blank" rel="noopener" class="button button-primary button-hero"><?php esc_html_e( 'Sign up free', 'almaseo-seo-playground' ); ?> &rarr;</a>
+        <p style="margin:14px 0 0;font-size:13px;color:#666;">
+            <?php esc_html_e( 'Already have an account?', 'almaseo-seo-playground' ); ?>
+            <a href="<?php echo esc_url( admin_url( 'admin.php?page=seo-playground-connection' ) ); ?>"><?php esc_html_e( 'Connect it', 'almaseo-seo-playground' ); ?></a>
+        </p>
+    </div>
+
+    <?php else : ?>
 
     <!-- Tabs -->
     <div class="almaseo-gsc-tabs" id="almaseo-gsc-tabs">
@@ -186,5 +196,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             <span id="almaseo-gsc-settings-status" class="almaseo-gsc-settings-status"></span>
         </div>
     </details>
+
+    <?php endif; ?>
 
 </div>

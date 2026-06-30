@@ -1263,23 +1263,25 @@ function almaseo_seo_playground_meta_box_callback($post) {
                  data-nonce="<?php echo esc_attr(wp_create_nonce('almaseo_gsc_nonce')); ?>"
                  data-connected="<?php echo esc_attr($is_connected ? '1' : '0'); ?>">
 
-                <!-- ═══ State 1: Connection Issue (fallback) ═══ -->
+                <!-- ═══ State 1: Not connected — feature disabled with a calm sign-up CTA ═══ -->
                 <div class="almaseo-gsc-state" id="gsc-state-not-connected" style="display: none;">
                     <div class="gsc-state-card">
                         <div class="gsc-state-icon">
-                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#dba617" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                                <line x1="12" y1="9" x2="12" y2="13"/>
-                                <line x1="12" y1="17" x2="12.01" y2="17"/>
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+                                <polyline points="16 7 22 7 22 13"/>
                             </svg>
                         </div>
-                        <h3 class="gsc-state-heading">AlmaSEO connection not detected</h3>
+                        <h3 class="gsc-state-heading">Track this page in Google Search</h3>
                         <p class="gsc-state-description">
-                            The plugin couldn't verify a connection to your AlmaSEO Dashboard. Please check your connection settings.
+                            See this page's clicks, impressions, top queries, and average position from Google Search Console &mdash; right here while you edit. Connect your site to AlmaSEO to turn it on.
                         </p>
-                        <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>" class="gsc-state-btn gsc-btn-secondary">
-                            Check Connection Settings
+                        <a href="https://app.almaseo.com/register" target="_blank" rel="noopener" class="gsc-state-btn gsc-btn-primary">
+                            Sign up free &rarr;
                         </a>
+                        <p class="gsc-state-hint">
+                            Already have an account? <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>">Connect it</a>
+                        </p>
                     </div>
                 </div>
 
@@ -2131,12 +2133,15 @@ function almaseo_seo_playground_meta_box_callback($post) {
             <?php 
             $is_connected = seo_playground_is_alma_connected();
             if (!$is_connected): ?>
-            <div class="almaseo-connection-notice" style="margin: 20px 0; padding: 15px; background: #f0f6fc; border-left: 3px solid #2271b1; border-radius: 3px; display: flex; align-items: center; justify-content: space-between;">
+            <div class="almaseo-connection-notice" style="margin: 20px 0; padding: 15px; background: #f0f6fc; border-left: 3px solid #2271b1; border-radius: 3px; display: flex; align-items: center; justify-content: space-between; gap: 15px;">
                 <div>
-                    <strong style="color: #0c5460;">Connect to AlmaSEO to unlock advanced schema types and dashboard presets.</strong>
-                    <p style="margin: 5px 0 0 0; color: #666; font-size: 13px;">Free features like Article schema and meta robots are always available.</p>
+                    <strong style="color: #0c5460;">Unlock advanced schema with AlmaSEO</strong>
+                    <p style="margin: 5px 0 0 0; color: #666; font-size: 13px;">Get advanced schema types and dashboard presets for this page. Free features like Article schema and meta robots are always available.</p>
                 </div>
-                <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>" class="button button-secondary" style="white-space: nowrap;">Connect Now →</a>
+                <div style="text-align: right; white-space: nowrap;">
+                    <a href="https://app.almaseo.com/register" target="_blank" rel="noopener" class="button button-primary">Sign up free &rarr;</a>
+                    <p style="margin: 6px 0 0 0; font-size: 12px; color: #666;">Already have an account? <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>">Connect it</a></p>
+                </div>
             </div>
             <?php else: 
                 $last_sync = get_option('almaseo_last_sync', '');
@@ -4174,19 +4179,22 @@ function almaseo_seo_playground_meta_box_callback($post) {
                 <div class="almaseo-ga-state" id="ga-state-not-connected" style="display: none;">
                     <div class="gsc-state-card">
                         <div class="gsc-state-icon">
-                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#dba617" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                                <line x1="12" y1="9" x2="12" y2="13"/>
-                                <line x1="12" y1="17" x2="12.01" y2="17"/>
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="20" x2="18" y2="10"/>
+                                <line x1="12" y1="20" x2="12" y2="4"/>
+                                <line x1="6" y1="20" x2="6" y2="14"/>
                             </svg>
                         </div>
-                        <h3 class="gsc-state-heading">AlmaSEO connection not detected</h3>
+                        <h3 class="gsc-state-heading">See how visitors use this page</h3>
                         <p class="gsc-state-description">
-                            The plugin couldn't verify a connection to your AlmaSEO Dashboard. Please check your connection settings.
+                            Track this page's views, sessions, engagement, and traffic sources from Google Analytics &mdash; right here while you edit. Connect your site to AlmaSEO to turn it on.
                         </p>
-                        <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>" class="gsc-state-btn gsc-btn-secondary">
-                            Check Connection Settings
+                        <a href="https://app.almaseo.com/register" target="_blank" rel="noopener" class="gsc-state-btn gsc-btn-primary">
+                            Sign up free &rarr;
                         </a>
+                        <p class="gsc-state-hint">
+                            Already have an account? <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>">Connect it</a>
+                        </p>
                     </div>
                 </div>
 
@@ -4981,50 +4989,9 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         <div class="benefit-item">
                             <div class="benefit-icon">🎯</div>
                             <div class="benefit-content">
-                                <h3>Proven Results</h3>
-                                <p>Join 10,000+ websites seeing average ranking improvements of 3-5 positions within 30 days.</p>
+                                <h3>Real Search Data</h3>
+                                <p>See your actual Google Search Console and Analytics data — clicks, impressions, and rankings — for every page, right where you edit.</p>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Testimonial Section -->
-                <div class="unlock-testimonial-section">
-                    <div class="testimonial-card">
-                        <div class="testimonial-quote">
-                            <span class="quote-mark">"</span>
-                            <p class="testimonial-text">
-                                AlmaSEO transformed our content strategy completely. We went from page 5 to the first page 
-                                for our main keywords in just 6 weeks. The Alma tools save us hours every day and the results
-                                speak for themselves - our organic traffic is up 312%!
-                            </p>
-                        </div>
-                        <div class="testimonial-author">
-                            <div class="author-avatar">
-                                <span>JD</span>
-                            </div>
-                            <div class="author-info">
-                                <div class="author-name">Jennifer Davis</div>
-                                <div class="author-title">Marketing Director, TechStartup Inc.</div>
-                                <div class="author-rating">
-                                    ⭐⭐⭐⭐⭐
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="trust-indicators">
-                        <div class="trust-item">
-                            <span class="trust-number">10,000+</span>
-                            <span class="trust-label">Active Users</span>
-                        </div>
-                        <div class="trust-item">
-                            <span class="trust-number">4.9/5</span>
-                            <span class="trust-label">Average Rating</span>
-                        </div>
-                        <div class="trust-item">
-                            <span class="trust-number">24/7</span>
-                            <span class="trust-label">Support</span>
                         </div>
                     </div>
                 </div>

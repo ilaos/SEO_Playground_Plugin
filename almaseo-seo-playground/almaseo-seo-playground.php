@@ -1182,10 +1182,26 @@ function almaseo_playground_run_dashboard_heartbeat() {
             delete_transient('almaseo_dashboard_disconnected');
             update_option('almaseo_dashboard_verified', current_time('mysql'));
         } else {
-            // Site NOT found on dashboard — mark as not linked
+            // Site NOT found on dashboard.
+            // Only flag "disconnected" if this site was PREVIOUSLY linked
+            // (had a dashboard_site_id / synced flag). A site that was never
+            // linked — e.g. a free, no-account install — has nothing to lose,
+            // so it must never see a "no longer connected" notice. ("No longer"
+            // implies a prior connection that never existed.) The heartbeat
+            // itself still runs for everyone, so a later connection is still
+            // auto-detected on the exists===true branch above.
+            $was_linked = ! empty( get_option('almaseo_dashboard_site_id', '') )
+                       || get_option('almaseo_dashboard_synced', false);
+
             delete_option('almaseo_dashboard_site_id');
             delete_option('almaseo_dashboard_synced');
-            set_transient('almaseo_dashboard_disconnected', true, 7 * DAY_IN_SECONDS);
+
+            if ($was_linked) {
+                set_transient('almaseo_dashboard_disconnected', true, 7 * DAY_IN_SECONDS);
+            } else {
+                // Clean up any stale flag left by a pre-fix heartbeat on a never-linked site.
+                delete_transient('almaseo_dashboard_disconnected');
+            }
             update_option('almaseo_dashboard_verified', current_time('mysql'));
         }
     }
@@ -1569,10 +1585,42 @@ if (!function_exists('almaseo_auto_connect')) {
         }
 
         $app_password = get_option('almaseo_app_password');
-        $username = get_option('almaseo_connected_user');
+        $username     = get_option('almaseo_connected_user');
+
+        // Generate the credential on demand (it is no longer pre-created at
+        // activation). The first dashboard connect mints the Application Password
+        // here, so a free/no-account install never carries an unused credential.
+        if (!$app_password) {
+            // Owner: an already-recorded connected_user, else the primary administrator.
+            $owner = $username ? get_user_by('login', $username) : null;
+            if (!$owner) {
+                $admins = get_users(array('role' => 'administrator', 'number' => 1, 'orderby' => 'ID', 'order' => 'ASC'));
+                $owner  = !empty($admins) ? $admins[0] : null;
+            }
+
+            if ($owner
+                && function_exists('wp_is_application_passwords_available')
+                && wp_is_application_passwords_available()
+                && function_exists('wp_generate_application_password')) {
+                $generated = wp_generate_application_password($owner->ID, array(
+                    'name'   => 'AlmaSEO Auto-Connect ' . wp_date('Y-m-d'),
+                    'app_id' => 'almaseo-seo-playground',
+                ));
+                if (!is_wp_error($generated) && is_array($generated)) {
+                    $app_password = $generated[0];
+                    $username     = $owner->user_login;
+                    update_option('almaseo_app_password', $app_password);
+                    update_option('almaseo_connected_user', $username);
+                    update_option('almaseo_connected_date', current_time('mysql'));
+                    // This is a genuine dashboard connect, so we do NOT set
+                    // almaseo_auto_connected — that flag marks speculative credentials
+                    // that the connection-status helper treats as "not connected".
+                }
+            }
+        }
 
         if (!$app_password || !$username) {
-            return new WP_Error('no_app_password', 'No Application Password or username has been set in the plugin settings.', array('status' => 400));
+            return new WP_Error('no_app_password', 'Could not establish an Application Password. Ensure Application Passwords are available (the site must be served over HTTPS) and an administrator account exists.', array('status' => 400));
         }
 
         // Generate JWT token as alternative auth method
@@ -2127,38 +2175,14 @@ if ( ! function_exists( 'almaseo_playground_set_activation_redirect' ) ) {
 function almaseo_playground_set_activation_redirect() {
     add_option('almaseo_playground_do_activation_redirect', true);
 
-    // Check for existing dashboard connection on activation
+    // Check for an existing dashboard connection on activation. Dashboard-initiated
+    // installs auto-link here. We intentionally DO NOT pre-generate a WP Application
+    // Password anymore — the credential is minted on demand by the /auto-connect
+    // endpoint the moment the dashboard actually connects (see almaseo_auto_connect).
+    // This keeps a free / no-account install from carrying an unused Application
+    // Password it never asked for.
     if (function_exists('almaseo_sync_from_dashboard')) {
         almaseo_sync_from_dashboard();
-    }
-
-    // Attempt automatic connection on activation
-    $current_user_id = get_current_user_id();
-    if ($current_user_id) {
-        $user = get_user_by('ID', $current_user_id);
-        if ($user && user_can($user, 'manage_options')) {
-            $existing_password = get_option('almaseo_app_password', '');
-
-            // Only generate if no password exists
-            if (!$existing_password && function_exists('wp_is_application_passwords_available') && function_exists('wp_generate_application_password')) {
-                if (wp_is_application_passwords_available()) {
-                    $label = 'AlmaSEO Auto-Connect ' . wp_date('Y-m-d');
-                    $new_password = wp_generate_application_password($user->ID, array(
-                        'name' => $label,
-                        'app_id' => 'almaseo-seo-playground'
-                    ));
-
-                    if (is_wp_error($new_password)) {
-                        error_log('AlmaSEO: Auto-connect failed: ' . $new_password->get_error_message());
-                    } elseif ($new_password && is_array($new_password)) {
-                        update_option('almaseo_app_password', $new_password[0]);
-                        update_option('almaseo_connected_user', $user->user_login);
-                        update_option('almaseo_connected_date', current_time('mysql'));
-                        update_option('almaseo_auto_connected', true);
-                    }
-                }
-            }
-        }
     }
 }
 } // end function_exists guard: almaseo_playground_set_activation_redirect
@@ -2187,11 +2211,21 @@ if (!function_exists('almaseo_get_connection_status')) {
         $connected_user = get_option('almaseo_connected_user', '');
         $connected_date = get_option('almaseo_connected_date', '');
         $app_password = get_option('almaseo_app_password', '');
+        $dashboard_site_id = get_option('almaseo_dashboard_site_id', '');
+        $auto_connected    = get_option('almaseo_auto_connected', false);
 
-        // Primary check: if we have an app password, the site is connected.
-        // The almaseo_dashboard_synced flag may not always be set (e.g. older
-        // connections or dashboard-initiated installs), so we don't gate on it.
-        if ($app_password) {
+        // Primary check: an app password normally means the site is connected.
+        // EXCEPTION: a password that was silently auto-generated on activation
+        // (almaseo_auto_connected) but never linked to a dashboard account
+        // (no almaseo_dashboard_site_id) is NOT a real connection — that's a
+        // free/no-account install. Reporting it as "connected" is what made the
+        // metabox + Overview pill disagree with the connection page's
+        // "Dashboard Not Linked" state (added 1.21.6). Manual and
+        // dashboard-initiated/legacy connections do NOT set almaseo_auto_connected,
+        // so they stay connected even before the heartbeat populates the site_id.
+        $is_auto_connect_only = $auto_connected && empty($dashboard_site_id);
+
+        if ($app_password && ! $is_auto_connect_only) {
             return array(
                 'connected' => true,
                 'connected_user' => $connected_user,
