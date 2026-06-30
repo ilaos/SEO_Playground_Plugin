@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.21.8
+Stable tag: 1.21.9
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.21.9 =
+**Fix: dashboard connection now generates its credential correctly**
+
+* Connecting your site from the AlmaSEO dashboard now reliably creates the Application Password it needs. Internally, the credential generation was calling a function that does not exist in WordPress, so it silently did nothing; it now uses the correct WordPress core API. (Manual connection from the Connection settings page was already working and is unaffected.)
 
 = 1.21.8 =
 **Sign-up-first connect prompts**

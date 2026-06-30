@@ -143,10 +143,11 @@ if ( ! function_exists( 'almaseo_handoff_prepare_credentials' ) ) {
 		// 2. Try to generate a fresh App Password.
 		if ( function_exists( 'wp_is_application_passwords_available' )
 			&& wp_is_application_passwords_available()
-			&& function_exists( 'wp_generate_application_password' ) ) {
+			&& class_exists( 'WP_Application_Passwords' ) ) {
 
 			$label  = 'AlmaSEO Connection ' . wp_date( 'Y-m-d H:i:s' );
-			$result = wp_generate_application_password( $user->ID, array(
+			// Core API — wp_generate_application_password() is not a real WP function.
+			$result = WP_Application_Passwords::create_new_application_password( $user->ID, array(
 				'name'   => $label,
 				'app_id' => 'almaseo-seo-playground',
 			) );

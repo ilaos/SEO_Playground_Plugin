@@ -3,7 +3,7 @@
 Plugin Name: AlmaSEO SEO Playground
 Plugin URI: https://almaseo.com/
 Description: Professional SEO optimization plugin with Alma-powered content generation, comprehensive keyword analysis, schema markup, and real-time SEO insights.
-Version: 1.21.8
+Version: 1.21.9
 Author: AlmaSEO
 Author URI: https://almaseo.com/
 License: GPL2
@@ -50,7 +50,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
     }
     if ( $almaseo_seo_conflict ) {
         // Define only the bare minimum constants, then stop loading.
-        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.21.8' );
+        if ( ! defined( 'ALMASEO_PLUGIN_VERSION' ) ) define( 'ALMASEO_PLUGIN_VERSION', '1.21.9' );
         if ( ! defined( 'ALMASEO_PATH' ) )           define( 'ALMASEO_PATH', plugin_dir_path( __FILE__ ) );
         if ( ! defined( 'ALMASEO_URL' ) )            define( 'ALMASEO_URL', plugin_dir_url( __FILE__ ) );
         if ( ! defined( 'ALMASEO_MAIN_FILE' ) )      define( 'ALMASEO_MAIN_FILE', __FILE__ );
@@ -62,7 +62,7 @@ if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! $almaseo_is_res
 if (!defined('ALMASEO_MAIN_FILE'))       define('ALMASEO_MAIN_FILE', __FILE__);
 if (!defined('ALMASEO_PATH'))            define('ALMASEO_PATH', plugin_dir_path(__FILE__));
 if (!defined('ALMASEO_URL'))             define('ALMASEO_URL', plugin_dir_url(__FILE__));
-if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.21.8');
+if (!defined('ALMASEO_PLUGIN_VERSION'))  define('ALMASEO_PLUGIN_VERSION', '1.21.9');
 if (!defined('ALMASEO_VERSION'))         define('ALMASEO_VERSION', '6.5.0');
 if (!defined('ALMASEO_API_NAMESPACE'))   define('ALMASEO_API_NAMESPACE', 'almaseo/v1');
 if (!defined('ALMASEO_API_BASE_URL'))    define('ALMASEO_API_BASE_URL', 'https://app.almaseo.com/api/v1');
@@ -1247,14 +1247,15 @@ if (!function_exists('almaseo_generate_app_password')) {
             return new WP_Error('no_user', 'Could not determine user.', array('status' => 400));
         }
 
-        // Check if function exists before using
-        if (!function_exists('wp_generate_application_password')) {
+        // Check the Application Passwords API is available
+        if (!class_exists('WP_Application_Passwords')) {
             return new WP_Error('app_passwords_not_available', 'Application Passwords feature is not available. Please ensure you are using WordPress 5.6 or higher.', array('status' => 400));
         }
 
-        // Generate a new application password
+        // Generate a new application password (core API; create_new_application_password
+        // takes an args array, not a string label).
         $label = 'AlmaSEO AI ' . wp_date('Y-m-d H:i:s');
-        list($new_password, $item) = wp_generate_application_password($user->ID, $label);
+        list($new_password, $item) = WP_Application_Passwords::create_new_application_password($user->ID, array('name' => $label));
 
         if ( empty($new_password) ) {
             return new WP_Error('generation_failed', 'Failed to generate application password.', array('status' => 500));
@@ -1577,8 +1578,10 @@ if (!function_exists('almaseo_auto_connect')) {
             if ($owner
                 && function_exists('wp_is_application_passwords_available')
                 && wp_is_application_passwords_available()
-                && function_exists('wp_generate_application_password')) {
-                $generated = wp_generate_application_password($owner->ID, array(
+                && class_exists('WP_Application_Passwords')) {
+                // Core API — note wp_generate_application_password() is NOT a real
+                // WP function; the correct entry point is this class method.
+                $generated = WP_Application_Passwords::create_new_application_password($owner->ID, array(
                     'name'   => 'AlmaSEO Auto-Connect ' . wp_date('Y-m-d'),
                     'app_id' => 'almaseo-seo-playground',
                 ));
