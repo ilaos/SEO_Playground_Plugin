@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.21.3
+Stable tag: 1.21.4
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.21.4 =
+**Maintenance release**
+
+* Internal: the plugin source is now back under version control and matches what your sites run. No functional changes from 1.21.3 — your keyword suggestions, SEO health, and schema tools all behave exactly the same.
 
 = 1.21.3 =
 **Keyword suggestions now show your real Search Console performance — and are clickable**
