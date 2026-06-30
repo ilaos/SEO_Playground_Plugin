@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.21.4
+Stable tag: 1.21.5
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,12 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.21.5 =
+**One clean Keyword Suggestions panel under the focus keyword**
+
+* Removed the separate typeahead dropdown that floated over the focus keyword field. There is now a single "Keyword Suggestions" panel directly beneath the field.
+* The panel is never empty: connected sites see real Google Search Console metrics (impressions, average position) for the keywords you already rank for; everyone else gets free Google-style suggestion chips. Click any chip to set it as your focus keyword.
 
 = 1.21.4 =
 **Maintenance release**

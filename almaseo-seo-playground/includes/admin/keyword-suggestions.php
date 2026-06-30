@@ -28,27 +28,28 @@ class AlmaSEO_Keyword_Suggestions {
     }
 
     /**
-     * AJAX handler — fetch suggestions from Google Suggest API.
+     * Fetch Google Suggest completions for a query (transient-cached).
+     *
+     * Reusable across the plugin — the focus-keyword panel uses this as the
+     * free fallback when a site isn't connected (or has no GSC data yet).
+     *
+     * @param string $query The seed phrase.
+     * @param int    $limit Max suggestions to return.
+     * @return array<int,string> List of suggestion strings (may be empty).
      */
-    public static function handle_ajax() {
-        check_ajax_referer( 'almaseo_nonce', 'nonce' );
-
-        if ( ! current_user_can( 'edit_posts' ) ) {
-            wp_send_json_error( array( 'message' => 'Unauthorized' ) );
-        }
-
-        $query = isset( $_GET['q'] ) ? sanitize_text_field( wp_unslash( $_GET['q'] ) ) : '';
+    public static function fetch( $query, $limit = 10 ) {
+        $query = is_string( $query ) ? trim( $query ) : '';
+        $limit = max( 1, (int) $limit );
 
         if ( mb_strlen( $query ) < 2 ) {
-            wp_send_json_success( array( 'suggestions' => array() ) );
+            return array();
         }
 
         // Check transient cache first
-        $cache_key = 'almaseo_ks_' . md5( $query );
+        $cache_key = 'almaseo_ks_' . md5( $query . '|' . $limit );
         $cached    = get_transient( $cache_key );
-
-        if ( false !== $cached ) {
-            wp_send_json_success( array( 'suggestions' => $cached ) );
+        if ( false !== $cached && is_array( $cached ) ) {
+            return $cached;
         }
 
         // Fetch from Google Suggest API
@@ -66,15 +67,14 @@ class AlmaSEO_Keyword_Suggestions {
         ) );
 
         if ( is_wp_error( $response ) ) {
-            wp_send_json_error( array( 'message' => 'Could not fetch suggestions.' ) );
+            return array();
         }
 
-        $body = wp_remote_retrieve_body( $response );
-        $data = json_decode( $body, true );
+        $data = json_decode( wp_remote_retrieve_body( $response ), true );
 
         $suggestions = array();
         if ( isset( $data[1] ) && is_array( $data[1] ) ) {
-            $suggestions = array_slice( $data[1], 0, 10 );
+            $suggestions = array_slice( $data[1], 0, $limit );
             // Filter out the exact query itself
             $suggestions = array_values( array_filter( $suggestions, function( $s ) use ( $query ) {
                 return strtolower( trim( $s ) ) !== strtolower( trim( $query ) );
@@ -84,6 +84,24 @@ class AlmaSEO_Keyword_Suggestions {
         // Cache for 1 hour
         set_transient( $cache_key, $suggestions, self::CACHE_TTL );
 
-        wp_send_json_success( array( 'suggestions' => $suggestions ) );
+        return $suggestions;
+    }
+
+    /**
+     * AJAX handler — fetch suggestions from Google Suggest API.
+     *
+     * Retained as a generic endpoint; the focus-keyword panel now consumes
+     * Google Suggest server-side via self::fetch().
+     */
+    public static function handle_ajax() {
+        check_ajax_referer( 'almaseo_nonce', 'nonce' );
+
+        if ( ! current_user_can( 'edit_posts' ) ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ) );
+        }
+
+        $query = isset( $_GET['q'] ) ? sanitize_text_field( wp_unslash( $_GET['q'] ) ) : '';
+
+        wp_send_json_success( array( 'suggestions' => self::fetch( $query ) ) );
     }
 }
