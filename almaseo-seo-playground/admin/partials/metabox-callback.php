@@ -594,6 +594,14 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 html += '<p class="description" style="margin-top:8px;">💡 ' + esc(r.data.enrichment_nudge) + '</p>';
                             }
                             $list.html(html);
+                        } else if (r && r.data && r.data.is_connected === false) {
+                            var cmsg = r.data.message || <?php echo wp_json_encode( __('Connect AlmaSEO to see the keywords this page already ranks for.', 'almaseo-seo-playground') ); ?>;
+                            $list.html(
+                                '<p class="description" style="margin:0 0 8px;">' + esc(cmsg) + '</p>' +
+                                '<p style="margin:0;"><a href="https://app.almaseo.com/register" target="_blank" class="button button-primary button-small">' +
+                                esc(<?php echo wp_json_encode( __('Start a free 14-day trial — no credit card', 'almaseo-seo-playground') ); ?>) +
+                                '</a></p>'
+                            );
                         } else {
                             var msg = (r && r.data && r.data.message) ? r.data.message : <?php echo wp_json_encode( __('Type a focus keyword above to see suggestions.', 'almaseo-seo-playground') ); ?>;
                             $list.html('<p class="description">' + esc(msg) + '</p>');
@@ -776,7 +784,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         <span class="dashicons dashicons-edit-page" style="font-size: 14px; line-height: 22px; width: 14px; height: 14px;"></span>
                         <span class="almaseo-autofill-label"><?php echo $ai_autofill_available ? esc_html__('Generate Title', 'almaseo-seo-playground') : esc_html__('Auto-Generate Title', 'almaseo-seo-playground'); ?></span>
                         <?php if ($ai_autofill_available): ?>
-                        <span style="background: #7c3aed; color: #fff; font-size: 8px; padding: 1px 4px; border-radius: 6px; margin-left: 3px; font-weight: 700; letter-spacing: 0.5px; vertical-align: middle;">PRO</span>
+                        <span style="background: #7c3aed; color: #fff; font-size: 8px; padding: 1px 4px; border-radius: 6px; margin-left: 3px; font-weight: 700; letter-spacing: 0.5px; vertical-align: middle;">Alma</span>
                         <?php endif; ?>
                     </button>
                     <span style="font-style: italic; color: #666;"><?php echo $ai_autofill_available ? esc_html__('Alma reads your content and writes a click-worthy title', 'almaseo-seo-playground') : esc_html__('Generate an SEO-optimized title from your content', 'almaseo-seo-playground'); ?></span>
@@ -822,7 +830,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                         <span class="dashicons dashicons-edit-page" style="font-size: 14px; line-height: 22px; width: 14px; height: 14px;"></span>
                         <span class="almaseo-autofill-label"><?php echo $ai_autofill_available ? esc_html__('Generate Description', 'almaseo-seo-playground') : esc_html__('Auto-Generate Description', 'almaseo-seo-playground'); ?></span>
                         <?php if ($ai_autofill_available): ?>
-                        <span style="background: #7c3aed; color: #fff; font-size: 8px; padding: 1px 4px; border-radius: 6px; margin-left: 3px; font-weight: 700; letter-spacing: 0.5px; vertical-align: middle;">PRO</span>
+                        <span style="background: #7c3aed; color: #fff; font-size: 8px; padding: 1px 4px; border-radius: 6px; margin-left: 3px; font-weight: 700; letter-spacing: 0.5px; vertical-align: middle;">Alma</span>
                         <?php endif; ?>
                     </button>
                     <span style="font-style: italic; color: #666;"><?php echo $ai_autofill_available ? esc_html__('Alma writes a compelling 155-char description from your content', 'almaseo-seo-playground') : esc_html__('Generate from your page content', 'almaseo-seo-playground'); ?></span>
@@ -1403,8 +1411,8 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             Load Search Data
                         </button>
                         <p class="gsc-state-hint">
-                            Don't have Search Console connected yet?
-                            <a href="https://app.almaseo.com/profile/google-services" target="_blank">Connect it in your Dashboard</a>
+                            New to AlmaSEO?
+                            <a href="https://app.almaseo.com/register" target="_blank">Start a free 14-day trial — no credit card</a>
                         </p>
                     </div>
                 </div>
@@ -4272,8 +4280,8 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             Load Analytics Data
                         </button>
                         <p class="gsc-state-hint">
-                            Don't have Analytics connected yet?
-                            <a href="https://app.almaseo.com/profile/google-services" target="_blank">Connect it in your Dashboard</a>
+                            New to AlmaSEO?
+                            <a href="https://app.almaseo.com/register" target="_blank">Start a free 14-day trial — no credit card</a>
                         </p>
                     </div>
                 </div>

@@ -66,7 +66,6 @@ class AlmaSEO_Health_Loader {
 
         if (is_admin()) {
             require_once dirname(__FILE__) . '/ui.php';
-            require_once dirname(__FILE__) . '/compact-view.php';
         }
     }
     
@@ -379,7 +378,7 @@ class AlmaSEO_Health_Loader {
 
         if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) {
             wp_send_json_error(array(
-                'message'      => __('Failed to fetch keywords from AlmaSEO', 'almaseo-seo-playground'),
+                'message'      => __('Could not reach AlmaSEO just now — try refreshing in a moment.', 'almaseo-seo-playground'),
                 'is_connected' => true
             ));
             return;

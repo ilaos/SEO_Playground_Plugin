@@ -54,7 +54,6 @@ if ( file_exists( $autofill_ai_file ) ) {
             <?php if ( $ai_autofill_available ) : ?>
                 <span style="font-size: 18px;">&#10024;</span>
                 <strong style="color: #5b21b6;"><?php esc_html_e('Alma-Powered Auto-Fill is Active', 'almaseo-seo-playground'); ?></strong>
-                <span style="background: #7c3aed; color: #fff; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600; letter-spacing: 0.5px;">PRO</span>
             <?php else : ?>
                 <span class="dashicons dashicons-info-outline" style="color: #646970;"></span>
                 <strong style="color: #1d2327;"><?php esc_html_e('Auto-Fill Mode: Basic (Local)', 'almaseo-seo-playground'); ?></strong>
