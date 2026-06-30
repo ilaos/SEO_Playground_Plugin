@@ -77,7 +77,7 @@ function seo_playground_render_overview_page() {
                     </span>
                 <?php else: ?>
                     <span class="almaseo-connection-pill almaseo-disconnected">
-                        <span class="almaseo-pill-icon">⚠</span> Not Connected
+                        Free plan
                     </span>
                 <?php endif; ?>
             </div>
@@ -405,10 +405,10 @@ function seo_playground_render_overview_page() {
                     </div>
                     <div class="almaseo-card-body">
                         <?php if (!$is_connected): ?>
-                            <div class="almaseo-action-item almaseo-action-highlight">
-                                <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-settings')); ?>">
+                            <div class="almaseo-action-item">
+                                <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>">
                                     <span class="dashicons dashicons-admin-plugins"></span>
-                                    Connect to AlmaSEO
+                                    Connect AlmaSEO
                                 </a>
                             </div>
                         <?php endif; ?>
@@ -513,7 +513,7 @@ function seo_playground_render_overview_page() {
         }
 
         .almaseo-connection-pill.almaseo-disconnected {
-            background: rgba(255, 152, 0, 0.9);
+            background: rgba(255, 255, 255, 0.25);
         }
 
         .almaseo-pill-icon {

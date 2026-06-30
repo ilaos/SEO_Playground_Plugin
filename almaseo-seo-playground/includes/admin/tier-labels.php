@@ -100,8 +100,12 @@ class AlmaSEO_Tier_Labels {
      * Initialize hooks.
      */
     public static function init() {
-        add_action( 'admin_menu', array( __CLASS__, 'add_sidebar_badges' ), 999 );
-        add_action( 'admin_head', array( __CLASS__, 'badge_css' ) );
+        // Sidebar PRO/FREE badges removed (free-UX pass, 2026-06-30): they were
+        // ambient upsell on every admin page, and the "PRO" features all work for
+        // free today (tier enforcement deferred), so the labels were misleading.
+        // Upgrade encouragement now happens calmly at point-of-use (the connect /
+        // sign-up CTAs). The tier registry + helpers below are kept for future real
+        // tier gating; re-add the two hooks here to bring the badges back.
     }
 
     /**

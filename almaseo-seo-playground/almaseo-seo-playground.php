@@ -520,18 +520,17 @@ add_action('admin_notices', function() {
         'almaseo_deactivate_connector'
     );
     ?>
-    <div class="notice notice-error almaseo-connector-upgrade-notice" style="border-left: 4px solid #d63638; background: #fff2f2; padding: 16px 20px; margin: 15px 0;">
+    <div class="notice notice-warning almaseo-connector-upgrade-notice" style="border-left: 4px solid #dba617; padding: 16px 20px; margin: 15px 0;">
         <p style="margin: 0 0 8px 0; font-size: 15px; font-weight: 600;">
-            <span style="color: #d63638; font-size: 18px; vertical-align: middle;">&#9888;</span>
-            <strong style="color: #1d2327;"> Action Required &mdash; Deactivate the Connector Plugin</strong>
+            <strong style="color: #1d2327;">The AlmaSEO Connector is no longer needed</strong>
         </p>
         <p style="margin: 0 0 14px 0; color: #50575e; font-size: 13px; line-height: 1.6;">
             The <strong>AlmaSEO Connector</strong> and <strong>SEO Playground</strong> are both active.
-            SEO Playground already includes everything the Connector does, plus a full SEO toolkit.
-            Please deactivate the Connector to avoid potential conflicts. Your connection settings will be preserved.
+            SEO Playground already includes everything the Connector does, plus a full SEO toolkit,
+            so you can deactivate the Connector when you're ready. Your connection settings will be preserved.
         </p>
-        <a href="<?php echo esc_url($deactivate_url); ?>" class="button button-primary" style="background: #d63638; border-color: #b32d2e; font-size: 13px; padding: 4px 16px; height: auto;">
-            <?php esc_html_e('Deactivate Connector Now', 'almaseo-seo-playground'); ?>
+        <a href="<?php echo esc_url($deactivate_url); ?>" class="button button-primary" style="font-size: 13px; padding: 4px 16px; height: auto;">
+            <?php esc_html_e('Deactivate Connector', 'almaseo-seo-playground'); ?>
         </a>
     </div>
     <?php
@@ -660,7 +659,7 @@ add_action( 'admin_notices', function () {
     ?>
     <div class="notice notice-warning almaseo-seo-conflict-notice" style="border-left-color: #f0b849; padding: 14px 16px;">
         <p style="margin: 0 0 8px 0; font-size: 14px;">
-            <strong style="color: #1d2327;">&#9888; Action Required &mdash; Import Your SEO Data &amp; Deactivate <?php echo esc_html( $count === 1 ? $conflicts[0] : 'Other SEO Plugins' ); ?></strong>
+            <strong style="color: #1d2327;">You're running another SEO plugin alongside AlmaSEO</strong>
         </p>
         <p style="margin: 0 0 6px 0; color: #50575e;">
             <?php
@@ -770,42 +769,19 @@ if (!function_exists('almaseo_display_search_engine_warning')) {
         return;
     }
     
-    // Also add a sticky bar at the very top
     ?>
-    <div id="almaseo-sticky-warning" style="position: fixed; top: 32px; left: 0; right: 0; z-index: 99999; background: #dc3232; color: white; padding: 10px 20px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;">
-        <strong style="margin-right: 10px;">🚨 AlmaSEO Alert: Your site is HIDDEN from Google!</strong>
-        <a href="<?php echo esc_url(admin_url('options-reading.php')); ?>" class="button button-small" style="background: white; color: #dc3232; border: none; margin: 0 10px;">Fix Now</a>
-        <button type="button" onclick="jQuery('#almaseo-sticky-warning').slideUp();" style="background: transparent; border: none; color: white; cursor: pointer; padding: 0 5px;">✕</button>
-    </div>
-    <script>
-    jQuery(document).ready(function($) {
-        // Adjust admin bar spacing
-        if ($('#almaseo-sticky-warning').length) {
-            $('#wpadminbar').css('top', '42px');
-            $('html').css('margin-top', '74px');
-        }
-    });
-    </script>
-    <?php
-    
-    ?>
-    <div class="notice notice-error almaseo-search-engine-warning" style="position: relative; padding: 20px; border-left: 4px solid #dc3232; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.15);">
+    <div class="notice notice-warning almaseo-search-engine-warning" style="position: relative; padding: 20px; border-left: 4px solid #dba617; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.15);">
         <div style="display: flex; align-items: center;">
-            <div style="margin-right: 15px;">
-                <img src="<?php echo esc_url(plugin_dir_url(__FILE__) . 'almaseo-logo.png'); ?>" alt="AlmaSEO" style="height: 40px; width: auto;">
-            </div>
             <div style="flex: 1;">
-                <h3 style="margin: 0 0 5px 0; color: #dc3232; font-size: 18px;">
-                    🚨 CRITICAL SEO ALERT from AlmaSEO
+                <h3 style="margin: 0 0 5px 0; color: #23282d; font-size: 16px;">
+                    Search engines are currently blocked for this site
                 </h3>
                 <p style="margin: 0 0 10px 0; font-size: 14px; color: #444;">
-                    <strong>Your website is HIDDEN from search engines!</strong> 
-                    WordPress is currently set to "Discourage search engines from indexing this site". 
-                    This means your content will NOT appear in Google, Bing, or any other search results.
+                    WordPress is set to discourage search engines from indexing this site, so your pages won't appear in Google or other search results. If this site is live, update your Reading settings.
                 </p>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <a href="<?php echo esc_url(admin_url('options-reading.php')); ?>" class="button button-primary" style="background: #dc3232; border-color: #aa2020;">
-                        Fix This Now →
+                    <a href="<?php echo esc_url(admin_url('options-reading.php')); ?>" class="button button-primary">
+                        Review reading settings
                     </a>
                     <button type="button" class="button almaseo-dismiss-temp" data-nonce="<?php echo esc_attr(wp_create_nonce('almaseo_dismiss_warning')); ?>">
                         Dismiss for 24 hours
