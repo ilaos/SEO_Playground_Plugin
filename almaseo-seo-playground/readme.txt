@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.21.7
+Stable tag: 1.21.8
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.21.8 =
+**Sign-up-first connect prompts**
+
+* The optional "connect" prompts shown to new users now lead to a free sign-up first — you need an account before you can connect — with a clear "already have an account? connect it" path for returning users. Applies to the welcome screen and the Overview quick actions.
 
 = 1.21.7 =
 **A calmer, clearer experience for free users**

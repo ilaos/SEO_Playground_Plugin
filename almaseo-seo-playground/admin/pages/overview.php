@@ -406,9 +406,9 @@ function seo_playground_render_overview_page() {
                     <div class="almaseo-card-body">
                         <?php if (!$is_connected): ?>
                             <div class="almaseo-action-item">
-                                <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>">
+                                <a href="https://app.almaseo.com/register" target="_blank" rel="noopener">
                                     <span class="dashicons dashicons-admin-plugins"></span>
-                                    Connect AlmaSEO
+                                    Sign up for AlmaSEO
                                 </a>
                             </div>
                         <?php endif; ?>

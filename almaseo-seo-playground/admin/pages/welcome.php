@@ -311,7 +311,7 @@ function almaseo_welcome_screen_page() {
                         Optional: Connect to AlmaSEO
                     </h3>
                     <p class="almaseo-feature-description">
-                        Only if you want the cloud extras above. Link a free AlmaSEO account to add Search Console data, keyword research, and content-freshness intelligence. <a href="<?php echo esc_url( admin_url( 'admin.php?page=seo-playground-connection' ) ); ?>">Connect AlmaSEO</a>.
+                        Only if you want the cloud extras above. Create a free AlmaSEO account to add Search Console data, keyword research, and content-freshness intelligence. <a href="https://app.almaseo.com/register" target="_blank" rel="noopener">Sign up free</a> &mdash; or <a href="<?php echo esc_url( admin_url( 'admin.php?page=seo-playground-connection' ) ); ?>">connect an existing account</a>.
                     </p>
                 </div>
                 <?php endif; ?>
@@ -336,10 +336,13 @@ function almaseo_welcome_screen_page() {
                     <a href="<?php echo esc_url( admin_url( 'admin.php?page=almaseo-setup-wizard' ) ); ?>" class="almaseo-btn-primary">
                         ⚙️ Set Up Your SEO
                     </a>
-                    <a href="<?php echo esc_url( admin_url( 'admin.php?page=seo-playground-connection' ) ); ?>" class="almaseo-btn-secondary">
-                        🔗 Connect AlmaSEO (optional)
+                    <a href="https://app.almaseo.com/register" target="_blank" rel="noopener" class="almaseo-btn-secondary">
+                        🔗 Sign up free (optional)
                     </a>
                 </div>
+                <p style="margin-top: 14px; color: #999; font-size: 13px;">
+                    Already have an AlmaSEO account? <a href="<?php echo esc_url( admin_url( 'admin.php?page=seo-playground-connection' ) ); ?>">Connect it</a>.
+                </p>
                 <?php endif; ?>
 
                 <p style="margin-top: 20px; color: #999; font-size: 14px;">
