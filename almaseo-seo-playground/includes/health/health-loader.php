@@ -333,45 +333,70 @@ class AlmaSEO_Health_Loader {
             return;
         }
 
-        $api_key = get_option('almaseo_api_key');
+        // AlmaSEO-powered keyword suggestions: real monthly search volume +
+        // competition pulled from the dashboard. Free / disconnected sites keep
+        // the local Google Suggest autocomplete on the focus-keyword field; this
+        // volume panel is the connected (premium) enhancement.
+        $username  = get_option('almaseo_connected_user', '');
+        $password  = get_option('almaseo_app_password', '');
+        $connected = ! empty($username) && ! empty($password);
+        if (function_exists('seo_playground_is_alma_connected')) {
+            $connected = $connected && seo_playground_is_alma_connected();
+        }
 
-        if (empty($api_key)) {
+        if (! $connected) {
             wp_send_json_error(array(
-                'message' => __('Not connected to AlmaSEO Dashboard', 'almaseo-seo-playground'),
+                'message'      => __('Connect to AlmaSEO to unlock AlmaSEO-powered keyword suggestions built from your own Google Search Console — the keywords you already rank for, with real impressions and average position. No other SEO plugin does this.', 'almaseo-seo-playground'),
                 'is_connected' => false
             ));
             return;
         }
-        
-        // Try to get keywords from AlmaSEO API
-        $response = wp_remote_post('https://almaseo.com/api/keywords', array(
-            'body' => array(
-                'api_key' => $api_key,
-                'post_id' => $post_id,
-                'url' => get_permalink($post_id)
+
+        // Seed the engine with the keyword the user is currently typing (sent
+        // live from the editor), falling back to the saved focus keyword, then
+        // the post title. This lets the panel update without a save+reload.
+        $seed = isset($_POST['keyword']) ? sanitize_text_field(wp_unslash($_POST['keyword'])) : '';
+        if (! is_string($seed) || strlen(trim($seed)) < 2) {
+            $seed = get_post_meta($post_id, '_almaseo_focus_keyword', true);
+        }
+        if (! is_string($seed) || strlen(trim($seed)) < 2) {
+            $seed = get_the_title($post_id);
+        }
+
+        $response = wp_remote_post('https://api.almaseo.com/api/plugin/keyword-suggestions', array(
+            'timeout' => 15,
+            'headers' => array(
+                'Authorization' => 'Basic ' . base64_encode($username . ':' . $password),
+                'Content-Type'  => 'application/json',
             ),
-            'timeout' => 10
+            'body' => wp_json_encode(array(
+                'site_url'      => get_site_url(),
+                'query'         => is_string($seed) ? $seed : '',
+                'focus_keyword' => is_string($seed) ? $seed : '',
+                'post_title'    => get_the_title($post_id),
+            )),
         ));
-        
-        if (is_wp_error($response)) {
+
+        if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) {
             wp_send_json_error(array(
-                'message' => __('Failed to fetch keywords from API', 'almaseo-seo-playground'),
+                'message'      => __('Failed to fetch keywords from AlmaSEO', 'almaseo-seo-playground'),
                 'is_connected' => true
             ));
             return;
         }
-        
-        $body = wp_remote_retrieve_body($response);
-        $data = json_decode($body, true);
-        
-        if (!empty($data['keywords'])) {
+
+        $data = json_decode(wp_remote_retrieve_body($response), true);
+
+        if (! empty($data['keywords'])) {
             wp_send_json_success(array(
-                'keywords' => $data['keywords'],
-                'is_connected' => true
+                'keywords'         => $data['keywords'],
+                'is_connected'     => true,
+                'has_real_metrics' => ! empty($data['has_real_metrics']),
+                'enrichment_nudge' => isset($data['enrichment_nudge']) ? $data['enrichment_nudge'] : ''
             ));
         } else {
             wp_send_json_error(array(
-                'message' => __('No keywords available', 'almaseo-seo-playground'),
+                'message'      => __('No keyword suggestions yet — add a focus keyword to get AlmaSEO-powered ideas with real search volume.', 'almaseo-seo-playground'),
                 'is_connected' => true
             ));
         }
@@ -485,7 +510,7 @@ class AlmaSEO_Health_Loader {
                 'unsaved_changes' => __('Changes not saved—click Update to keep them', 'almaseo-seo-playground'),
                 'unsaved_changes_improved' => __('You have unsaved changes. Click "Update" to save your SEO improvements.', 'almaseo-seo-playground'),
                 'score_tooltip' => $this->get_score_tooltip_text(),
-                'connect_for_keywords' => __('Connect to AlmaSEO to unlock live keyword suggestions', 'almaseo-seo-playground'),
+                'connect_for_keywords' => __('🔓 Unlock AlmaSEO-powered keyword suggestions — real monthly search volume & competition shown next to every keyword. No other SEO plugin does this. Connect AlmaSEO to switch it on.', 'almaseo-seo-playground'),
                 'no_keywords' => __('No keyword suggestions available', 'almaseo-seo-playground'),
                 'keyword_error' => __('Failed to load keyword suggestions', 'almaseo-seo-playground')
             )

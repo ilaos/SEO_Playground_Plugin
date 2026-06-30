@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.20.4
+Stable tag: 1.21.3
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,33 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.21.3 =
+**Keyword suggestions now show your real Search Console performance — and are clickable**
+
+* Each suggestion now displays the keyword's real data from your own Google Search Console: impressions, average position, and an opportunity score. (Search "volume" is intentionally not shown — it's a paid third-party metric the plugin doesn't use; your own Search Console data is more accurate.)
+* Click any suggestion to set it as your focus keyword — the list then re-seeds around that keyword, so you can explore the terms you already rank for.
+* Reworded the connect prompt to describe what you actually get: keywords you already rank for, with impressions and average position.
+
+= 1.21.2 =
+**Keyword suggestions: live updates as you type, plus a dropdown z-index fix**
+
+* The Keyword Suggestions panel now updates from the keyword you're typing in the Focus Keyword field — no save/reload needed. It refetches shortly after you stop typing, and a "↻ Refresh" link is available.
+* Fixed: the focus-keyword autocomplete dropdown no longer hides behind the suggestions panel.
+
+= 1.21.1 =
+**Fix: keyword suggestions panel now actually appears in the editor**
+
+* Fixed: the AlmaSEO-powered keyword suggestions panel introduced in 1.21.0 had no visible home — its container lived in a disabled metabox and was never shown. It now renders directly beneath the Focus Keyword field in the SEO Overview tab.
+* The panel shows suggestion chips with real monthly search volume when your site is connected and has Keyword Research data, a connect/enrich nudge otherwise, and free local autocomplete remains on the focus-keyword field.
+
+= 1.21.0 =
+**AlmaSEO-powered keyword suggestions: real search volume next to your keyword**
+
+* New: when your site is connected to AlmaSEO, the focus-keyword panel now pulls live keyword suggestions enriched with real monthly search volume, competition, and intent — sourced from your dashboard's Keyword Research (Search Console data, SERP checks, and opportunity scoring). No other SEO plugin shows real search-volume data right inside the editor.
+* Free local suggestions still work offline: disconnected sites keep instant Google-style autocomplete on the focus-keyword field.
+* Added a gentle in-panel nudge that points you to connect Google Search Console or run Keyword Research on your AlmaSEO dashboard to unlock real metrics for a site.
+* Under the hood: retired three dead keyword endpoints in favor of a single verified dashboard bridge.
 
 = 1.20.4 =
 **Notes & History tab: notes that actually save, and a removed fake history table**

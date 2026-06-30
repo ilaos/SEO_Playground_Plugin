@@ -729,15 +729,23 @@
             })
             .done(function(response) {
                 if (response.success && response.data.keywords) {
+                    const esc = function(s) {
+                        return $('<div>').text(s == null ? '' : String(s)).html();
+                    };
                     let html = '<div class="keyword-chips">';
                     response.data.keywords.forEach(function(keyword) {
-                        html += '<span class="keyword-chip">' + keyword.term;
+                        html += '<span class="keyword-chip">' + esc(keyword.term);
                         if (keyword.volume) {
-                            html += ' <small>(' + keyword.volume + ')</small>';
+                            html += ' <small>(' + esc(keyword.volume) + '/mo)</small>';
                         }
                         html += '</span> ';
                     });
                     html += '</div>';
+                    // Gentle nudge: real search volume needs GSC connected or a
+                    // dashboard keyword run. Surfaced as designed by the server.
+                    if (!response.data.has_real_metrics && response.data.enrichment_nudge) {
+                        html += '<p class="description almaseo-kw-nudge" style="margin-top:8px;">💡 ' + esc(response.data.enrichment_nudge) + '</p>';
+                    }
                     $container.html(html);
                 } else if (!response.data.is_connected) {
                     $container.html('<p class="description">' + almaseoHealth.i18n.connect_for_keywords + '</p>');
