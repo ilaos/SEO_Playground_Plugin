@@ -61,9 +61,26 @@ function almaseo_connector_settings_page() {
             update_option('almaseo_connected_date', current_time('mysql'));
             $app_password = $cleaned_password;
 
+            // Check if site exists on AlmaSEO dashboard
+            $verify_url = 'https://api.almaseo.com/api/v1/verify-site?url=' . urlencode(get_site_url());
+            $verify_response = wp_remote_get($verify_url, array('timeout' => 10, 'sslverify' => true));
+            $manual_dashboard_linked = false;
+            if (!is_wp_error($verify_response) && wp_remote_retrieve_response_code($verify_response) === 200) {
+                $verify_body = json_decode(wp_remote_retrieve_body($verify_response), true);
+                if (!empty($verify_body['exists']) && !empty($verify_body['site_id'])) {
+                    update_option('almaseo_dashboard_site_id', $verify_body['site_id']);
+                    update_option('almaseo_dashboard_synced', true);
+                    $manual_dashboard_linked = true;
+                }
+            }
+
             echo '<div class="notice notice-success almaseo-success-notice" style="padding: 15px; border-left: 4px solid #46b450;">';
             echo '<h3 style="margin-top: 0;">Connection Password Saved Successfully</h3>';
-            echo '<p>Your WordPress plugin is now configured and ready to connect.</p>';
+            if ($manual_dashboard_linked) {
+                echo '<p>Your site is connected to your AlmaSEO dashboard and ready to go.</p>';
+            } else {
+                echo '<p>Your WordPress plugin is configured. To complete setup, <a href="https://api.almaseo.com" target="_blank"><strong>add this site to your AlmaSEO dashboard</strong></a>.</p>';
+            }
             echo '</div>';
         } else {
             echo '<div class="notice notice-error" style="padding: 15px; border-left: 4px solid #dc3232;">';
@@ -139,9 +156,27 @@ function almaseo_connector_settings_page() {
                         update_option('almaseo_app_password', $new_password);
                         update_option('almaseo_connected_user', $username);
                         update_option('almaseo_connected_date', current_time('mysql'));
+
+                        // Check if site exists on AlmaSEO dashboard
+                        $verify_url = 'https://api.almaseo.com/api/v1/verify-site?url=' . urlencode(get_site_url());
+                        $verify_response = wp_remote_get($verify_url, array('timeout' => 10, 'sslverify' => true));
+                        $dashboard_linked = false;
+                        if (!is_wp_error($verify_response) && wp_remote_retrieve_response_code($verify_response) === 200) {
+                            $verify_body = json_decode(wp_remote_retrieve_body($verify_response), true);
+                            if (!empty($verify_body['exists']) && !empty($verify_body['site_id'])) {
+                                update_option('almaseo_dashboard_site_id', $verify_body['site_id']);
+                                update_option('almaseo_dashboard_synced', true);
+                                $dashboard_linked = true;
+                            }
+                        }
+
                         echo '<div class="notice notice-success almaseo-success-notice">';
                         echo '<h3>Connection Password Generated Successfully</h3>';
-                        echo '<p>Your WordPress plugin is now configured and ready to connect.</p>';
+                        if ($dashboard_linked) {
+                            echo '<p>Your site is connected to your AlmaSEO dashboard and ready to go.</p>';
+                        } else {
+                            echo '<p>Your WordPress plugin is configured. To complete setup, <a href="https://api.almaseo.com" target="_blank"><strong>add this site to your AlmaSEO dashboard</strong></a>.</p>';
+                        }
                         echo '</div>';
                     } else {
                         // Password was created but REST API auth is blocked by hosting
@@ -207,6 +242,19 @@ function almaseo_connector_settings_page() {
         echo '<i class="dashicons dashicons-yes-alt"></i>';
         echo '<span>Connected to AlmaSEO</span>';
         echo '</div>';
+
+        // Check dashboard connection status
+        $dashboard_site_id = get_option('almaseo_dashboard_site_id', '');
+        $dashboard_disconnected = get_transient('almaseo_dashboard_disconnected');
+
+        if ($dashboard_disconnected || empty($dashboard_site_id)) {
+            echo '<div style="background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:12px 16px;margin:12px 0;">';
+            echo '<p style="margin:0;font-size:13px;color:#856404;"><strong>Dashboard Not Linked:</strong> ';
+            echo 'Your plugin credentials are set up, but this site is not currently registered on your AlmaSEO dashboard. ';
+            echo 'To use dashboard features (article publishing, keyword suggestions, analytics), ';
+            echo '<a href="https://api.almaseo.com" target="_blank" style="color:#664d03;font-weight:600;">add this site to your dashboard</a>.</p>';
+            echo '</div>';
+        }
 
         echo '<div class="connection-details">';
         echo '<div class="detail-item">';

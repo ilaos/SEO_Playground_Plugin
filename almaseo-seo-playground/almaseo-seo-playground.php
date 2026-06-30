@@ -1094,6 +1094,123 @@ add_action('rest_api_init', function () {
     ));
 });
 
+// Dashboard disconnect webhook — called when site is removed from AlmaSEO dashboard
+// Only clears dashboard linkage state — does NOT revoke app passwords or connection credentials.
+// This allows automatic reconnection if the site is restored from trash.
+add_action('rest_api_init', function() {
+    register_rest_route(ALMASEO_API_NAMESPACE, '/dashboard-disconnect-playground', array(
+        'methods'  => 'POST',
+        'callback' => 'almaseo_playground_handle_dashboard_disconnect',
+        'permission_callback' => 'almaseo_api_auth_check',
+    ));
+    register_rest_route(ALMASEO_API_NAMESPACE, '/dashboard-reconnect-playground', array(
+        'methods'  => 'POST',
+        'callback' => 'almaseo_playground_handle_dashboard_reconnect',
+        'permission_callback' => 'almaseo_api_auth_check',
+    ));
+});
+
+function almaseo_playground_handle_dashboard_disconnect($request) {
+    // Clear dashboard linkage only — keep credentials intact for potential restore
+    delete_option('almaseo_dashboard_site_id');
+    delete_option('almaseo_dashboard_synced');
+
+    // Set a transient so admin UI can show a notice
+    set_transient('almaseo_dashboard_disconnected', true, 7 * DAY_IN_SECONDS);
+
+    return rest_ensure_response(array(
+        'success' => true,
+        'message' => 'Dashboard linkage cleared. Plugin credentials preserved for reconnection.',
+    ));
+}
+
+function almaseo_playground_handle_dashboard_reconnect($request) {
+    // Site was restored on the dashboard — re-link
+    $site_id = $request->get_param('site_id');
+    if ($site_id) {
+        update_option('almaseo_dashboard_site_id', intval($site_id));
+        update_option('almaseo_dashboard_synced', true);
+    }
+    delete_transient('almaseo_dashboard_disconnected');
+    update_option('almaseo_dashboard_verified', current_time('mysql'));
+
+    return rest_ensure_response(array(
+        'success' => true,
+        'message' => 'Site reconnected to AlmaSEO dashboard.',
+    ));
+}
+
+// --- DASHBOARD HEARTBEAT ---
+// Twice-daily check to verify this site is still registered on the AlmaSEO dashboard.
+add_action('almaseo_playground_dashboard_heartbeat', 'almaseo_playground_run_dashboard_heartbeat');
+
+function almaseo_playground_schedule_heartbeat() {
+    if (!wp_next_scheduled('almaseo_playground_dashboard_heartbeat')) {
+        wp_schedule_event(time(), 'twicedaily', 'almaseo_playground_dashboard_heartbeat');
+    }
+}
+add_action('admin_init', 'almaseo_playground_schedule_heartbeat');
+
+function almaseo_playground_run_dashboard_heartbeat() {
+    // Always run when plugin is active — this catches ALL scenarios:
+    // 1. Site removed from dashboard while plugin is installed
+    // 2. Site restored from trash (auto-reconnect)
+    // 3. Plugin installed but site never added to dashboard
+    $site_url = get_site_url();
+    $api_url = 'https://api.almaseo.com/api/v1/verify-site?url=' . urlencode($site_url);
+
+    $response = wp_remote_get($api_url, array(
+        'timeout' => 15,
+        'sslverify' => true,
+        'headers' => array('User-Agent' => 'AlmaSEO-Playground/' . ALMASEO_PLUGIN_VERSION),
+    ));
+
+    if (is_wp_error($response)) {
+        return; // Network error — don't change status
+    }
+
+    $code = wp_remote_retrieve_response_code($response);
+    $body = json_decode(wp_remote_retrieve_body($response), true);
+
+    if ($code === 200 && isset($body['exists'])) {
+        if ($body['exists'] === true) {
+            // Site exists on dashboard — sync state
+            if (!empty($body['site_id'])) {
+                update_option('almaseo_dashboard_site_id', $body['site_id']);
+                update_option('almaseo_dashboard_synced', true);
+            }
+            delete_transient('almaseo_dashboard_disconnected');
+            update_option('almaseo_dashboard_verified', current_time('mysql'));
+        } else {
+            // Site NOT found on dashboard — mark as not linked
+            delete_option('almaseo_dashboard_site_id');
+            delete_option('almaseo_dashboard_synced');
+            set_transient('almaseo_dashboard_disconnected', true, 7 * DAY_IN_SECONDS);
+            update_option('almaseo_dashboard_verified', current_time('mysql'));
+        }
+    }
+}
+
+// Clean up cron on deactivation
+register_deactivation_hook(ALMASEO_MAIN_FILE, function() {
+    wp_clear_scheduled_hook('almaseo_playground_dashboard_heartbeat');
+});
+
+// Admin notice when site has been disconnected from dashboard
+add_action('admin_notices', function() {
+    if (!current_user_can('manage_options')) return;
+    if (!get_transient('almaseo_dashboard_disconnected')) return;
+
+    $screen = get_current_screen();
+    if ($screen && strpos($screen->id, 'almaseo') !== false) return;
+
+    echo '<div class="notice notice-warning is-dismissible">';
+    echo '<p><strong>AlmaSEO SEO Playground:</strong> This site is no longer connected to your AlmaSEO dashboard. ';
+    echo 'To reconnect, add this site in your <a href="https://api.almaseo.com" target="_blank">AlmaSEO dashboard</a>, ';
+    echo 'or <a href="' . esc_url(admin_url('admin.php?page=almaseo-settings')) . '">check your connection settings</a>.</p>';
+    echo '</div>';
+});
+
 // Permission check: must be admin and secret must match
 if (!function_exists('almaseo_permission_check')) {
     function almaseo_permission_check( $request ) {
