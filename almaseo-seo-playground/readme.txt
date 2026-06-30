@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.21.3
+Stable tag: 1.22.0
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -146,6 +146,15 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.22.0 =
+**WordPress.org release: the plugin is now fully free; AlmaSEO dashboard stays optional**
+
+* Every local SEO feature now ships free — removed tier gating, lock screens, disabled "Pro" controls, and the self-hosted updater.
+* Removed the unbuilt DataForSEO integration and the dashboard-only GSC Monitor from this release.
+* Added an "External services" disclosure to this readme.
+* Dashboard-powered editor panels (keyword suggestions, Search Console, Analytics) now show an honest free-trial connect prompt instead of an error or a "Pro" badge.
+* Removed dead code and dev-only debug files.
 
 = 1.21.3 =
 **Keyword suggestions now show your real Search Console performance — and are clickable**
