@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.21.5
+Stable tag: 1.21.7
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,20 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.21.7 =
+**A calmer, clearer experience for free users**
+
+* Works great with no account. Connection status is now honest — you're shown as "Free plan" rather than flagged with a warning — and features that genuinely need an AlmaSEO connection (Search Console, Analytics, advanced schema, GSC Monitor) show a calm "here's what you'd get" message with a simple free sign-up link, instead of empty tables or errors.
+* Friendlier first run: the welcome screen leads with your free toolkit and the setup wizard; connecting an account is offered as an optional extra.
+* Quieter admin: removed the full-width red "hidden from Google" bar (the warning itself is kept, just calmer and unbranded), removed the sidebar PRO/FREE badges, and softened the plugin-conflict and connection notices.
+* Activation no longer creates an unused application password — credentials are generated only when you actually connect.
+* Housekeeping: removed placeholder marketing content and corrected an internal version constant.
+
+= 1.21.6 =
+**Dashboard connection lifecycle**
+
+* Added automatic detection of whether your site is linked to an AlmaSEO dashboard, including disconnect/reconnect handling and a periodic connection check.
 
 = 1.21.5 =
 **One clean Keyword Suggestions panel under the focus keyword**
