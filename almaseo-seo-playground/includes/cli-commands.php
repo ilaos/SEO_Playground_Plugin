@@ -4,6 +4,10 @@
  * Comprehensive CLI interface for v5.0.0
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 if (!defined('WP_CLI') || !WP_CLI) {
     return;
 }

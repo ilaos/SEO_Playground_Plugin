@@ -8,6 +8,10 @@
  * @since 4.7.0
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 if (!defined('WP_CLI')) {
     return;
 }
