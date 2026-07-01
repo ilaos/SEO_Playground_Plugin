@@ -427,7 +427,7 @@ class AlmaSEO_Meta_Social_Handler {
         
         // Save meta robots with proper mutual exclusivity
         // Index/NoIndex pair - exactly one must be active
-        if (isset($_POST['almaseo_robots_noindex']) && wp_unslash($_POST['almaseo_robots_noindex'])) {
+        if (isset($_POST['almaseo_robots_noindex']) && sanitize_text_field(wp_unslash($_POST['almaseo_robots_noindex']))) {
             update_post_meta($post_id, '_almaseo_robots_index', 'noindex');
         } else {
             // Default to index if noindex is not checked
@@ -435,7 +435,7 @@ class AlmaSEO_Meta_Social_Handler {
         }
         
         // Follow/NoFollow pair - exactly one must be active
-        if (isset($_POST['almaseo_robots_nofollow']) && wp_unslash($_POST['almaseo_robots_nofollow'])) {
+        if (isset($_POST['almaseo_robots_nofollow']) && sanitize_text_field(wp_unslash($_POST['almaseo_robots_nofollow']))) {
             update_post_meta($post_id, '_almaseo_robots_follow', 'nofollow');
         } else {
             // Default to follow if nofollow is not checked
@@ -449,7 +449,7 @@ class AlmaSEO_Meta_Social_Handler {
             $meta_key = '_almaseo_robots_' . $directive;
             
             if (isset($_POST[$key])) {
-                update_post_meta($post_id, $meta_key, wp_unslash($_POST[$key]) ? '' : 'no' . $directive);
+                update_post_meta($post_id, $meta_key, sanitize_text_field(wp_unslash($_POST[$key])) ? '' : 'no' . $directive);
             } else {
                 update_post_meta($post_id, $meta_key, 'no' . $directive);
             }
@@ -474,7 +474,7 @@ class AlmaSEO_Meta_Social_Handler {
         
         foreach ($social_fields as $field) {
             if (isset($_POST[$field])) {
-                $value = (string) ( wp_unslash( $_POST[$field] ) ?? '' );
+                $value = (string) ( wp_unslash( $_POST[$field] ) ?? '' ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized just below per field type via esc_url_raw()/sanitize_text_field()/wp_strip_all_tags()
 
                 // Special handling for images
                 if (strpos($field, '_image') !== false) {

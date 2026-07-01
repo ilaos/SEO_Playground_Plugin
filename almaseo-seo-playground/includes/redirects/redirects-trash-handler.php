@@ -58,7 +58,7 @@ class AlmaSEO_Redirects_Trash_Handler {
         if (empty($_REQUEST['post'])) {
             return false;
         }
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- value is only counted (is_array + count) to detect a bulk request, never stored or output
         $posts = wp_unslash($_REQUEST['post']);
         return is_array($posts) && count($posts) >= 2;
     }
@@ -136,6 +136,7 @@ class AlmaSEO_Redirects_Trash_Handler {
      */
     public static function display_redirect_banner() {
         // Must have the trashed query param
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- reading WP core's own ?trashed flag to decide whether to show a banner; gated by manage_options below, changes no state
         if (empty($_GET['trashed'])) {
             return;
         }

@@ -35,7 +35,9 @@ try {
     }
 } catch (\Throwable $e) {
     // Handle gracefully if delta class is not available
-    error_log('Delta provider error: ' . $e->getMessage());
+    if (defined('WP_DEBUG') && WP_DEBUG) {
+        error_log('Delta provider error: ' . $e->getMessage()); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug-only logging, gated behind WP_DEBUG
+    }
 }
 ?>
 

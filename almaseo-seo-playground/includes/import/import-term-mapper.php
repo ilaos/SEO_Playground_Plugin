@@ -51,9 +51,8 @@ class AlmaSEO_Import_Term_Mapper {
             $wpdb->prepare( "SHOW TABLES LIKE %s", $aioseo_table )
         );
         if ( $table_exists ) {
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $aioseo_count = (int) $wpdb->get_var(
-                "SELECT COUNT(*) FROM `{$aioseo_table}` WHERE (title != '' AND title IS NOT NULL) OR (description != '' AND description IS NOT NULL)"
+                "SELECT COUNT(*) FROM `{$aioseo_table}` WHERE (title != '' AND title IS NOT NULL) OR (description != '' AND description IS NOT NULL)" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
             );
         }
 
@@ -288,7 +287,8 @@ class AlmaSEO_Import_Term_Mapper {
             return '`' . $col . '`';
         }, $select_columns ) );
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        // $select is a whitelisted, backtick-quoted column list and $table is $wpdb->prefix-derived — neither is user input.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $results = $wpdb->get_results( $wpdb->prepare(
             "SELECT {$select}
              FROM `{$table}`
@@ -299,6 +299,7 @@ class AlmaSEO_Import_Term_Mapper {
             $limit,
             $offset
         ), ARRAY_A );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         if ( ! $results ) {
             return array();

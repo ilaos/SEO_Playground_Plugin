@@ -210,7 +210,7 @@ function almaseo_eg_apply_filter($query) {
         return;
     }
     
-    if (empty($_GET['evergreen_filter'])) {
+    if (empty($_GET['evergreen_filter'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- admin list-table filter read from GET; navigational, changes no state
         return;
     }
     

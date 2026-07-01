@@ -162,7 +162,9 @@ class AlmaSEO_Update_Manager {
             });
             
         } catch (Exception $e) {
-            error_log('AlmaSEO Update Manager: ' . $e->getMessage());
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('AlmaSEO Update Manager: ' . $e->getMessage()); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug-only logging, gated behind WP_DEBUG
+            }
         }
     }
     

@@ -98,7 +98,7 @@ class AlmaSEO_Search_Appearance_Controller {
             wp_send_json_error( array( 'message' => __( 'Permission denied.', 'almaseo-seo-playground' ) ) );
         }
 
-        $raw = isset( $_POST['settings'] ) ? wp_unslash( $_POST['settings'] ) : '{}';
+        $raw = isset( $_POST['settings'] ) ? wp_unslash( $_POST['settings'] ) : '{}'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON string; decoded below and sanitized via AlmaSEO_Search_Appearance_Settings::sanitize() before storage
         $input = json_decode( $raw, true );
 
         if ( ! is_array( $input ) ) {

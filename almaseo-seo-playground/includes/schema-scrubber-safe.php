@@ -180,7 +180,7 @@ class AlmaSEO_Schema_Scrubber_Safe {
             $is_amp = true;
         } elseif (function_exists('ampforwp_is_amp_endpoint') && ampforwp_is_amp_endpoint()) {
             $is_amp = true;
-        } elseif (isset($_GET['amp']) || isset($_GET['amphtml'])) {
+        } elseif (isset($_GET['amp']) || isset($_GET['amphtml'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- front-end isset() check for AMP query vars; changes no state
             $is_amp = true;
         }
         

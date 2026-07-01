@@ -224,7 +224,7 @@ function almaseo_log_security_event($event_type, $details = array()) {
         'details' => $details
     );
     
-    error_log('AlmaSEO Security: ' . json_encode($log_entry));
+    error_log('AlmaSEO Security: ' . json_encode($log_entry)); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- deliberate security-event audit log, intended to run in production
 }
 } // end function_exists guard: almaseo_log_security_event
 

@@ -370,6 +370,10 @@ class AlmaSEO_Woo_Meta {
             'almaseo_woo_term_og_image'
         );
         
+        // These handlers fire on created_/edited_ term hooks; WordPress core verifies the
+        // term nonce ('add-tag' on create, 'update-tag_{id}' on edit) before firing them,
+        // and edit_term capability is checked above. The values below are all sanitized.
+        // phpcs:disable WordPress.Security.NonceVerification.Missing
         foreach ($fields as $field) {
             if (isset($_POST[$field])) {
                 $value = sanitize_text_field(wp_unslash($_POST[$field]));
@@ -379,10 +383,11 @@ class AlmaSEO_Woo_Meta {
                 update_term_meta($term_id, '_' . $field, $value);
             }
         }
-        
+
         // Save checkbox
         $noindex = isset($_POST['almaseo_woo_term_noindex']) ? '1' : '';
         update_term_meta($term_id, '_almaseo_woo_term_noindex', $noindex);
+        // phpcs:enable WordPress.Security.NonceVerification.Missing
     }
     
     /**

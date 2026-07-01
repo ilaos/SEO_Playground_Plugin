@@ -142,7 +142,7 @@ function almaseo_eg_weekly_cron() {
     
     // Log the processing
     if (defined('WP_DEBUG') && WP_DEBUG) {
-        error_log(sprintf('[AlmaSEO Evergreen] Weekly cron processed %d posts', $total_processed));
+        error_log(sprintf('[AlmaSEO Evergreen] Weekly cron processed %d posts', $total_processed)); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug-only logging, gated behind WP_DEBUG
     }
     
     // Generate digest (stub for now)
@@ -321,7 +321,7 @@ function almaseo_eg_generate_digest() {
 function almaseo_eg_get_stats() {
     global $wpdb;
     
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- aggregate status COUNT over core tables for the evergreen stats
     $counts = $wpdb->get_results($wpdb->prepare("
         SELECT meta_value as status, COUNT(*) as count
         FROM {$wpdb->postmeta} pm
@@ -331,6 +331,7 @@ function almaseo_eg_get_stats() {
         AND p.post_type IN ('post', 'page')
         GROUP BY meta_value
     ", ALMASEO_EG_META_STATUS));
+    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     
     $stats = array(
         'total' => 0,
@@ -370,7 +371,7 @@ function almaseo_eg_get_stats() {
 function almaseo_eg_notify_transition($post_id, $from, $to, $metrics) {
     // Stub for future notification system
     if (defined('WP_DEBUG') && WP_DEBUG) {
-        error_log(sprintf(
+        error_log(sprintf( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug-only logging, gated behind WP_DEBUG
             '[AlmaSEO Evergreen] Post %d transitioned from %s to %s',
             $post_id,
             $from,

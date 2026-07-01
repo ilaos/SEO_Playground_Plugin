@@ -28,7 +28,7 @@ function seo_playground_render_overview_page() {
     global $wpdb;
 
     // Count posts that have an SEO title set (proxy for "optimized")
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-time dashboard aggregate JOIN across core tables; not expressible via WP_Query, runs once per Overview load
     $optimized_count = (int) $wpdb->get_var(
         "SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->posts} p
          INNER JOIN {$wpdb->postmeta} pm1 ON p.ID = pm1.post_id AND pm1.meta_key = '_almaseo_title' AND pm1.meta_value != ''
@@ -37,7 +37,7 @@ function seo_playground_render_overview_page() {
     );
 
     // Posts with a title OR description but not both = needs review
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-time dashboard aggregate JOIN across core tables; not expressible via WP_Query, runs once per Overview load
     $has_any_meta = (int) $wpdb->get_var(
         "SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->posts} p
          INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id

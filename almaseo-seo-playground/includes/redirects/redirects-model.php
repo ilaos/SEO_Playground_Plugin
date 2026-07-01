@@ -148,8 +148,8 @@ class AlmaSEO_Redirects_Model {
         $table = self::get_table_name();
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $query = $wpdb->prepare("SELECT * FROM $table WHERE id = %d", $id);
-        
-        return $wpdb->get_row($query, ARRAY_A);
+
+        return $wpdb->get_row($query, ARRAY_A); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $query prepared on the line above
     }
     
     /**
@@ -164,12 +164,12 @@ class AlmaSEO_Redirects_Model {
         $table = self::get_table_name();
         $source = self::normalize_path($source);
         
-        $query = $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
-            "SELECT * FROM $table WHERE source = %s AND is_enabled = 1",
+        $query = $wpdb->prepare(
+            "SELECT * FROM $table WHERE source = %s AND is_enabled = 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
             $source
         );
-        
-        return $wpdb->get_row($query, ARRAY_A);
+
+        return $wpdb->get_row($query, ARRAY_A); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $query prepared above
     }
     
     /**
@@ -374,8 +374,8 @@ class AlmaSEO_Redirects_Model {
         
         $table = self::get_table_name();
         
-        $query = $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
-            "UPDATE $table SET hits = hits + 1, last_hit = %s WHERE id = %d",
+        $query = $wpdb->prepare(
+            "UPDATE $table SET hits = hits + 1, last_hit = %s WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
             current_time('mysql'),
             $id
         );
@@ -392,8 +392,8 @@ class AlmaSEO_Redirects_Model {
     private static function current_status($id) {
         global $wpdb;
         $table = self::get_table_name();
-        $status = $wpdb->get_var($wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
-            "SELECT status FROM $table WHERE id = %d",
+        $status = $wpdb->get_var($wpdb->prepare(
+            "SELECT status FROM $table WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
             $id
         ));
         return (int) $status;
@@ -417,8 +417,8 @@ class AlmaSEO_Redirects_Model {
         // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         $today_start = current_time('Y-m-d') . ' 00:00:00';
-        $today = (int) $wpdb->get_var($wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
-            "SELECT COUNT(*) FROM $table WHERE last_hit >= %s",
+        $today = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM $table WHERE last_hit >= %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
             $today_start
         ));
 
@@ -468,14 +468,14 @@ class AlmaSEO_Redirects_Model {
         $source = self::normalize_path($source);
         
         if ($exclude_id) {
-            $query = $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
-                "SELECT COUNT(*) FROM $table WHERE source = %s AND id != %d",
+            $query = $wpdb->prepare(
+                "SELECT COUNT(*) FROM $table WHERE source = %s AND id != %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
                 $source,
                 $exclude_id
             );
         } else {
-            $query = $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
-                "SELECT COUNT(*) FROM $table WHERE source = %s",
+            $query = $wpdb->prepare(
+                "SELECT COUNT(*) FROM $table WHERE source = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
                 $source
             );
         }

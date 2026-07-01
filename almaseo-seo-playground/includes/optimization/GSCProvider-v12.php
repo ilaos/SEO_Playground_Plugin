@@ -52,7 +52,9 @@ class GSCProvider implements KeywordProviderInterface {
             return $this->mapGSCDataToKeywords($keywords, $gsc_data);
         } catch (\Exception $e) {
             // Log error but don't break the flow
-            error_log('AlmaSEO GSC Error: ' . $e->getMessage());
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('AlmaSEO GSC Error: ' . $e->getMessage()); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug-only logging, gated behind WP_DEBUG
+            }
             return $this->returnEmptyMetrics($keywords);
         }
     }

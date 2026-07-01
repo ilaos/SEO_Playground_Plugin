@@ -82,7 +82,8 @@ class Alma_Sitemap_Conflicts {
      */
     public static function process_batch($run_id) {
         ignore_user_abort(true);
-        set_time_limit(60);
+        set_time_limit(60); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- extends the limit for a batch conflict scan
+
         
         $scan_data = get_option(self::OPTION_KEY, array());
         

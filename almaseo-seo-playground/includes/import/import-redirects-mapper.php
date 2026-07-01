@@ -106,9 +106,8 @@ class AlmaSEO_Import_Redirects_Mapper {
             }
 
             // Check for existing redirect with same source.
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $existing = $wpdb->get_var( $wpdb->prepare(
-                "SELECT id FROM `{$table}` WHERE source = %s LIMIT 1",
+                "SELECT id FROM `{$table}` WHERE source = %s LIMIT 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
                 $source_url
             ) );
 
@@ -181,8 +180,8 @@ class AlmaSEO_Import_Redirects_Mapper {
             return array( 'rows' => array(), 'consumed' => 0, 'done' => true );
         }
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $results = $wpdb->get_results( $wpdb->prepare(
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
             "SELECT sources, url_to, header_code FROM `{$table}`
              ORDER BY id ASC
              LIMIT %d OFFSET %d",
@@ -261,8 +260,8 @@ class AlmaSEO_Import_Redirects_Mapper {
 
         // SELECT * so regex/status columns are available when present
         // (Redirection's schema varies across versions).
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $results = $wpdb->get_results( $wpdb->prepare(
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
             "SELECT * FROM `{$table}`
              WHERE action_type = 'url'
              ORDER BY id ASC
@@ -313,7 +312,7 @@ class AlmaSEO_Import_Redirects_Mapper {
         // AIOSEO stores source_url (relative path) and target_url (full or relative).
         // The `type` column holds the HTTP status code (301, 302, etc.).
         // The `enabled` column indicates whether the redirect is active.
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         $results = $wpdb->get_results( $wpdb->prepare(
             "SELECT source_url, target_url, type
              FROM `{$table}`
@@ -323,6 +322,7 @@ class AlmaSEO_Import_Redirects_Mapper {
             $limit,
             $offset
         ), ARRAY_A );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         if ( ! is_array( $results ) ) {
             $results = array();

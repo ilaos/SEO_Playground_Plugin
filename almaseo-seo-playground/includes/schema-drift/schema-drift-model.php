@@ -35,9 +35,8 @@ class AlmaSEO_Schema_Drift_Model {
      */
     public static function get_baselines_for_post( $post_id ) {
         global $wpdb;
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM " . self::baseline_table() . " WHERE post_id = %d ORDER BY schema_type",
+            "SELECT * FROM " . self::baseline_table() . " WHERE post_id = %d ORDER BY schema_type", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name derived from $wpdb->prefix, not user input
             $post_id
         ) );
     }
@@ -47,9 +46,8 @@ class AlmaSEO_Schema_Drift_Model {
      */
     public static function get_baseline( $post_id, $schema_type ) {
         global $wpdb;
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM " . self::baseline_table() . " WHERE post_id = %d AND schema_type = %s",
+            "SELECT * FROM " . self::baseline_table() . " WHERE post_id = %d AND schema_type = %s", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name derived from $wpdb->prefix, not user input
             $post_id,
             $schema_type
         ) );
@@ -60,9 +58,8 @@ class AlmaSEO_Schema_Drift_Model {
      */
     public static function get_all_baselines() {
         global $wpdb;
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_results(
-            "SELECT id, post_id, url, schema_type, captured_at FROM " . self::baseline_table() . " ORDER BY captured_at DESC"
+            "SELECT id, post_id, url, schema_type, captured_at FROM " . self::baseline_table() . " ORDER BY captured_at DESC" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name derived from $wpdb->prefix, not user input
         );
     }
 
@@ -94,9 +91,8 @@ class AlmaSEO_Schema_Drift_Model {
      */
     public static function get_baseline_post_ids( $limit, $offset ) {
         global $wpdb;
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from baseline_table()
         return array_map( 'intval', $wpdb->get_col( $wpdb->prepare(
-            "SELECT DISTINCT post_id FROM " . self::baseline_table() . " ORDER BY post_id ASC LIMIT %d OFFSET %d",
+            "SELECT DISTINCT post_id FROM " . self::baseline_table() . " ORDER BY post_id ASC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name derived from $wpdb->prefix, not user input
             (int) $limit,
             (int) $offset
         ) ) );
@@ -238,9 +234,8 @@ class AlmaSEO_Schema_Drift_Model {
      */
     public static function get_finding( $id ) {
         global $wpdb;
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM " . self::drift_table() . " WHERE id = %d", $id
+            "SELECT * FROM " . self::drift_table() . " WHERE id = %d", $id // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name derived from $wpdb->prefix, not user input
         ) );
     }
 
@@ -299,9 +294,8 @@ class AlmaSEO_Schema_Drift_Model {
      */
     public static function clear_open_findings() {
         global $wpdb;
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->query(
-            "DELETE FROM " . self::drift_table() . " WHERE status = 'open'"
+            "DELETE FROM " . self::drift_table() . " WHERE status = 'open'" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name derived from $wpdb->prefix, not user input
         );
     }
 
@@ -326,9 +320,8 @@ class AlmaSEO_Schema_Drift_Model {
         );
 
         // By status.
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $status_rows = $wpdb->get_results(
-            "SELECT status, COUNT(*) AS cnt FROM {$table} GROUP BY status"
+            "SELECT status, COUNT(*) AS cnt FROM {$table} GROUP BY status" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         );
         foreach ( $status_rows as $r ) {
             $stats['total'] += (int) $r->cnt;
@@ -338,9 +331,8 @@ class AlmaSEO_Schema_Drift_Model {
         }
 
         // By severity (open only).
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $sev_rows = $wpdb->get_results(
-            "SELECT severity, COUNT(*) AS cnt FROM {$table} WHERE status = 'open' GROUP BY severity"
+            "SELECT severity, COUNT(*) AS cnt FROM {$table} WHERE status = 'open' GROUP BY severity" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         );
         foreach ( $sev_rows as $r ) {
             if ( isset( $stats[ $r->severity ] ) ) {
@@ -349,9 +341,8 @@ class AlmaSEO_Schema_Drift_Model {
         }
 
         // By drift type.
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $type_rows = $wpdb->get_results(
-            "SELECT drift_type, COUNT(*) AS cnt FROM {$table} WHERE status = 'open' GROUP BY drift_type"
+            "SELECT drift_type, COUNT(*) AS cnt FROM {$table} WHERE status = 'open' GROUP BY drift_type" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         );
         foreach ( $type_rows as $r ) {
             $stats['by_type'][ $r->drift_type ] = (int) $r->cnt;

@@ -116,23 +116,31 @@ class Alma_Sitemap_Diff {
      */
     private static function rotate_snapshots() {
         $dir = self::get_upload_dir();
-        
+
+        global $wp_filesystem;
+        if ( empty( $wp_filesystem ) ) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+            WP_Filesystem();
+        }
+
         // Keep up to 5 snapshots
         for ($i = 4; $i >= 1; $i--) {
             $old = $dir . '/snapshot.' . ($i - 1) . '.json.gz';
             $new = $dir . '/snapshot.' . $i . '.json.gz';
-            
+
             if (file_exists($old)) {
                 if (file_exists($new)) {
-                    unlink($new);
+                    wp_delete_file($new);
                 }
-                rename($old, $new);
+                if ($wp_filesystem) {
+                    $wp_filesystem->move($old, $new, true);
+                }
             }
         }
-        
+
         // Move current to .1
-        if (file_exists($dir . '/snapshot.json.gz')) {
-            rename($dir . '/snapshot.json.gz', $dir . '/snapshot.1.json.gz');
+        if (file_exists($dir . '/snapshot.json.gz') && $wp_filesystem) {
+            $wp_filesystem->move($dir . '/snapshot.json.gz', $dir . '/snapshot.1.json.gz', true);
         }
     }
     
@@ -328,7 +336,7 @@ class Alma_Sitemap_Diff {
         for ($i = 6; $i <= 10; $i++) {
             $file = $dir . '/snapshot.' . $i . '.json.gz';
             if (file_exists($file)) {
-                unlink($file);
+                wp_delete_file($file);
             }
         }
     }

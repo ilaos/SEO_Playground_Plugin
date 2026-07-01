@@ -12,6 +12,10 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+// This model performs all CRUD against the plugin's own custom table (eeat findings).
+// Direct $wpdb queries are unavoidable (no core API for custom tables), so the
+// DirectDatabaseQuery DirectQuery/NoCaching warnings below are expected.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 class AlmaSEO_EEAT_Model {
 
     /* ── helpers ── */
@@ -128,9 +132,8 @@ class AlmaSEO_EEAT_Model {
      */
     public static function get_finding( $id ) {
         global $wpdb;
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM " . self::table() . " WHERE id = %d", $id
+            "SELECT * FROM " . self::table() . " WHERE id = %d", $id // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name derived from $wpdb->prefix, not user input
         ) );
     }
 
@@ -139,9 +142,8 @@ class AlmaSEO_EEAT_Model {
      */
     public static function get_findings_for_post( $post_id ) {
         global $wpdb;
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM " . self::table() . " WHERE post_id = %d ORDER BY FIELD(severity, 'high', 'medium', 'low'), scanned_at DESC",
+            "SELECT * FROM " . self::table() . " WHERE post_id = %d ORDER BY FIELD(severity, 'high', 'medium', 'low'), scanned_at DESC", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name derived from $wpdb->prefix, not user input
             $post_id
         ) );
     }
@@ -251,9 +253,8 @@ class AlmaSEO_EEAT_Model {
      */
     public static function get_dismissed_keys() {
         global $wpdb;
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         $rows = $wpdb->get_results(
-            "SELECT post_id, finding_type FROM " . self::table() . " WHERE status IN ('resolved', 'dismissed')"
+            "SELECT post_id, finding_type FROM " . self::table() . " WHERE status IN ('resolved', 'dismissed')" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name derived from $wpdb->prefix, not user input
         );
         $keys = array();
         foreach ( $rows as $r ) {
@@ -285,9 +286,8 @@ class AlmaSEO_EEAT_Model {
         );
 
         // By status.
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $status_rows = $wpdb->get_results(
-            "SELECT status, COUNT(*) AS cnt FROM {$table} GROUP BY status"
+            "SELECT status, COUNT(*) AS cnt FROM {$table} GROUP BY status" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         );
         foreach ( $status_rows as $r ) {
             $stats['total'] += (int) $r->cnt;
@@ -297,9 +297,8 @@ class AlmaSEO_EEAT_Model {
         }
 
         // By severity (open only — these are actionable).
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $sev_rows = $wpdb->get_results(
-            "SELECT severity, COUNT(*) AS cnt FROM {$table} WHERE status = 'open' GROUP BY severity"
+            "SELECT severity, COUNT(*) AS cnt FROM {$table} WHERE status = 'open' GROUP BY severity" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         );
         foreach ( $sev_rows as $r ) {
             if ( isset( $stats[ $r->severity ] ) ) {
@@ -308,9 +307,8 @@ class AlmaSEO_EEAT_Model {
         }
 
         // By finding type.
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $type_rows = $wpdb->get_results(
-            "SELECT finding_type, COUNT(*) AS cnt FROM {$table} WHERE status = 'open' GROUP BY finding_type"
+            "SELECT finding_type, COUNT(*) AS cnt FROM {$table} WHERE status = 'open' GROUP BY finding_type" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         );
         foreach ( $type_rows as $r ) {
             $stats['by_type'][ $r->finding_type ] = (int) $r->cnt;
@@ -319,3 +317,4 @@ class AlmaSEO_EEAT_Model {
         return $stats;
     }
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

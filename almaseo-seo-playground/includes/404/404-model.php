@@ -11,6 +11,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// This model performs all CRUD against the plugin's own custom tables (wp_almaseo_404_log /
+// wp_almaseo_404_daily). Direct $wpdb queries are unavoidable (no core API for custom tables)
+// and read-side stats are transient-cached (see get_stats()), so the DirectDatabaseQuery
+// DirectQuery/NoCaching warnings below are expected.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 class AlmaSEO_404_Model {
     
     /**
@@ -220,7 +225,7 @@ class AlmaSEO_404_Model {
         $ids_placeholder = implode(',', array_fill(0, count($ids), '%d'));
         
         $query = $wpdb->prepare(
-            "DELETE FROM {$table} WHERE id IN ({$ids_placeholder})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from $wpdb->prefix, $ids_placeholder is array_fill of %d
+            "DELETE FROM {$table} WHERE id IN ({$ids_placeholder})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $table from $wpdb->prefix; $ids_placeholder is array_fill of %d supplied via $ids
             $ids
         );
 
@@ -263,12 +268,14 @@ class AlmaSEO_404_Model {
 
         // Total 404 HITS in the last 7 calendar days (not ignored). Summed from
         // the per-day rollup so it reflects hits-in-range, not lifetime hits.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names derived from $wpdb->prefix, not user input
         $stats['total_7d'] = (int) $wpdb->get_var($wpdb->prepare(
             "SELECT COALESCE(SUM(d.hits), 0) FROM {$daily} d
              INNER JOIN {$table} l ON l.id = d.log_id
-             WHERE d.hit_date >= %s AND l.is_ignored = 0", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+             WHERE d.hit_date >= %s AND l.is_ignored = 0",
             $seven_start
         ));
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         // Unique paths active in the last 7 days (not ignored). Counted from the
         // log table's last_seen — already correct, kept so it stays accurate
@@ -279,12 +286,14 @@ class AlmaSEO_404_Model {
         ));
 
         // Today's 404 HITS (not ignored), from the per-day rollup.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names derived from $wpdb->prefix, not user input
         $stats['today'] = (int) $wpdb->get_var($wpdb->prepare(
             "SELECT COALESCE(SUM(d.hits), 0) FROM {$daily} d
              INNER JOIN {$table} l ON l.id = d.log_id
-             WHERE d.hit_date = %s AND l.is_ignored = 0", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+             WHERE d.hit_date = %s AND l.is_ignored = 0",
             $today
         ));
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         // Total ignored
         $stats['ignored'] = (int) $wpdb->get_var(
@@ -378,3 +387,4 @@ class AlmaSEO_404_Model {
         );
     }
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

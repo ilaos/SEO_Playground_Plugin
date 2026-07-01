@@ -11,6 +11,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// This module operates entirely on the plugin's own custom tables (wp_almaseo_404_log /
+// wp_almaseo_404_daily). Direct $wpdb queries are unavoidable (no core API for custom
+// tables) and read-side stats are transient-cached at the model layer, so the
+// DirectDatabaseQuery DirectQuery/NoCaching warnings below are expected.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 class AlmaSEO_404_Capture {
     
     /**
@@ -188,15 +193,13 @@ class AlmaSEO_404_Capture {
         
         // Check if this path+query already exists
         if ($query === null || $query === '') {
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $existing = $wpdb->get_row($wpdb->prepare(
-                "SELECT id, hits FROM $table WHERE path = %s AND (query IS NULL OR query = '')",
+                "SELECT id, hits FROM $table WHERE path = %s AND (query IS NULL OR query = '')", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
                 $path
             ));
         } else {
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $existing = $wpdb->get_row($wpdb->prepare(
-                "SELECT id, hits FROM $table WHERE path = %s AND query = %s",
+                "SELECT id, hits FROM $table WHERE path = %s AND query = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
                 $path,
                 $query
             ));
@@ -266,8 +269,8 @@ class AlmaSEO_404_Capture {
         if ($log_id) {
             $daily_table = $wpdb->prefix . 'almaseo_404_daily';
             $today = current_time('Y-m-d');
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $wpdb->query($wpdb->prepare(
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
                 "INSERT INTO {$daily_table} (log_id, hit_date, hits) VALUES (%d, %s, 1)
                  ON DUPLICATE KEY UPDATE hits = hits + 1",
                 $log_id,
@@ -280,6 +283,7 @@ class AlmaSEO_404_Capture {
         delete_transient('almaseo_404_top_referrer');
     }
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 // Initialize capture
 add_action('init', array('AlmaSEO_404_Capture', 'init'));

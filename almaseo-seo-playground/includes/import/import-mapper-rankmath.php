@@ -12,6 +12,10 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+// This mapper reads Rank Math's own postmeta to translate it into AlmaSEO meta during import.
+// Direct $wpdb queries are unavoidable (no core API for this bulk read), so the
+// DirectDatabaseQuery DirectQuery/NoCaching warnings below are expected.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 class AlmaSEO_Import_Mapper_RankMath {
 
     /**
@@ -230,3 +234,4 @@ class AlmaSEO_Import_Mapper_RankMath {
         return $mapped;
     }
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

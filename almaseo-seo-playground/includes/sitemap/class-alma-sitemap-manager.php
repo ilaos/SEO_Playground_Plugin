@@ -454,9 +454,9 @@ class Alma_Sitemap_Manager {
 
         if (defined('WP_DEBUG') && WP_DEBUG) {
             if (is_wp_error($result)) {
-                error_log('AlmaSEO Sitemap rebuild failed: ' . $result->get_error_message());
+                error_log('AlmaSEO Sitemap rebuild failed: ' . $result->get_error_message()); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug-only logging, gated behind WP_DEBUG
             } else {
-                error_log(sprintf(
+                error_log(sprintf( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug-only logging, gated behind WP_DEBUG
                     'AlmaSEO Sitemap rebuild complete: %d files, %d URLs in %dms',
                     $result['files'],
                     $result['urls'],
@@ -595,7 +595,9 @@ class Alma_Sitemap_Manager {
         // Start build
         $result = $writer->start_build();
         if (is_wp_error($result)) {
-            error_log('AlmaSEO News rebuild failed: ' . $result->get_error_message());
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('AlmaSEO News rebuild failed: ' . $result->get_error_message()); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug-only logging, gated behind WP_DEBUG
+            }
             return;
         }
         

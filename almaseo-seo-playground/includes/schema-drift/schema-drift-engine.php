@@ -152,7 +152,7 @@ class AlmaSEO_Schema_Drift_Engine {
 
         // Each sampled post is fetched over HTTP (loopback); keep going even
         // if the browser request times out.
-        @set_time_limit( 0 );      // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+        @set_time_limit( 0 );      // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, Squiz.PHP.DiscouragedFunctions.Discouraged -- extend limit for a long HTTP-sampling scan; best-effort
         @ignore_user_abort( true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
         $settings    = self::get_settings();
@@ -204,7 +204,7 @@ class AlmaSEO_Schema_Drift_Engine {
         // and programmatic callers; the admin UI uses the chunked
         // scan_drift_batch() instead. Delegates so the clear-once and
         // timestamp-on-done semantics live in one place.
-        @set_time_limit( 0 );       // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+        @set_time_limit( 0 );       // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, Squiz.PHP.DiscouragedFunctions.Discouraged -- extend limit for a long scan batch; best-effort
         @ignore_user_abort( true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
         $offset   = 0;
@@ -241,7 +241,7 @@ class AlmaSEO_Schema_Drift_Engine {
      * @return array { total, processed, scanned, findings, next_offset, done }
      */
     public static function scan_drift_batch( $offset = 0, $batch_size = 50 ) {
-        @set_time_limit( 0 );       // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+        @set_time_limit( 0 );       // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, Squiz.PHP.DiscouragedFunctions.Discouraged -- extend limit for a long scan batch; best-effort
         @ignore_user_abort( true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
         $offset     = max( 0, (int) $offset );

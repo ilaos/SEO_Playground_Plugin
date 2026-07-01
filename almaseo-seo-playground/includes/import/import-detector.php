@@ -15,6 +15,11 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+// This detector probes other SEO plugins' data (postmeta, aioseo_posts, etc.) to report what
+// can be imported. Direct $wpdb queries are unavoidable (foreign/custom tables with no core
+// API) and these run once on the Import screen, so the DirectDatabaseQuery DirectQuery/
+// NoCaching warnings below are expected.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 class AlmaSEO_Import_Detector {
 
     /**
@@ -111,9 +116,8 @@ class AlmaSEO_Import_Detector {
 
         $count = 0;
         if ( $table_exists ) {
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $count = (int) $wpdb->get_var(
-                "SELECT COUNT(*) FROM `{$table}` WHERE (title != '' AND title IS NOT NULL) OR (description != '' AND description IS NOT NULL)"
+                "SELECT COUNT(*) FROM `{$table}` WHERE (title != '' AND title IS NOT NULL) OR (description != '' AND description IS NOT NULL)" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
             );
         }
 
@@ -161,11 +165,14 @@ class AlmaSEO_Import_Detector {
             foreach ( $subqueries as $other_key => $other_query ) {
                 if ( $src_key === $other_key ) continue;
 
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
+                // $src_query/$other_query are internally-built subqueries over core tables
+                // (postmeta / $wpdb->prefix + aioseo_posts) with hardcoded meta keys — no user input.
+                // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
                 $overlap_count = (int) $wpdb->get_var(
                     "SELECT COUNT(*) FROM ({$src_query}) AS src
                      INNER JOIN ({$other_query}) AS other ON src.post_id = other.post_id"
                 );
+                // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
 
                 if ( $overlap_count > 0 ) {
                     $overlap_with[ $other_key ] = $overlap_count;
@@ -225,3 +232,4 @@ class AlmaSEO_Import_Detector {
         return $meta;
     }
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

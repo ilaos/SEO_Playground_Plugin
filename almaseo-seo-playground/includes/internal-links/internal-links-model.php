@@ -123,7 +123,7 @@ class AlmaSEO_Internal_Links_Model {
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $query = $wpdb->prepare( "SELECT * FROM $table WHERE id = %d", $id );
 
-        return $wpdb->get_row( $query, ARRAY_A );
+        return $wpdb->get_row( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $query prepared on the line above
     }
 
     /**
@@ -144,8 +144,8 @@ class AlmaSEO_Internal_Links_Model {
         }
 
         $table   = self::get_table_name();
-        $results = $wpdb->get_results( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
-            "SELECT * FROM $table WHERE is_enabled = 1 ORDER BY priority ASC, id ASC LIMIT 500",
+        $results = $wpdb->get_results(
+            "SELECT * FROM $table WHERE is_enabled = 1 ORDER BY priority ASC, id ASC LIMIT 500", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
             ARRAY_A
         );
 
@@ -316,8 +316,8 @@ class AlmaSEO_Internal_Links_Model {
         global $wpdb;
 
         $table = self::get_table_name();
-        $query = $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
-            "UPDATE $table SET hits = hits + 1 WHERE id = %d",
+        $query = $wpdb->prepare(
+            "UPDATE $table SET hits = hits + 1 WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
             $id
         );
 
@@ -349,8 +349,8 @@ class AlmaSEO_Internal_Links_Model {
                 continue;
             }
 
-            $wpdb->query( $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix, prepared
-                "UPDATE $table SET hits = hits + %d WHERE id = %d",
+            $wpdb->query( $wpdb->prepare(
+                "UPDATE $table SET hits = hits + %d WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
                 $n,
                 $id
             ) );
@@ -383,13 +383,13 @@ class AlmaSEO_Internal_Links_Model {
             );
         }
 
-        $stats = $wpdb->get_row( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        $stats = $wpdb->get_row(
             "SELECT
                 COUNT(*)                       AS total_rules,
                 SUM( CASE WHEN is_enabled = 1 THEN 1 ELSE 0 END ) AS active_rules,
                 COALESCE( SUM( hits ), 0 )     AS total_hits,
                 COUNT( DISTINCT target_url )   AS unique_targets
-            FROM $table",
+            FROM $table", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
             ARRAY_A
         );
 
@@ -414,14 +414,14 @@ class AlmaSEO_Internal_Links_Model {
         $table = self::get_table_name();
 
         if ( $exclude_id ) {
-            $query = $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
-                "SELECT COUNT(*) FROM $table WHERE keyword = %s AND id != %d",
+            $query = $wpdb->prepare(
+                "SELECT COUNT(*) FROM $table WHERE keyword = %s AND id != %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
                 $keyword,
                 $exclude_id
             );
         } else {
-            $query = $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
-                "SELECT COUNT(*) FROM $table WHERE keyword = %s",
+            $query = $wpdb->prepare(
+                "SELECT COUNT(*) FROM $table WHERE keyword = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
                 $keyword
             );
         }

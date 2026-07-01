@@ -10,6 +10,15 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+/*
+ * This provider builds post-sitemap queries dynamically. The only interpolated
+ * pieces are core table names ($wpdb->posts/postmeta) and $exclude_joins/$exclude_where,
+ * which the build_exclude_*() helpers assemble from absint()'d term/author IDs and a
+ * $wpdb->prepare()'d date fragment — never raw user input. User-facing values (LIMIT/
+ * OFFSET) use %d placeholders. The WPCS InterpolatedNotPrepared warnings on those
+ * fragments are therefore false positives.
+ */
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 class Alma_Provider_Posts {
 
     /**
@@ -313,3 +322,4 @@ class Alma_Provider_Posts {
         return $url_data;
     }
 }
+// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared

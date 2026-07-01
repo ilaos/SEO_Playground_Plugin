@@ -105,6 +105,10 @@ function almaseo_save_author_profile_fields( $user_id ) {
         return;
     }
 
+    // WordPress core already verifies this nonce before firing the profile-update
+    // hooks; we re-check it explicitly so the intent is clear and self-contained.
+    check_admin_referer( 'update-user_' . $user_id );
+
     // Job title — plain text.
     if ( isset( $_POST['almaseo_author_job_title'] ) ) {
         $job_title = sanitize_text_field( wp_unslash( $_POST['almaseo_author_job_title'] ) );
@@ -117,7 +121,7 @@ function almaseo_save_author_profile_fields( $user_id ) {
 
     // Author photo URL — single sanitized URL (overrides the avatar in schema).
     if ( isset( $_POST['almaseo_author_image'] ) ) {
-        $image = esc_url_raw( trim( wp_unslash( $_POST['almaseo_author_image'] ) ) );
+        $image = esc_url_raw( trim( wp_unslash( $_POST['almaseo_author_image'] ) ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized inline via esc_url_raw()
         if ( $image !== '' ) {
             update_user_meta( $user_id, 'almaseo_author_image', $image );
         } else {
@@ -127,7 +131,7 @@ function almaseo_save_author_profile_fields( $user_id ) {
 
     // sameAs URLs — one per line, sanitized and re-joined.
     if ( isset( $_POST['almaseo_author_same_as'] ) ) {
-        $raw   = wp_unslash( $_POST['almaseo_author_same_as'] );
+        $raw   = wp_unslash( $_POST['almaseo_author_same_as'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- each line is sanitized via esc_url_raw() in the loop below before storage
         $lines = preg_split( '/\r\n|\r|\n/', (string) $raw );
         $urls  = array();
         foreach ( $lines as $line ) {

@@ -97,13 +97,17 @@ class Alma_Provider_Image {
             AND p.post_type IN ('post', 'page')
             AND (
                 pm.meta_value IS NOT NULL
-                OR p.post_content LIKE '%<img%'
-                OR p.post_content LIKE '%wp:image%'
-                OR p.post_content LIKE '%wp:gallery%'
+                OR p.post_content LIKE %s
+                OR p.post_content LIKE %s
+                OR p.post_content LIKE %s
             )
             ORDER BY p.post_modified_gmt DESC
             LIMIT %d OFFSET %d
-        ", $per_page, $offset));
+        ",
+            '%' . $wpdb->esc_like('<img') . '%',
+            '%' . $wpdb->esc_like('wp:image') . '%',
+            '%' . $wpdb->esc_like('wp:gallery') . '%',
+            $per_page, $offset));
         
         $urls = array();
         
@@ -437,14 +441,18 @@ class Alma_Provider_Image {
                 AND p.post_type IN ('post', 'page')
                 AND (
                     pm.meta_value IS NOT NULL
-                    OR p.post_content LIKE '%<img%'
-                    OR p.post_content LIKE '%wp:image%'
-                    OR p.post_content LIKE '%wp:gallery%'
+                    OR p.post_content LIKE %s
+                    OR p.post_content LIKE %s
+                    OR p.post_content LIKE %s
                 )
                 ORDER BY p.post_modified_gmt DESC
                 LIMIT %d OFFSET %d
             ) as subset
-        ", $per_page, $offset));
+        ",
+            '%' . $wpdb->esc_like('<img') . '%',
+            '%' . $wpdb->esc_like('wp:image') . '%',
+            '%' . $wpdb->esc_like('wp:gallery') . '%',
+            $per_page, $offset));
         
         return $last_modified ? gmdate('c', strtotime($last_modified)) : null;
     }
@@ -472,13 +480,18 @@ class Alma_Provider_Image {
             AND p.ID > %d
             AND (
                 pm.meta_value IS NOT NULL
-                OR p.post_content LIKE '%<img%'
-                OR p.post_content LIKE '%wp:image%'
-                OR p.post_content LIKE '%wp:gallery%'
+                OR p.post_content LIKE %s
+                OR p.post_content LIKE %s
+                OR p.post_content LIKE %s
             )
             ORDER BY p.ID ASC
             LIMIT %d
-        ", $last_id, $limit));
+        ",
+            $last_id,
+            '%' . $wpdb->esc_like('<img') . '%',
+            '%' . $wpdb->esc_like('wp:image') . '%',
+            '%' . $wpdb->esc_like('wp:gallery') . '%',
+            $limit));
         
         return $posts;
     }

@@ -236,7 +236,7 @@ class AlmaSEO_History_Loader {
         global $wpdb;
         $table_name = $wpdb->prefix . ALMASEO_HISTORY_TABLE;
         
-        $deleted = $wpdb->delete(
+        $deleted = $wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- delete on the plugin's own custom history table; no core API
             $table_name,
             array(
                 'id' => $version_id,

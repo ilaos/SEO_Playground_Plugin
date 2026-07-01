@@ -12,6 +12,10 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+// This mapper reads AIOSEO's own data (aioseo_posts / postmeta) to translate it into AlmaSEO
+// meta during import. Direct $wpdb queries are unavoidable (foreign table with no core API),
+// so the DirectDatabaseQuery DirectQuery/NoCaching warnings below are expected.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 class AlmaSEO_Import_Mapper_AIOSEO {
 
     /**
@@ -131,8 +135,8 @@ class AlmaSEO_Import_Mapper_AIOSEO {
             return '`' . $col . '`';
         }, $select_columns ) );
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_results( $wpdb->prepare(
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from $wpdb->prefix; $select is a whitelisted, backtick-quoted column list — neither is user input
             "SELECT {$select} FROM `{$table}`
              WHERE (title != '' AND title IS NOT NULL)
                 OR (description != '' AND description IS NOT NULL)
@@ -230,3 +234,4 @@ class AlmaSEO_Import_Mapper_AIOSEO {
         return $mapped;
     }
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

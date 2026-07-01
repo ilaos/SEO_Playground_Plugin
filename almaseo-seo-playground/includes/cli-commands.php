@@ -9,6 +9,7 @@ if (!defined('WP_CLI') || !WP_CLI) {
 }
 
 // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- WP_CLI outputs to terminal, not HTML
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- WP-CLI commands run in a CLI context where direct DB access is standard and object caching does not apply
 
 // Include deployment tools
 require_once plugin_dir_path(__FILE__) . '../deployment/preflight-checklist.php';

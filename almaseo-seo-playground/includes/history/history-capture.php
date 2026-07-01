@@ -11,6 +11,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// The snapshot read/write helpers below operate on the plugin's own custom history table.
+// Direct $wpdb queries are unavoidable (no core API for custom tables), so the
+// DirectDatabaseQuery DirectQuery/NoCaching warnings are expected.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
 /**
  * Get tracked fields for a post
  */
@@ -77,8 +82,8 @@ function almaseo_history_get_last_snapshot($post_id) {
     global $wpdb;
     $table_name = $wpdb->prefix . ALMASEO_HISTORY_TABLE;
     
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
     return $wpdb->get_row($wpdb->prepare(
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         "SELECT * FROM $table_name
         WHERE post_id = %d
         ORDER BY version DESC
@@ -94,8 +99,8 @@ function almaseo_history_get_snapshots($post_id, $limit = 20) {
     global $wpdb;
     $table_name = $wpdb->prefix . ALMASEO_HISTORY_TABLE;
     
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
     $snapshots = $wpdb->get_results($wpdb->prepare(
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         "SELECT * FROM $table_name
         WHERE post_id = %d
         ORDER BY version DESC
@@ -182,9 +187,8 @@ function almaseo_history_enforce_cap($post_id) {
     $table_name = $wpdb->prefix . ALMASEO_HISTORY_TABLE;
     
     // Count current versions
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
     $count = $wpdb->get_var($wpdb->prepare(
-        "SELECT COUNT(*) FROM $table_name WHERE post_id = %d",
+        "SELECT COUNT(*) FROM $table_name WHERE post_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         $post_id
     ));
     
@@ -192,8 +196,8 @@ function almaseo_history_enforce_cap($post_id) {
         // Delete oldest versions
         $to_delete = $count - $cap;
         
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $wpdb->query($wpdb->prepare(
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
             "DELETE FROM $table_name
             WHERE post_id = %d
             ORDER BY version ASC
@@ -249,15 +253,13 @@ function almaseo_history_get_compare_data($post_id, $from_version, $to_version) 
     $table_name = $wpdb->prefix . ALMASEO_HISTORY_TABLE;
     
     // Get both snapshots
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
     $from = $wpdb->get_row($wpdb->prepare(
-        "SELECT * FROM $table_name WHERE post_id = %d AND version = %d",
+        "SELECT * FROM $table_name WHERE post_id = %d AND version = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         $post_id, $from_version
     ));
-    
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+
     $to = $wpdb->get_row($wpdb->prepare(
-        "SELECT * FROM $table_name WHERE post_id = %d AND version = %d",
+        "SELECT * FROM $table_name WHERE post_id = %d AND version = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         $post_id, $to_version
     ));
     
@@ -290,3 +292,4 @@ function almaseo_history_get_compare_data($post_id, $from_version, $to_version) 
     
     return $compare;
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

@@ -104,13 +104,17 @@ class AlmaSEO_Internal_Links_Orphan {
             $placeholders = implode( ',', array_fill( 0, count( $post_types ), '%s' ) );
 
             // Freeze the candidate post list up front so the set can't shift mid-scan.
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+            // $placeholders is a comma-separated list of %s tokens and $post_types supplies
+            // the values, so the query IS prepared — the sniff just can't see the placeholders
+            // behind the interpolation.
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
             $ids = $wpdb->get_col( $wpdb->prepare(
                 "SELECT ID FROM {$wpdb->posts}
                  WHERE post_status = 'publish' AND post_type IN ({$placeholders})
                  ORDER BY ID ASC",
                 $post_types
             ) );
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 
             $state = array(
                 'ids'       => array_map( 'intval', (array) $ids ),
@@ -400,9 +404,8 @@ class AlmaSEO_Internal_Links_Orphan {
             'last_scan'      => get_option( 'almaseo_orphan_last_scan', '' ),
         );
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $rows = $wpdb->get_results(
-            "SELECT status, COUNT(*) AS cnt FROM {$table} GROUP BY status"
+            "SELECT status, COUNT(*) AS cnt FROM {$table} GROUP BY status" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         );
 
         foreach ( $rows as $r ) {
@@ -417,9 +420,8 @@ class AlmaSEO_Internal_Links_Orphan {
             }
         }
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $stats['hub_candidates'] = (int) $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$table} WHERE is_hub_candidate = 1 AND status != 'dismissed'"
+            "SELECT COUNT(*) FROM {$table} WHERE is_hub_candidate = 1 AND status != 'dismissed'" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         );
 
         return $stats;
@@ -458,9 +460,8 @@ class AlmaSEO_Internal_Links_Orphan {
      */
     public static function get_orphan( $id ) {
         global $wpdb;
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM " . self::table() . " WHERE id = %d",
+            "SELECT * FROM " . self::table() . " WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name derived from $wpdb->prefix, not user input
             $id
         ) );
     }
@@ -470,9 +471,8 @@ class AlmaSEO_Internal_Links_Orphan {
      */
     public static function get_clusters() {
         global $wpdb;
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_col(
-            "SELECT DISTINCT cluster_id FROM " . self::table() . " WHERE cluster_id != '' ORDER BY cluster_id ASC"
+            "SELECT DISTINCT cluster_id FROM " . self::table() . " WHERE cluster_id != '' ORDER BY cluster_id ASC" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name derived from $wpdb->prefix, not user input
         );
     }
 
@@ -515,9 +515,8 @@ class AlmaSEO_Internal_Links_Orphan {
             }
 
             // Upsert by post_id.
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $existing = $wpdb->get_row( $wpdb->prepare(
-                "SELECT id, status FROM {$table} WHERE post_id = %d",
+                "SELECT id, status FROM {$table} WHERE post_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
                 $post_id
             ) );
 

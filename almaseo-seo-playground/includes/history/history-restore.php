@@ -11,6 +11,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// The restore/read helpers below operate on the plugin's own custom history table.
+// Direct $wpdb queries are unavoidable (no core API for custom tables), so the
+// DirectDatabaseQuery DirectQuery/NoCaching warnings are expected.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
 /**
  * Restore a specific version
  */
@@ -19,9 +24,8 @@ function almaseo_history_restore_version($post_id, $version_id) {
     $table_name = $wpdb->prefix . ALMASEO_HISTORY_TABLE;
     
     // Get the snapshot to restore
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
     $snapshot = $wpdb->get_row($wpdb->prepare(
-        "SELECT * FROM $table_name WHERE id = %d AND post_id = %d",
+        "SELECT * FROM $table_name WHERE id = %d AND post_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         $version_id, $post_id
     ));
 
@@ -89,9 +93,8 @@ function almaseo_history_get_snapshot($snapshot_id) {
     global $wpdb;
     $table_name = $wpdb->prefix . ALMASEO_HISTORY_TABLE;
 
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
     return $wpdb->get_row($wpdb->prepare(
-        "SELECT * FROM $table_name WHERE id = %d",
+        "SELECT * FROM $table_name WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         $snapshot_id
     ));
 }
@@ -103,9 +106,8 @@ function almaseo_history_get_snapshot_by_version($post_id, $version) {
     global $wpdb;
     $table_name = $wpdb->prefix . ALMASEO_HISTORY_TABLE;
 
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
     return $wpdb->get_row($wpdb->prepare(
-        "SELECT * FROM $table_name WHERE post_id = %d AND version = %d",
+        "SELECT * FROM $table_name WHERE post_id = %d AND version = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         $post_id, $version
     ));
 }
@@ -118,9 +120,8 @@ function almaseo_history_delete_snapshot($snapshot_id, $post_id) {
     $table_name = $wpdb->prefix . ALMASEO_HISTORY_TABLE;
     
     // Verify ownership
-    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
     $snapshot = $wpdb->get_row($wpdb->prepare(
-        "SELECT * FROM $table_name WHERE id = %d AND post_id = %d",
+        "SELECT * FROM $table_name WHERE id = %d AND post_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         $snapshot_id, $post_id
     ));
 
@@ -265,3 +266,4 @@ function almaseo_history_format_schema($schema_json) {
     // Pretty print with 2-space indent
     return json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

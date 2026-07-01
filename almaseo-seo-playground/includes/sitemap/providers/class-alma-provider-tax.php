@@ -10,6 +10,15 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+/*
+ * This provider builds taxonomy-sitemap queries dynamically. $tax_placeholder /
+ * $tax_sql are lists of %s tokens whose values are supplied via the argument spread
+ * (...$this->taxonomies / ...$query_args); the rest are core table names. The queries
+ * ARE prepared — the WPCS sniffs just can't see the placeholders behind the interpolation
+ * and the spread, hence the false-positive InterpolatedNotPrepared / UnfinishedPrepare /
+ * ReplacementsWrongNumber warnings.
+ */
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 class Alma_Provider_Tax {
     
     /**
@@ -327,3 +336,4 @@ class Alma_Provider_Tax {
         return $taxonomies;
     }
 }
+// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber

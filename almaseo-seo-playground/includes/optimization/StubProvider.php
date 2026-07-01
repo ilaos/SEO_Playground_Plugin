@@ -16,46 +16,62 @@ if (!defined('ABSPATH')) {
  * Stub implementation of keyword provider
  */
 class StubProvider implements KeywordProviderInterface {
-    
+
+    /**
+     * Mutable seed driving the deterministic stub RNG.
+     *
+     * @var int
+     */
+    private $seed = 0;
+
+    /**
+     * Deterministic pseudo-random integer in [$min, $max], driven by $this->seed.
+     *
+     * wp_rand() cannot be seeded, so a tiny LCG is used instead to keep the sample
+     * metrics stable for a given keyword — which is the whole point of "consistent"
+     * stub data. These are non-cryptographic placeholder numbers, never security-sensitive.
+     */
+    private function seededRand(int $min, int $max): int {
+        $this->seed = ($this->seed * 1103515245 + 12345) & 0x7fffffff;
+        return $min + ($this->seed % ($max - $min + 1));
+    }
+
     /**
      * Fetch stubbed metrics for keywords
      */
     public function fetchMetrics(array $keywords, array $options = []): array {
         $results = [];
-        
+
         foreach ($keywords as $keyword) {
-            // Generate consistent but random-looking metrics based on keyword
-            $seed = crc32($keyword);
-            srand($seed);
-            
+            // Seed the deterministic RNG from the keyword so identical keywords
+            // always produce identical sample metrics.
+            $this->seed = crc32($keyword) & 0x7fffffff;
+
             $results[] = [
                 'term' => $keyword,
-                'position' => wp_rand(5, 20),
-                'volume' => round(wp_rand(100, 10000) / 10) * 10, // Round to nearest 10
-                'kd' => wp_rand(20, 80),
-                'cpc' => round(wp_rand(50, 500) / 100, 2), // $0.50 to $5.00
+                'position' => $this->seededRand(5, 20),
+                'volume' => round($this->seededRand(100, 10000) / 10) * 10, // Round to nearest 10
+                'kd' => $this->seededRand(20, 80),
+                'cpc' => round($this->seededRand(50, 500) / 100, 2), // $0.50 to $5.00
                 'trend' => $this->generateTrendData(),
             ];
         }
-        
-        // Reset random seed
-        srand();
-        
+
         return $results;
     }
-    
+
     /**
      * Generate sample trend data
      */
     private function generateTrendData(): array {
         $trend = [];
-        $base = wp_rand(500, 2000);
-        
+        $base = $this->seededRand(500, 2000);
+
         for ($i = 0; $i < 12; $i++) {
-            $variation = wp_rand(-30, 30) / 100; // -30% to +30% variation
+            $variation = $this->seededRand(-30, 30) / 100; // -30% to +30% variation
             $trend[] = round($base * (1 + $variation));
         }
-        
+
         return $trend;
     }
     

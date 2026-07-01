@@ -12,6 +12,10 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+// This model performs all CRUD against the plugin's own custom table (wp_almaseo_date_hygiene).
+// Direct $wpdb queries are unavoidable (no core API for custom tables), so the
+// DirectDatabaseQuery DirectQuery/NoCaching warnings below are expected.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 class AlmaSEO_Date_Hygiene_Model {
 
     /* ── helpers ── */
@@ -321,12 +325,14 @@ class AlmaSEO_Date_Hygiene_Model {
         global $wpdb;
         $table = self::table();
 
-        $rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
+        $rows = $wpdb->get_results(
             "SELECT severity, COUNT(DISTINCT post_id) AS cnt
              FROM {$table}
              WHERE status = 'open'
              GROUP BY severity"
         );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         $summary = array(
             'total_posts' => 0,
@@ -345,3 +351,4 @@ class AlmaSEO_Date_Hygiene_Model {
         return $summary;
     }
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

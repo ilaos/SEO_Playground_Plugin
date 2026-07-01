@@ -10,6 +10,15 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+/*
+ * This provider builds page-sitemap queries dynamically. The only interpolated
+ * pieces are core table names ($wpdb->posts/postmeta) and $exclude_where, which
+ * build_exclude_where() assembles from absint()'d author IDs and a $wpdb->prepare()'d
+ * date fragment — never raw user input. The user-facing values (LIMIT/OFFSET) use
+ * %d placeholders. The WPCS InterpolatedNotPrepared warnings on $exclude_where are
+ * therefore false positives.
+ */
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 class Alma_Provider_Pages {
 
     /**
@@ -282,3 +291,4 @@ class Alma_Provider_Pages {
     }
 
 }
+// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared

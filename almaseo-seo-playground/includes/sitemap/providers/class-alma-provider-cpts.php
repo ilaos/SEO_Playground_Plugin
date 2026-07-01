@@ -86,6 +86,11 @@ class Alma_Provider_CPTs {
         $exclude_joins = $this->build_exclude_joins();
         $exclude_where = $this->build_exclude_where();
 
+        // $post_types_placeholder is a list of %s tokens (values passed via the spread below);
+        // $exclude_joins/$exclude_where are built internally from absint()'d IDs, core table
+        // names and a prepare()'d date fragment — no raw user input. The query IS prepared;
+        // the sniffs just can't see the placeholders/values behind the interpolation + spread.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
         $query = $wpdb->prepare("
             SELECT COUNT(p.ID)
             FROM {$wpdb->posts} p
@@ -101,6 +106,7 @@ class Alma_Provider_CPTs {
             )
             {$exclude_where}
         ", ...$this->post_types);
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
         $count = $wpdb->get_var($query); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
 
@@ -183,7 +189,8 @@ class Alma_Provider_CPTs {
         // Prepare query with post types and pagination
         $query_args = array_merge($this->post_types, array($per_page, $offset));
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        // Safe/prepared — see get_total_posts(); placeholders + spread values the sniffs can't trace.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
         $posts = $wpdb->get_results($wpdb->prepare("
             SELECT p.ID, p.post_type, p.post_modified_gmt, p.post_date_gmt
             FROM {$wpdb->posts} p
@@ -201,6 +208,7 @@ class Alma_Provider_CPTs {
             ORDER BY p.post_type ASC, p.post_modified_gmt DESC
             LIMIT %d OFFSET %d
         ", ...$query_args));
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
         $urls = array();
 
@@ -250,7 +258,8 @@ class Alma_Provider_CPTs {
         $post_types_placeholder = implode(',', array_fill(0, count($this->post_types), '%s'));
         $query_args = array_merge($this->post_types, array($per_page, $offset));
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        // Safe/prepared — see get_total_posts(); placeholders + spread values the sniffs can't trace.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
         $last_modified = $wpdb->get_var($wpdb->prepare("
             SELECT MAX(post_modified_gmt)
             FROM (
@@ -271,6 +280,7 @@ class Alma_Provider_CPTs {
                 LIMIT %d OFFSET %d
             ) as subset
         ", ...$query_args));
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
         return $last_modified ? gmdate('c', strtotime($last_modified)) : null;
     }

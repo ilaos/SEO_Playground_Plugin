@@ -111,9 +111,8 @@ class AlmaSEO_Refresh_Queue_Model {
      */
     public static function get_item( $id ) {
         global $wpdb;
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM " . self::table() . " WHERE id = %d", $id
+            "SELECT * FROM " . self::table() . " WHERE id = %d", $id // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name derived from $wpdb->prefix, not user input
         ) );
     }
 
@@ -122,9 +121,8 @@ class AlmaSEO_Refresh_Queue_Model {
      */
     public static function get_by_post_id( $post_id ) {
         global $wpdb;
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM " . self::table() . " WHERE post_id = %d", $post_id
+            "SELECT * FROM " . self::table() . " WHERE post_id = %d", $post_id // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name derived from $wpdb->prefix, not user input
         ) );
     }
 
@@ -133,9 +131,8 @@ class AlmaSEO_Refresh_Queue_Model {
      */
     public static function get_top( $limit = 10 ) {
         global $wpdb;
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM " . self::table() . " WHERE status = 'queued' ORDER BY priority_score DESC LIMIT %d",
+            "SELECT * FROM " . self::table() . " WHERE status = 'queued' ORDER BY priority_score DESC LIMIT %d", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name derived from $wpdb->prefix, not user input
             $limit
         ) );
     }
@@ -242,12 +239,13 @@ class AlmaSEO_Refresh_Queue_Model {
     public static function prune_orphaned() {
         global $wpdb;
         $table = self::table();
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         return $wpdb->query(
             "DELETE q FROM {$table} q
              LEFT JOIN {$wpdb->posts} p ON q.post_id = p.ID
              WHERE p.ID IS NULL"
         );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
     }
 
     /* ── STATS ── */
@@ -261,9 +259,8 @@ class AlmaSEO_Refresh_Queue_Model {
         global $wpdb;
         $table = self::table();
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $rows = $wpdb->get_results(
-            "SELECT priority_tier, status, COUNT(*) AS cnt FROM {$table} GROUP BY priority_tier, status"
+            "SELECT priority_tier, status, COUNT(*) AS cnt FROM {$table} GROUP BY priority_tier, status" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         );
 
         $stats = array(

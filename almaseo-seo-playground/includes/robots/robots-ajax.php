@@ -28,8 +28,8 @@ function almaseo_ajax_robots_save() {
     $controller = AlmaSEO_Robots_Controller::get_instance();
 
     // Get and sanitize input
-    $content = isset($_POST['content']) ? $controller->sanitize_robots_content(wp_unslash($_POST['content'])) : '';
-    $mode = isset($_POST['mode']) ? $controller->sanitize_robots_mode(wp_unslash($_POST['mode'])) : 'virtual';
+    $content = isset($_POST['content']) ? $controller->sanitize_robots_content(wp_unslash($_POST['content'])) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized via $controller->sanitize_robots_content()
+    $mode = isset($_POST['mode']) ? $controller->sanitize_robots_mode(wp_unslash($_POST['mode'])) : 'virtual'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized via $controller->sanitize_robots_mode()
     
     // Save mode
     update_option('almaseo_robots_mode', $mode);

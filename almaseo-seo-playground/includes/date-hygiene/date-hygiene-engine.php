@@ -369,11 +369,12 @@ class AlmaSEO_Date_Hygiene_Engine {
     private static function count_scannable( $post_types ) {
         global $wpdb;
         $placeholders = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- aggregate COUNT over the core posts table; runs per scan trigger
         return (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type IN ({$placeholders})",
+            "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type IN ({$placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- {$placeholders} is a list of %s tokens supplied via $post_types; the query is prepared
             $post_types
         ) );
+        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     }
 
     /**
@@ -387,11 +388,12 @@ class AlmaSEO_Date_Hygiene_Engine {
     private static function scannable_ids( $post_types, $limit, $offset ) {
         global $wpdb;
         $placeholders = implode( ', ', array_fill( 0, count( $post_types ), '%s' ) );
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
-        return array_map( 'intval', $wpdb->get_col( $wpdb->prepare(
-            "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type IN ({$placeholders}) ORDER BY ID LIMIT %d OFFSET %d",
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- paged ID lookup over the core posts table; runs per scan batch
+        return array_map( 'intval', $wpdb->get_col( $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- $post_types is merged into a single array replacement arg that WPDB expands to match {$placeholders}; count is correct at runtime
+            "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type IN ({$placeholders}) ORDER BY ID LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- {$placeholders} is a list of %s tokens supplied via $post_types; the query is prepared
             array_merge( $post_types, array( (int) $limit, (int) $offset ) )
         ) ) );
+        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     }
 
     /**
@@ -412,7 +414,7 @@ class AlmaSEO_Date_Hygiene_Engine {
      * @return array { total, processed, scanned, findings, next_offset, done }
      */
     public static function scan_batch( $offset = 0, $batch_size = 100 ) {
-        @set_time_limit( 0 );       // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+        @set_time_limit( 0 );       // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, Squiz.PHP.DiscouragedFunctions.Discouraged -- extend limit for a long scan batch; best-effort
         @ignore_user_abort( true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
         $offset     = max( 0, (int) $offset );
@@ -484,7 +486,7 @@ class AlmaSEO_Date_Hygiene_Engine {
      * @return array { posts_scanned, findings_count }
      */
     public static function scan_all() {
-        @set_time_limit( 0 );       // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+        @set_time_limit( 0 );       // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, Squiz.PHP.DiscouragedFunctions.Discouraged -- extend limit for a full-site scan; best-effort
         @ignore_user_abort( true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
         $offset   = 0;

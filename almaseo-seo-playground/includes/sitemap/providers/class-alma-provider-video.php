@@ -50,10 +50,11 @@ class Alma_Provider_Video {
         
         // Clear all video post caches
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
-        $wpdb->query(
+        $wpdb->query($wpdb->prepare(
             "DELETE FROM {$wpdb->options}
-             WHERE option_name LIKE '%almaseo_video_posts_%'"
-        );
+             WHERE option_name LIKE %s",
+            '%' . $wpdb->esc_like('almaseo_video_posts_') . '%'
+        ));
     }
     
     /**
@@ -82,25 +83,32 @@ class Alma_Provider_Video {
         if (false === $count) {
             // Count posts with potential videos
             // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
-            $count = $wpdb->get_var("
+            $count = $wpdb->get_var($wpdb->prepare("
                 SELECT COUNT(DISTINCT p.ID)
                 FROM {$wpdb->posts} p
                 WHERE p.post_status = 'publish'
                 AND p.post_type IN ('post', 'page')
                 AND (
-                    p.post_content LIKE '%youtube.com%'
-                    OR p.post_content LIKE '%youtu.be%'
-                    OR p.post_content LIKE '%vimeo.com%'
-                    OR p.post_content LIKE '%wp:video%'
-                    OR p.post_content LIKE '%[video%'
+                    p.post_content LIKE %s
+                    OR p.post_content LIKE %s
+                    OR p.post_content LIKE %s
+                    OR p.post_content LIKE %s
+                    OR p.post_content LIKE %s
                     OR EXISTS (
                         SELECT 1 FROM {$wpdb->posts} a
                         WHERE a.post_parent = p.ID
                         AND a.post_type = 'attachment'
-                        AND a.post_mime_type LIKE 'video/%'
+                        AND a.post_mime_type LIKE %s
                     )
                 )
-            ");
+            ",
+                '%' . $wpdb->esc_like('youtube.com') . '%',
+                '%' . $wpdb->esc_like('youtu.be') . '%',
+                '%' . $wpdb->esc_like('vimeo.com') . '%',
+                '%' . $wpdb->esc_like('wp:video') . '%',
+                '%' . $wpdb->esc_like('[video') . '%',
+                $wpdb->esc_like('video/') . '%'
+            ));
             
             // Cache for 2 hours
             set_transient($cache_key, $count, 2 * HOUR_IN_SECONDS);
@@ -136,21 +144,28 @@ class Alma_Provider_Video {
                 WHERE p.post_status = 'publish'
                 AND p.post_type IN ('post', 'page')
                 AND (
-                    p.post_content LIKE '%youtube.com%'
-                    OR p.post_content LIKE '%youtu.be%'
-                    OR p.post_content LIKE '%vimeo.com%'
-                    OR p.post_content LIKE '%wp:video%'
-                    OR p.post_content LIKE '%[video%'
+                    p.post_content LIKE %s
+                    OR p.post_content LIKE %s
+                    OR p.post_content LIKE %s
+                    OR p.post_content LIKE %s
+                    OR p.post_content LIKE %s
                     OR EXISTS (
                         SELECT 1 FROM {$wpdb->posts} a
                         WHERE a.post_parent = p.ID
                         AND a.post_type = 'attachment'
-                        AND a.post_mime_type LIKE 'video/%'
+                        AND a.post_mime_type LIKE %s
                     )
                 )
                 ORDER BY p.post_modified_gmt DESC
                 LIMIT %d OFFSET %d
-            ", $per_page, $offset));
+            ",
+                '%' . $wpdb->esc_like('youtube.com') . '%',
+                '%' . $wpdb->esc_like('youtu.be') . '%',
+                '%' . $wpdb->esc_like('vimeo.com') . '%',
+                '%' . $wpdb->esc_like('wp:video') . '%',
+                '%' . $wpdb->esc_like('[video') . '%',
+                $wpdb->esc_like('video/') . '%',
+                $per_page, $offset));
             
             // Cache for 1 hour
             set_transient($cache_key, $posts, HOUR_IN_SECONDS);
@@ -414,8 +429,8 @@ class Alma_Provider_Video {
             FROM {$wpdb->posts}
             WHERE post_parent = %d
             AND post_type = 'attachment'
-            AND post_mime_type LIKE 'video/%%'
-        ", $post->ID));
+            AND post_mime_type LIKE %s
+        ", $post->ID, $wpdb->esc_like('video/') . '%'));
         
         foreach ($attachments as $attachment) {
             $video_data = $this->get_self_hosted_video_data($attachment, $post);
@@ -585,22 +600,29 @@ class Alma_Provider_Video {
                 WHERE p.post_status = 'publish'
                 AND p.post_type IN ('post', 'page')
                 AND (
-                    p.post_content LIKE '%youtube.com%'
-                    OR p.post_content LIKE '%youtu.be%'
-                    OR p.post_content LIKE '%vimeo.com%'
-                    OR p.post_content LIKE '%wp:video%'
-                    OR p.post_content LIKE '%[video%'
+                    p.post_content LIKE %s
+                    OR p.post_content LIKE %s
+                    OR p.post_content LIKE %s
+                    OR p.post_content LIKE %s
+                    OR p.post_content LIKE %s
                     OR EXISTS (
                         SELECT 1 FROM {$wpdb->posts} a
                         WHERE a.post_parent = p.ID
                         AND a.post_type = 'attachment'
-                        AND a.post_mime_type LIKE 'video/%'
+                        AND a.post_mime_type LIKE %s
                     )
                 )
                 ORDER BY p.post_modified_gmt DESC
                 LIMIT %d OFFSET %d
             ) as subset
-        ", $per_page, $offset));
+        ",
+            '%' . $wpdb->esc_like('youtube.com') . '%',
+            '%' . $wpdb->esc_like('youtu.be') . '%',
+            '%' . $wpdb->esc_like('vimeo.com') . '%',
+            '%' . $wpdb->esc_like('wp:video') . '%',
+            '%' . $wpdb->esc_like('[video') . '%',
+            $wpdb->esc_like('video/') . '%',
+            $per_page, $offset));
         
         return $last_modified ? gmdate('c', strtotime($last_modified)) : null;
     }
@@ -626,21 +648,29 @@ class Alma_Provider_Video {
             AND p.post_type IN ('post', 'page')
             AND p.ID > %d
             AND (
-                p.post_content LIKE '%youtube.com%'
-                OR p.post_content LIKE '%youtu.be%'
-                OR p.post_content LIKE '%vimeo.com%'
-                OR p.post_content LIKE '%wp:video%'
-                OR p.post_content LIKE '%[video%'
+                p.post_content LIKE %s
+                OR p.post_content LIKE %s
+                OR p.post_content LIKE %s
+                OR p.post_content LIKE %s
+                OR p.post_content LIKE %s
                 OR EXISTS (
                     SELECT 1 FROM {$wpdb->posts} a
                     WHERE a.post_parent = p.ID
                     AND a.post_type = 'attachment'
-                    AND a.post_mime_type LIKE 'video/%'
+                    AND a.post_mime_type LIKE %s
                 )
             )
             ORDER BY p.ID ASC
             LIMIT %d
-        ", $last_id, $limit));
+        ",
+            $last_id,
+            '%' . $wpdb->esc_like('youtube.com') . '%',
+            '%' . $wpdb->esc_like('youtu.be') . '%',
+            '%' . $wpdb->esc_like('vimeo.com') . '%',
+            '%' . $wpdb->esc_like('wp:video') . '%',
+            '%' . $wpdb->esc_like('[video') . '%',
+            $wpdb->esc_like('video/') . '%',
+            $limit));
         
         return $posts;
     }

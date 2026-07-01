@@ -11,6 +11,10 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// This controller reads from the plugin's own custom 404 tables. Direct $wpdb queries are
+// unavoidable (no core API for custom tables) and stats are transient-cached at the model
+// layer, so the DirectDatabaseQuery DirectQuery/NoCaching warnings below are expected.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 class AlmaSEO_404_Controller {
     
     /**
@@ -477,7 +481,7 @@ class AlmaSEO_404_Controller {
         global $wpdb;
         $table = $wpdb->prefix . 'almaseo_404_log';
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from $wpdb->prefix, no user input
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         $results = $wpdb->get_results(
             "SELECT id, path, hits, impact_score, impressions, clicks, suggested_target, last_seen
              FROM {$table}
@@ -486,7 +490,9 @@ class AlmaSEO_404_Controller {
              LIMIT 20",
             ARRAY_A
         );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         return rest_ensure_response( $results ? $results : array() );
     }
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

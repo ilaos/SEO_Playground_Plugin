@@ -873,7 +873,7 @@ function seo_playground_ajax_mark_as_reoptimized() {
     
     // Update post modified date directly to avoid creating revisions
     global $wpdb;
-    $wpdb->update(
+    $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- deliberate direct update of core posts table to bump the modified date without spawning a revision
         $wpdb->posts,
         array(
             'post_modified' => $current_time,
@@ -1040,7 +1040,7 @@ function almaseo_ajax_save_notes() {
         return;
     }
 
-    $raw = isset($_POST['notes']) ? wp_unslash($_POST['notes']) : '[]';
+    $raw = isset($_POST['notes']) ? wp_unslash($_POST['notes']) : '[]'; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON string; decoded below and every field sanitized via sanitize_text_field()/sanitize_textarea_field() before storage
     $decoded = json_decode($raw, true);
     if (!is_array($decoded)) {
         $decoded = array();
@@ -1298,6 +1298,7 @@ function almaseo_ajax_fetch_ga_page_data() {
 add_action('wp_ajax_almaseo_get_schema_preview', 'almaseo_ajax_get_schema_preview');
 if (!function_exists('almaseo_ajax_get_schema_preview')) {
 function almaseo_ajax_get_schema_preview() {
+    // phpcs:ignore WordPress.Security.NonceVerification.Missing -- read-only preview endpoint; authorization enforced via edit_post capability below, no state is mutated
     $post_id = isset($_POST['post_id']) ? absint(wp_unslash($_POST['post_id'])) : 0;
     if (!$post_id || !current_user_can('edit_post', $post_id)) {
         wp_send_json_error(array('message' => 'Insufficient permissions'));

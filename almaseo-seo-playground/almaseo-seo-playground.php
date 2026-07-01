@@ -1444,15 +1444,16 @@ if (!function_exists('almaseo_jwt_determine_current_user')) {
 
         // Check for JWT token in custom header (preferred — bypasses any
         // host that strips Authorization headers)
-        $jwt_token = isset($_SERVER['HTTP_X_ALMASEO_TOKEN']) ? $_SERVER['HTTP_X_ALMASEO_TOKEN'] : '';
+        $jwt_token = isset($_SERVER['HTTP_X_ALMASEO_TOKEN']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_X_ALMASEO_TOKEN'])) : '';
 
         // Fall back to Basic Auth — accept a JWT in the password slot. This
         // is what makes the dashboard's auto-heal probe (which calls
         // /wp/v2/users/me with Basic Auth) succeed on JWT-host sites where
         // WP's normal app-password authenticator can't validate the token.
-        if (empty($jwt_token) && isset($_SERVER['HTTP_AUTHORIZATION'])
-            && stripos($_SERVER['HTTP_AUTHORIZATION'], 'Basic ') === 0) {
-            $decoded = base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6), true);
+        $auth_header = isset($_SERVER['HTTP_AUTHORIZATION']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_AUTHORIZATION'])) : '';
+        if (empty($jwt_token) && $auth_header !== ''
+            && stripos($auth_header, 'Basic ') === 0) {
+            $decoded = base64_decode(substr($auth_header, 6), true);
             if ($decoded && strpos($decoded, ':') !== false) {
                 list(, $candidate) = explode(':', $decoded, 2);
                 // Only treat as JWT if it has the three-part structure;
@@ -1873,7 +1874,7 @@ function almaseo_check_dashboard_registration() {
     
     // Log discovery attempt if debug mode
     if (defined('WP_DEBUG') && WP_DEBUG) {
-        error_log('[AlmaSEO] Checking dashboard registration for domain: ' . $site_domain);
+        error_log('[AlmaSEO] Checking dashboard registration for domain: ' . $site_domain); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug-only logging, gated behind WP_DEBUG
     }
     
     // Call dashboard API to check if site exists
@@ -1893,7 +1894,7 @@ function almaseo_check_dashboard_registration() {
     if (is_wp_error($response)) {
         // Log error if debug mode
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('[AlmaSEO] Dashboard check failed: ' . $response->get_error_message());
+            error_log('[AlmaSEO] Dashboard check failed: ' . $response->get_error_message()); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug-only logging, gated behind WP_DEBUG
         }
         return array(
             'registered' => false,
@@ -1914,7 +1915,7 @@ function almaseo_check_dashboard_registration() {
             update_option('almaseo_dashboard_check_date', current_time('mysql'));
             
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('[AlmaSEO] Site found in dashboard: Site ID ' . $data['site_id']);
+                error_log('[AlmaSEO] Site found in dashboard: Site ID ' . $data['site_id']); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug-only logging, gated behind WP_DEBUG
             }
             
             return $data;
@@ -1958,7 +1959,7 @@ function almaseo_auto_detect_app_passwords() {
                 );
                 
                 if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('[AlmaSEO] Found existing password: ' . $app_password['name'] . ' for user: ' . $user->user_login);
+                    error_log('[AlmaSEO] Found existing password: ' . $app_password['name'] . ' for user: ' . $user->user_login); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug-only logging, gated behind WP_DEBUG
                 }
             }
         }
@@ -2170,6 +2171,7 @@ register_activation_hook(__FILE__, 'almaseo_playground_set_activation_redirect')
 add_action('admin_init', function() {
     if (get_option('almaseo_playground_do_activation_redirect', false)) {
         delete_option('almaseo_playground_do_activation_redirect');
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- reading WP core's own activation query var to decide a redirect; no form data is processed
         if (!isset($_GET['activate-multi'])) {
             // v1.9.4+: every fresh activation lands on the welcome page,
             // which lists the 4 onboarding steps (connect, deactivate other
@@ -2503,7 +2505,7 @@ function almaseo_fetch_user_tier() {
     if (is_wp_error($response)) {
         // Log error — default to max tier for connected users when API is unreachable
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log('[AlmaSEO] Tier fetch failed: ' . $response->get_error_message());
+            error_log('[AlmaSEO] Tier fetch failed: ' . $response->get_error_message()); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug-only logging, gated behind WP_DEBUG
         }
         return array(
             'tier' => 'max',

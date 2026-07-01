@@ -715,8 +715,9 @@ function almaseo_eg_get_dashboard_stats($post_type = 'all') {
     $post_type_sql = "'" . implode("','", array_map('esc_sql', $post_types)) . "'";
     
     // Get counts by status
+    // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- $post_type_sql is an esc_sql()'d list of post types, not user input; aggregate over core tables for the dashboard
     $results = $wpdb->get_results($wpdb->prepare("
-        SELECT 
+        SELECT
             COALESCE(pm.meta_value, 'unanalyzed') as status,
             COUNT(*) as count
         FROM {$wpdb->posts} p
@@ -724,7 +725,8 @@ function almaseo_eg_get_dashboard_stats($post_type = 'all') {
         WHERE p.post_type IN ($post_type_sql)
         AND p.post_status = 'publish'
         GROUP BY status
-    ", ALMASEO_EG_META_STATUS)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $post_type_sql built from whitelisted post types
+    ", ALMASEO_EG_META_STATUS));
+    // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
     // Initialize stats
     $stats = array(
@@ -781,8 +783,9 @@ function almaseo_eg_get_dashboard_stats($post_type = 'all') {
                 
                 // Re-fetch stats after analysis
                 $wpdb->flush();
+                // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- $post_type_sql is an esc_sql()'d list of post types, not user input; aggregate over core tables for the dashboard
                 $results = $wpdb->get_results($wpdb->prepare("
-                    SELECT 
+                    SELECT
                         COALESCE(pm.meta_value, 'unanalyzed') as status,
                         COUNT(*) as count
                     FROM {$wpdb->posts} p
@@ -790,7 +793,8 @@ function almaseo_eg_get_dashboard_stats($post_type = 'all') {
                     WHERE p.post_type IN ($post_type_sql)
                     AND p.post_status = 'publish'
                     GROUP BY status
-                ", ALMASEO_EG_META_STATUS)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $post_type_sql built from whitelisted post types
+                ", ALMASEO_EG_META_STATUS));
+                // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
                 // Re-process results
                 $stats = array(
@@ -1026,7 +1030,9 @@ function almaseo_eg_get_advanced_summary($post_type = 'all') {
         AND p.post_status = 'publish'
     ";
 
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- aggregate segment query over core tables for the dashboard
     $results = $wpdb->get_results($wpdb->prepare($query, ...$post_types)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $query built with placeholders for post types
+    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
     // Initialize counters
     $segments = array(

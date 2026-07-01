@@ -50,8 +50,8 @@ function almaseo_save_seo_playground_meta($post_id) {
     }
 
     // Get new values using dedicated sanitizers from security.php
-    $new_title = isset($_POST['almaseo_seo_title']) ? almaseo_sanitize_seo_title(wp_unslash($_POST['almaseo_seo_title'])) : '';
-    $new_description = isset($_POST['almaseo_seo_description']) ? almaseo_sanitize_meta_description(wp_unslash($_POST['almaseo_seo_description'])) : '';
+    $new_title = isset($_POST['almaseo_seo_title']) ? almaseo_sanitize_seo_title(wp_unslash($_POST['almaseo_seo_title'])) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized via almaseo_sanitize_seo_title() in security.php
+    $new_description = isset($_POST['almaseo_seo_description']) ? almaseo_sanitize_meta_description(wp_unslash($_POST['almaseo_seo_description'])) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized via almaseo_sanitize_meta_description() in security.php
     $new_keyword = isset($_POST['almaseo_focus_keyword']) ? sanitize_text_field(wp_unslash($_POST['almaseo_focus_keyword'])) : '';
 
     // Track metadata changes in history
@@ -99,7 +99,7 @@ function almaseo_save_seo_playground_meta($post_id) {
 
     // Save sticky notes
     if (isset($_POST['almaseo_seo_notes'])) {
-        update_post_meta($post_id, '_seo_playground_notes', almaseo_sanitize_notes(wp_unslash($_POST['almaseo_seo_notes'])));
+        update_post_meta($post_id, '_seo_playground_notes', almaseo_sanitize_notes(wp_unslash($_POST['almaseo_seo_notes']))); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized via almaseo_sanitize_notes() in security.php
     }
 
     // Cornerstone Content
@@ -136,7 +136,7 @@ function almaseo_save_seo_playground_meta($post_id) {
     // eeat-engine, schema-clean, llm-rest, etc.) read a consistent value regardless
     // of which key they query.
     if (isset($_POST['almaseo_schema_type'])) {
-        $schema_type = almaseo_sanitize_schema_type(wp_unslash($_POST['almaseo_schema_type']));
+        $schema_type = almaseo_sanitize_schema_type(wp_unslash($_POST['almaseo_schema_type'])); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized via almaseo_sanitize_schema_type() in security.php
         update_post_meta($post_id, '_almaseo_schema_type', $schema_type);
         update_post_meta($post_id, '_seo_playground_schema_type', $schema_type); // Legacy
         update_post_meta($post_id, '_almaseo_schema_primary_type', $schema_type); // Advanced output reads this
@@ -144,7 +144,7 @@ function almaseo_save_seo_playground_meta($post_id) {
 
     // Backwards compatibility: legacy POST field from older form versions
     if (isset($_POST['almaseo_schema_primary_type']) && !isset($_POST['almaseo_schema_type'])) {
-        $primary = almaseo_sanitize_schema_type(wp_unslash($_POST['almaseo_schema_primary_type']));
+        $primary = almaseo_sanitize_schema_type(wp_unslash($_POST['almaseo_schema_primary_type'])); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized via almaseo_sanitize_schema_type() in security.php
         update_post_meta($post_id, '_almaseo_schema_primary_type', $primary);
         update_post_meta($post_id, '_almaseo_schema_type', $primary);
     }
@@ -158,7 +158,7 @@ function almaseo_save_seo_playground_meta($post_id) {
             'Person', 'Organization', 'Product', 'Event', 'Recipe',
         );
         $primary_for_dedup = isset($_POST['almaseo_schema_type'])
-            ? almaseo_sanitize_schema_type(wp_unslash($_POST['almaseo_schema_type']))
+            ? almaseo_sanitize_schema_type(wp_unslash($_POST['almaseo_schema_type'])) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized via almaseo_sanitize_schema_type() in security.php
             : '';
         $submitted = isset($_POST['almaseo_schema_secondary_types']) && is_array($_POST['almaseo_schema_secondary_types'])
             ? array_map('sanitize_text_field', wp_unslash($_POST['almaseo_schema_secondary_types']))
@@ -182,7 +182,7 @@ function almaseo_save_seo_playground_meta($post_id) {
     // the list is re-indexed. Only touched when the field is submitted.
     if (isset($_POST['almaseo_faq']) && is_array($_POST['almaseo_faq'])) {
         $faq_clean = array();
-        foreach (wp_unslash($_POST['almaseo_faq']) as $row) {
+        foreach (wp_unslash($_POST['almaseo_faq']) as $row) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- each row's question/answer is sanitized via sanitize_text_field()/sanitize_textarea_field() in the loop body below
             if (!is_array($row)) {
                 continue;
             }
@@ -263,7 +263,7 @@ function almaseo_save_seo_playground_meta($post_id) {
         $valid_days = array('monday','tuesday','wednesday','thursday','friday','saturday','sunday');
         foreach ($valid_days as $day) {
             if (isset($_POST['almaseo_lb_hours'][$day])) {
-                $lb_hours_raw = wp_unslash($_POST['almaseo_lb_hours']);
+                $lb_hours_raw = wp_unslash($_POST['almaseo_lb_hours']); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- open/close values are sanitized via sanitize_text_field() just below
                 $hours[$day] = array(
                     'open'  => sanitize_text_field($lb_hours_raw[$day]['open'] ?? ''),
                     'close' => sanitize_text_field($lb_hours_raw[$day]['close'] ?? ''),
@@ -345,7 +345,7 @@ function almaseo_save_seo_playground_meta($post_id) {
         }
     }
     if (isset($_POST['almaseo_org_employees'])) {
-        $employees_raw = wp_unslash($_POST['almaseo_org_employees']);
+        $employees_raw = sanitize_text_field(wp_unslash($_POST['almaseo_org_employees']));
         update_post_meta($post_id, '_almaseo_org_employees', $employees_raw === '' ? '' : absint($employees_raw));
     }
     if (isset($_POST['almaseo_org_email'])) {
@@ -394,7 +394,7 @@ function almaseo_save_seo_playground_meta($post_id) {
         }
     }
     if (isset($_POST['almaseo_product_review_count'])) {
-        $count_raw = wp_unslash($_POST['almaseo_product_review_count']);
+        $count_raw = sanitize_text_field(wp_unslash($_POST['almaseo_product_review_count']));
         update_post_meta($post_id, '_almaseo_product_review_count', $count_raw === '' ? '' : absint($count_raw));
     }
     if (isset($_POST['almaseo_product_image'])) {
@@ -467,7 +467,7 @@ function almaseo_save_seo_playground_meta($post_id) {
     );
     foreach ($recipe_int_fields as $post_key => $meta_key) {
         if (isset($_POST[$post_key])) {
-            $raw = wp_unslash($_POST[$post_key]);
+            $raw = sanitize_text_field(wp_unslash($_POST[$post_key]));
             update_post_meta($post_id, $meta_key, $raw === '' ? '' : absint($raw));
         }
     }

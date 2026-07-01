@@ -576,9 +576,9 @@ function almaseo_connector_settings_page() {
         echo '<summary style="cursor: pointer; font-weight: bold;">Connection Debug Information</summary>';
         echo '<pre style="background: white; padding: 15px; border-radius: 3px; overflow-x: auto; margin-top: 10px;">';
         echo 'Comprehensive Status:' . PHP_EOL;
-        echo esc_html(print_r($comprehensive_status, true));
+        echo esc_html(print_r($comprehensive_status, true)); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r -- WP_DEBUG-gated diagnostic panel; output is escaped
         echo PHP_EOL . 'Basic Connection Status:' . PHP_EOL;
-        echo esc_html(print_r($connection_status, true));
+        echo esc_html(print_r($connection_status, true)); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r -- WP_DEBUG-gated diagnostic panel; output is escaped
         echo PHP_EOL . 'Stored Options:' . PHP_EOL;
         echo 'almaseo_dashboard_site_id: ' . esc_html(get_option('almaseo_dashboard_site_id', 'not set')) . PHP_EOL;
         echo 'almaseo_connection_type: ' . esc_html(get_option('almaseo_connection_type', 'not set')) . PHP_EOL;
@@ -1002,7 +1002,7 @@ function almaseo_connector_settings_page() {
 
             $.post(ajaxurl, {
                 action: "almaseo_test_connection",
-                nonce: "' . wp_create_nonce('almaseo_nonce') . '"
+                nonce: "' . esc_js(wp_create_nonce('almaseo_nonce')) . '"
             }).done(function(response) {
                 if (response.success) {
                     result.html("<span style=\"color: #4CAF50;\">Connection successful</span>");

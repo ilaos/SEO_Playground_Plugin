@@ -12,6 +12,17 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+/*
+ * This class is a *streaming* sitemap writer: it keeps file handles open and
+ * writes URLs to disk incrementally, using ftell() to track byte size and roll
+ * to a new file at the 50k-URL / size limit; create_gzip() likewise streams the
+ * file through gzip in fixed chunks. WP_Filesystem offers no streaming/append/
+ * chunked API — using it would force buffering entire multi-MB sitemaps in PHP
+ * memory and would break the size-based file rolling. The fopen/fwrite/fread/
+ * fclose calls below are therefore intentional and cannot use WP_Filesystem.
+ */
+// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.WP.AlternativeFunctions.file_system_operations_fwrite, WordPress.WP.AlternativeFunctions.file_system_operations_fread, WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+
 class Alma_Sitemap_Writer {
     
     /**
@@ -716,3 +727,4 @@ class Alma_Sitemap_Writer {
         return $this->stats;
     }
 }
+// phpcs:enable WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.WP.AlternativeFunctions.file_system_operations_fwrite, WordPress.WP.AlternativeFunctions.file_system_operations_fread, WordPress.WP.AlternativeFunctions.file_system_operations_fclose

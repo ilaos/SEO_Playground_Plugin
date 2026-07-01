@@ -13,6 +13,10 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+// This model performs all CRUD against the plugin's own custom GSC-monitor table.
+// Direct $wpdb queries are unavoidable (no core API for custom tables), so the
+// DirectDatabaseQuery DirectQuery/NoCaching warnings below are expected.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 class AlmaSEO_GSC_Monitor_Model {
 
     /* ── helpers ── */
@@ -119,9 +123,8 @@ class AlmaSEO_GSC_Monitor_Model {
      */
     public static function get_finding( $id ) {
         global $wpdb;
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM " . self::table() . " WHERE id = %d", $id
+            "SELECT * FROM " . self::table() . " WHERE id = %d", $id // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name derived from $wpdb->prefix, not user input
         ) );
     }
 
@@ -130,9 +133,8 @@ class AlmaSEO_GSC_Monitor_Model {
      */
     public static function get_findings_for_post( $post_id ) {
         global $wpdb;
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM " . self::table() . " WHERE post_id = %d ORDER BY last_seen DESC",
+            "SELECT * FROM " . self::table() . " WHERE post_id = %d ORDER BY last_seen DESC", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name derived from $wpdb->prefix, not user input
             $post_id
         ) );
     }
@@ -142,9 +144,8 @@ class AlmaSEO_GSC_Monitor_Model {
      */
     public static function find_existing( $url, $finding_type, $subtype ) {
         global $wpdb;
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM " . self::table() . " WHERE url = %s AND finding_type = %s AND subtype = %s AND status = 'open' LIMIT 1",
+            "SELECT * FROM " . self::table() . " WHERE url = %s AND finding_type = %s AND subtype = %s AND status = 'open' LIMIT 1", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name derived from $wpdb->prefix, not user input
             $url, $finding_type, $subtype
         ) );
     }
@@ -219,9 +220,8 @@ class AlmaSEO_GSC_Monitor_Model {
     public static function auto_dismiss_old( $days ) {
         global $wpdb;
         $cutoff = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name from $wpdb->prefix
         return $wpdb->query( $wpdb->prepare(
-            "UPDATE " . self::table() . " SET status = 'dismissed', resolved_at = %s WHERE status = 'open' AND last_seen < %s",
+            "UPDATE " . self::table() . " SET status = 'dismissed', resolved_at = %s WHERE status = 'open' AND last_seen < %s", // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name derived from $wpdb->prefix, not user input
             current_time( 'mysql', true ),
             $cutoff
         ) );
@@ -283,3 +283,4 @@ class AlmaSEO_GSC_Monitor_Model {
         return $stats;
     }
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

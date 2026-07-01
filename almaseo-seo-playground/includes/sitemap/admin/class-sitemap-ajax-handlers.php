@@ -48,7 +48,16 @@ if (!defined('ABSPATH')) {
 }
 
 class Alma_Sitemap_Ajax_Handlers {
-    
+
+    /*
+     * Every AJAX handler in this class calls self::verify_ajax_nonce() as its first
+     * statement, which runs check_ajax_referer('almaseo_sitemaps_nonce', ...) and a
+     * manage_options capability check before any request data is read. The WPCS
+     * NonceVerification sniff can't trace that shared wrapper, so its Missing/
+     * Recommended warnings on the $_POST/$_GET reads below are false positives.
+     */
+    // phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended
+
     /**
      * Register AJAX hooks
      * 
@@ -463,7 +472,7 @@ class Alma_Sitemap_Ajax_Handlers {
     public static function handle_import_csv() {
         self::verify_ajax_nonce();
         
-        $csv_content = wp_unslash($_POST['csv'] ?? '');
+        $csv_content = wp_unslash($_POST['csv'] ?? ''); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- parsed line-by-line below; each URL is validated with filter_var(FILTER_VALIDATE_URL) before use, nothing is stored/output raw
         
         if (empty($csv_content)) {
             wp_send_json_error(__('No CSV content provided', 'almaseo-seo-playground'));
@@ -669,9 +678,8 @@ class Alma_Sitemap_Ajax_Handlers {
         
         $cutoff = gmdate('Y-m-d H:i:s', strtotime("-{$retention_days} days"));
         
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $deleted = $wpdb->query($wpdb->prepare(
-            "DELETE FROM `$table` WHERE detected_at < %s",
+            "DELETE FROM `$table` WHERE detected_at < %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
             $cutoff
         ));
         
@@ -892,8 +900,9 @@ class Alma_Sitemap_Ajax_Handlers {
         
         global $wpdb;
         
-        // Count images
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        // Count images. {$wpdb->posts} is a core table name; the LIKE patterns are
+        // hardcoded (no user input) and this query takes no replacements.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $image_count = $wpdb->get_var("
             SELECT COUNT(DISTINCT p.ID)
             FROM {$wpdb->posts} p
@@ -903,7 +912,6 @@ class Alma_Sitemap_Ajax_Handlers {
         ");
 
         // Count videos
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $video_count = $wpdb->get_var("
             SELECT COUNT(DISTINCT p.ID)
             FROM {$wpdb->posts} p
@@ -911,6 +919,7 @@ class Alma_Sitemap_Ajax_Handlers {
             AND p.post_mime_type LIKE 'video/%'
             AND p.post_status = 'inherit'
         ");
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         
         wp_send_json_success(array(
             'message' => __('Media scan complete', 'almaseo-seo-playground'),
@@ -928,9 +937,9 @@ class Alma_Sitemap_Ajax_Handlers {
         
         $issues = [];
         
-        // Check for missing alt text
+        // Check for missing alt text. Core table names; hardcoded LIKE pattern, no replacements.
         global $wpdb;
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $missing_alt = $wpdb->get_var("
             SELECT COUNT(*)
             FROM {$wpdb->posts} p
@@ -939,6 +948,7 @@ class Alma_Sitemap_Ajax_Handlers {
             AND p.post_mime_type LIKE 'image/%'
             AND (pm.meta_value IS NULL OR pm.meta_value = '')
         ");
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         
         if ($missing_alt > 0) {
             /* translators: %d: number of images missing alt text */
@@ -1054,7 +1064,7 @@ class Alma_Sitemap_Ajax_Handlers {
     public static function handle_import_settings() {
         self::verify_ajax_nonce();
         
-        $json = wp_unslash($_POST['settings'] ?? '');
+        $json = wp_unslash($_POST['settings'] ?? ''); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON settings blob from an admin (manage_options); json_decoded and validated as an array before storage
         
         if (empty($json)) {
             wp_send_json_error(__('No settings data provided', 'almaseo-seo-playground'));
@@ -1087,12 +1097,13 @@ class Alma_Sitemap_Ajax_Handlers {
         global $wpdb;
         $table = $wpdb->prefix . 'almaseo_health_log';
         
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         $logs = $wpdb->get_results("
             SELECT * FROM `$table`
             ORDER BY created_at DESC
             LIMIT 1000
         ");
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         
         $csv = "Date,Type,Message,Details\n";
         foreach ($logs as $log) {
@@ -1496,6 +1507,7 @@ class Alma_Sitemap_Ajax_Handlers {
             'filename' => 'hreflang-issues-' . gmdate('Y-m-d') . '.csv'
         ));
     }
+    // phpcs:enable WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended
 }
 
 // Initialize AJAX handlers

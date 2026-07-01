@@ -28,9 +28,8 @@ class AlmaSEO_Redirects_Intelligence {
         $table = $wpdb->prefix . 'almaseo_redirects';
 
         // Get all enabled redirects.
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         $redirects = $wpdb->get_results(
-            "SELECT id, source, target, status, hits FROM {$table} WHERE is_enabled = 1",
+            "SELECT id, source, target, status, hits FROM {$table} WHERE is_enabled = 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
             ARRAY_A
         );
 
@@ -146,9 +145,8 @@ class AlmaSEO_Redirects_Intelligence {
 
         if ( $traffic_before === null || $traffic_after === null ) {
             // Read existing values.
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $row = $wpdb->get_row( $wpdb->prepare(
-                "SELECT traffic_before, traffic_after FROM {$table} WHERE id = %d",
+                "SELECT traffic_before, traffic_after FROM {$table} WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
                 $id
             ) );
             if ( $row ) {
@@ -192,9 +190,8 @@ class AlmaSEO_Redirects_Intelligence {
                 continue;
             }
 
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $row = $wpdb->get_row( $wpdb->prepare(
-                "SELECT id FROM {$table} WHERE source = %s LIMIT 1",
+                "SELECT id FROM {$table} WHERE source = %s LIMIT 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
                 $source
             ) );
 
@@ -223,7 +220,7 @@ class AlmaSEO_Redirects_Intelligence {
         global $wpdb;
         $table = $wpdb->prefix . 'almaseo_redirects';
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         return $wpdb->get_results( $wpdb->prepare(
             "SELECT id, source, target, status, hits, traffic_before, traffic_after, recovery_pct
              FROM {$table}
@@ -232,6 +229,7 @@ class AlmaSEO_Redirects_Intelligence {
              LIMIT %d",
             $limit
         ), ARRAY_A );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
     }
 
     /* ── Internal Helpers ── */

@@ -181,7 +181,7 @@ class AlmaSEO_Redirects_Controller {
                     $params[] = $exclude_id;
                 }
                 
-                $exists = $wpdb->get_var($wpdb->prepare($query, $params));
+                $exists = $wpdb->get_var($wpdb->prepare($query, $params)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $query built from string literals with %s/%d placeholders; $table from $wpdb->prefix
                 
                 if ($exists > 0) {
                     $errors->add('duplicate_source', __('A redirect with this source path already exists.', 'almaseo-seo-playground'));
@@ -275,8 +275,10 @@ class AlmaSEO_Redirects_Controller {
             'per_page' => -1 // Get all
         ));
         
-        // Use php://temp stream with fputcsv for proper CSV escaping
-        $stream = fopen('php://temp', 'r+');
+        // Use php://temp stream with fputcsv for proper CSV escaping. This is an
+        // in-memory stream, not a real filesystem path, so WP_Filesystem does not
+        // apply and fputcsv is the correct tool for RFC-compliant CSV escaping.
+        $stream = fopen('php://temp', 'r+'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- php://temp in-memory stream, not a filesystem operation
         fputcsv($stream, array('Source', 'Target', 'Status', 'Enabled', 'Hits', 'Last Hit', 'Created', 'Updated'));
 
         foreach ($redirects['items'] as $redirect) {
@@ -294,7 +296,7 @@ class AlmaSEO_Redirects_Controller {
 
         rewind($stream);
         $csv = stream_get_contents($stream);
-        fclose($stream);
+        fclose($stream); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- php://temp in-memory stream, not a filesystem operation
 
         return $csv;
     }

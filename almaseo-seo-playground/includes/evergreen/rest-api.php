@@ -723,7 +723,9 @@ class AlmaSEO_Evergreen_REST_API {
         $prepare_values[] = $per_page;
         $prepare_values[] = $offset;
 
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- aggregate list query over core tables for the evergreen REST endpoint
         $results = $wpdb->get_results($wpdb->prepare($query, ...$prepare_values)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
+        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
         // Count total
         $count_query = "
@@ -737,7 +739,9 @@ class AlmaSEO_Evergreen_REST_API {
 
         // Remove limit/offset values for count
         $count_values = array_slice($prepare_values, 0, -2);
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- COUNT over core tables for the evergreen REST endpoint
         $total = (int) $wpdb->get_var($wpdb->prepare($count_query, ...$count_values)); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
+        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
         // Format results
         $posts = array();

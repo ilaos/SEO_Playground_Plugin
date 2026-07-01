@@ -92,7 +92,9 @@ class AlmaSEO_Evergreen_Cron {
             if (file_exists($plugin_dir . 'includes/evergreen/scoring.php')) {
                 require_once $plugin_dir . 'includes/evergreen/scoring.php';
             } else {
-                error_log('[AlmaSEO] Evergreen: scoring.php not found for cron job');
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('[AlmaSEO] Evergreen: scoring.php not found for cron job'); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug-only logging, gated behind WP_DEBUG
+                }
                 return;
             }
         }
@@ -107,13 +109,15 @@ class AlmaSEO_Evergreen_Cron {
                     $processed++;
                 }
             } catch (Exception $e) {
-                error_log('[AlmaSEO] Evergreen cron error for post ' . $post_id . ': ' . $e->getMessage());
+                if (defined('WP_DEBUG') && WP_DEBUG) {
+                    error_log('[AlmaSEO] Evergreen cron error for post ' . $post_id . ': ' . $e->getMessage()); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug-only logging, gated behind WP_DEBUG
+                }
                 $errors++;
             }
-            
+
             // Prevent timeout
             if ($processed % 50 === 0) {
-                set_time_limit(30);
+                set_time_limit(30); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- periodically extends the limit during a long cron batch
             }
         }
         

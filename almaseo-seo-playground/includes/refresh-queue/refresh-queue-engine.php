@@ -305,9 +305,8 @@ class AlmaSEO_Refresh_Queue_Engine {
         $types        = self::excluded_types();
         $placeholders = implode( ', ', array_fill( 0, count( $types ), '%s' ) );
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         return (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type NOT IN ({$placeholders})",
+            "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type NOT IN ({$placeholders})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- {$placeholders} is a list of %s tokens supplied via $types; the query is prepared
             $types
         ) );
     }
@@ -324,9 +323,8 @@ class AlmaSEO_Refresh_Queue_Engine {
         $types        = self::excluded_types();
         $placeholders = implode( ', ', array_fill( 0, count( $types ), '%s' ) );
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
-        return array_map( 'intval', $wpdb->get_col( $wpdb->prepare(
-            "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type NOT IN ({$placeholders}) ORDER BY ID LIMIT %d OFFSET %d",
+        return array_map( 'intval', $wpdb->get_col( $wpdb->prepare( // phpcs:ignore WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- $types is merged into a single array replacement arg that WPDB expands to match {$placeholders}; count is correct at runtime
+            "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type NOT IN ({$placeholders}) ORDER BY ID LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- {$placeholders} is a list of %s tokens supplied via $types; the query is prepared
             array_merge( $types, array( (int) $limit, (int) $offset ) )
         ) ) );
     }
@@ -346,7 +344,7 @@ class AlmaSEO_Refresh_Queue_Engine {
      * @return array { total, processed, scored, next_offset, done }
      */
     public static function recalculate_batch( $offset = 0, $batch_size = 100 ) {
-        @set_time_limit( 0 );       // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+        @set_time_limit( 0 );       // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, Squiz.PHP.DiscouragedFunctions.Discouraged -- extend limit for a long scoring batch; best-effort
         @ignore_user_abort( true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
         $offset     = max( 0, (int) $offset );
@@ -391,7 +389,7 @@ class AlmaSEO_Refresh_Queue_Engine {
     public static function recalculate_all() {
         // Scoring every published post can take a while on large sites; keep
         // going even if the caller has gone away so the queue finishes.
-        @set_time_limit( 0 );       // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+        @set_time_limit( 0 );       // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, Squiz.PHP.DiscouragedFunctions.Discouraged -- extend limit for a long scoring batch; best-effort
         @ignore_user_abort( true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 
         $total      = self::count_scorable();

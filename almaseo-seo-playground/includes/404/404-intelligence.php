@@ -13,6 +13,10 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+// This module reads from the plugin's own custom 404 tables. Direct $wpdb queries are
+// unavoidable (no core API for custom tables), so the DirectDatabaseQuery DirectQuery/
+// NoCaching warnings below are expected.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 class AlmaSEO_404_Intelligence {
 
     /**
@@ -86,7 +90,7 @@ class AlmaSEO_404_Intelligence {
         $seven_start = gmdate( 'Y-m-d', strtotime( '-6 days', current_time( 'U' ) ) ); // today + 6 prior
 
         // Get paths with notable activity today.
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names from $wpdb->prefix
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names derived from $wpdb->prefix, not user input
         $recent = $wpdb->get_results( $wpdb->prepare(
             "SELECT l.path AS path, SUM(d.hits) AS hits_24h
              FROM {$daily} d
@@ -96,6 +100,7 @@ class AlmaSEO_404_Intelligence {
              HAVING hits_24h >= 3",
             $today
         ) );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         if ( empty( $recent ) ) {
             return array();
@@ -105,13 +110,14 @@ class AlmaSEO_404_Intelligence {
 
         foreach ( $recent as $row ) {
             // Get 7-day total for this path from the rollup.
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names from $wpdb->prefix
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names derived from $wpdb->prefix, not user input
             $total_7d = (int) $wpdb->get_var( $wpdb->prepare(
                 "SELECT SUM(d.hits) FROM {$daily} d
                  INNER JOIN {$table} l ON l.id = d.log_id
                  WHERE l.path = %s AND d.hit_date >= %s AND l.is_ignored = 0",
                 $row->path, $seven_start
             ) );
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
             $daily_avg = $total_7d / 7;
 
@@ -191,9 +197,8 @@ class AlmaSEO_404_Intelligence {
             $path = sanitize_text_field( $item['path'] );
 
             // Find the log entry by path.
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $row = $wpdb->get_row( $wpdb->prepare(
-                "SELECT id FROM {$table} WHERE path = %s ORDER BY last_seen DESC LIMIT 1",
+                "SELECT id FROM {$table} WHERE path = %s ORDER BY last_seen DESC LIMIT 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
                 $path
             ) );
 
@@ -273,13 +278,17 @@ class AlmaSEO_404_Intelligence {
 
         $where = implode( ' OR ', $like_clauses );
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        // $where is a set of "post_name LIKE %s" clauses and $vals supplies the values,
+        // so the query IS prepared — the sniff just can't see the placeholders behind
+        // the {$where} interpolation.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
         $posts = $wpdb->get_results( $wpdb->prepare(
             "SELECT ID, post_title, post_name FROM {$wpdb->posts}
              WHERE post_status = 'publish' AND post_type IN ('post', 'page') AND ({$where})
              LIMIT 20",
             $vals
         ) );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 
         foreach ( $posts as $post ) {
             $pct = 0;
@@ -318,13 +327,17 @@ class AlmaSEO_404_Intelligence {
 
         $where = implode( ' OR ', $like_clauses );
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        // $where is a set of "post_title LIKE %s" clauses and $vals supplies the values,
+        // so the query IS prepared — the sniff just can't see the placeholders behind
+        // the {$where} interpolation.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
         $posts = $wpdb->get_results( $wpdb->prepare(
             "SELECT ID, post_title, post_name FROM {$wpdb->posts}
              WHERE post_status = 'publish' AND post_type IN ('post', 'page') AND ({$where})
              LIMIT 20",
             $vals
         ) );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 
         foreach ( $posts as $post ) {
             // Count how many keywords appear in the title.
@@ -351,3 +364,4 @@ class AlmaSEO_404_Intelligence {
         return $matches;
     }
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

@@ -126,7 +126,7 @@ class Alma_Sitemap_Responder {
             if (file_exists($filepath)) {
                 // Explicit .xml.gz URL — hand back the gzip archive itself.
                 $this->send_headers('gzip-file');
-                readfile($filepath);
+                readfile($filepath); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile -- streaming a sitemap file straight to the HTTP response; WP_Filesystem has no streaming equivalent and would buffer the whole file in memory
                 return true;
             }
         }
@@ -142,11 +142,11 @@ class Alma_Sitemap_Responder {
                 // Transparently compressed XML — browser decompresses and
                 // renders it inline because Content-Type stays application/xml.
                 $this->send_headers('xml-gzipped');
-                readfile($filepath . '.gz');
+                readfile($filepath . '.gz'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile -- streaming a sitemap file straight to the HTTP response; WP_Filesystem has no streaming equivalent and would buffer the whole file in memory
             } else {
                 // Serve regular XML
                 $this->send_headers('xml');
-                readfile($filepath);
+                readfile($filepath); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile -- streaming a sitemap file straight to the HTTP response; WP_Filesystem has no streaming equivalent and would buffer the whole file in memory
             }
             return true;
         }

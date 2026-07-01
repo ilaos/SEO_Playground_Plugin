@@ -506,7 +506,7 @@ class BulkMeta_Controller {
             return array('success' => 0, 'failed' => 0, 'skipped' => 0, 'matched' => 0, 'errors' => array());
         }
 
-        @set_time_limit(0);
+        @set_time_limit(0); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- extends the limit for a potentially long bulk-edit batch; best-effort (silenced if disabled by host)
         @ignore_user_abort(true);
 
         $results = array('success' => 0, 'failed' => 0, 'skipped' => 0, 'matched' => $matched, 'errors' => array());

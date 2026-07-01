@@ -32,7 +32,7 @@ class AlmaSEO_Redirects_Runtime {
         }
         
         // Skip if user is logged in and has manage_options (avoid admin redirect loops)
-        if (current_user_can('manage_options') && isset($_GET['almaseo_redirect_test'])) {
+        if (current_user_can('manage_options') && isset($_GET['almaseo_redirect_test'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- front-end isset() check of a test flag; changes no state
             return;
         }
         
@@ -64,7 +64,9 @@ class AlmaSEO_Redirects_Runtime {
 
         // Prevent redirect loops
         if (self::would_create_loop($request_path, $redirect['target'])) {
-            error_log('AlmaSEO Redirects: Potential redirect loop detected for ' . $request_path);
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('AlmaSEO Redirects: Potential redirect loop detected for ' . $request_path); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug-only logging, gated behind WP_DEBUG
+            }
             return;
         }
 

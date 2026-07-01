@@ -359,9 +359,8 @@ class Alma_Additional_URLs_Storage {
         global $wpdb;
         
         $table_name = self::get_table_name();
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         return $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM `$table_name` WHERE id = %d",
+            "SELECT * FROM `$table_name` WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
             $id
         ));
     }
@@ -455,9 +454,8 @@ class Alma_Additional_URLs_Storage {
         $where = $active_only ? 'WHERE active = 1' : '';
         $table_name = self::get_table_name();
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
         return (int) $wpdb->get_var(
-            "SELECT COUNT(*) FROM `$table_name` $where"
+            "SELECT COUNT(*) FROM `$table_name` $where" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table_name from $wpdb->prefix; $where is a hardcoded literal ('WHERE active = 1' or '')
         );
     }
 

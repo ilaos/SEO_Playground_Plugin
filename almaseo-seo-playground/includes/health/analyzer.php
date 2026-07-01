@@ -676,7 +676,7 @@ function almaseo_get_rendered_content($post_id) {
     
     // Debug logging if enabled
     if (defined('ALMASEO_DEV_DEBUG') && ALMASEO_DEV_DEBUG) {
-        error_log('[AlmaSEO Health] Content source for post ' . $post_id . ': ' . $content_source);
+        error_log('[AlmaSEO Health] Content source for post ' . $post_id . ': ' . $content_source); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- debug-only logging, gated behind ALMASEO_DEV_DEBUG
     }
     
     return $content;
