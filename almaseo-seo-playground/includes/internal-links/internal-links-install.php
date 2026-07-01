@@ -14,6 +14,11 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+// This module queries the plugin's own custom tables / performs bulk reads that have
+// no core API equivalent; results are request-scoped. The DirectDatabaseQuery
+// DirectQuery/NoCaching warnings below are expected.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+
 /**
  * Create or update the internal links table
  *
@@ -133,3 +138,4 @@ function almaseo_uninstall_internal_links_table() {
 
 // Hook into plugin activation
 add_action( 'admin_init', 'almaseo_check_internal_links_db' );
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange

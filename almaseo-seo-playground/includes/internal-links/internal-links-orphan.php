@@ -15,6 +15,11 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+// This module queries the plugin's own custom tables / performs bulk reads that have
+// no core API equivalent; results are request-scoped. The DirectDatabaseQuery
+// DirectQuery/NoCaching warnings below are expected.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
 class AlmaSEO_Internal_Links_Orphan {
 
     /**
@@ -228,14 +233,16 @@ class AlmaSEO_Internal_Links_Orphan {
         if ( 0 === $offset ) {
             // Preserve findings the user explicitly dismissed so a re-scan
             // doesn't resurrect them. Capture them BEFORE clearing the table.
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $dismissed = $wpdb->get_col( "SELECT post_id FROM {$table} WHERE status = 'dismissed'" );
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             $state['dismissed'] = array_map( 'intval', (array) $dismissed );
 
             // Clear prior results now that fresh data is ready. DELETE (not
             // TRUNCATE) so the scan works on locked-down hosts without DROP priv.
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
             $wpdb->query( "DELETE FROM {$table}" );
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             $state['clusters'] = self::build_clusters_from_cats( $state['cats'], $total );
             $state['counts']   = array( 'total' => 0, 'orphans' => 0, 'weak' => 0 );
         }
@@ -404,9 +411,11 @@ class AlmaSEO_Internal_Links_Orphan {
             'last_scan'      => get_option( 'almaseo_orphan_last_scan', '' ),
         );
 
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         $rows = $wpdb->get_results(
-            "SELECT status, COUNT(*) AS cnt FROM {$table} GROUP BY status" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
+            "SELECT status, COUNT(*) AS cnt FROM {$table} GROUP BY status"
         );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         foreach ( $rows as $r ) {
             $cnt             = (int) $r->cnt;
@@ -420,9 +429,11 @@ class AlmaSEO_Internal_Links_Orphan {
             }
         }
 
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         $stats['hub_candidates'] = (int) $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$table} WHERE is_hub_candidate = 1 AND status != 'dismissed'" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
+            "SELECT COUNT(*) FROM {$table} WHERE is_hub_candidate = 1 AND status != 'dismissed'"
         );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         return $stats;
     }
@@ -515,10 +526,12 @@ class AlmaSEO_Internal_Links_Orphan {
             }
 
             // Upsert by post_id.
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
             $existing = $wpdb->get_row( $wpdb->prepare(
-                "SELECT id, status FROM {$table} WHERE post_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
+                "SELECT id, status FROM {$table} WHERE post_id = %d",
                 $post_id
             ) );
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
             // A dashboard re-push must not resurrect a finding the user
             // dismissed — keep it dismissed while still refreshing its counts.
@@ -647,3 +660,4 @@ class AlmaSEO_Internal_Links_Orphan {
         return 'Only ' . $inbound . ' page(s) link here. Consider adding links from more posts in the "' . $cluster_id . '" category.';
     }
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

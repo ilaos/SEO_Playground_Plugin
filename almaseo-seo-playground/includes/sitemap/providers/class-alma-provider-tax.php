@@ -10,6 +10,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// This module queries the plugin's own custom tables / performs bulk reads that have
+// no core API equivalent; results are request-scoped. The DirectDatabaseQuery
+// DirectQuery/NoCaching warnings below are expected.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
 /*
  * This provider builds taxonomy-sitemap queries dynamically. $tax_placeholder /
  * $tax_sql are lists of %s tokens whose values are supplied via the argument spread
@@ -337,3 +342,4 @@ class Alma_Provider_Tax {
     }
 }
 // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

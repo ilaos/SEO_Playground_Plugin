@@ -12,6 +12,11 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+// This module queries the plugin's own custom tables / performs bulk reads that have
+// no core API equivalent; results are request-scoped. The DirectDatabaseQuery
+// DirectQuery/NoCaching warnings below are expected.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
 class AlmaSEO_Refresh_Queue_Model {
 
     /* ── helpers ── */
@@ -259,9 +264,11 @@ class AlmaSEO_Refresh_Queue_Model {
         global $wpdb;
         $table = self::table();
 
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         $rows = $wpdb->get_results(
-            "SELECT priority_tier, status, COUNT(*) AS cnt FROM {$table} GROUP BY priority_tier, status" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
+            "SELECT priority_tier, status, COUNT(*) AS cnt FROM {$table} GROUP BY priority_tier, status"
         );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         $stats = array(
             'high'          => 0,
@@ -288,3 +295,4 @@ class AlmaSEO_Refresh_Queue_Model {
         return $stats;
     }
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

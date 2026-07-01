@@ -467,7 +467,8 @@ class Alma_HTML_Sitemap {
                 'almaseo-html-sitemap-block',
                 ALMASEO_PLUGIN_URL . 'assets/js/html-sitemap-block.js',
                 array('wp-blocks', 'wp-element', 'wp-editor', 'wp-components'),
-                ALMASEO_PLUGIN_VERSION
+                ALMASEO_PLUGIN_VERSION,
+                false
             );
         }
     }

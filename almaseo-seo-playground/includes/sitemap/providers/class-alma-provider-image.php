@@ -12,6 +12,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// This module queries the plugin's own custom tables / performs bulk reads that have
+// no core API equivalent; results are request-scoped. The DirectDatabaseQuery
+// DirectQuery/NoCaching warnings below are expected.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
 class Alma_Provider_Image {
     
     /**
@@ -513,3 +518,4 @@ class Alma_Provider_Image {
         );
     }
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

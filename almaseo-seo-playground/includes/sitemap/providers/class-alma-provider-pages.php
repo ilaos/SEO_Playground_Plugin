@@ -10,6 +10,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// This module queries the plugin's own custom tables / performs bulk reads that have
+// no core API equivalent; results are request-scoped. The DirectDatabaseQuery
+// DirectQuery/NoCaching warnings below are expected.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
 /*
  * This provider builds page-sitemap queries dynamically. The only interpolated
  * pieces are core table names ($wpdb->posts/postmeta) and $exclude_where, which
@@ -292,3 +297,4 @@ class Alma_Provider_Pages {
 
 }
 // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

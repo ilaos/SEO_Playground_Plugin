@@ -57,6 +57,7 @@ class Alma_Sitemap_Ajax_Handlers {
      * Recommended warnings on the $_POST/$_GET reads below are false positives.
      */
     // phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- custom sitemap/health tables; no core API, request-scoped
 
     /**
      * Register AJAX hooks
@@ -1515,6 +1516,7 @@ class Alma_Sitemap_Ajax_Handlers {
             'filename' => 'hreflang-issues-' . gmdate('Y-m-d') . '.csv'
         ));
     }
+    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     // phpcs:enable WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended
 }
 

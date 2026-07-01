@@ -12,6 +12,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// This module queries the plugin's own custom tables / performs bulk reads that have
+// no core API equivalent; results are request-scoped. The DirectDatabaseQuery
+// DirectQuery/NoCaching warnings below are expected.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
 class AlmaSEO_Redirects_Model {
     
     /**
@@ -417,10 +422,12 @@ class AlmaSEO_Redirects_Model {
         // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         $today_start = current_time('Y-m-d') . ' 00:00:00';
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
         $today = (int) $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM $table WHERE last_hit >= %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
+            "SELECT COUNT(*) FROM $table WHERE last_hit >= %s",
             $today_start
         ));
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         return array(
             'total'      => $total,
@@ -468,16 +475,20 @@ class AlmaSEO_Redirects_Model {
         $source = self::normalize_path($source);
         
         if ($exclude_id) {
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
             $query = $wpdb->prepare(
-                "SELECT COUNT(*) FROM $table WHERE source = %s AND id != %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
+                "SELECT COUNT(*) FROM $table WHERE source = %s AND id != %d",
                 $source,
                 $exclude_id
             );
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         } else {
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
             $query = $wpdb->prepare(
-                "SELECT COUNT(*) FROM $table WHERE source = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
+                "SELECT COUNT(*) FROM $table WHERE source = %s",
                 $source
             );
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         }
         
         return $wpdb->get_var($query) > 0; // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
@@ -542,3 +553,4 @@ class AlmaSEO_Redirects_Model {
         delete_transient('almaseo_enabled_redirects');
     }
 }
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
