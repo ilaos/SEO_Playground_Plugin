@@ -500,7 +500,7 @@ class Alma_Sitemap_Writer {
         // Recursive copy works on every platform and survives WP auto-updates.
         $current_dir = rtrim($this->storage_path, '/\\') . '/current';
         if (is_link($current_dir)) {
-            @unlink($current_dir);
+            wp_delete_file($current_dir);
         } elseif (is_dir($current_dir)) {
             $this->recursive_rmdir($current_dir);
         }
@@ -554,11 +554,14 @@ class Alma_Sitemap_Writer {
                     if (is_dir($dir . "/" . $object)) {
                         $this->recursive_rmdir($dir . "/" . $object);
                     } else {
-                        unlink($dir . "/" . $object);
+                        wp_delete_file($dir . "/" . $object);
                     }
                 }
             }
-            rmdir($dir);
+            // WP_Filesystem has no directory-removal method that fits this
+            // streaming writer's WP_Filesystem-free design (see file header);
+            // this only ever removes the plugin's own sitemap build subdirs.
+            rmdir($dir); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
         }
     }
 

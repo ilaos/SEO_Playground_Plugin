@@ -197,10 +197,12 @@ class AlmaSEO_404_Intelligence {
             $path = sanitize_text_field( $item['path'] );
 
             // Find the log entry by path.
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table derived from $wpdb->prefix, not user input
             $row = $wpdb->get_row( $wpdb->prepare(
-                "SELECT id FROM {$table} WHERE path = %s ORDER BY last_seen DESC LIMIT 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name derived from $wpdb->prefix, not user input
+                "SELECT id FROM {$table} WHERE path = %s ORDER BY last_seen DESC LIMIT 1",
                 $path
             ) );
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
             if ( ! $row ) {
                 $counts['skipped']++;

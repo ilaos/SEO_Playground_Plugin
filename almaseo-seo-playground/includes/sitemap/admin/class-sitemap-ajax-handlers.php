@@ -167,7 +167,7 @@ class Alma_Sitemap_Ajax_Handlers {
         
         // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- all values sanitized individually below
         $post_data = wp_unslash( $_POST );
-        // phpcs:enable
+        // phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
         // The admin panel's tabs are lazy-loaded, so the JS only sends the
         // section it actually has DOM for. If we treat a missing `enabled` /
@@ -472,7 +472,9 @@ class Alma_Sitemap_Ajax_Handlers {
     public static function handle_import_csv() {
         self::verify_ajax_nonce();
         
-        $csv_content = wp_unslash($_POST['csv'] ?? ''); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- parsed line-by-line below; each URL is validated with filter_var(FILTER_VALIDATE_URL) before use, nothing is stored/output raw
+        // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- parsed line-by-line below; each URL is validated with filter_var(FILTER_VALIDATE_URL) before use, nothing is stored/output raw
+        $csv_content = wp_unslash($_POST['csv'] ?? '');
+        // phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
         
         if (empty($csv_content)) {
             wp_send_json_error(__('No CSV content provided', 'almaseo-seo-playground'));
@@ -1064,7 +1066,9 @@ class Alma_Sitemap_Ajax_Handlers {
     public static function handle_import_settings() {
         self::verify_ajax_nonce();
         
-        $json = wp_unslash($_POST['settings'] ?? ''); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON settings blob from an admin (manage_options); json_decoded and validated as an array before storage
+        // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON settings blob from an admin (manage_options); json_decoded and validated as an array before storage
+        $json = wp_unslash($_POST['settings'] ?? '');
+        // phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
         
         if (empty($json)) {
             wp_send_json_error(__('No settings data provided', 'almaseo-seo-playground'));
@@ -1130,7 +1134,9 @@ class Alma_Sitemap_Ajax_Handlers {
         global $wpdb;
         $table = $wpdb->prefix . 'almaseo_health_log';
         
-        $wpdb->query("TRUNCATE TABLE `$table`"); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        $wpdb->query("TRUNCATE TABLE `$table`");
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         
         wp_send_json_success(array(
             'message' => __('Logs cleared successfully', 'almaseo-seo-playground')
@@ -1143,7 +1149,9 @@ class Alma_Sitemap_Ajax_Handlers {
     public static function handle_toggle_sitemaps() {
         self::verify_ajax_nonce();
         
+        // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- cast to (bool), inherently safe
         $enabled = isset($_POST['enabled']) ? (bool) wp_unslash($_POST['enabled']) : false;
+        // phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
         
         $settings = get_option('almaseo_sitemap_settings', []);
         $settings['enabled'] = $enabled;

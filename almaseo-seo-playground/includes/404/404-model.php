@@ -280,10 +280,12 @@ class AlmaSEO_404_Model {
         // Unique paths active in the last 7 days (not ignored). Counted from the
         // log table's last_seen — already correct, kept so it stays accurate
         // immediately after upgrade (the rollup table starts empty).
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table derived from $wpdb->prefix, not user input
         $stats['unique_7d'] = (int) $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(DISTINCT path) FROM {$table} WHERE last_seen >= %s AND is_ignored = 0", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            "SELECT COUNT(DISTINCT path) FROM {$table} WHERE last_seen >= %s AND is_ignored = 0",
             $seven_dt
         ));
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         // Today's 404 HITS (not ignored), from the per-day rollup.
         // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names derived from $wpdb->prefix, not user input
@@ -296,9 +298,11 @@ class AlmaSEO_404_Model {
         // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         // Total ignored
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table derived from $wpdb->prefix, not user input
         $stats['ignored'] = (int) $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$table} WHERE is_ignored = 1" // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            "SELECT COUNT(*) FROM {$table} WHERE is_ignored = 1"
         );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         // Cache for 1 hour
         set_transient('almaseo_404_stats', $stats, HOUR_IN_SECONDS);
@@ -322,10 +326,12 @@ class AlmaSEO_404_Model {
         $seven_days_ago = gmdate('Y-m-d H:i:s', strtotime('-7 days', current_time('U')));
         
         // Get all referrers from last 7 days
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table derived from $wpdb->prefix, not user input
         $referrers = $wpdb->get_col($wpdb->prepare(
-            "SELECT referrer FROM {$table} WHERE last_seen >= %s AND is_ignored = 0 AND referrer IS NOT NULL AND referrer != ''", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            "SELECT referrer FROM {$table} WHERE last_seen >= %s AND is_ignored = 0 AND referrer IS NOT NULL AND referrer != ''",
             $seven_days_ago
         ));
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         
         if (empty($referrers)) {
             $top_referrer = 'None';
