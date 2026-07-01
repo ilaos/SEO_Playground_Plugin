@@ -4,7 +4,7 @@ Tags: seo, schema, sitemap, meta, ai
 Requires at least: 5.6
 Tested up to: 6.6
 Requires PHP: 7.4
-Stable tag: 1.21.9
+Stable tag: 1.21.10
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ No. All local features work without any connection. The dashboard connection add
 Yes. The plugin includes conflict detection for 8 major SEO plugins and shows a dismissible warning with a link to the Import tool so you can migrate your data.
 
 == Changelog ==
+
+= 1.21.10 =
+**Code quality: WordPress Plugin Check pass**
+
+* Resolved WordPress Plugin Check errors and warnings across the plugin: switched file deletion to `wp_delete_file()`, enqueued the Google Analytics gtag.js library properly instead of printing a raw script tag, added justified suppressions for the plugin's own custom-table queries, and removed two orphaned development/debug files. No functional changes.
 
 = 1.21.9 =
 **Fix: dashboard connection now generates its credential correctly**
