@@ -8,6 +8,8 @@
  * @since 4.12.0
  */
 
+// phpcs:disable WordPress.DB.SlowDBQuery, WordPressVIPMinimum.Performance.WPQueryParams -- intentional meta/tax query on bounded admin/cron operations / intentional exclusion parameter on a bounded query
+
 if (!defined('ABSPATH')) {
     exit;
 }

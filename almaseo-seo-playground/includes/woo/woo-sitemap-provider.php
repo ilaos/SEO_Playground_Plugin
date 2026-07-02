@@ -10,6 +10,8 @@
  * @since 6.5.0
  */
 
+// phpcs:disable WordPress.DB.SlowDBQuery -- intentional meta/tax query on bounded admin/cron operations
+
 if (!defined('ABSPATH')) {
     exit;
 }

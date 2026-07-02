@@ -9,6 +9,8 @@
  * @since   7.5.0
  */
 
+// phpcs:disable PluginCheck.Security.DirectDB -- plugin's own custom tables; interpolated parts are $wpdb->prefix-derived names / built placeholder lists, not user input
+
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }

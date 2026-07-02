@@ -19,6 +19,8 @@
  * @package AlmaSEO
  */
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- view/bootstrap file; locals and internal callbacks are not a public global API
+
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }

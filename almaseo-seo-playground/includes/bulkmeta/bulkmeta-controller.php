@@ -6,6 +6,8 @@
  * @since 6.3.0
  */
 
+// phpcs:disable WordPress.DB.SlowDBQuery -- intentional meta/tax query on bounded admin/cron operations
+
 namespace AlmaSEO\BulkMeta;
 
 if (!defined('ABSPATH')) {

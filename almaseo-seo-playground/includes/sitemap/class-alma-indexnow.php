@@ -8,6 +8,8 @@
  * @since 4.6.0
  */
 
+// phpcs:disable PluginCheck.CodeAnalysis.WriteFile -- IndexNow key file must live at the site root per the IndexNow spec
+
 if (!defined('ABSPATH')) {
     exit;
 }

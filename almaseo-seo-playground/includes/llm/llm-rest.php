@@ -10,6 +10,8 @@
  * @since 6.5.0
  */
 
+// phpcs:disable WordPressVIPMinimum.Performance.WPQueryParams -- intentional exclusion parameter on a bounded query
+
 if (!defined('ABSPATH')) {
     exit;
 }

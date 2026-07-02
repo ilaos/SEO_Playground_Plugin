@@ -7,6 +7,8 @@
  * @since 1.0.0
  */
 
+// phpcs:disable PluginCheck.Security.DirectDB, WordPress.DB.SlowDBQuery -- plugin's own custom tables; interpolated parts are $wpdb->prefix-derived names / built placeholder lists, not user input / intentional meta/tax query on bounded admin/cron operations
+
 if (!defined('ABSPATH')) {
     exit;
 }

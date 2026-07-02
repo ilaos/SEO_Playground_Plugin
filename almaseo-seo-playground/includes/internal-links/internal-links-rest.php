@@ -19,6 +19,8 @@
  * @since 6.6.0
  */
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- view/bootstrap file; locals and internal callbacks are not a public global API
+
 // Prevent direct access
 if ( ! defined( 'ABSPATH' ) ) {
     exit;

@@ -43,6 +43,8 @@
  * - SQL queries use prepared statements
  */
 
+// phpcs:disable PluginCheck.Security.DirectDB, WordPressVIPMinimum.Performance.WPQueryParams -- plugin's own custom tables; interpolated parts are $wpdb->prefix-derived names / built placeholder lists, not user input / intentional exclusion parameter on a bounded query
+
 if (!defined('ABSPATH')) {
     exit;
 }
