@@ -496,8 +496,8 @@ function almaseo_eg_render_dashboard() {
         </div>
 
         <?php
-        // Advanced Evergreen Panels (Pro Only)
-        if (almaseo_feature_available('evergreen_advanced')) {
+        // Advanced Evergreen Panels (free; shown when enabled in settings)
+        if (!empty(get_option('almaseo_evergreen_advanced_settings', array('enabled' => false))['enabled'])) {
             $adv_settings = get_option('almaseo_evergreen_advanced_settings', array('enabled' => false));
             if (!empty($adv_settings['enabled'])) {
                 // Get advanced summary data
@@ -974,26 +974,6 @@ add_action('wp_ajax_almaseo_eg_quick_analyze', 'almaseo_eg_ajax_quick_analyze');
  * @since 6.5.0
  */
 function almaseo_eg_get_advanced_summary($post_type = 'all') {
-    if (!almaseo_feature_available('evergreen_advanced')) {
-        return array(
-            'segments' => array(
-                'urgent' => array('count' => 0),
-                'at_risk' => array('count' => 0),
-                'stable' => array('count' => 0)
-            ),
-            'ai_freshness' => array(
-                'average' => 0,
-                'below_threshold' => 0,
-                'top_at_risk' => array()
-            ),
-            'traffic_freshness' => array(
-                'high_traffic_fresh' => 0,
-                'high_traffic_stale' => 0,
-                'low_traffic_stale' => 0
-            )
-        );
-    }
-
     // Check cache first
     $cache_key = 'almaseo_eg_adv_summary_' . $post_type;
     $cached = get_transient($cache_key);

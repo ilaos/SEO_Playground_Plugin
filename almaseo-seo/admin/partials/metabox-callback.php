@@ -119,10 +119,7 @@ function almaseo_enqueue_seo_playground_styles() {
                 'schema-meta-tab', // Schema & Meta tab CSS
                 'ai-tools-polish',
                 'notes-history-polish',
-                'new-features', // New features CSS
-                'unlock-features', // Unlock Features tab CSS
-                'unlock-features-updated', // Updated Unlock Features CSS
-                'tier-system' // Tier system CSS
+                'new-features' // New features CSS
             );
             
             foreach ($tab_styles as $style) {
@@ -150,9 +147,7 @@ function almaseo_enqueue_seo_playground_styles() {
                 'schema-meta-tab', // Schema & Meta tab JavaScript
                 'ai-tools-polish',
                 'notes-history-polish',
-                'new-features', // New features JavaScript
-                'unlock-features', // Unlock Features tab JavaScript
-                'tier-management' // Tier management JavaScript
+                'new-features' // New features JavaScript
             );
             
             foreach ($tab_scripts as $script) {
@@ -193,7 +188,7 @@ add_action('admin_enqueue_scripts', 'almaseo_enqueue_seo_playground_styles');
  */
 if (!function_exists('almaseo_render_llm_optimization_panel')) {
 function almaseo_render_llm_optimization_panel($post) {
-    $is_pro = almaseo_feature_available('llm_optimization');
+    $is_pro = true; // LLM Optimization is available in this free build
     $is_connected = seo_playground_is_alma_connected();
     ?>
     <div class="almaseo-llm-panel" data-post-id="<?php echo esc_attr($post->ID); ?>" data-is-pro-llm="<?php echo esc_attr($is_pro ? '1' : '0'); ?>">
@@ -213,7 +208,6 @@ function almaseo_render_llm_optimization_panel($post) {
         <?php endif; ?>
 
         <!-- 1. LLM Readiness Snapshot (scores at the top) -->
-        <?php if ($is_pro): ?>
         <div class="almaseo-llm-card almaseo-llm-card-highlight" data-section="scores">
             <h3><span class="dashicons dashicons-chart-area"></span> LLM Readiness Snapshot</h3>
             <div class="almaseo-llm-scores almaseo-llm-loading">
@@ -221,25 +215,6 @@ function almaseo_render_llm_optimization_panel($post) {
                 <span>Calculating scores...</span>
             </div>
         </div>
-        <?php else: ?>
-        <div class="almaseo-llm-card almaseo-llm-lock-card">
-            <div class="almaseo-llm-lock-icon">
-                <span class="dashicons dashicons-lock"></span>
-            </div>
-            <h3>LLM Readiness Snapshot</h3>
-            <p class="almaseo-llm-lock-subtitle">Pro unlocks LLM readiness scoring so you can measure how well LLM systems can use your content.</p>
-            <ul class="almaseo-llm-lock-features">
-                <li><span class="dashicons dashicons-yes"></span> <strong>LLM Readiness Score (0-100)</strong></li>
-                <li><span class="dashicons dashicons-yes"></span> <strong>Answer Strength Score</strong> — how usable this page is as an LLM source</li>
-                <li><span class="dashicons dashicons-yes"></span> <strong>Score explanations</strong> showing exactly what to fix</li>
-                <li><span class="dashicons dashicons-yes"></span> <strong>Schema &amp; internal link suggestions</strong></li>
-            </ul>
-            <a href="https://almaseo.com" target="_blank" class="almaseo-llm-upgrade-btn">
-                <span class="dashicons dashicons-star-filled"></span>
-                Learn More
-            </a>
-        </div>
-        <?php endif; ?>
 
         <!-- 2. Top Issues -->
         <div class="almaseo-llm-card" data-section="top-issues" style="display:none;">
@@ -420,15 +395,9 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     <span class="tab-icon">🗒️</span>
                     <span class="tab-label">Notes & History</span>
                 </button>
-                <?php if (!$is_connected && function_exists('almaseo_is_free_tier') && almaseo_is_free_tier()): ?>
-                <button type="button" class="almaseo-tab-btn almaseo-unlock-tab" data-tab="unlock-features">
-                    <span class="tab-icon">🔒</span>
-                    <span class="tab-label">Unlock Full Features</span>
-                </button>
-                <?php endif; ?>
             </div>
         </div>
-        
+
         <!-- Re-Optimization Alert Section -->
         <?php if ($is_connected): ?>
         <div class="almaseo-reoptimize-section" id="almaseo-reoptimize-section" style="display: none;">
@@ -2324,7 +2293,7 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     // output switch is off — free users see the lock card instead.
                     $almaseo_adv_global    = get_option('almaseo_schema_advanced_settings', array());
                     $almaseo_adv_output_on = !empty($almaseo_adv_global['enabled']);
-                    if (almaseo_feature_available('schema_advanced') && !$almaseo_adv_output_on):
+                    if (!$almaseo_adv_output_on):
                         $almaseo_schema_settings_url = admin_url('admin.php?page=almaseo-settings#almaseo-advanced-schema');
                     ?>
                     <div style="margin: 0 0 16px 0; padding: 12px 14px; background: #fff8e5; border-left: 4px solid #dba617; border-radius: 4px; font-size: 12px; color: #5c4a00; line-height: 1.55;">
@@ -2343,12 +2312,8 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             $current_schema = get_post_meta($post->ID, '_almaseo_schema_type', true) ?: 'Article';
                             ?>
                             <?php
-                            // Gate Pro types on the actual Pro-feature check, not just the
-                            // cloud-connection state. almaseo_feature_available('schema_advanced')
-                            // resolves to almaseo_is_pro_active() which defaults to 'pro' until
-                            // server-side tier sync is wired up — so local/dev sites unlock by
-                            // default, matching the behaviour the rest of the metabox uses.
-                            $advanced_unlocked = almaseo_feature_available('schema_advanced');
+                            // Every schema type is available in this free build.
+                            $advanced_unlocked = true;
                             $schema_options = array(
                                 array('value' => 'Article',       'label' => 'Article (BlogPosting) (Free)', 'locked' => false),
                                 array('value' => 'FAQPage',       'label' => 'FAQPage',                      'locked' => !$advanced_unlocked),
@@ -2404,13 +2369,6 @@ function almaseo_seo_playground_meta_box_callback($post) {
                             </small>
                         </div>
                         
-                        <!-- Locked schema upsell notice -->
-                        <div id="schema-locked-notice" style="display: none; margin-top: 10px; padding: 10px; background: #fff8e5; border-left: 3px solid #dba617; border-radius: 3px;">
-                            <small style="color: #2c3338;">
-                                Advanced schema types are available with an AlmaSEO connection.
-                                <a href="#tab-unlock-features" class="almaseo-tab-link">Connect now →</a>
-                            </small>
-                        </div>
 
                         <?php
                         // --- Additional Schema Types (multi-schema) ---
@@ -2426,19 +2384,14 @@ function almaseo_seo_playground_meta_box_callback($post) {
                                 $secondary_active = array_values(array_filter($decoded));
                             }
                         }
-                        // Gated behind its own Pro feature flag (schema_multi) rather than
-                        // the broader schema_advanced gate, so multi-schema can be priced/
-                        // marketed independently. During dev both flags pass because
-                        // almaseo_is_pro_active() defaults to 'pro'; flips to enforced
-                        // when the tier-sync endpoint goes live.
-                        $multi_schema_unlocked = almaseo_feature_available('schema_multi');
+                        // Multi-schema is available to everyone in this free build.
+                        $multi_schema_unlocked = true;
                         if ($multi_schema_unlocked):
                         ?>
                         <div style="margin-top: 18px; padding-top: 14px; border-top: 1px dashed #dcdcde;">
                             <label style="font-weight: 600; font-size: 13px; display: block; margin-bottom: 4px;">
                                 <?php esc_html_e('Also describe this page as:', 'almaseo-seo-playground'); ?>
                                 <span style="font-weight: normal; color: #94a3b8; font-size: 11px; margin-left: 4px;"><?php esc_html_e('(optional — adds a separate node to the JSON-LD @graph)', 'almaseo-seo-playground'); ?></span>
-                                <span class="almaseo-tier-badge almaseo-tier-pro" style="display: inline-block; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 1px 5px; border-radius: 3px; line-height: 1.4; vertical-align: middle; margin-left: 4px; background: rgba(107, 33, 168, 0.15); color: #6b21a8;">PRO</span>
                             </label>
                             <p class="field-hint" style="margin: 0 0 8px 0; font-size: 11px;">
                                 <?php esc_html_e('Use when one page genuinely represents more than one entity. Each checked type opens its own field panel below.', 'almaseo-seo-playground'); ?>
@@ -2493,24 +2446,13 @@ function almaseo_seo_playground_meta_box_callback($post) {
                     <!-- Advanced Schema (Pro) -->
                     <div class="almaseo-field-group" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #dcdcde;">
                         <h4 style="margin: 0 0 6px 0; font-size: 14px; font-weight: 600; color: #1d2327;">
-                            Type Details &amp; Advanced Schema (Pro)
+                            Type Details &amp; Advanced Schema
                         </h4>
                         <p class="field-hint" style="margin: 0 0 15px 0;">Configure details for the schema type you selected above — the right fields appear automatically based on your choice (e.g. address &amp; hours for LocalBusiness).</p>
 
-                        <?php if (!almaseo_feature_available('schema_advanced')): ?>
-                            <!-- Free Tier: Lock Card -->
-                            <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border: 2px dashed #cbd5e1; border-radius: 8px; padding: 20px; text-align: center;">
-                                <span class="dashicons dashicons-lock" style="font-size: 36px; width: 36px; height: 36px; color: #94a3b8; margin-bottom: 10px;"></span>
-                                <p style="margin: 0 0 10px 0; font-weight: 600; color: #1e293b;">Advanced Schema Types</p>
-                                <p style="margin: 0 0 15px 0; color: #64748b; font-size: 13px;">
-                                    Unlock FAQPage, HowTo, Service, LocalBusiness, and more advanced schema types.
-                                </p>
-                                <a href="https://almaseo.com/pricing" target="_blank" class="button button-secondary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">
-                                    Upgrade to Pro
-                                </a>
-                            </div>
+                        <?php if (!$advanced_unlocked): ?>
                         <?php else: ?>
-                            <!-- Pro Tier: Full Controls -->
+                            <!-- Advanced schema controls (free) -->
                             <?php
                             $primary_type = get_post_meta($post->ID, '_almaseo_schema_primary_type', true);
                             $disable_advanced = get_post_meta($post->ID, '_almaseo_schema_disable', true);
@@ -4748,285 +4690,6 @@ function almaseo_seo_playground_meta_box_callback($post) {
         </div>
         <!-- End Notes & History Tab -->
         
-        <?php if (!$is_connected && function_exists('almaseo_is_free_tier') && almaseo_is_free_tier()): ?>
-        <!-- Unlock Full Features Tab -->
-        <div class="almaseo-tab-panel" id="tab-unlock-features">
-            <div class="almaseo-unlock-container">
-                
-                <!-- Hero Header Section -->
-                <div class="unlock-hero-section">
-                    <div class="hero-content">
-                        <div class="hero-text">
-                            <h1 class="hero-title">
-                                <span class="gradient-text">Supercharge Your Website with AlmaSEO Dashboard + Plugin</span>
-                            </h1>
-                            <p class="hero-description">
-                                AlmaSEO isn't just a smart toolkit — it's your SEO command center. Write high-authority blog posts, landing pages, and articles with a click, and publish them instantly to WordPress. Then manage, optimize, and track everything from your AlmaSEO dashboard.
-                            </p>
-                            <div class="hero-cta-group">
-                                <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>" class="hero-cta-primary">
-                                    <span class="cta-icon">⚡</span>
-                                    Connect My Site
-                                    <span class="cta-arrow">→</span>
-                                </a>
-                                <a href="https://almaseo.com/features?utm_source=plugin&utm_medium=unlock_tab&utm_campaign=upsell" target="_blank" class="hero-cta-secondary">
-                                    <span class="cta-icon">💡</span>
-                                    Learn More
-                                </a>
-                            </div>
-                        </div>
-                        <div class="hero-illustration">
-                            <div class="illustration-wrapper">
-                                <div class="floating-card card-1">
-                                    <span class="card-icon">🚀</span>
-                                    <span class="card-text">10x Faster</span>
-                                </div>
-                                <div class="floating-card card-2">
-                                    <span class="card-icon">📈</span>
-                                    <span class="card-text">+250% CTR</span>
-                                </div>
-                                <div class="floating-card card-3">
-                                    <span class="card-icon">⭐</span>
-                                    <span class="card-text">Page #1</span>
-                                </div>
-                                <div class="central-graphic">
-                                    <div class="orbit-ring"></div>
-                                    <div class="orbit-ring ring-2"></div>
-                                    <div class="orbit-ring ring-3"></div>
-                                    <div class="center-logo">🧠</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 2x3 Locked Features Grid -->
-                <div class="unlock-features-section">
-                    <h2 class="section-title">Premium AlmaSEO Features Waiting for You</h2>
-                    
-                    <!-- Dashboard Superpowers Row -->
-                    <div class="row-label">Dashboard Superpowers</div>
-                    <div class="locked-features-grid">
-                        
-                        <!-- Card 1: Automated Article Writer -->
-                        <div class="locked-feature-card">
-                            <div class="feature-lock-indicator">
-                                <span class="lock-icon" title="Requires AlmaSEO Connection">🔒</span>
-                            </div>
-                            <div class="feature-icon-wrapper">
-                                <span class="feature-icon">✍️</span>
-                            </div>
-                            <h3 class="feature-title">Automated Article Writer</h3>
-                            <p class="feature-benefit">Publish SEO-driven blog posts and landing pages instantly — written for authority, optimized for ranking, delivered straight to WordPress.</p>
-                            <div class="feature-stats">
-                                <span class="stat-item">High authority</span>
-                                <span class="stat-item">One-click publish</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Card 2: SEO Profile & Brand Voice -->
-                        <div class="locked-feature-card">
-                            <div class="feature-lock-indicator">
-                                <span class="lock-icon" title="Requires AlmaSEO Connection">🔒</span>
-                            </div>
-                            <div class="feature-icon-wrapper">
-                                <span class="feature-icon">🎯</span>
-                            </div>
-                            <h3 class="feature-title">SEO Profile & Brand Voice</h3>
-                            <p class="feature-benefit">Tell AlmaSEO your tone, keywords, competitors, and brand details once — it will apply them consistently across all content.</p>
-                            <div class="feature-stats">
-                                <span class="stat-item">Consistent</span>
-                                <span class="stat-item">On-brand</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Card 3: Multi-Site Dashboard -->
-                        <div class="locked-feature-card">
-                            <div class="feature-lock-indicator">
-                                <span class="lock-icon" title="Requires AlmaSEO Connection">🔒</span>
-                            </div>
-                            <div class="feature-icon-wrapper">
-                                <span class="feature-icon">🌐</span>
-                            </div>
-                            <h3 class="feature-title">Multi-Site Dashboard</h3>
-                            <p class="feature-benefit">Control multiple WordPress sites from one dashboard. Centralized publishing, tracking, and reporting at scale.</p>
-                            <div class="feature-stats">
-                                <span class="stat-item">Multi-site</span>
-                                <span class="stat-item">Scalable</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Card 4: Evergreen Tracking & Reporting -->
-                        <div class="locked-feature-card">
-                            <div class="feature-lock-indicator">
-                                <span class="lock-icon" title="Requires AlmaSEO Connection">🔒</span>
-                            </div>
-                            <div class="feature-icon-wrapper">
-                                <span class="feature-icon">📊</span>
-                            </div>
-                            <h3 class="feature-title">Evergreen Tracking & Reporting</h3>
-                            <p class="feature-benefit">Track content freshness, SEO health, and rankings across your sites. AlmaSEO keeps your strategy up to date automatically.</p>
-                            <div class="feature-stats">
-                                <span class="stat-item">Fresh</span>
-                                <span class="stat-item">Data-driven</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Plugin Enhancements Row -->
-                    <div class="row-label">Plugin Enhancements</div>
-                    <div class="locked-features-grid locked-features-grid-plugin">
-                        
-                        <!-- Card A: Smart Title Generator -->
-                        <div class="locked-feature-card">
-                            <div class="feature-lock-indicator">
-                                <span class="lock-icon" title="Requires AlmaSEO Connection">🔒</span>
-                            </div>
-                            <div class="feature-icon-wrapper">
-                                <span class="feature-icon">💡</span>
-                            </div>
-                            <h3 class="feature-title">Smart Title Generator</h3>
-                            <p class="feature-benefit">Create click-worthy titles that attract readers and boost SEO performance.</p>
-                            <div class="feature-stats">
-                                <span class="stat-item">High CTR</span>
-                                <span class="stat-item">Keyword rich</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Card B: Meta Description AI -->
-                        <div class="locked-feature-card">
-                            <div class="feature-lock-indicator">
-                                <span class="lock-icon" title="Requires AlmaSEO Connection">🔒</span>
-                            </div>
-                            <div class="feature-icon-wrapper">
-                                <span class="feature-icon">📝</span>
-                            </div>
-                            <h3 class="feature-title">Meta Description Generator</h3>
-                            <p class="feature-benefit">Generate compelling descriptions that increase clicks and improve search visibility.</p>
-                            <div class="feature-stats">
-                                <span class="stat-item">Perfect length</span>
-                                <span class="stat-item">Engaging</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Card C: Schema Generator -->
-                        <div class="locked-feature-card">
-                            <div class="feature-lock-indicator">
-                                <span class="lock-icon" title="Requires AlmaSEO Connection">🔒</span>
-                            </div>
-                            <div class="feature-icon-wrapper">
-                                <span class="feature-icon">🔗</span>
-                            </div>
-                            <h3 class="feature-title">Schema Generator</h3>
-                            <p class="feature-benefit">Add structured data markup automatically to stand out in search results.</p>
-                            <div class="feature-stats">
-                                <span class="stat-item">Rich snippets</span>
-                                <span class="stat-item">Stand out</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Card D: Keyword Research Pro -->
-                        <div class="locked-feature-card">
-                            <div class="feature-lock-indicator">
-                                <span class="lock-icon" title="Requires AlmaSEO Connection">🔒</span>
-                            </div>
-                            <div class="feature-icon-wrapper">
-                                <span class="feature-icon">🎯</span>
-                            </div>
-                            <h3 class="feature-title">Keyword Research Pro</h3>
-                            <p class="feature-benefit">Discover untapped keywords with high potential and low competition.</p>
-                            <div class="feature-stats">
-                                <span class="stat-item">Deep analysis</span>
-                                <span class="stat-item">Trend data</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Card E: Content Intelligence -->
-                        <div class="locked-feature-card">
-                            <div class="feature-lock-indicator">
-                                <span class="lock-icon" title="Requires AlmaSEO Connection">🔒</span>
-                            </div>
-                            <div class="feature-icon-wrapper">
-                                <span class="feature-icon">🧠</span>
-                            </div>
-                            <h3 class="feature-title">Content Intelligence</h3>
-                            <p class="feature-benefit">Get real-time SEO analysis with actionable recommendations as you optimize content.</p>
-                            <div class="feature-stats">
-                                <span class="stat-item">Smart tips</span>
-                                <span class="stat-item">Live scoring</span>
-                            </div>
-                        </div>
-                        
-                    </div>
-                </div>
-                
-                <!-- Two Halves of the Same Engine Explainer -->
-                <div class="unlock-explainer-section">
-                    <h3 class="explainer-title">Two Halves of the Same Engine</h3>
-                    <p class="explainer-text">
-                        The AlmaSEO dashboard is your SEO mission control. The WordPress plugin is your on-site assistant. Together, they automate content creation, optimization, and publishing — so you can focus on strategy instead of manual work.
-                    </p>
-                </div>
-                
-                <!-- What You Get Section -->
-                <div class="unlock-benefits-section">
-                    <h2 class="section-title">What You Get with AlmaSEO</h2>
-                    <div class="benefits-grid">
-                        <div class="benefit-item">
-                            <div class="benefit-icon">🚀</div>
-                            <div class="benefit-content">
-                                <h3>Instant Alma Access</h3>
-                                <p>Connect in 60 seconds and start optimizing immediately. No complex setup, no technical knowledge required.</p>
-                            </div>
-                        </div>
-                        <div class="benefit-item">
-                            <div class="benefit-icon">♾️</div>
-                            <div class="benefit-content">
-                                <h3>Unlimited Generations</h3>
-                                <p>Generate as many titles, descriptions, and rewrites as you need. No usage limits during your trial period.</p>
-                            </div>
-                        </div>
-                        <div class="benefit-item">
-                            <div class="benefit-icon">🎯</div>
-                            <div class="benefit-content">
-                                <h3>Real Search Data</h3>
-                                <p>See your actual Google Search Console and Analytics data — clicks, impressions, and rankings — for every page, right where you edit.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Footer Section -->
-                <div class="unlock-footer-section">
-                    <div class="footer-card">
-                        <div class="footer-icon">🔑</div>
-                        <div class="footer-content">
-                            <h3>Already have an AlmaSEO account?</h3>
-                            <p>If you've already signed up for AlmaSEO, simply connect your site to start using all premium features immediately.</p>
-                            <div class="footer-cta-group">
-                                <a href="<?php echo esc_url(admin_url('admin.php?page=seo-playground-connection')); ?>" class="footer-cta-primary">
-                                    Connect Existing Account
-                                </a>
-                                <a href="https://almaseo.com/login?utm_source=plugin&utm_medium=unlock_footer" target="_blank" class="footer-cta-secondary">
-                                    Login to Dashboard
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="footer-links">
-                        <a href="https://almaseo.com/pricing?utm_source=plugin" target="_blank">View Pricing</a>
-                        <span class="separator">•</span>
-                        <a href="https://almaseo.com/docs?utm_source=plugin" target="_blank">Documentation</a>
-                        <span class="separator">•</span>
-                        <a href="https://almaseo.com/support?utm_source=plugin" target="_blank">Get Support</a>
-                    </div>
-                </div>
-                
-            </div>
-        </div>
-        <!-- End Unlock AI Features Tab -->
-        <?php endif; ?>
         
         </div>
         <!-- End Tab Content -->

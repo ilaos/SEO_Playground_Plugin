@@ -90,16 +90,8 @@ add_action( 'admin_init', function () {
 // at the top of this file. If we reach this point, no conflicting SEO
 // plugin is active on the frontend (or this is an admin/AJAX/REST request).
 
-// Include License & Tier Helper (centralized license checking)
-// This MUST be loaded early before any feature modules that check licensing
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/license/license-helper.php')) {
-    require_once plugin_dir_path(__FILE__) . 'includes/license/license-helper.php';
-}
-
-// Include Locked Feature UI Helper (for Pro feature upsells)
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/license/locked-ui.php')) {
-    require_once plugin_dir_path(__FILE__) . 'includes/license/locked-ui.php';
-}
+// This build is fully free — every feature is unconditionally available.
+// There is no license/tier gating and no locked-feature upsell UI.
 
 // Include schema implementation (clean version to avoid conflicts)
 if (file_exists(ALMASEO_PLUGIN_DIR . 'includes/schema-clean.php')) {
@@ -384,21 +376,6 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/documentation.php'))
     AlmaSEO_Documentation::init();
 }
 
-// Include Tier Labels — visual Free/Pro badges in sidebar (v8.6.0+)
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/admin/tier-labels.php')) {
-    require_once plugin_dir_path(__FILE__) . 'includes/admin/tier-labels.php';
-    AlmaSEO_Tier_Labels::init();
-}
-
-// Ensure almaseo_is_pro function exists as fallback
-// This should rarely be reached since bulkmeta-loader.php defines it first
-if (!function_exists('almaseo_is_pro')) {
-    function almaseo_is_pro() {
-        // Use centralized license helper as fallback
-        // This ensures consistent behavior across all modules
-        return almaseo_is_pro_active();
-    }
-}
 
 // Updates for the wp.org build are served by WordPress.org — no self-hosted update checker.
 

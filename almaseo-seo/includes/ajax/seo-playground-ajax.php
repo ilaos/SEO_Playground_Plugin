@@ -1317,7 +1317,7 @@ function almaseo_ajax_get_schema_preview() {
         'site_social_profiles' => array(),
     ));
     $diag = array(
-        'feature_available'   => function_exists('almaseo_feature_available') ? (bool) almaseo_feature_available('schema_advanced') : false,
+        'feature_available'   => true,
         'global_enabled'      => !empty($settings['enabled']),
         'per_post_disable'    => (bool) get_post_meta($post_id, '_almaseo_schema_disable', true),
         'meta_schema_type'    => (string) get_post_meta($post_id, '_almaseo_schema_type', true),
@@ -1349,9 +1349,6 @@ function almaseo_ajax_get_schema_preview() {
     );
 
     $blockers = array();
-    if (!$diag['feature_available']) {
-        $blockers[] = 'Schema (Advanced) is gated to Pro — almaseo_feature_available("schema_advanced") returned false.';
-    }
     if (!$diag['global_enabled']) {
         $blockers[] = 'Global "Advanced Schema → Enabled" toggle is OFF (option almaseo_schema_advanced_settings.enabled).';
     }

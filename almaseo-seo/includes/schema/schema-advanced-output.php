@@ -18,11 +18,6 @@ if (!defined('ABSPATH')) {
  */
 if (!function_exists('almaseo_output_advanced_schema')) {
 function almaseo_output_advanced_schema() {
-    // Guard: Only Pro users
-    if (!almaseo_feature_available('schema_advanced')) {
-        return;
-    }
-
     // Only run on singular pages (not admin, archives, etc.)
     if (is_admin() || !is_singular()) {
         return;
@@ -86,7 +81,7 @@ function almaseo_output_advanced_schema() {
     //    Pro session, free-tier sites must not emit additional graph nodes.
     $secondary_raw = get_post_meta($post->ID, '_almaseo_schema_secondary_types', true);
     $secondary_types = array();
-    if ($secondary_raw && function_exists('almaseo_feature_available') && almaseo_feature_available('schema_multi')) {
+    if ($secondary_raw) {
         $decoded = is_array($secondary_raw) ? $secondary_raw : json_decode($secondary_raw, true);
         if (is_array($decoded)) {
             $secondary_types = array_values(array_unique(array_filter($decoded)));
@@ -132,9 +127,6 @@ function almaseo_output_advanced_schema() {
  */
 if (!function_exists('almaseo_advanced_schema_active')) {
 function almaseo_advanced_schema_active() {
-    if (!function_exists('almaseo_feature_available') || !almaseo_feature_available('schema_advanced')) {
-        return false;
-    }
     $settings = get_option('almaseo_schema_advanced_settings', array());
     return !empty($settings['enabled']);
 }

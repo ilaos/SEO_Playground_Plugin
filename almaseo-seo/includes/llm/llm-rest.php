@@ -606,8 +606,8 @@ function almaseo_llm_detect_consistency_issues($content) {
 function almaseo_llm_generate_schema_hint($post_data) {
     $hints = array();
 
-    // Check if Advanced Schema is available and enabled
-    if (function_exists('almaseo_feature_available') && almaseo_feature_available('schema_advanced')) {
+    // Check if Advanced Schema is enabled
+    if (!empty(get_option('almaseo_schema_advanced_settings', array('enabled' => false))['enabled'])) {
         $adv_settings = get_option('almaseo_schema_advanced_settings', array('enabled' => false));
 
         if (!empty($adv_settings['enabled'])) {
@@ -661,11 +661,6 @@ function almaseo_llm_generate_schema_hint($post_data) {
  * @since 6.5.0
  */
 function almaseo_llm_generate_evergreen_hint($post_data) {
-    // Check if Evergreen Advanced is available
-    if (!function_exists('almaseo_feature_available') || !almaseo_feature_available('evergreen_advanced')) {
-        return '';
-    }
-
     $adv_settings = get_option('almaseo_evergreen_advanced_settings', array('enabled' => false));
 
     if (empty($adv_settings['enabled'])) {
