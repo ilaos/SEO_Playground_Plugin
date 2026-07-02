@@ -1,0 +1,358 @@
+/**
+ * AlmaSEO Documentation & Help — Styles
+ * @package AlmaSEO
+ * @since 8.6.0
+ */
+
+/* ── Layout ── */
+.almaseo-docs-wrap {
+    max-width: 1200px;
+}
+
+/* ── Intro Box ── */
+.almaseo-docs-intro {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-left: 4px solid #2271b1;
+    border-radius: 2px;
+    padding: 20px 24px;
+    margin: 16px 0 24px;
+    max-width: 960px;
+}
+
+.almaseo-docs-intro-lead {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: #1d2327;
+    margin: 0 0 6px;
+}
+
+.almaseo-docs-intro-desc {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: #50575e;
+    margin: 0;
+}
+
+/* ── Search Bar ── */
+.almaseo-docs-search {
+    margin: 0 0 20px;
+    max-width: 960px;
+    position: relative;
+}
+
+.almaseo-docs-search .dashicons {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #646970;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    pointer-events: none;
+}
+
+#almaseo-docs-search-input {
+    width: 100%;
+    padding: 10px 14px 10px 40px;
+    font-size: 14px;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    box-shadow: 0 0 0 transparent;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    box-sizing: border-box;
+}
+
+#almaseo-docs-search-input:focus {
+    border-color: #2271b1;
+    box-shadow: 0 0 0 1px #2271b1;
+    outline: none;
+}
+
+.almaseo-docs-result-count {
+    font-size: 12px;
+    color: #646970;
+    margin-top: 6px;
+    display: none;
+}
+
+.almaseo-docs-no-results {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 40px 20px;
+    text-align: center;
+    color: #646970;
+    font-size: 14px;
+    display: none;
+}
+
+/* ── Table of Contents ── */
+.almaseo-docs-toc {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 0 0 28px;
+    max-width: 960px;
+}
+
+.almaseo-docs-toc h2 {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #1d2327;
+    margin: 0 0 12px;
+}
+
+.almaseo-docs-toc ol {
+    margin: 0;
+    padding-left: 20px;
+    list-style: decimal;
+}
+
+.almaseo-docs-toc li {
+    margin-bottom: 6px;
+    font-size: 13.5px;
+    line-height: 1.5;
+}
+
+.almaseo-docs-toc a {
+    color: #2271b1;
+    text-decoration: none;
+}
+
+.almaseo-docs-toc a:hover {
+    color: #135e96;
+    text-decoration: underline;
+}
+
+.almaseo-docs-toc-count {
+    color: #646970;
+    font-size: 12px;
+    margin-left: 4px;
+}
+
+/* ── Category Sections ── */
+.almaseo-docs-category {
+    margin-bottom: 24px;
+    max-width: 960px;
+}
+
+.almaseo-docs-cat-header {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px 4px 0 0;
+    padding: 14px 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+}
+
+.almaseo-docs-cat-header:hover {
+    background: #f6f7f7;
+}
+
+.almaseo-docs-cat-header.collapsed {
+    border-radius: 4px;
+}
+
+.almaseo-docs-cat-header .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #646970;
+    margin-right: 10px;
+    transition: transform 0.2s;
+}
+
+.almaseo-docs-cat-header.collapsed .dashicons {
+    transform: rotate(-90deg);
+}
+
+.almaseo-docs-cat-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1d2327;
+    margin: 0;
+    flex: 1;
+}
+
+.almaseo-docs-cat-count {
+    background: #f0f0f1;
+    color: #646970;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 10px;
+}
+
+.almaseo-docs-cat-body {
+    border: 1px solid #c3c4c7;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    padding: 16px 20px;
+    background: #f6f7f7;
+}
+
+/* ── Feature Cards ── */
+.almaseo-docs-feature {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    transition: box-shadow 0.15s;
+}
+
+.almaseo-docs-feature:last-child {
+    margin-bottom: 0;
+}
+
+.almaseo-docs-feature:hover {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.almaseo-docs-feature-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.almaseo-docs-feature h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1d2327;
+    margin: 0;
+}
+
+/* ── Badges ── */
+.almaseo-docs-location {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    color: #646970;
+    background: #f0f0f1;
+    padding: 2px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+
+.almaseo-docs-tier {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+}
+
+.almaseo-docs-tier-free {
+    background: #edfaef;
+    color: #00a32a;
+}
+
+.almaseo-docs-tier-ai {
+    background: #f0f6fc;
+    color: #2271b1;
+}
+
+/* ── Feature Description & Details ── */
+.almaseo-docs-feature-desc {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #50575e;
+    margin: 0 0 8px;
+}
+
+.almaseo-docs-feature-details {
+    margin: 0;
+    padding-left: 18px;
+    list-style: disc;
+}
+
+.almaseo-docs-feature-details li {
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: #50575e;
+    margin-bottom: 3px;
+}
+
+/* ── Dashboard & Pro Sections ── */
+.almaseo-docs-info-section {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    max-width: 960px;
+}
+
+.almaseo-docs-info-section h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1d2327;
+    margin: 0 0 12px;
+}
+
+.almaseo-docs-info-section p {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #50575e;
+    margin: 0 0 14px;
+}
+
+.almaseo-docs-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.almaseo-docs-table th {
+    text-align: left;
+    font-weight: 600;
+    color: #1d2327;
+    padding: 8px 12px;
+    border-bottom: 2px solid #c3c4c7;
+    background: #f6f7f7;
+}
+
+.almaseo-docs-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #e0e0e0;
+    color: #50575e;
+    vertical-align: top;
+}
+
+.almaseo-docs-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* ── Responsive ── */
+@media screen and (max-width: 782px) {
+    .almaseo-docs-intro,
+    .almaseo-docs-toc,
+    .almaseo-docs-category,
+    .almaseo-docs-info-section {
+        max-width: 100%;
+    }
+
+    .almaseo-docs-feature-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .almaseo-docs-cat-header h2 {
+        font-size: 14px;
+    }
+}

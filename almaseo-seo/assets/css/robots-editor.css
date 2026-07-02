@@ -1,0 +1,370 @@
+/**
+ * AlmaSEO Robots.txt Editor Styles
+ * 
+ * @package AlmaSEO
+ * @since 6.0.0
+ */
+
+.almaseo-robots-editor {
+    max-width: 1200px;
+}
+
+.almaseo-robots-editor .almaseo-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+.almaseo-robots-container {
+    margin-top: 20px;
+}
+
+.almaseo-robots-container .card {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+}
+
+.almaseo-robots-container .card h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #23282d;
+}
+
+.almaseo-robots-container .card h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #23282d;
+}
+
+/* Mode Selector */
+.almaseo-mode-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.mode-option {
+    display: block;
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.mode-option:hover {
+    border-color: #667eea;
+    background: #f9f9ff;
+}
+
+.mode-option input[type="radio"] {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+}
+
+.mode-option .mode-content {
+    margin-left: 25px;
+}
+
+.mode-option .mode-content strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #23282d;
+}
+
+.mode-option .recommended {
+    display: inline-block;
+    background: #4ab866;
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    margin-left: 5px;
+}
+
+.mode-option .mode-content p {
+    margin: 5px 0 0;
+    font-size: 13px;
+    color: #666;
+}
+
+.mode-option.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.mode-option.disabled:hover {
+    border-color: #ddd;
+    background: transparent;
+}
+
+.mode-option input[type="radio"]:checked + .mode-content {
+    font-weight: 500;
+}
+
+.mode-option input[type="radio"]:checked ~ .mode-content strong {
+    color: #667eea;
+}
+
+.mode-option .error-text {
+    color: #dc3232;
+    font-style: italic;
+}
+
+/* Mode Status */
+.mode-status {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.mode-status ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mode-status li {
+    padding: 5px 0;
+    font-size: 13px;
+}
+
+.mode-status code {
+    background: #fff;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+/* Editor */
+.editor-toolbar {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.editor-toolbar .button {
+    margin-right: 5px;
+}
+
+.editor-container {
+    position: relative;
+}
+
+#robots-content {
+    width: 100%;
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    min-height: 400px;
+    max-height: 600px;
+    resize: vertical;
+    border: 1px solid #ddd;
+    padding: 10px;
+    background: #f9f9f9;
+}
+
+#robots-content:focus {
+    background: #fff;
+    border-color: #667eea;
+    box-shadow: 0 0 0 1px #667eea;
+    outline: none;
+}
+
+.editor-help {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.editor-help h4 {
+    margin: 0 0 10px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.editor-help ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.editor-help li {
+    padding: 3px 0;
+    font-size: 12px;
+}
+
+.editor-help code {
+    background: #fff;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 11px;
+}
+
+/* Submit Container */
+.submit-container {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.submit-container .spinner {
+    float: none;
+    margin: 0;
+}
+
+.save-message {
+    flex: 1;
+    margin: 0;
+    padding: 5px 10px;
+    border-radius: 3px;
+}
+
+.save-message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.save-message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.save-message.info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.save-message .warning {
+    display: block;
+    margin-top: 5px;
+    color: #856404;
+}
+
+/* Preview */
+#preview-card {
+    background: #f8f9fa;
+}
+
+.preview-status {
+    margin-bottom: 15px;
+}
+
+.preview-status ul {
+    margin: 0;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    list-style: none;
+}
+
+.preview-status li {
+    padding: 5px 0;
+    font-size: 13px;
+}
+
+.preview-container {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.preview-output {
+    margin: 0;
+    padding: 10px;
+    background: #f9f9f9;
+    border: 1px solid #e5e5e5;
+    border-radius: 3px;
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.preview-actions {
+    text-align: right;
+}
+
+/* Warning Card */
+.warning-card {
+    background: #fff3cd;
+    border-color: #ffc107;
+}
+
+.warning-card h2 {
+    color: #856404;
+}
+
+.physical-content-container {
+    background: #fff;
+    border: 1px solid #ffc107;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.physical-content {
+    margin: 0;
+    padding: 10px;
+    background: #f9f9f9;
+    border: 1px solid #e5e5e5;
+    border-radius: 3px;
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+    .almaseo-mode-selector {
+        grid-template-columns: 1fr;
+    }
+    
+    .editor-toolbar .button {
+        display: block;
+        width: 100%;
+        margin: 5px 0;
+    }
+    
+    .submit-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .save-message {
+        margin-top: 10px;
+    }
+}

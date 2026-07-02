@@ -1,0 +1,68 @@
+/**
+ * AlmaSEO Search Console - Table Sort Button Styles
+ */
+
+/* Sort buttons in table headers */
+.gsc-keywords-table th .sort-btn {
+    background: none;
+    border: none;
+    color: inherit;
+    font: inherit;
+    padding: 0;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 5px;
+}
+
+.gsc-keywords-table th.gsc-clicks .sort-btn,
+.gsc-keywords-table th.gsc-impressions .sort-btn,
+.gsc-keywords-table th.gsc-ctr .sort-btn,
+.gsc-keywords-table th.gsc-position .sort-btn {
+    text-align: right;
+    justify-content: flex-end;
+}
+
+.gsc-keywords-table th .sort-btn:focus {
+    outline: 2px solid #0073aa;
+    outline-offset: -2px;
+    border-radius: 2px;
+}
+
+.gsc-keywords-table th .sort-btn:hover {
+    color: #0073aa;
+}
+
+/* Sort indicators */
+.gsc-keywords-table th.sortable::after {
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 5px;
+    vertical-align: middle;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+}
+
+.gsc-keywords-table th.sortable:not(.sort-asc):not(.sort-desc)::after {
+    border-top: 4px solid #999;
+    border-bottom: 4px solid #999;
+    height: 8px;
+    border-top-color: transparent;
+    border-bottom-color: transparent;
+    border-left: 4px solid #999;
+    border-right: none;
+    opacity: 0.3;
+}
+
+.gsc-keywords-table th.sort-asc::after {
+    border-bottom: 5px solid #0073aa;
+}
+
+.gsc-keywords-table th.sort-desc::after {
+    border-top: 5px solid #0073aa;
+}

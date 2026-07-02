@@ -1,0 +1,1577 @@
+<?php
+/**
+ * Advanced Schema Output
+ *
+ * Generates advanced schema markup including Knowledge Graph, BreadcrumbList,
+ * and advanced schema types (FAQPage, HowTo, Service, LocalBusiness, etc.)
+ *
+ * @package AlmaSEO
+ * @since 6.5.0
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * Main entry point for advanced schema output
+ */
+if (!function_exists('almaseo_output_advanced_schema')) {
+function almaseo_output_advanced_schema() {
+    // Guard: Only Pro users
+    if (!almaseo_feature_available('schema_advanced')) {
+        return;
+    }
+
+    // Only run on singular pages (not admin, archives, etc.)
+    if (is_admin() || !is_singular()) {
+        return;
+    }
+
+    $post = get_queried_object();
+    if (!$post instanceof WP_Post) {
+        return;
+    }
+
+    // Check if advanced schema is disabled for this post
+    if (get_post_meta($post->ID, '_almaseo_schema_disable', true)) {
+        return;
+    }
+
+    // Honor the legacy per-post "Enable Schema Markup" toggle. The metabox that
+    // set this key is retired, but posts saved by old plugin versions may still
+    // carry '_almaseo_schema_enabled' = 'disabled' — respect it here so the
+    // advanced emitter stays consistent with the basic emitter (schema-clean.php).
+    if (get_post_meta($post->ID, '_almaseo_schema_enabled', true) === 'disabled') {
+        return;
+    }
+
+    // Get advanced schema settings
+    $settings = get_option('almaseo_schema_advanced_settings', array(
+        'enabled' => false,
+        'site_represents' => 'organization',
+        'site_name' => '',
+        'site_logo_url' => '',
+        'site_social_profiles' => array(),
+        'default_schema_by_post_type' => array()
+    ));
+
+    // Check if advanced schema is enabled globally. Use empty() rather than a
+    // direct key read: get_option()'s default array only applies when the option
+    // is absent entirely, so a partial array saved by an older version (missing
+    // 'enabled') would otherwise warn on every front-end request.
+    if (empty($settings['enabled'])) {
+        return;
+    }
+
+    // Build the @graph array
+    $graph = array();
+
+    // 1. Knowledge Graph node
+    $kg_node = almaseo_build_knowledge_graph_node($settings);
+    if ($kg_node) {
+        $graph[] = $kg_node;
+    }
+
+    // 2. Primary schema type node
+    $primary_node = almaseo_build_primary_schema_node($post, $settings);
+    if ($primary_node) {
+        $graph[] = $primary_node;
+    }
+
+    // 3. Secondary schema type nodes — user can describe a single page as
+    //    multiple things (e.g. MusicGroup + LocalBusiness for a venue band).
+    //    Stored as JSON array of type strings; deduped against primary.
+    //    Pro-gated (schema_multi) — even with data in post meta from a prior
+    //    Pro session, free-tier sites must not emit additional graph nodes.
+    $secondary_raw = get_post_meta($post->ID, '_almaseo_schema_secondary_types', true);
+    $secondary_types = array();
+    if ($secondary_raw && function_exists('almaseo_feature_available') && almaseo_feature_available('schema_multi')) {
+        $decoded = is_array($secondary_raw) ? $secondary_raw : json_decode($secondary_raw, true);
+        if (is_array($decoded)) {
+            $secondary_types = array_values(array_unique(array_filter($decoded)));
+        }
+    }
+    if (!empty($secondary_types)) {
+        $primary_type_str = is_array($primary_node) && isset($primary_node['@type']) ? $primary_node['@type'] : '';
+        foreach ($secondary_types as $sec_type) {
+            if ($sec_type === $primary_type_str) continue;
+            $sec_node = almaseo_build_schema_node_by_type($post, $sec_type);
+            if ($sec_node) {
+                $graph[] = $sec_node;
+            }
+        }
+    }
+
+    // Promote inline Article authors to linked top-level Person entities so the
+    // graph is connected (one shared author node referenced by @id per article).
+    $graph = almaseo_link_author_entities($graph);
+
+    // Output JSON-LD if we have any nodes
+    if (!empty($graph)) {
+        $data = array(
+            '@context' => 'https://schema.org',
+            '@graph' => $graph,
+        );
+
+        echo '<script type="application/ld+json" data-almaseo="1">';
+        echo wp_json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional JSON-LD output
+        echo '</script>' . "\n";
+    }
+}
+} // end function_exists guard: almaseo_output_advanced_schema
+
+/**
+ * Whether the advanced schema system owns front-end JSON-LD output.
+ *
+ * The legacy emitter (schema-clean.php) calls this to decide whether to
+ * defer, so the two systems never both emit and collide. Mirrors the
+ * feature + global-toggle gates at the top of almaseo_output_advanced_schema().
+ *
+ * @return bool
+ */
+if (!function_exists('almaseo_advanced_schema_active')) {
+function almaseo_advanced_schema_active() {
+    if (!function_exists('almaseo_feature_available') || !almaseo_feature_available('schema_advanced')) {
+        return false;
+    }
+    $settings = get_option('almaseo_schema_advanced_settings', array());
+    return !empty($settings['enabled']);
+}
+} // end function_exists guard: almaseo_advanced_schema_active
+
+/**
+ * Build Knowledge Graph node (Organization or Person)
+ *
+ * @param array $settings Advanced schema settings
+ * @return array|null Knowledge Graph node or null if not configured
+ */
+if (!function_exists('almaseo_build_knowledge_graph_node')) {
+function almaseo_build_knowledge_graph_node($settings) {
+    // Fall back to the WordPress site name when the field is left blank, so the
+    // Knowledge Graph still emits instead of silently disappearing.
+    $site_name = !empty($settings['site_name']) ? $settings['site_name'] : get_bloginfo('name');
+    if (empty($site_name)) {
+        return null;
+    }
+
+    $type = (isset($settings['site_represents']) && $settings['site_represents'] === 'person') ? 'Person' : 'Organization';
+
+    $node = array(
+        '@type' => $type,
+        '@id' => home_url('/#identity'),
+        'name' => $site_name,
+        'url' => home_url('/'),
+    );
+
+    // Add logo if provided
+    if (!empty($settings['site_logo_url'])) {
+        $node['logo'] = array(
+            '@type' => 'ImageObject',
+            'url' => $settings['site_logo_url'],
+        );
+
+        // For Organization, also add image property
+        if ($type === 'Organization') {
+            $node['image'] = $settings['site_logo_url'];
+        }
+    }
+
+    // Add social profiles if provided
+    if (!empty($settings['site_social_profiles']) && is_array($settings['site_social_profiles'])) {
+        $node['sameAs'] = $settings['site_social_profiles'];
+    }
+
+    return $node;
+}
+} // end function_exists guard: almaseo_build_knowledge_graph_node
+
+/**
+ * Build primary schema type node
+ *
+ * @param WP_Post $post Current post
+ * @param array $settings Advanced schema settings
+ * @return array|null Primary schema node or null if not applicable
+ */
+if (!function_exists('almaseo_build_primary_schema_node')) {
+function almaseo_build_primary_schema_node($post, $settings) {
+    $schema_type = almaseo_determine_schema_type($post, $settings);
+    if (!$schema_type) {
+        return null;
+    }
+    return almaseo_build_schema_node_by_type($post, $schema_type);
+}
+} // end function_exists guard: almaseo_build_primary_schema_node
+
+/**
+ * Generic dispatcher: build a schema node for any supported type.
+ *
+ * Used by the primary node builder AND by the secondary-types loop in
+ * almaseo_output_advanced_schema. Returns null for unknown types so callers
+ * can safely skip without emitting a malformed node.
+ *
+ * @param WP_Post $post
+ * @param string $type Schema.org type name (e.g. "MusicGroup", "LocalBusiness")
+ * @return array|null
+ */
+if (!function_exists('almaseo_build_schema_node_by_type')) {
+function almaseo_build_schema_node_by_type($post, $type) {
+    switch ($type) {
+        case 'FAQPage':       return almaseo_build_faqpage_node($post);
+        case 'HowTo':         return almaseo_build_howto_node($post);
+        case 'Service':       return almaseo_build_service_node($post);
+        case 'LocalBusiness': return almaseo_build_localbusiness_node($post);
+        case 'MusicGroup':    return almaseo_build_musicgroup_node($post);
+        case 'Person':        return almaseo_build_person_node($post);
+        case 'Organization':  return almaseo_build_organization_node($post);
+        case 'Product':       return almaseo_build_product_node($post);
+        case 'Event':         return almaseo_build_event_node($post);
+        case 'Recipe':        return almaseo_build_recipe_node($post);
+        case 'Article':
+        case 'BlogPosting':
+        case 'NewsArticle':
+            return almaseo_build_article_node($post, $type);
+        default:
+            return null;
+    }
+}
+} // end function_exists guard: almaseo_build_schema_node_by_type
+
+/**
+ * Determine the schema type for a post
+ *
+ * @param WP_Post $post Current post
+ * @param array $settings Advanced schema settings
+ * @return string|null Schema type or null
+ */
+if (!function_exists('almaseo_determine_schema_type')) {
+function almaseo_determine_schema_type($post, $settings) {
+    // 1. Check per-post primary type. Fall back to the merged `_almaseo_schema_type`
+    //    key — posts last saved by an older plugin version may only have that one,
+    //    and without this the per-post selection would be silently ignored.
+    $primary_type = get_post_meta($post->ID, '_almaseo_schema_primary_type', true);
+    if (empty($primary_type)) {
+        $primary_type = get_post_meta($post->ID, '_almaseo_schema_type', true);
+    }
+    if (!empty($primary_type)) {
+        return $primary_type;
+    }
+
+    // 2. Check per-post toggles
+    if (get_post_meta($post->ID, '_almaseo_schema_is_faqpage', true)) {
+        return 'FAQPage';
+    }
+    if (get_post_meta($post->ID, '_almaseo_schema_is_howto', true)) {
+        return 'HowTo';
+    }
+
+    // 3. Check default for this post type
+    if (isset($settings['default_schema_by_post_type'][$post->post_type])) {
+        $default_type = $settings['default_schema_by_post_type'][$post->post_type];
+        if (!empty($default_type)) {
+            return $default_type;
+        }
+    }
+
+    // 4. Fall back to Article
+    return 'Article';
+}
+} // end function_exists guard: almaseo_determine_schema_type
+
+/**
+ * Stable schema @id for a post author's Person entity.
+ *
+ * Deterministic per (site, author) so the same author resolves to one entity
+ * across every article — which is the whole point of a linked author node.
+ * Mirrors the hash-based identity pattern Yoast/Rank Math use.
+ *
+ * @param int $author_id WP user ID
+ * @return string Fragment URL @id
+ */
+if (!function_exists('almaseo_get_author_entity_id')) {
+function almaseo_get_author_entity_id($author_id) {
+    return home_url('/#/schema/person/' . md5('almaseo-author-' . (int) $author_id));
+}
+} // end function_exists guard: almaseo_get_author_entity_id
+
+/**
+ * Build a rich Person node for a post's author (the byline / E-E-A-T author).
+ *
+ * Distinct from almaseo_build_person_node(), which describes the *page itself*
+ * as a person. This describes the human who wrote the post, sourced from their
+ * WordPress user profile plus the optional AlmaSEO author fields
+ * (job title, profile/social URLs) added under includes/admin/author-profile-fields.php.
+ *
+ * Returns a full object with a stable @id. The advanced emitter lifts this into
+ * a top-level @graph node and references it by @id (linked entity); the legacy
+ * single-node emitter (schema-clean.php) keeps it inline, which is still valid.
+ *
+ * @param WP_Post $post
+ * @return array|null Person node, or null if the author can't be resolved
+ */
+if (!function_exists('almaseo_build_author_person_node')) {
+function almaseo_build_author_person_node($post) {
+    $author_id = isset($post->post_author) ? (int) $post->post_author : 0;
+    if (!$author_id) {
+        return null;
+    }
+
+    $name = get_the_author_meta('display_name', $author_id);
+    if (!$name) {
+        return null;
+    }
+
+    $node = array(
+        '@type' => 'Person',
+        '@id'   => almaseo_get_author_entity_id($author_id),
+        'name'  => $name,
+    );
+
+    // Author archive URL — the canonical "bio" location WordPress already gives us.
+    $url = get_author_posts_url($author_id);
+    if ($url) {
+        $node['url'] = $url;
+    }
+
+    // Job title — optional AlmaSEO profile field (e.g. "Founder & Principal").
+    $job_title = get_the_author_meta('almaseo_author_job_title', $author_id);
+    if ($job_title) {
+        $node['jobTitle'] = $job_title;
+    }
+
+    // Bio — the standard WP "Biographical Info" field.
+    $bio = get_the_author_meta('description', $author_id);
+    if ($bio) {
+        $node['description'] = $bio;
+    }
+
+    // Image — an explicit Author Photo URL (set on the user profile) wins;
+    // otherwise fall back to the WordPress avatar / Gravatar.
+    $author_image = get_the_author_meta('almaseo_author_image', $author_id);
+    if (!$author_image && function_exists('get_avatar_url')) {
+        $author_image = get_avatar_url($author_id, array('size' => 192));
+    }
+    if ($author_image) {
+        $node['image'] = array(
+            '@type' => 'ImageObject',
+            'url'   => $author_image,
+        );
+    }
+
+    // worksFor — reference the site's brand identity (the #identity Organization
+    // node the knowledge-graph builder emits) so the author is tied to the org.
+    $settings = get_option('almaseo_schema_advanced_settings', array());
+    $brand = !empty($settings['site_name']) ? $settings['site_name'] : get_bloginfo('name');
+    if ($brand) {
+        $node['worksFor'] = array(
+            '@type' => 'Organization',
+            '@id'   => home_url('/#identity'),
+            'name'  => $brand,
+        );
+    }
+
+    // sameAs — the WP profile website plus any AlmaSEO profile/social URLs
+    // (one per line). Deduped and URL-validated.
+    $same_as = array();
+    $website = get_the_author_meta('user_url', $author_id);
+    if ($website) {
+        $same_as[] = $website;
+    }
+    $extra = get_the_author_meta('almaseo_author_same_as', $author_id);
+    if ($extra) {
+        foreach (preg_split('/\r\n|\r|\n/', $extra) as $line) {
+            $clean = esc_url_raw(trim($line));
+            if ($clean !== '') {
+                $same_as[] = $clean;
+            }
+        }
+    }
+    $same_as = array_values(array_unique(array_filter($same_as)));
+    if (!empty($same_as)) {
+        $node['sameAs'] = $same_as;
+    }
+
+    /**
+     * Filter the author Person node before it is attached to the schema graph.
+     *
+     * @param array   $node      The assembled Person node.
+     * @param int     $author_id WP user ID.
+     * @param WP_Post $post      The post being rendered.
+     */
+    return apply_filters('almaseo_author_person_node', $node, $author_id, $post);
+}
+} // end function_exists guard: almaseo_build_author_person_node
+
+/**
+ * Lift inline Article authors into linked top-level @graph Person entities.
+ *
+ * Article-family builders emit a full inline author object (so the legacy
+ * single-node emitter stays valid). In the advanced @graph we instead want one
+ * shared Person node per author, referenced by @id from each article — the
+ * connected-graph shape Google prefers and that Yoast/Rank Math produce. This
+ * pass extracts each inline author, dedupes by @id, appends them as top-level
+ * nodes, and replaces the inline author with an @id reference.
+ *
+ * @param array $graph The @graph array
+ * @return array Rewritten graph
+ */
+if (!function_exists('almaseo_link_author_entities')) {
+function almaseo_link_author_entities($graph) {
+    if (!is_array($graph) || empty($graph)) {
+        return $graph;
+    }
+
+    $article_types = array('Article', 'BlogPosting', 'NewsArticle');
+    $author_nodes  = array(); // @id => full Person node
+
+    foreach ($graph as &$node) {
+        if (!is_array($node) || empty($node['@type'])) {
+            continue;
+        }
+        if (!in_array($node['@type'], $article_types, true)) {
+            continue;
+        }
+        if (isset($node['author']) && is_array($node['author']) && !empty($node['author']['@id'])) {
+            $aid = $node['author']['@id'];
+            if (!isset($author_nodes[$aid])) {
+                $author_nodes[$aid] = $node['author'];
+            }
+            // Replace the inline author with a lightweight reference.
+            $node['author'] = array('@id' => $aid);
+        }
+    }
+    unset($node);
+
+    foreach ($author_nodes as $author_node) {
+        $graph[] = $author_node;
+    }
+
+    return $graph;
+}
+} // end function_exists guard: almaseo_link_author_entities
+
+/**
+ * Build Article/BlogPosting/NewsArticle node
+ *
+ * @param WP_Post $post Current post
+ * @param string $type Schema type (Article, BlogPosting, NewsArticle)
+ * @return array Article node
+ */
+if (!function_exists('almaseo_build_article_node')) {
+function almaseo_build_article_node($post, $type = 'Article') {
+    $seo_title = get_post_meta($post->ID, '_almaseo_title', true);
+    $seo_description = get_post_meta($post->ID, '_almaseo_description', true);
+    $headline = $seo_title ?: get_the_title($post->ID);
+    $description = $seo_description ?: wp_trim_words(wp_strip_all_tags($post->post_content), 30);
+
+    $node = array(
+        '@type' => $type,
+        '@id' => get_permalink($post->ID) . '#article',
+        'headline' => $headline,
+        'description' => $description,
+        'url' => get_permalink($post->ID),
+        'datePublished' => get_the_date('c', $post->ID),
+        'dateModified' => get_the_modified_date('c', $post->ID),
+    );
+
+    // Author — rich, linkable Person entity (E-E-A-T). The advanced emitter
+    // lifts this into a top-level @graph node referenced by @id; standalone
+    // (legacy emitter) it stays a valid inline Person. Falls back to a
+    // name-only Person if the author can't be resolved.
+    $author_node = almaseo_build_author_person_node($post);
+    if ($author_node) {
+        $node['author'] = $author_node;
+    } else {
+        $node['author'] = array(
+            '@type' => 'Person',
+            'name'  => get_the_author_meta('display_name', $post->post_author),
+        );
+    }
+
+    // Publisher (reference Knowledge Graph if exists)
+    $site_name = get_bloginfo('name');
+    $node['publisher'] = array(
+        '@type' => 'Organization',
+        'name' => $site_name,
+        '@id' => home_url('/#identity'),
+    );
+
+    // Image (featured image or OG image)
+    $og_image = get_post_meta($post->ID, '_almaseo_og_image', true);
+    $featured_image = get_the_post_thumbnail_url($post->ID, 'large');
+    $image_url = $og_image ?: $featured_image;
+
+    if ($image_url) {
+        $node['image'] = array(
+            '@type' => 'ImageObject',
+            'url' => $image_url,
+        );
+    }
+
+    return $node;
+}
+} // end function_exists guard: almaseo_build_article_node
+
+/**
+ * Whether the post content contains a populated AlmaSEO schema block.
+ *
+ * Used to avoid emitting a duplicate FAQPage/HowTo node from the metabox when
+ * the matching Gutenberg block (which renders its own JSON-LD from the visible
+ * content) is already present. Recurses into innerBlocks so a block nested in
+ * a Group/Columns layout is still detected. "Populated" means at least one item
+ * with a non-empty field — mirroring each block's own "skip if empty" rule, so
+ * an empty block placeholder does NOT suppress the metabox node.
+ *
+ * @param WP_Post $post
+ * @param string  $block_name e.g. 'almaseo/faq'
+ * @param string  $attr_key   array attribute holding the items, e.g. 'questions'
+ * @return bool
+ */
+if (!function_exists('almaseo_content_has_schema_block')) {
+function almaseo_content_has_schema_block($post, $block_name, $attr_key) {
+    if (!$post || empty($post->post_content)) {
+        return false;
+    }
+    if (!function_exists('has_block') || !has_block($block_name, $post)) {
+        return false;
+    }
+    if (!function_exists('parse_blocks')) {
+        return true; // has_block matched; assume populated without a parser
+    }
+    $stack = parse_blocks($post->post_content);
+    while (!empty($stack)) {
+        $block = array_pop($stack);
+        if (isset($block['blockName']) && $block['blockName'] === $block_name) {
+            $items = isset($block['attrs'][$attr_key]) ? $block['attrs'][$attr_key] : null;
+            if (is_array($items)) {
+                foreach ($items as $item) {
+                    if (is_array($item)) {
+                        foreach ($item as $val) {
+                            if (trim((string) $val) !== '') {
+                                return true;
+                            }
+                        }
+                    } elseif (trim((string) $item) !== '') {
+                        return true;
+                    }
+                }
+            }
+        }
+        if (!empty($block['innerBlocks'])) {
+            foreach ($block['innerBlocks'] as $inner) {
+                $stack[] = $inner;
+            }
+        }
+    }
+    return false;
+}
+} // end function_exists guard: almaseo_content_has_schema_block
+
+/**
+ * Build FAQPage node
+ *
+ * @param WP_Post $post Current post
+ * @return array|null FAQPage node, or null when an FAQ block already owns it
+ */
+if (!function_exists('almaseo_build_faqpage_node')) {
+function almaseo_build_faqpage_node($post) {
+    // Defer to a populated FAQ block: it emits its own FAQPage JSON-LD from the
+    // visible Q&A, so emitting here too would put two FAQPage nodes on the page
+    // (Google flags duplicate FAQ markup). The block wins because its content is
+    // visible, which is what Google wants FAQ structured data to match.
+    if (almaseo_content_has_schema_block($post, 'almaseo/faq', 'questions')) {
+        return null;
+    }
+
+    $seo_title = get_post_meta($post->ID, '_almaseo_title', true);
+    $headline = $seo_title ?: get_the_title($post->ID);
+
+    $node = array(
+        '@type' => 'FAQPage',
+        '@id' => get_permalink($post->ID) . '#faqpage',
+        'headline' => $headline,
+        'url' => get_permalink($post->ID),
+    );
+
+    // Prefer Q&A pairs authored in the metabox repeater (_almaseo_faq_pairs).
+    // These are editor-agnostic and don't depend on the page content. Only when
+    // none are entered do we fall back to scraping question-headings from the
+    // body (legacy behavior — kept so existing pages don't regress).
+    $qa_pairs = array();
+    $stored = get_post_meta($post->ID, '_almaseo_faq_pairs', true);
+    if ($stored) {
+        $decoded = is_array($stored) ? $stored : json_decode($stored, true);
+        if (is_array($decoded)) {
+            foreach ($decoded as $pair) {
+                if (!is_array($pair)) {
+                    continue;
+                }
+                $q = isset($pair['question']) ? trim($pair['question']) : '';
+                $a = isset($pair['answer']) ? trim($pair['answer']) : '';
+                if ($q === '' || $a === '') {
+                    continue;
+                }
+                $qa_pairs[] = array(
+                    '@type' => 'Question',
+                    'name' => $q,
+                    'acceptedAnswer' => array(
+                        '@type' => 'Answer',
+                        'text' => $a,
+                    ),
+                );
+            }
+        }
+    }
+
+    if (empty($qa_pairs)) {
+        $qa_pairs = almaseo_extract_qa_pairs($post->post_content);
+    }
+
+    if (!empty($qa_pairs)) {
+        $node['mainEntity'] = $qa_pairs;
+    }
+
+    return $node;
+}
+} // end function_exists guard: almaseo_build_faqpage_node
+
+/**
+ * Extract Q&A pairs from content
+ *
+ * @param string $content Post content (HTML)
+ * @return array Array of Question nodes
+ */
+if (!function_exists('almaseo_extract_qa_pairs')) {
+function almaseo_extract_qa_pairs($content) {
+    $qa_pairs = array();
+
+    // Find headings that end with ? (questions)
+    preg_match_all('/<h([2-6])[^>]*>(.*?\?[^<]*)<\/h\1>\s*<p[^>]*>(.*?)<\/p>/is', $content, $matches, PREG_SET_ORDER);
+
+    foreach ($matches as $match) {
+        $question = wp_strip_all_tags($match[2]);
+        $answer = wp_strip_all_tags($match[3]);
+
+        $qa_pairs[] = array(
+            '@type' => 'Question',
+            'name' => trim($question),
+            'acceptedAnswer' => array(
+                '@type' => 'Answer',
+                'text' => trim($answer),
+            ),
+        );
+
+        // Limit to 10 Q&A pairs
+        if (count($qa_pairs) >= 10) {
+            break;
+        }
+    }
+
+    return $qa_pairs;
+}
+} // end function_exists guard: almaseo_extract_qa_pairs
+
+/**
+ * Build HowTo node
+ *
+ * @param WP_Post $post Current post
+ * @return array HowTo node
+ */
+if (!function_exists('almaseo_build_howto_node')) {
+function almaseo_build_howto_node($post) {
+    // Defer to a populated How-To block (same duplicate-avoidance rationale as
+    // the FAQ guard above): it emits its own HowTo JSON-LD from visible steps.
+    if (almaseo_content_has_schema_block($post, 'almaseo/howto', 'steps')) {
+        return null;
+    }
+
+    $seo_title = get_post_meta($post->ID, '_almaseo_title', true);
+    $seo_description = get_post_meta($post->ID, '_almaseo_description', true);
+    // Metabox How-To name/description take precedence; then SEO meta; then post.
+    $howto_name = get_post_meta($post->ID, '_almaseo_howto_name', true);
+    $howto_desc = get_post_meta($post->ID, '_almaseo_howto_description', true);
+    $name = $howto_name ?: ($seo_title ?: get_the_title($post->ID));
+    $description = $howto_desc ?: ($seo_description ?: wp_trim_words(wp_strip_all_tags($post->post_content), 30));
+
+    $node = array(
+        '@type' => 'HowTo',
+        '@id' => get_permalink($post->ID) . '#howto',
+        'name' => $name,
+        'description' => $description,
+        'url' => get_permalink($post->ID),
+    );
+
+    // Prefer steps authored in the metabox (_almaseo_howto_steps, one per line);
+    // fall back to scraping the first list in the content (legacy behavior).
+    $steps = array();
+    $stored_steps = get_post_meta($post->ID, '_almaseo_howto_steps', true);
+    if ($stored_steps) {
+        $lines = preg_split('/\r\n|\r|\n/', $stored_steps);
+        foreach ($lines as $line) {
+            $text = trim(wp_strip_all_tags($line));
+            if ($text === '') {
+                continue;
+            }
+            $steps[] = array(
+                '@type' => 'HowToStep',
+                'text' => $text,
+            );
+            if (count($steps) >= 20) {
+                break;
+            }
+        }
+    }
+
+    if (empty($steps)) {
+        $steps = almaseo_extract_howto_steps($post->post_content);
+    }
+
+    if (!empty($steps)) {
+        $node['step'] = $steps;
+    }
+
+    return $node;
+}
+} // end function_exists guard: almaseo_build_howto_node
+
+/**
+ * Extract HowTo steps from content
+ *
+ * @param string $content Post content (HTML)
+ * @return array Array of HowToStep nodes
+ */
+if (!function_exists('almaseo_extract_howto_steps')) {
+function almaseo_extract_howto_steps($content) {
+    $steps = array();
+
+    // Try to find ordered/unordered lists
+    preg_match('/<[ou]l[^>]*>(.*?)<\/[ou]l>/is', $content, $list_match);
+
+    if (!empty($list_match[1])) {
+        preg_match_all('/<li[^>]*>(.*?)<\/li>/is', $list_match[1], $items);
+
+        foreach ($items[1] as $item) {
+            $text = wp_strip_all_tags($item);
+            if (!empty(trim($text))) {
+                $steps[] = array(
+                    '@type' => 'HowToStep',
+                    'text' => trim($text),
+                );
+            }
+
+            // Limit to 20 steps
+            if (count($steps) >= 20) {
+                break;
+            }
+        }
+    }
+
+    return $steps;
+}
+} // end function_exists guard: almaseo_extract_howto_steps
+
+/**
+ * Build Service node
+ *
+ * @param WP_Post $post Current post
+ * @return array Service node
+ */
+if (!function_exists('almaseo_build_service_node')) {
+function almaseo_build_service_node($post) {
+    $seo_title = get_post_meta($post->ID, '_almaseo_title', true);
+    $seo_description = get_post_meta($post->ID, '_almaseo_description', true);
+    $name = $seo_title ?: get_the_title($post->ID);
+    $description = $seo_description ?: wp_trim_words(wp_strip_all_tags($post->post_content), 30);
+
+    $node = array(
+        '@type' => 'Service',
+        '@id' => get_permalink($post->ID) . '#service',
+        'name' => $name,
+        'description' => $description,
+        'url' => get_permalink($post->ID),
+    );
+
+    // Optional service specifics from the Service detail panel.
+    $service_type = get_post_meta($post->ID, '_almaseo_service_type', true);
+    if (!empty($service_type)) {
+        $node['serviceType'] = $service_type;
+    }
+    $service_area = get_post_meta($post->ID, '_almaseo_service_area', true);
+    if (!empty($service_area)) {
+        $node['areaServed'] = $service_area;
+    }
+
+    // Link to provider (Knowledge Graph if exists)
+    $node['provider'] = array(
+        '@type' => 'Organization',
+        '@id' => home_url('/#identity'),
+    );
+
+    return $node;
+}
+} // end function_exists guard: almaseo_build_service_node
+
+/**
+ * Build LocalBusiness node
+ *
+ * @param WP_Post $post Current post
+ * @return array LocalBusiness node
+ */
+if (!function_exists('almaseo_build_localbusiness_node')) {
+function almaseo_build_localbusiness_node($post) {
+    $seo_title       = get_post_meta($post->ID, '_almaseo_title', true);
+    $seo_description = get_post_meta($post->ID, '_almaseo_description', true);
+    $name            = $seo_title ?: get_the_title($post->ID);
+    $description     = $seo_description ?: wp_trim_words(wp_strip_all_tags($post->post_content), 30);
+
+    // Determine subtype
+    $subtype = get_post_meta($post->ID, '_almaseo_lb_subtype', true);
+    $type    = ( $subtype && $subtype !== 'LocalBusiness' ) ? $subtype : 'LocalBusiness';
+
+    $node = array(
+        '@type'       => $type,
+        '@id'         => get_permalink($post->ID) . '#business',
+        'name'        => $name,
+        'description' => $description,
+        'url'         => get_permalink($post->ID),
+    );
+
+    // Image
+    $image = get_post_meta($post->ID, '_almaseo_og_image', true);
+    if ( ! $image ) {
+        $thumb_id = get_post_thumbnail_id($post->ID);
+        if ( $thumb_id ) {
+            $image = wp_get_attachment_url($thumb_id);
+        }
+    }
+    if ( $image ) {
+        $node['image'] = $image;
+    }
+
+    // Address
+    $street  = get_post_meta($post->ID, '_almaseo_lb_street', true);
+    $city    = get_post_meta($post->ID, '_almaseo_lb_city', true);
+    $state   = get_post_meta($post->ID, '_almaseo_lb_state', true);
+    $zip     = get_post_meta($post->ID, '_almaseo_lb_zip', true);
+    $country = get_post_meta($post->ID, '_almaseo_lb_country', true);
+
+    if ( $street || $city ) {
+        $address = array( '@type' => 'PostalAddress' );
+        if ( $street )  $address['streetAddress']   = $street;
+        if ( $city )    $address['addressLocality']  = $city;
+        if ( $state )   $address['addressRegion']    = $state;
+        if ( $zip )     $address['postalCode']       = $zip;
+        if ( $country ) $address['addressCountry']   = $country;
+        $node['address'] = $address;
+    }
+
+    // Contact info
+    $phone = get_post_meta($post->ID, '_almaseo_lb_phone', true);
+    $email = get_post_meta($post->ID, '_almaseo_lb_email', true);
+    if ( $phone ) $node['telephone'] = $phone;
+    if ( $email ) $node['email']     = $email;
+
+    // Price range
+    $price_range = get_post_meta($post->ID, '_almaseo_lb_price_range', true);
+    if ( $price_range ) $node['priceRange'] = $price_range;
+
+    // Geo coordinates
+    $lat = get_post_meta($post->ID, '_almaseo_lb_lat', true);
+    $lng = get_post_meta($post->ID, '_almaseo_lb_lng', true);
+    if ( $lat && $lng ) {
+        $node['geo'] = array(
+            '@type'     => 'GeoCoordinates',
+            'latitude'  => (float) $lat,
+            'longitude' => (float) $lng,
+        );
+    }
+
+    // Opening hours
+    $hours_json = get_post_meta($post->ID, '_almaseo_lb_hours', true);
+    if ( $hours_json ) {
+        $hours = is_array($hours_json) ? $hours_json : json_decode($hours_json, true);
+        if ( is_array($hours) && ! empty($hours) ) {
+            $specs = array();
+            // Schema.org's structured OpeningHoursSpecification.dayOfWeek
+            // requires a DayOfWeek enum value — either the full day name
+            // ("Monday") or the full URL ("https://schema.org/Monday").
+            // Two-letter abbreviations ("Mo","Tu") are only valid for the
+            // legacy LocalBusiness.openingHours TEXT format, and the
+            // schema.org validator flags them as invalid here. (1.15.8 fix.)
+            $day_map = array(
+                'monday'    => 'Monday',
+                'tuesday'   => 'Tuesday',
+                'wednesday' => 'Wednesday',
+                'thursday'  => 'Thursday',
+                'friday'    => 'Friday',
+                'saturday'  => 'Saturday',
+                'sunday'    => 'Sunday',
+            );
+            foreach ( $hours as $day => $times ) {
+                if ( empty($times['open']) || empty($times['close']) ) continue;
+                $day_key = strtolower( (string) $day );
+                $day_name = isset($day_map[$day_key]) ? $day_map[$day_key] : ucfirst($day_key);
+                $specs[] = array(
+                    '@type'     => 'OpeningHoursSpecification',
+                    'dayOfWeek' => $day_name,
+                    'opens'     => $times['open'],
+                    'closes'    => $times['close'],
+                );
+            }
+            if ( ! empty($specs) ) {
+                $node['openingHoursSpecification'] = $specs;
+            }
+        }
+    }
+
+    // Area served
+    $area = get_post_meta($post->ID, '_almaseo_lb_area_served', true);
+    if ( $area ) $node['areaServed'] = $area;
+
+    // Payment accepted
+    $payment = get_post_meta($post->ID, '_almaseo_lb_payment', true);
+    if ( $payment ) $node['paymentAccepted'] = $payment;
+
+    // Google Business Profile / Maps URL — emitted in sameAs so Google can
+    // tie this page's LocalBusiness entity to the Business Profile listing.
+    // Kept as an array for parity with the Person/Org/MusicGroup nodes and so
+    // additional sameAs sources can be appended later without a shape change.
+    $google_profile = get_post_meta($post->ID, '_almaseo_lb_google_profile', true);
+    if ( $google_profile ) {
+        $node['sameAs'] = array( $google_profile );
+    }
+
+    return $node;
+}
+} // end function_exists guard: almaseo_build_localbusiness_node
+
+/**
+ * Build a MusicGroup node for bands, musicians, and music ensembles.
+ *
+ * Members textarea is parsed as one entry per line in "Name | Role" format.
+ * Genre is comma-separated. sameAs textarea is one URL per line.
+ *
+ * @param WP_Post $post
+ * @return array MusicGroup node
+ */
+if (!function_exists('almaseo_build_musicgroup_node')) {
+function almaseo_build_musicgroup_node($post) {
+    $node = array(
+        '@type' => 'MusicGroup',
+        '@id'   => get_permalink($post->ID) . '#musicgroup',
+        'name'  => get_the_title($post->ID),
+        'url'   => get_permalink($post->ID),
+    );
+
+    // Genre — comma-separated string → string (one) or array (multiple)
+    $genre_raw = get_post_meta($post->ID, '_almaseo_mg_genre', true);
+    if ($genre_raw) {
+        $genres = array_values(array_filter(array_map('trim', explode(',', $genre_raw))));
+        if (!empty($genres)) {
+            $node['genre'] = count($genres) === 1 ? $genres[0] : $genres;
+        }
+    }
+
+    // Founding date and location
+    $founding_date = get_post_meta($post->ID, '_almaseo_mg_founding_date', true);
+    if ($founding_date) {
+        $node['foundingDate'] = $founding_date;
+    }
+    $founding_location = get_post_meta($post->ID, '_almaseo_mg_founding_location', true);
+    if ($founding_location) {
+        $node['foundingLocation'] = array(
+            '@type' => 'Place',
+            'name'  => $founding_location,
+        );
+    }
+
+    $area_served = get_post_meta($post->ID, '_almaseo_mg_area_served', true);
+    if ($area_served) {
+        $node['areaServed'] = array(
+            '@type' => 'Place',
+            'name'  => $area_served,
+        );
+    }
+
+    $street  = get_post_meta($post->ID, '_almaseo_mg_street', true);
+    $city    = get_post_meta($post->ID, '_almaseo_mg_city', true);
+    $state   = get_post_meta($post->ID, '_almaseo_mg_state', true);
+    $zip     = get_post_meta($post->ID, '_almaseo_mg_zip', true);
+    $country = get_post_meta($post->ID, '_almaseo_mg_country', true);
+    if ($street || $city || $state || $zip || $country) {
+        $address = array('@type' => 'PostalAddress');
+        if ($street)  $address['streetAddress']   = $street;
+        if ($city)    $address['addressLocality'] = $city;
+        if ($state)   $address['addressRegion']   = $state;
+        if ($zip)     $address['postalCode']      = $zip;
+        if ($country) $address['addressCountry']  = $country;
+        $node['address'] = $address;
+    }
+
+    // Members — "Name | Role" per line, becomes Person nodes with roleName
+    $members_raw = get_post_meta($post->ID, '_almaseo_mg_members', true);
+    if ($members_raw) {
+        $member_nodes = array();
+        $lines = preg_split('/\r\n|\r|\n/', $members_raw);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === '') {
+                continue;
+            }
+            $parts = array_map('trim', explode('|', $line, 2));
+            $name  = $parts[0] ?? '';
+            $role  = $parts[1] ?? '';
+            if ($name === '') {
+                continue;
+            }
+            $person = array(
+                '@type' => 'Person',
+                'name'  => $name,
+            );
+            if ($role !== '') {
+                $person['roleName'] = $role;
+            }
+            $member_nodes[] = $person;
+        }
+        if (!empty($member_nodes)) {
+            $node['member'] = $member_nodes;
+        }
+    }
+
+    // Image — explicit MusicGroup image, then fall back to featured image
+    $image_url = get_post_meta($post->ID, '_almaseo_mg_image', true);
+    if (!$image_url && has_post_thumbnail($post->ID)) {
+        $image_url = get_the_post_thumbnail_url($post->ID, 'large');
+    }
+    if ($image_url) {
+        $node['image'] = $image_url;
+    }
+
+    // sameAs — one URL per line, validated and deduped
+    $same_as_raw = get_post_meta($post->ID, '_almaseo_mg_same_as', true);
+    if ($same_as_raw) {
+        $urls = array();
+        $lines = preg_split('/\r\n|\r|\n/', $same_as_raw);
+        foreach ($lines as $line) {
+            $url = esc_url_raw(trim($line));
+            if ($url !== '' && !in_array($url, $urls, true)) {
+                $urls[] = $url;
+            }
+        }
+        if (!empty($urls)) {
+            $node['sameAs'] = $urls;
+        }
+    }
+
+    // Description fallback to post excerpt or trimmed content
+    $description = has_excerpt($post) ? get_the_excerpt($post) : wp_trim_words($post->post_content, 30);
+    if ($description) {
+        $node['description'] = $description;
+    }
+
+    return $node;
+}
+} // end function_exists guard: almaseo_build_musicgroup_node
+
+/**
+ * Build a Person node for author profiles, public figures, team members.
+ *
+ * knowsAbout is comma-separated. sameAs textarea is one URL per line.
+ * Image falls back to the post's featured image if no override is set.
+ *
+ * @param WP_Post $post
+ * @return array Person node
+ */
+if (!function_exists('almaseo_build_person_node')) {
+function almaseo_build_person_node($post) {
+    $node = array(
+        '@type' => 'Person',
+        '@id'   => get_permalink($post->ID) . '#person',
+        'name'  => get_the_title($post->ID),
+        'url'   => get_permalink($post->ID),
+    );
+
+    // Simple scalar fields
+    $given_name  = get_post_meta($post->ID, '_almaseo_person_given_name', true);
+    $family_name = get_post_meta($post->ID, '_almaseo_person_family_name', true);
+    $job_title   = get_post_meta($post->ID, '_almaseo_person_job_title', true);
+    $email       = get_post_meta($post->ID, '_almaseo_person_email', true);
+    $telephone   = get_post_meta($post->ID, '_almaseo_person_telephone', true);
+    $birth_date  = get_post_meta($post->ID, '_almaseo_person_birth_date', true);
+    if ($given_name)  $node['givenName']  = $given_name;
+    if ($family_name) $node['familyName'] = $family_name;
+    if ($job_title)   $node['jobTitle']   = $job_title;
+    if ($email)       $node['email']      = $email;
+    if ($telephone)   $node['telephone']  = $telephone;
+    if ($birth_date)  $node['birthDate']  = $birth_date;
+
+    // worksFor — Organization node
+    $works_for = get_post_meta($post->ID, '_almaseo_person_works_for', true);
+    if ($works_for) {
+        $node['worksFor'] = array(
+            '@type' => 'Organization',
+            'name'  => $works_for,
+        );
+    }
+
+    // knowsAbout — comma-separated string → string (one) or array (multiple)
+    $knows_raw = get_post_meta($post->ID, '_almaseo_person_knows_about', true);
+    if ($knows_raw) {
+        $knows = array_values(array_filter(array_map('trim', explode(',', $knows_raw))));
+        if (!empty($knows)) {
+            $node['knowsAbout'] = count($knows) === 1 ? $knows[0] : $knows;
+        }
+    }
+
+    // Image — explicit Person image, then fall back to featured image
+    $image_url = get_post_meta($post->ID, '_almaseo_person_image', true);
+    if (!$image_url && has_post_thumbnail($post->ID)) {
+        $image_url = get_the_post_thumbnail_url($post->ID, 'large');
+    }
+    if ($image_url) {
+        $node['image'] = $image_url;
+    }
+
+    // sameAs — one URL per line, validated and deduped
+    $same_as_raw = get_post_meta($post->ID, '_almaseo_person_same_as', true);
+    if ($same_as_raw) {
+        $urls = array();
+        $lines = preg_split('/\r\n|\r|\n/', $same_as_raw);
+        foreach ($lines as $line) {
+            $url = esc_url_raw(trim($line));
+            if ($url !== '' && !in_array($url, $urls, true)) {
+                $urls[] = $url;
+            }
+        }
+        if (!empty($urls)) {
+            $node['sameAs'] = $urls;
+        }
+    }
+
+    // Description fallback to post excerpt or trimmed content
+    $description = has_excerpt($post) ? get_the_excerpt($post) : wp_trim_words($post->post_content, 30);
+    if ($description) {
+        $node['description'] = $description;
+    }
+
+    return $node;
+}
+} // end function_exists guard: almaseo_build_person_node
+
+/**
+ * Build an Organization node for companies, NGOs, schools, non-physical orgs.
+ *
+ * For brick-and-mortar businesses, use LocalBusiness instead. Logo is emitted
+ * as both an ImageObject (logo property) and as a flat image string.
+ *
+ * @param WP_Post $post
+ * @return array Organization node
+ */
+if (!function_exists('almaseo_build_organization_node')) {
+function almaseo_build_organization_node($post) {
+    $node = array(
+        '@type' => 'Organization',
+        '@id'   => get_permalink($post->ID) . '#organization',
+        'name'  => get_the_title($post->ID),
+        'url'   => get_permalink($post->ID),
+    );
+
+    // Simple scalar fields
+    $legal_name    = get_post_meta($post->ID, '_almaseo_org_legal_name', true);
+    $founding_date = get_post_meta($post->ID, '_almaseo_org_founding_date', true);
+    $industry      = get_post_meta($post->ID, '_almaseo_org_industry', true);
+    $email         = get_post_meta($post->ID, '_almaseo_org_email', true);
+    $telephone     = get_post_meta($post->ID, '_almaseo_org_telephone', true);
+    $employees     = get_post_meta($post->ID, '_almaseo_org_employees', true);
+    if ($legal_name)    $node['legalName']        = $legal_name;
+    if ($founding_date) $node['foundingDate']     = $founding_date;
+    if ($industry)      $node['industry']         = $industry;
+    if ($email)         $node['email']            = $email;
+    if ($telephone)     $node['telephone']        = $telephone;
+    if ($employees !== '' && $employees !== false) {
+        $node['numberOfEmployees'] = (int) $employees;
+    }
+
+    // Founder — Person node
+    $founder = get_post_meta($post->ID, '_almaseo_org_founder', true);
+    if ($founder) {
+        $node['founder'] = array(
+            '@type' => 'Person',
+            'name'  => $founder,
+        );
+    }
+
+    // Logo — ImageObject + flat image fallback (Google likes both)
+    $logo_url = get_post_meta($post->ID, '_almaseo_org_logo', true);
+    if (!$logo_url && has_post_thumbnail($post->ID)) {
+        $logo_url = get_the_post_thumbnail_url($post->ID, 'large');
+    }
+    if ($logo_url) {
+        $node['logo'] = array(
+            '@type' => 'ImageObject',
+            'url'   => $logo_url,
+        );
+        $node['image'] = $logo_url;
+    }
+
+    // sameAs — one URL per line, validated and deduped
+    $same_as_raw = get_post_meta($post->ID, '_almaseo_org_same_as', true);
+    if ($same_as_raw) {
+        $urls = array();
+        $lines = preg_split('/\r\n|\r|\n/', $same_as_raw);
+        foreach ($lines as $line) {
+            $url = esc_url_raw(trim($line));
+            if ($url !== '' && !in_array($url, $urls, true)) {
+                $urls[] = $url;
+            }
+        }
+        if (!empty($urls)) {
+            $node['sameAs'] = $urls;
+        }
+    }
+
+    // Description fallback to post excerpt or trimmed content
+    $description = has_excerpt($post) ? get_the_excerpt($post) : wp_trim_words($post->post_content, 30);
+    if ($description) {
+        $node['description'] = $description;
+    }
+
+    return $node;
+}
+} // end function_exists guard: almaseo_build_organization_node
+
+/**
+ * Build a Product node for e-commerce items.
+ *
+ * Emits an Offer node when price + currency are set. Emits an AggregateRating
+ * node only when BOTH ratingValue and reviewCount are set (schema.org rejects
+ * incomplete ratings). Image falls back to the post's featured image.
+ *
+ * @param WP_Post $post
+ * @return array Product node
+ */
+if (!function_exists('almaseo_build_product_node')) {
+function almaseo_build_product_node($post) {
+    $node = array(
+        '@type' => 'Product',
+        '@id'   => get_permalink($post->ID) . '#product',
+        'name'  => get_the_title($post->ID),
+        'url'   => get_permalink($post->ID),
+    );
+
+    // Identifiers
+    $sku  = get_post_meta($post->ID, '_almaseo_product_sku', true);
+    $gtin = get_post_meta($post->ID, '_almaseo_product_gtin', true);
+    $mpn  = get_post_meta($post->ID, '_almaseo_product_mpn', true);
+    if ($sku)  $node['sku']  = $sku;
+    if ($gtin) $node['gtin'] = $gtin;
+    if ($mpn)  $node['mpn']  = $mpn;
+
+    // Brand — Brand node
+    $brand = get_post_meta($post->ID, '_almaseo_product_brand', true);
+    if ($brand) {
+        $node['brand'] = array(
+            '@type' => 'Brand',
+            'name'  => $brand,
+        );
+    }
+
+    // Image — explicit image first, then featured-image fallback
+    $image_url = get_post_meta($post->ID, '_almaseo_product_image', true);
+    if (!$image_url && has_post_thumbnail($post->ID)) {
+        $image_url = get_the_post_thumbnail_url($post->ID, 'large');
+    }
+    if ($image_url) {
+        $node['image'] = $image_url;
+    }
+
+    // Offer — only emit if we have a price (Google requires price + currency for the rich result)
+    $price        = get_post_meta($post->ID, '_almaseo_product_price', true);
+    $currency     = get_post_meta($post->ID, '_almaseo_product_currency', true);
+    $availability = get_post_meta($post->ID, '_almaseo_product_availability', true);
+    $condition    = get_post_meta($post->ID, '_almaseo_product_condition', true);
+    if ($price !== '' && $price !== false) {
+        $offer = array(
+            '@type' => 'Offer',
+            'price' => (string) $price,
+            'url'   => get_permalink($post->ID),
+        );
+        if ($currency) {
+            $offer['priceCurrency'] = $currency;
+        }
+        if ($availability) {
+            $offer['availability'] = 'https://schema.org/' . $availability;
+        }
+        if ($condition) {
+            $offer['itemCondition'] = 'https://schema.org/' . $condition;
+        }
+        $node['offers'] = $offer;
+    }
+
+    // AggregateRating — both ratingValue AND reviewCount required by Google
+    $rating_value = get_post_meta($post->ID, '_almaseo_product_rating_value', true);
+    $review_count = get_post_meta($post->ID, '_almaseo_product_review_count', true);
+    if ($rating_value !== '' && $rating_value !== false && $review_count !== '' && $review_count !== false) {
+        $node['aggregateRating'] = array(
+            '@type'       => 'AggregateRating',
+            'ratingValue' => (string) $rating_value,
+            'reviewCount' => (int) $review_count,
+        );
+    }
+
+    // Description fallback to post excerpt or trimmed content
+    $description = has_excerpt($post) ? get_the_excerpt($post) : wp_trim_words($post->post_content, 30);
+    if ($description) {
+        $node['description'] = $description;
+    }
+
+    return $node;
+}
+} // end function_exists guard: almaseo_build_product_node
+
+/**
+ * Build an Event node for concerts, conferences, webinars, festivals.
+ *
+ * Location resolves to a Place node when a physical address is set, OR a
+ * VirtualLocation when only a URL is set, OR a hybrid pair (array of both)
+ * when the attendance mode is MixedEventAttendanceMode and both are present.
+ * Offer is only emitted when a price is set; AttendanceMode and EventStatus
+ * use full schema.org URI form per Google's spec.
+ *
+ * @param WP_Post $post
+ * @return array Event node
+ */
+if (!function_exists('almaseo_build_event_node')) {
+function almaseo_build_event_node($post) {
+    $node = array(
+        '@type' => 'Event',
+        '@id'   => get_permalink($post->ID) . '#event',
+        'name'  => get_the_title($post->ID),
+        'url'   => get_permalink($post->ID),
+    );
+
+    // Dates
+    $start_date = get_post_meta($post->ID, '_almaseo_event_start_date', true);
+    $end_date   = get_post_meta($post->ID, '_almaseo_event_end_date', true);
+    if ($start_date) $node['startDate'] = $start_date;
+    if ($end_date)   $node['endDate']   = $end_date;
+
+    // Status + Attendance Mode (full URI form per Google's Event spec)
+    $status     = get_post_meta($post->ID, '_almaseo_event_status', true);
+    $attendance = get_post_meta($post->ID, '_almaseo_event_attendance_mode', true);
+    if ($status)     $node['eventStatus']         = 'https://schema.org/' . $status;
+    if ($attendance) $node['eventAttendanceMode'] = 'https://schema.org/' . $attendance;
+
+    // Location — Place (physical) and/or VirtualLocation (online)
+    $loc_name    = get_post_meta($post->ID, '_almaseo_event_location_name', true);
+    $loc_address = get_post_meta($post->ID, '_almaseo_event_location_address', true);
+    $loc_url     = get_post_meta($post->ID, '_almaseo_event_location_url', true);
+    $physical = null;
+    $virtual  = null;
+    if ($loc_name || $loc_address) {
+        $physical = array(
+            '@type' => 'Place',
+            'name'  => $loc_name ?: get_the_title($post->ID),
+        );
+        if ($loc_address) {
+            $physical['address'] = $loc_address;
+        }
+    }
+    if ($loc_url) {
+        $virtual = array(
+            '@type' => 'VirtualLocation',
+            'url'   => $loc_url,
+        );
+    }
+    if ($physical && $virtual) {
+        $node['location'] = array($physical, $virtual);
+    } elseif ($physical) {
+        $node['location'] = $physical;
+    } elseif ($virtual) {
+        $node['location'] = $virtual;
+    }
+
+    // Performer + Organizer
+    $performer = get_post_meta($post->ID, '_almaseo_event_performer', true);
+    if ($performer) {
+        $node['performer'] = array(
+            '@type' => 'PerformingGroup',
+            'name'  => $performer,
+        );
+    }
+    $organizer = get_post_meta($post->ID, '_almaseo_event_organizer', true);
+    if ($organizer) {
+        $node['organizer'] = array(
+            '@type' => 'Organization',
+            'name'  => $organizer,
+        );
+    }
+
+    // Offer (tickets) — only emit when price is set
+    $price        = get_post_meta($post->ID, '_almaseo_event_ticket_price', true);
+    $currency     = get_post_meta($post->ID, '_almaseo_event_ticket_currency', true);
+    $ticket_url   = get_post_meta($post->ID, '_almaseo_event_ticket_url', true);
+    if ($price !== '' && $price !== false) {
+        $offer = array(
+            '@type'         => 'Offer',
+            'price'         => (string) $price,
+            'availability'  => 'https://schema.org/InStock',
+        );
+        if ($currency)   $offer['priceCurrency'] = $currency;
+        if ($ticket_url) $offer['url']           = $ticket_url;
+        $node['offers'] = $offer;
+    }
+
+    // Image — explicit, then featured-image fallback
+    $image_url = get_post_meta($post->ID, '_almaseo_event_image', true);
+    if (!$image_url && has_post_thumbnail($post->ID)) {
+        $image_url = get_the_post_thumbnail_url($post->ID, 'large');
+    }
+    if ($image_url) {
+        $node['image'] = $image_url;
+    }
+
+    // Description fallback to post excerpt or trimmed content
+    $description = has_excerpt($post) ? get_the_excerpt($post) : wp_trim_words($post->post_content, 30);
+    if ($description) {
+        $node['description'] = $description;
+    }
+
+    return $node;
+}
+} // end function_exists guard: almaseo_build_event_node
+
+/**
+ * Build a Recipe node for cooking/food posts.
+ *
+ * Times are stored in raw minutes and converted to ISO 8601 duration here
+ * (e.g. 45 → "PT45M") because Google requires ISO 8601 for prepTime/cookTime
+ * but raw minutes is much friendlier in the editor. Author defaults to the
+ * post author. AggregateRating only emits when both ratingValue and
+ * reviewCount are set.
+ *
+ * @param WP_Post $post
+ * @return array Recipe node
+ */
+if (!function_exists('almaseo_build_recipe_node')) {
+function almaseo_build_recipe_node($post) {
+    $node = array(
+        '@type' => 'Recipe',
+        '@id'   => get_permalink($post->ID) . '#recipe',
+        'name'  => get_the_title($post->ID),
+        'url'   => get_permalink($post->ID),
+    );
+
+    // Author — default to the post author so the Recipe rich result has a name
+    $author_id = (int) $post->post_author;
+    if ($author_id) {
+        $node['author'] = array(
+            '@type' => 'Person',
+            'name'  => get_the_author_meta('display_name', $author_id),
+        );
+    }
+
+    // datePublished — ISO 8601, from the post itself
+    $node['datePublished'] = mysql2date('c', $post->post_date_gmt, false);
+
+    // Classification
+    $cuisine  = get_post_meta($post->ID, '_almaseo_recipe_cuisine', true);
+    $category = get_post_meta($post->ID, '_almaseo_recipe_category', true);
+    if ($cuisine)  $node['recipeCuisine']  = $cuisine;
+    if ($category) $node['recipeCategory'] = $category;
+
+    // Yield + times — convert minutes to ISO 8601 duration ("PT45M")
+    $yield = get_post_meta($post->ID, '_almaseo_recipe_yield', true);
+    if ($yield) $node['recipeYield'] = $yield;
+
+    $prep_min = get_post_meta($post->ID, '_almaseo_recipe_prep_minutes', true);
+    $cook_min = get_post_meta($post->ID, '_almaseo_recipe_cook_minutes', true);
+    if ($prep_min !== '' && $prep_min !== false && (int) $prep_min > 0) {
+        $node['prepTime'] = 'PT' . (int) $prep_min . 'M';
+    }
+    if ($cook_min !== '' && $cook_min !== false && (int) $cook_min > 0) {
+        $node['cookTime'] = 'PT' . (int) $cook_min . 'M';
+    }
+    if (isset($node['prepTime']) && isset($node['cookTime'])) {
+        $node['totalTime'] = 'PT' . ((int) $prep_min + (int) $cook_min) . 'M';
+    }
+
+    // Ingredients — one per line → array of strings
+    $ingredients_raw = get_post_meta($post->ID, '_almaseo_recipe_ingredients', true);
+    if ($ingredients_raw) {
+        $items = array();
+        $lines = preg_split('/\r\n|\r|\n/', $ingredients_raw);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line !== '') {
+                $items[] = $line;
+            }
+        }
+        if (!empty($items)) {
+            $node['recipeIngredient'] = $items;
+        }
+    }
+
+    // Instructions — one step per line → HowToStep nodes
+    $instructions_raw = get_post_meta($post->ID, '_almaseo_recipe_instructions', true);
+    if ($instructions_raw) {
+        $steps = array();
+        $lines = preg_split('/\r\n|\r|\n/', $instructions_raw);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line !== '') {
+                $steps[] = array(
+                    '@type' => 'HowToStep',
+                    'text'  => $line,
+                );
+            }
+        }
+        if (!empty($steps)) {
+            $node['recipeInstructions'] = $steps;
+        }
+    }
+
+    // Nutrition — calories per serving
+    $calories = get_post_meta($post->ID, '_almaseo_recipe_calories', true);
+    if ($calories !== '' && $calories !== false && (int) $calories > 0) {
+        $node['nutrition'] = array(
+            '@type'    => 'NutritionInformation',
+            'calories' => (int) $calories . ' calories',
+        );
+    }
+
+    // AggregateRating — both fields required
+    $rating_value = get_post_meta($post->ID, '_almaseo_recipe_rating_value', true);
+    $review_count = get_post_meta($post->ID, '_almaseo_recipe_review_count', true);
+    if ($rating_value !== '' && $rating_value !== false && $review_count !== '' && $review_count !== false) {
+        $node['aggregateRating'] = array(
+            '@type'       => 'AggregateRating',
+            'ratingValue' => (string) $rating_value,
+            'reviewCount' => (int) $review_count,
+        );
+    }
+
+    // Image — explicit, then featured-image fallback
+    $image_url = get_post_meta($post->ID, '_almaseo_recipe_image', true);
+    if (!$image_url && has_post_thumbnail($post->ID)) {
+        $image_url = get_the_post_thumbnail_url($post->ID, 'large');
+    }
+    if ($image_url) {
+        $node['image'] = $image_url;
+    }
+
+    // Keywords — comma-separated string passes through as-is per Google's spec
+    $keywords = get_post_meta($post->ID, '_almaseo_recipe_keywords', true);
+    if ($keywords) {
+        $node['keywords'] = $keywords;
+    }
+
+    // Description fallback to post excerpt or trimmed content
+    $description = has_excerpt($post) ? get_the_excerpt($post) : wp_trim_words($post->post_content, 30);
+    if ($description) {
+        $node['description'] = $description;
+    }
+
+    return $node;
+}
+} // end function_exists guard: almaseo_build_recipe_node

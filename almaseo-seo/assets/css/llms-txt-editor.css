@@ -1,0 +1,56 @@
+/* AlmaSEO LLMs.txt Editor */
+
+.almaseo-llms-txt-wrap {
+    max-width: 800px;
+}
+
+.almaseo-llms-txt-mode {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    padding: 16px 20px;
+    margin: 20px 0;
+    border-radius: 4px;
+}
+
+.almaseo-llms-txt-mode h3 {
+    margin-top: 0;
+}
+
+.almaseo-llms-txt-mode label {
+    display: inline-block;
+    margin: 4px 0;
+}
+
+.almaseo-llms-txt-editor-wrap {
+    margin-bottom: 16px;
+}
+
+.almaseo-llms-txt-editor-wrap textarea {
+    font-family: monospace;
+    font-size: 13px;
+    width: 100%;
+    resize: vertical;
+}
+
+.almaseo-llms-txt-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.almaseo-llms-txt-actions .spinner {
+    float: none;
+    margin: 0;
+}
+
+.almaseo-llms-txt-notice {
+    padding: 10px 14px;
+    margin: 10px 0;
+    border-left: 4px solid #00a32a;
+    background: #fff;
+}
+
+.almaseo-llms-txt-notice.error {
+    border-left-color: #d63638;
+}

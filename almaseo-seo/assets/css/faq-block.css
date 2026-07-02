@@ -1,0 +1,81 @@
+/**
+ * AlmaSEO FAQ Block — Frontend Styles
+ *
+ * @package AlmaSEO
+ * @since   8.3.0
+ */
+
+/* ── General wrapper ────────────────────────────────────────────────── */
+.almaseo-faq-block {
+    max-width: 800px;
+    margin: 2em auto;
+}
+
+/* =========================================================================
+   Accordion layout
+   ========================================================================= */
+
+.almaseo-faq-accordion details.almaseo-faq-pair {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.almaseo-faq-accordion details.almaseo-faq-pair:first-child {
+    border-top: 1px solid #e0e0e0;
+}
+
+.almaseo-faq-accordion summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1.05em;
+    padding: 14px 16px;
+    list-style: none;               /* Firefox */
+    transition: background-color 0.15s ease;
+}
+
+/* Remove default marker across browsers */
+.almaseo-faq-accordion summary::-webkit-details-marker {
+    display: none;
+}
+
+.almaseo-faq-accordion summary::before {
+    content: '\25B6';               /* right-pointing triangle */
+    display: inline-block;
+    margin-right: 10px;
+    font-size: 0.75em;
+    transition: transform 0.2s ease;
+}
+
+.almaseo-faq-accordion details[open] > summary::before {
+    transform: rotate(90deg);
+}
+
+.almaseo-faq-accordion summary:hover {
+    background-color: #f7f7f7;
+}
+
+.almaseo-faq-accordion .almaseo-faq-answer {
+    padding: 8px 16px 16px 32px;
+    line-height: 1.7;
+    color: #444;
+}
+
+/* =========================================================================
+   List layout
+   ========================================================================= */
+
+.almaseo-faq-list .almaseo-faq-item {
+    margin-bottom: 1.5em;
+}
+
+.almaseo-faq-list .almaseo-faq-question {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin: 0 0 0.4em;
+    padding: 0;
+}
+
+.almaseo-faq-list .almaseo-faq-answer {
+    padding-left: 16px;
+    line-height: 1.7;
+    color: #444;
+}

@@ -1,0 +1,127 @@
+/**
+ * AlmaSEO — Table of Contents Block (Frontend Styles)
+ *
+ * @package AlmaSEO
+ * @since   8.3.0
+ */
+
+/* ── Container ────────────────────────────────────────────────────── */
+.almaseo-toc-block {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin: 1.5em 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* ── Title ────────────────────────────────────────────────────────── */
+.almaseo-toc-block .almaseo-toc-title {
+    font-weight: 600;
+    font-size: 1.1em;
+    margin: 0 0 12px;
+    color: #1e1e1e;
+    line-height: 1.4;
+}
+
+/* ── Lists ────────────────────────────────────────────────────────── */
+.almaseo-toc-block ol,
+.almaseo-toc-block ul {
+    margin: 0;
+    padding-left: 1.5em;
+    list-style-position: outside;
+}
+
+.almaseo-toc-block ol {
+    list-style-type: decimal;
+}
+
+.almaseo-toc-block ul {
+    list-style-type: disc;
+}
+
+/* Nested lists */
+.almaseo-toc-block ol ol,
+.almaseo-toc-block ul ul,
+.almaseo-toc-block ol ul,
+.almaseo-toc-block ul ol {
+    margin-top: 4px;
+    padding-left: 1.4em;
+}
+
+.almaseo-toc-block li {
+    margin-bottom: 6px;
+    line-height: 1.5;
+}
+
+.almaseo-toc-block li:last-child {
+    margin-bottom: 0;
+}
+
+/* ── Links ────────────────────────────────────────────────────────── */
+.almaseo-toc-block a {
+    color: #3858e9;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.almaseo-toc-block a:hover,
+.almaseo-toc-block a:focus {
+    color: #1e3a8a;
+    text-decoration: underline;
+}
+
+/* ── Collapsible (details/summary) ────────────────────────────────── */
+.almaseo-toc-block details {
+    margin: 0;
+}
+
+.almaseo-toc-block details summary {
+    font-weight: 600;
+    font-size: 1.1em;
+    color: #1e1e1e;
+    cursor: pointer;
+    padding: 0 0 12px;
+    line-height: 1.4;
+    list-style: revert;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.almaseo-toc-block details summary:hover {
+    color: #3858e9;
+}
+
+.almaseo-toc-block details summary::-webkit-details-marker {
+    margin-right: 8px;
+}
+
+.almaseo-toc-block details[open] > ol,
+.almaseo-toc-block details[open] > ul {
+    animation: almaseo-toc-fade-in 0.2s ease-out;
+}
+
+/* ── Animations ───────────────────────────────────────────────────── */
+@keyframes almaseo-toc-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ── Responsive ───────────────────────────────────────────────────── */
+@media ( max-width: 600px ) {
+    .almaseo-toc-block {
+        padding: 16px 18px;
+    }
+
+    .almaseo-toc-block ol,
+    .almaseo-toc-block ul {
+        padding-left: 1.2em;
+    }
+}

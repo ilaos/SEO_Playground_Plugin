@@ -1,0 +1,94 @@
+/**
+ * AlmaSEO — Breadcrumbs Block (Editor Styles)
+ *
+ * @package AlmaSEO
+ * @since   8.4.0
+ */
+
+/* ── Placeholder container ────────────────────────────────────────── */
+.almaseo-breadcrumbs-editor-placeholder {
+    border: 2px dashed #c3c4c7;
+    border-radius: 8px;
+    padding: 32px 24px;
+    text-align: center;
+    background: #f9f9f9;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+/* ── Icon ─────────────────────────────────────────────────────────── */
+.almaseo-breadcrumbs-editor-icon {
+    margin-bottom: 8px;
+}
+
+.almaseo-breadcrumbs-dashicon {
+    font-size: 36px;
+    width: 36px;
+    height: 36px;
+    color: #3858e9;
+    opacity: 0.8;
+}
+
+/* ── Title ────────────────────────────────────────────────────────── */
+.almaseo-breadcrumbs-editor-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1e1e1e;
+    margin: 0 0 4px;
+}
+
+/* ── Description ──────────────────────────────────────────────────── */
+.almaseo-breadcrumbs-editor-desc {
+    font-size: 13px;
+    color: #757575;
+    margin: 0 0 8px;
+}
+
+/* ── Preview breadcrumb path ──────────────────────────────────────── */
+.almaseo-breadcrumbs-editor-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0;
+    padding: 10px 16px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    margin: 4px 0 8px;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.almaseo-breadcrumbs-preview-home {
+    color: #0073aa;
+    text-decoration: underline;
+}
+
+.almaseo-breadcrumbs-preview-mid {
+    color: #0073aa;
+    text-decoration: underline;
+}
+
+.almaseo-breadcrumbs-preview-sep {
+    color: #757575;
+    margin: 0 2px;
+    font-weight: 500;
+}
+
+.almaseo-breadcrumbs-preview-current {
+    color: #1e1e1e;
+    font-weight: 600;
+}
+
+/* ── Meta line ────────────────────────────────────────────────────── */
+.almaseo-breadcrumbs-editor-meta {
+    font-size: 12px;
+    color: #949494;
+    margin: 0;
+    font-style: italic;
+}

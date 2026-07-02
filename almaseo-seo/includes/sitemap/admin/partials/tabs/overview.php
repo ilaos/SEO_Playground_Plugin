@@ -1,0 +1,630 @@
+<?php
+/**
+ * Overview Tab - Polished with URL Logic
+ * 
+ * @package AlmaSEO
+ */
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- view/bootstrap file; locals and internal callbacks are not a public global API
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// Use new helper function
+$urls = almaseo_get_index_urls();
+$primary_url = esc_url($urls['primary']);
+$direct_url = esc_url($urls['direct']);
+$enabled = $urls['enabled'];
+$takeover = $urls['takeover'];
+
+// Get additional stats
+$build_stats = almaseo_get_build_stats();
+$indexnow_key = almaseo_get_indexnow_key();
+
+// Get settings for additional data.
+$settings = get_option('almaseo_sitemap_settings', []);
+// generation_mode lived at the top level historically but the real key is
+// perf.storage_mode — nothing in the codebase writes a top-level
+// `generation_mode`, so the "Mode" stat always showed 'static' as a fallback.
+$generation_mode = ($settings['perf']['storage_mode'] ?? 'static');
+
+// Health data. Previously read three orphaned option keys
+// (almaseo_last_validate_time, almaseo_conflict_count,
+// almaseo_last_indexnow_time) that no code writes. The real data lives
+// under almaseo_sitemap_settings.health.* and is surfaced by the shared
+// almaseo_get_health_summary() helper, which returns Unix timestamps for
+// validated_at / indexnow_at and an int for conflicts.
+if (function_exists('almaseo_get_health_summary')) {
+    $health         = almaseo_get_health_summary();
+    $last_validate  = (int) ($health['validated_at'] ?? 0);
+    $conflict_count = (int) ($health['conflicts'] ?? 0);
+    $last_indexnow  = (int) ($health['indexnow_at'] ?? 0);
+} else {
+    $last_validate  = 0;
+    $conflict_count = 0;
+    $last_indexnow  = 0;
+}
+
+?>
+
+<div class="almaseo-overview-tab almaseo-sitemap-overview">
+    
+    <?php 
+    // Add help text for sitemaps
+    if (function_exists('almaseo_render_help')) {
+        almaseo_render_help(
+            __('Sitemaps list your URLs for search engines to discover quickly. Keep them enabled unless your site is private.', 'almaseo-seo-playground'),
+            __('Health checks validate URLs and alert you to conflicts with other SEO plugins.', 'almaseo-seo-playground')
+        );
+    }
+    ?>
+    
+    <?php if (!$enabled): ?>
+    <!-- Enable Sitemaps CTA -->
+    <div class="almaseo-card almaseo-cta-card">
+        <div class="cta-content">
+            <span class="dashicons dashicons-warning cta-icon"></span>
+            <div class="cta-text">
+                <h3><?php esc_html_e('Sitemaps are currently disabled', 'almaseo-seo-playground'); ?></h3>
+                <p><?php esc_html_e('Enable sitemaps to help search engines discover and index your content.', 'almaseo-seo-playground'); ?></p>
+            </div>
+            <button type="button" class="button button-primary button-hero" id="enable-sitemaps-cta">
+                <span class="dashicons dashicons-yes-alt"></span>
+                <?php esc_html_e('Enable Sitemaps', 'almaseo-seo-playground'); ?>
+            </button>
+        </div>
+    </div>
+    <?php endif; ?>
+    
+    <!-- Compact Stats Card -->
+    <div class="almaseo-card almaseo-stats-card">
+        <h2><?php esc_html_e('Sitemap Statistics', 'almaseo-seo-playground'); ?></h2>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-icon dashicons dashicons-media-text"></span>
+                <div class="stat-content">
+                    <div class="stat-value" data-stat="files"><?php echo esc_html(number_format($build_stats['files'])); ?></div>
+                    <div class="stat-label"><?php esc_html_e('Files', 'almaseo-seo-playground'); ?></div>
+                </div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon dashicons dashicons-admin-links"></span>
+                <div class="stat-content">
+                    <div class="stat-value" data-stat="urls"><?php echo esc_html(number_format($build_stats['urls'])); ?></div>
+                    <div class="stat-label"><?php esc_html_e('URLs', 'almaseo-seo-playground'); ?></div>
+                </div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon dashicons dashicons-clock"></span>
+                <div class="stat-content">
+                    <div class="stat-value" data-stat="last-built">
+                        <?php 
+                        if ($build_stats['last_built']) {
+                            echo esc_html(human_time_diff($build_stats['last_built']) . ' ' . esc_html__('ago', 'almaseo-seo-playground'));
+                        } else {
+                            esc_html_e('Never', 'almaseo-seo-playground');
+                        }
+                        ?>
+                    </div>
+                    <div class="stat-label"><?php esc_html_e('Last Built', 'almaseo-seo-playground'); ?></div>
+                </div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-icon dashicons dashicons-admin-settings"></span>
+                <div class="stat-content">
+                    <div class="stat-value"><?php echo esc_html(ucfirst($generation_mode)); ?></div>
+                    <div class="stat-label"><?php esc_html_e('Mode', 'almaseo-seo-playground'); ?></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Status -->
+    <div class="almaseo-card">
+        <h2><?php esc_html_e('Quick Status', 'almaseo-seo-playground'); ?></h2>
+        
+        <div class="status-grid">
+            <div class="status-item">
+                <span class="status-label"><?php esc_html_e('Sitemap Status:', 'almaseo-seo-playground'); ?></span>
+                <span class="status-value <?php echo esc_attr($enabled ? 'status-enabled' : 'status-disabled'); ?>">
+                    <?php echo $enabled ? esc_html__('Enabled', 'almaseo-seo-playground') : esc_html__('Disabled', 'almaseo-seo-playground'); ?>
+                </span>
+            </div>
+            
+            <div class="status-item">
+                <span class="status-label"><?php esc_html_e('Primary URL:', 'almaseo-seo-playground'); ?></span>
+                <div class="status-value status-url">
+                    <code id="primary-sitemap-url"><?php echo esc_html($primary_url); ?></code>
+                    <button type="button" class="button-link copy-url-btn" 
+                            data-url="<?php echo esc_attr($primary_url); ?>" 
+                            title="<?php esc_attr_e('Copy URL', 'almaseo-seo-playground'); ?>"
+                            <?php echo esc_attr(!$enabled ? 'disabled aria-disabled="true"' : ''); ?>>
+                        <span class="dashicons dashicons-clipboard"></span>
+                    </button>
+                </div>
+            </div>
+            
+            <?php if ($takeover): ?>
+            <div class="status-item">
+                <span class="status-label"><?php esc_html_e('Direct URL:', 'almaseo-seo-playground'); ?></span>
+                <div class="status-value status-url">
+                    <code><?php echo esc_html($direct_url); ?></code>
+                    <span class="status-badge status-takeover"><?php esc_html_e('Takeover Active', 'almaseo-seo-playground'); ?></span>
+                </div>
+            </div>
+            <?php endif; ?>
+            
+            <?php if (!empty($settings['include']['posts'])): ?>
+            <div class="status-item">
+                <span class="status-label"><?php esc_html_e('Posts Included:', 'almaseo-seo-playground'); ?></span>
+                <span class="status-value"><?php esc_html_e('Yes', 'almaseo-seo-playground'); ?></span>
+            </div>
+            <?php endif; ?>
+            
+            <?php if (!empty($settings['include']['pages'])): ?>
+            <div class="status-item">
+                <span class="status-label"><?php esc_html_e('Pages Included:', 'almaseo-seo-playground'); ?></span>
+                <span class="status-value"><?php esc_html_e('Yes', 'almaseo-seo-playground'); ?></span>
+            </div>
+            <?php endif; ?>
+        </div>
+    </div>
+    
+    <!-- Enhanced Health Summary -->
+    <div class="almaseo-card">
+        <h2><?php esc_html_e('Health Summary', 'almaseo-seo-playground'); ?></h2>
+        
+        <div class="health-chips">
+            <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-sitemaps&tab=health')); ?>" class="health-chip">
+                <span class="dashicons dashicons-yes-alt"></span>
+                <div class="chip-content">
+                    <div class="chip-label"><?php esc_html_e('Last Validate', 'almaseo-seo-playground'); ?></div>
+                    <div class="chip-value">
+                        <?php
+                        if ($last_validate) {
+                            echo esc_html(human_time_diff($last_validate) . ' ' . esc_html__('ago', 'almaseo-seo-playground'));
+                        } else {
+                            esc_html_e('Never', 'almaseo-seo-playground');
+                        }
+                        ?>
+                    </div>
+                </div>
+            </a>
+            
+            <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-sitemaps&tab=health')); ?>" class="health-chip <?php echo esc_attr($conflict_count > 0 ? 'has-issues' : ''); ?>">
+                <span class="dashicons dashicons-<?php echo esc_attr($conflict_count > 0 ? 'warning' : 'yes-alt'); ?>"></span>
+                <div class="chip-content">
+                    <div class="chip-label"><?php esc_html_e('Conflicts', 'almaseo-seo-playground'); ?></div>
+                    <div class="chip-value">
+                        <?php
+                        /* translators: %d: number of conflicts found */
+                        echo $conflict_count > 0 ? esc_html(sprintf(_n('%d found', '%d found', $conflict_count, 'almaseo-seo-playground'), $conflict_count)) : esc_html__('None', 'almaseo-seo-playground'); ?>
+                    </div>
+                </div>
+            </a>
+            
+            <a href="<?php echo esc_url(admin_url('admin.php?page=almaseo-sitemaps&tab=updates')); ?>" class="health-chip">
+                <span class="dashicons dashicons-update"></span>
+                <div class="chip-content">
+                    <div class="chip-label"><?php esc_html_e('Last IndexNow', 'almaseo-seo-playground'); ?></div>
+                    <div class="chip-value">
+                        <?php 
+                        if ($last_indexnow) {
+                            echo esc_html(human_time_diff($last_indexnow) . ' ' . esc_html__('ago', 'almaseo-seo-playground'));
+                        } else {
+                            esc_html_e('Never', 'almaseo-seo-playground');
+                        }
+                        ?>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+        <?php
+        $health_issues = [];
+        
+        // Check for common issues
+        if (!$enabled) {
+            $health_issues[] = [
+                'type' => 'warning',
+                'message' => __('Sitemaps are currently disabled', 'almaseo-seo-playground')
+            ];
+        }
+        
+        if ($build_stats['last_built'] && (time() - $build_stats['last_built']) > 604800) { // 7 days
+            $health_issues[] = [
+                'type' => 'info',
+                'message' => __('Sitemaps haven\'t been rebuilt in over a week', 'almaseo-seo-playground')
+            ];
+        }
+        
+        if ($build_stats['urls'] > 50000) {
+            $health_issues[] = [
+                'type' => 'info',
+                /* translators: %s: formatted number of URLs in the sitemap */
+                'message' => sprintf(__('Large sitemap detected (%s URLs)', 'almaseo-seo-playground'), number_format($build_stats['urls']))
+            ];
+        }
+        
+        if (!$indexnow_key) {
+            $health_issues[] = [
+                'type' => 'info',
+                'message' => __('IndexNow key not configured - instant indexing disabled', 'almaseo-seo-playground')
+            ];
+        }
+        ?>
+        
+        <?php if (!empty($health_issues)): ?>
+            <div class="health-issues">
+                <?php foreach ($health_issues as $issue): ?>
+                    <div class="health-status health-<?php echo esc_attr($issue['type']); ?>">
+                        <span class="dashicons dashicons-<?php echo esc_attr($issue['type'] === 'warning' ? 'warning' : 'info'); ?>"></span>
+                        <span><?php echo esc_html($issue['message']); ?></span>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <div class="health-status health-good">
+                <span class="dashicons dashicons-yes-alt"></span>
+                <span><?php esc_html_e('All systems operational', 'almaseo-seo-playground'); ?></span>
+            </div>
+        <?php endif; ?>
+    </div>
+    
+    <!-- Robots.txt Preview (Collapsed by default) -->
+    <div class="almaseo-card">
+        <div class="card-header-collapsible">
+            <h2><?php esc_html_e('Robots.txt Preview', 'almaseo-seo-playground'); ?></h2>
+            <button type="button" class="toggle-collapse" aria-expanded="false" aria-label="<?php esc_attr_e('Toggle robots.txt preview', 'almaseo-seo-playground'); ?>">
+                <span class="dashicons dashicons-arrow-down-alt2"></span>
+            </button>
+        </div>
+        
+        <div class="collapsible-content" style="display:none;" aria-hidden="true">
+            <?php if ($enabled): ?>
+                <?php
+                $robots_file = ABSPATH . 'robots.txt';
+                $robots_content = file_exists($robots_file) ? file_get_contents($robots_file) : false;
+                if (!$robots_content) {
+                    // Virtual robots.txt
+                    $robots_content = "User-agent: *\nDisallow: /wp-admin/\nAllow: /wp-admin/admin-ajax.php\n\n";
+                    $robots_content .= "Sitemap: " . $primary_url;
+                }
+                ?>
+                <pre class="robots-preview"><?php echo esc_html($robots_content); ?></pre>
+                
+                <?php if (strpos($robots_content, 'sitemap') !== false || strpos($robots_content, 'Sitemap') !== false): ?>
+                    <div class="notice notice-success inline">
+                        <p><?php esc_html_e('✓ Sitemap reference found in robots.txt', 'almaseo-seo-playground'); ?></p>
+                    </div>
+                <?php else: ?>
+                    <div class="notice notice-warning inline">
+                        <p><?php esc_html_e('⚠ No sitemap reference found in robots.txt', 'almaseo-seo-playground'); ?></p>
+                    </div>
+                <?php endif; ?>
+            <?php else: ?>
+                <div class="robots-disabled">
+                    <p><?php esc_html_e('Enable sitemaps to preview robots.txt configuration', 'almaseo-seo-playground'); ?></p>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+    
+    <!-- Quick Tools -->
+    <div class="almaseo-card">
+        <h2><?php esc_html_e('Quick Tools', 'almaseo-seo-playground'); ?></h2>
+        
+        <div class="quick-tools">
+            <button type="button" class="button" id="validate-sitemap" 
+                    <?php echo !$enabled ? 'disabled aria-disabled="true" title="' . esc_attr__('Enable sitemaps first', 'almaseo-seo-playground') . '"' : ''; ?>>
+                <span class="dashicons dashicons-yes-alt"></span>
+                <?php esc_html_e('Validate', 'almaseo-seo-playground'); ?>
+            </button>
+            
+            <button type="button" class="button" id="submit-to-search-console">
+                <span class="dashicons dashicons-google"></span>
+                <?php esc_html_e('Search Console', 'almaseo-seo-playground'); ?>
+            </button>
+            
+            <?php if ($indexnow_key): ?>
+            <button type="button" class="button" id="ping-indexnow"
+                    <?php echo esc_attr(!$enabled ? 'disabled aria-disabled="true"' : ''); ?>
+                    title="<?php esc_attr_e('Instantly notify search engines of content changes', 'almaseo-seo-playground'); ?>">
+                <span class="dashicons dashicons-megaphone"></span>
+                <?php esc_html_e('IndexNow', 'almaseo-seo-playground'); ?>
+            </button>
+            <?php else: ?>
+            <button type="button" class="button" disabled aria-disabled="true" 
+                    title="<?php esc_attr_e('Configure IndexNow key in Updates & I/O tab first', 'almaseo-seo-playground'); ?>">
+                <span class="dashicons dashicons-megaphone"></span>
+                <?php esc_html_e('IndexNow', 'almaseo-seo-playground'); ?> <span class="dashicons dashicons-lock" style="font-size: 12px; margin-left: 4px;"></span>
+            </button>
+            <?php endif; ?>
+            
+            <button type="button" class="button" id="clear-cache"
+                    <?php echo esc_attr(!$enabled ? 'disabled aria-disabled="true"' : ''); ?>>
+                <span class="dashicons dashicons-trash"></span>
+                <?php esc_html_e('Clear Cache', 'almaseo-seo-playground'); ?>
+            </button>
+            
+            <button type="button" class="button" id="copy-all-urls"
+                    <?php echo esc_attr(!$enabled ? 'disabled aria-disabled="true"' : ''); ?>>
+                <span class="dashicons dashicons-admin-page"></span>
+                <?php esc_html_e('Copy All URLs', 'almaseo-seo-playground'); ?>
+            </button>
+        </div>
+        
+        <p class="description">
+            <?php if (!$enabled): ?>
+                <?php esc_html_e('Enable sitemaps to use these tools.', 'almaseo-seo-playground'); ?>
+            <?php elseif (!$indexnow_key): ?>
+                <?php esc_html_e('Configure IndexNow in the Updates & I/O tab for instant search engine notifications.', 'almaseo-seo-playground'); ?>
+            <?php else: ?>
+                <?php esc_html_e('Use these tools to validate your sitemap structure, submit to search engines, or manage sitemap content.', 'almaseo-seo-playground'); ?>
+            <?php endif; ?>
+        </p>
+    </div>
+    
+</div>
+
+<style>
+/* Additional styles for takeover badge */
+.status-badge.status-takeover {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #fbbf24;
+    color: #78350f;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 4px;
+    margin-left: 8px;
+}
+
+/* Disabled button styles */
+.button[disabled], .button[aria-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+}
+
+/* Toast notifications */
+#almaseo-toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 100000;
+    pointer-events: none;
+}
+
+.almaseo-toast {
+    background: #fff;
+    border-left: 4px solid #00a0d2;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 12px 20px;
+    margin-top: 10px;
+    max-width: 300px;
+    pointer-events: auto;
+    animation: slideInRight 0.3s ease-out;
+}
+
+.almaseo-toast-success {
+    border-left-color: #46b450;
+}
+
+.almaseo-toast-error {
+    border-left-color: #dc3232;
+}
+
+.almaseo-toast-warning {
+    border-left-color: #ffb900;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* WordPress admin spinner */
+.spinner {
+    visibility: visible;
+    float: none;
+    display: inline-block;
+    margin: 0 5px 0 0;
+    vertical-align: middle;
+}
+</style>
+
+<script>
+jQuery(document).ready(function($) {
+    // Helper function to show toast notifications
+    function showToast(message, type) {
+        const $container = $('#almaseo-toast-container');
+        if ($container.length === 0) {
+            $('body').append('<div id="almaseo-toast-container" aria-live="polite" aria-atomic="true"></div>');
+        }
+        
+        const $toast = $('<div class="almaseo-toast almaseo-toast-' + type + '">' + message + '</div>');
+        $('#almaseo-toast-container').append($toast);
+        
+        setTimeout(function() {
+            $toast.fadeOut(300, function() {
+                $(this).remove();
+            });
+        }, 3000);
+    }
+    
+    // Enable Sitemaps CTA
+    $('#enable-sitemaps-cta').on('click', function() {
+        const $button = $(this);
+        const origHtml = $button.html();
+        $button.prop('disabled', true).html('<span class="spinner is-active"></span> Enabling...');
+        
+        // Step 1: Enable sitemaps
+        $.post(ajaxurl, {
+            action: 'almaseo_toggle_sitemaps',
+            enabled: true,
+            nonce: (window.almaseoSitemaps && window.almaseoSitemaps.nonce) || (window.__ALMA_BOOT && window.__ALMA_BOOT.nonce) || ''
+        })
+        .done(function(response) {
+            if (response.success) {
+                // Step 2: Queue rebuild
+                $.post(ajaxurl, {
+                    action: 'almaseo_rebuild_static',
+                    nonce: (window.almaseoSitemaps && window.almaseoSitemaps.nonce) || (window.__ALMA_BOOT && window.__ALMA_BOOT.nonce) || ''
+                })
+                .done(function(rebuildResponse) {
+                    // Step 3: Refresh stats and UI
+                    $('.almaseo-cta-card').slideUp(400, function() {
+                        $(this).remove();
+                    });
+                    
+                    // Update status indicators
+                    $('.status-disabled').removeClass('status-disabled').addClass('status-enabled').text('Enabled');
+                    
+                    // Enable buttons
+                    $('.quick-tools .button[disabled]').not('[title*="IndexNow key"]').prop('disabled', false).removeAttr('aria-disabled');
+                    
+                    // Show success toast
+                    showToast('Sitemaps enabled and rebuild queued successfully', 'success');
+                    
+                    // Reload page after a short delay to show updated UI
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1500);
+                })
+                .fail(function() {
+                    showToast('Sitemaps enabled but rebuild failed. Please rebuild manually.', 'warning');
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1500);
+                });
+            } else {
+                showToast(response.data.message || 'Failed to enable sitemaps', 'error');
+                $button.prop('disabled', false).html(origHtml);
+            }
+        })
+        .fail(function() {
+            showToast('Failed to enable sitemaps', 'error');
+            $button.prop('disabled', false).html(origHtml);
+        });
+    });
+    
+    // Copy URL functionality
+    $('.copy-url-btn').on('click', function() {
+        const url = $(this).data('url');
+        if (!url) return;
+        
+        // Create temporary input
+        const $temp = $('<input>');
+        $('body').append($temp);
+        $temp.val(url).select();
+        document.execCommand('copy');
+        $temp.remove();
+        
+        showToast('URL copied to clipboard', 'success');
+    });
+    
+    // Collapsible robots.txt preview
+    $('.toggle-collapse').on('click', function() {
+        const $button = $(this);
+        const $content = $button.closest('.almaseo-card').find('.collapsible-content');
+        const isExpanded = $button.attr('aria-expanded') === 'true';
+        
+        if (isExpanded) {
+            $content.slideUp(300);
+            $button.attr('aria-expanded', 'false')
+                   .find('.dashicons')
+                   .removeClass('dashicons-arrow-up-alt2')
+                   .addClass('dashicons-arrow-down-alt2');
+            $content.attr('aria-hidden', 'true');
+        } else {
+            $content.slideDown(300);
+            $button.attr('aria-expanded', 'true')
+                   .find('.dashicons')
+                   .removeClass('dashicons-arrow-down-alt2')
+                   .addClass('dashicons-arrow-up-alt2');
+            $content.attr('aria-hidden', 'false');
+        }
+    });
+    
+    // #validate-sitemap is now wired centrally in sitemaps-consolidated.js
+    // (delegated) so the same handler also picks up the Health & Scan tab's
+    // copy of the button. Previously this inline handler faked success with
+    // setTimeout and didn't call any backend.
+
+    $('#submit-to-search-console').on('click', function() {
+        const sitemapUrl = $('#primary-sitemap-url').text();
+        window.open('https://search.google.com/search-console/sitemaps?resource=' + encodeURIComponent(window.location.origin), '_blank');
+    });
+    
+    $('#ping-indexnow').on('click', function() {
+        const $button = $(this);
+        $button.prop('disabled', true).html('<span class="spinner is-active"></span> Pinging...');
+        
+        $.post(ajaxurl, {
+            action: 'almaseo_force_delta_ping',
+            nonce: (window.almaseoSitemaps && window.almaseoSitemaps.nonce) || (window.__ALMA_BOOT && window.__ALMA_BOOT.nonce) || ''
+        })
+        .done(function(response) {
+            if (response.success) {
+                showToast('IndexNow ping sent successfully', 'success');
+            } else {
+                showToast(response.data.message || 'IndexNow ping failed', 'error');
+            }
+        })
+        .always(function() {
+            $button.prop('disabled', false).html('<span class="dashicons dashicons-megaphone"></span> IndexNow');
+        });
+    });
+    
+    $('#clear-cache').on('click', function() {
+        const $button = $(this);
+        $button.prop('disabled', true).html('<span class="spinner is-active"></span> Clearing...');
+        
+        // Clear transients
+        $.post(ajaxurl, {
+            action: 'almaseo_recalculate',
+            nonce: (window.almaseoSitemaps && window.almaseoSitemaps.nonce) || (window.__ALMA_BOOT && window.__ALMA_BOOT.nonce) || ''
+        })
+        .done(function(response) {
+            showToast('Cache cleared successfully', 'success');
+        })
+        .always(function() {
+            $button.prop('disabled', false).html('<span class="dashicons dashicons-trash"></span> Clear Cache');
+        });
+    });
+    
+    $('#copy-all-urls').on('click', function() {
+        const $button = $(this);
+        $button.prop('disabled', true).html('<span class="spinner is-active"></span> Loading...');
+        
+        $.post(ajaxurl, {
+            action: 'almaseo_copy_all_urls',
+            nonce: (window.almaseoSitemaps && window.almaseoSitemaps.nonce) || (window.__ALMA_BOOT && window.__ALMA_BOOT.nonce) || ''
+        })
+        .done(function(response) {
+            if (response.success && response.data.urls) {
+                const urls = response.data.urls.join('\n');
+                const $temp = $('<textarea>');
+                $('body').append($temp);
+                $temp.val(urls).select();
+                document.execCommand('copy');
+                $temp.remove();
+                
+                showToast('All sitemap URLs copied to clipboard', 'success');
+            }
+        })
+        .always(function() {
+            $button.prop('disabled', false).html('<span class="dashicons dashicons-admin-page"></span> Copy All URLs');
+        });
+    });
+});
+</script>

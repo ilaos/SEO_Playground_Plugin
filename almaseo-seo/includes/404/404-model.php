@@ -1,0 +1,398 @@
+<?php
+/**
+ * AlmaSEO 404 Tracker - Model (CRUD Operations)
+ * 
+ * @package AlmaSEO
+ * @subpackage 404Tracker
+ * @since 6.2.0
+ */
+
+// phpcs:disable PluginCheck.Security.DirectDB -- plugin's own custom tables; interpolated parts are $wpdb->prefix-derived names / built placeholder lists, not user input
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// This model performs all CRUD against the plugin's own custom tables (wp_almaseo_404_log /
+// wp_almaseo_404_daily). Direct $wpdb queries are unavoidable (no core API for custom tables)
+// and read-side stats are transient-cached (see get_stats()), so the DirectDatabaseQuery
+// DirectQuery/NoCaching warnings below are expected.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+class AlmaSEO_404_Model {
+    
+    /**
+     * Get 404 logs with filters
+     */
+    public static function get_logs($args = array()) {
+        global $wpdb;
+        
+        $defaults = array(
+            'search' => '',
+            'ignored' => null,
+            'from' => '',
+            'to' => '',
+            'page' => 1,
+            'per_page' => 20,
+            'orderby' => 'last_seen',
+            'order' => 'DESC'
+        );
+        
+        $args = wp_parse_args($args, $defaults);
+        $table = $wpdb->prefix . 'almaseo_404_log';
+        
+        // Build WHERE clause
+        $where = array('1=1');
+        $prepare_args = array();
+        
+        // Search filter
+        if (!empty($args['search'])) {
+            $search = '%' . $wpdb->esc_like($args['search']) . '%';
+            $where[] = "(path LIKE %s OR referrer LIKE %s OR user_agent LIKE %s)";
+            $prepare_args[] = $search;
+            $prepare_args[] = $search;
+            $prepare_args[] = $search;
+        }
+        
+        // Ignored filter
+        if ($args['ignored'] !== null) {
+            $where[] = "is_ignored = %d";
+            $prepare_args[] = $args['ignored'] ? 1 : 0;
+        }
+        
+        // Date range filters
+        if (!empty($args['from'])) {
+            $where[] = "last_seen >= %s";
+            $prepare_args[] = $args['from'] . ' 00:00:00';
+        }
+        
+        if (!empty($args['to'])) {
+            $where[] = "last_seen <= %s";
+            $prepare_args[] = $args['to'] . ' 23:59:59';
+        }
+        
+        $where_clause = implode(' AND ', $where);
+        
+        // Get total count
+        $count_query = "SELECT COUNT(*) FROM {$table} WHERE {$where_clause}"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is from $wpdb->prefix, $where_clause uses placeholders
+        if (!empty($prepare_args)) {
+            $count_query = $wpdb->prepare($count_query, $prepare_args); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
+        }
+        $total = $wpdb->get_var($count_query); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above when args present
+        
+        // Build main query
+        $orderby = in_array($args['orderby'], ['path', 'hits', 'first_seen', 'last_seen']) ? $args['orderby'] : 'last_seen';
+        $order = strtoupper($args['order']) === 'ASC' ? 'ASC' : 'DESC';
+        
+        $offset = ($args['page'] - 1) * $args['per_page'];
+        
+        $query = "SELECT * FROM {$table} WHERE {$where_clause} ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d"; // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from $wpdb->prefix, $orderby/$order are whitelisted values
+        $prepare_args[] = $args['per_page'];
+        $prepare_args[] = $offset;
+
+        if (!empty($prepare_args)) {
+            $query = $wpdb->prepare($query, $prepare_args); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- dynamically built with safe placeholders
+        }
+
+        $items = $wpdb->get_results($query, ARRAY_A); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
+        
+        // Process items
+        foreach ($items as &$item) {
+            // Unpack IP if present
+            if ($item['ip']) {
+                $item['ip_display'] = @inet_ntop($item['ip']);
+            } else {
+                $item['ip_display'] = null;
+            }
+            
+            // Parse referrer domain
+            if ($item['referrer']) {
+                $parsed = wp_parse_url($item['referrer']);
+                $item['referrer_domain'] = isset($parsed['host']) ? $parsed['host'] : '';
+            } else {
+                $item['referrer_domain'] = '';
+            }
+            
+            // Truncate user agent for display
+            if ($item['user_agent'] && strlen($item['user_agent']) > 100) {
+                $item['user_agent_display'] = substr($item['user_agent'], 0, 100) . '...';
+            } else {
+                $item['user_agent_display'] = $item['user_agent'];
+            }
+        }
+        
+        return array(
+            'items' => $items,
+            'total' => $total,
+            'pages' => ceil($total / $args['per_page'])
+        );
+    }
+    
+    /**
+     * Get single log entry
+     */
+    public static function get_log($id) {
+        global $wpdb;
+        
+        $table = $wpdb->prefix . 'almaseo_404_log';
+        $log = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$table} WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is from $wpdb->prefix
+            $id
+        ), ARRAY_A);
+        
+        if ($log && $log['ip']) {
+            $log['ip_display'] = @inet_ntop($log['ip']);
+        }
+        
+        return $log;
+    }
+    
+    /**
+     * Toggle ignored status
+     */
+    public static function toggle_ignored($id, $ignored = true) {
+        global $wpdb;
+        
+        $table = $wpdb->prefix . 'almaseo_404_log';
+        $result = $wpdb->update(
+            $table,
+            array('is_ignored' => $ignored ? 1 : 0),
+            array('id' => $id),
+            array('%d'),
+            array('%d')
+        );
+        
+        // Clear cache
+        delete_transient('almaseo_404_stats');
+        
+        return $result !== false;
+    }
+    
+    /**
+     * Delete log entry
+     */
+    public static function delete_log($id) {
+        global $wpdb;
+        
+        $table = $wpdb->prefix . 'almaseo_404_log';
+        $result = $wpdb->delete(
+            $table,
+            array('id' => $id),
+            array('%d')
+        );
+        
+        // Clear cache
+        delete_transient('almaseo_404_stats');
+        delete_transient('almaseo_404_top_referrer');
+        
+        return $result !== false;
+    }
+    
+    /**
+     * Bulk update ignored status
+     */
+    public static function bulk_toggle_ignored($ids, $ignored = true) {
+        global $wpdb;
+        
+        if (empty($ids) || !is_array($ids)) {
+            return false;
+        }
+        
+        $table = $wpdb->prefix . 'almaseo_404_log';
+        $ids_placeholder = implode(',', array_fill(0, count($ids), '%d'));
+        
+        $query = $wpdb->prepare(
+            "UPDATE {$table} SET is_ignored = %d WHERE id IN ({$ids_placeholder})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table from $wpdb->prefix, $ids_placeholder is array_fill of %d
+            array_merge(array($ignored ? 1 : 0), $ids)
+        );
+
+        $result = $wpdb->query($query); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
+        
+        // Clear cache
+        delete_transient('almaseo_404_stats');
+        
+        return $result !== false;
+    }
+    
+    /**
+     * Bulk delete logs
+     */
+    public static function bulk_delete($ids) {
+        global $wpdb;
+        
+        if (empty($ids) || !is_array($ids)) {
+            return false;
+        }
+        
+        $table = $wpdb->prefix . 'almaseo_404_log';
+        $ids_placeholder = implode(',', array_fill(0, count($ids), '%d'));
+        
+        $query = $wpdb->prepare(
+            "DELETE FROM {$table} WHERE id IN ({$ids_placeholder})", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $table from $wpdb->prefix; $ids_placeholder is array_fill of %d supplied via $ids
+            $ids
+        );
+
+        $result = $wpdb->query($query); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- prepared above
+        
+        // Clear cache
+        delete_transient('almaseo_404_stats');
+        delete_transient('almaseo_404_top_referrer');
+        
+        return $result !== false;
+    }
+    
+    /**
+     * Get statistics
+     */
+    public static function get_stats() {
+        // Check cache
+        $stats = get_transient('almaseo_404_stats');
+        if ($stats !== false) {
+            return $stats;
+        }
+        
+        global $wpdb;
+        $table = $wpdb->prefix . 'almaseo_404_log';
+        $daily = $wpdb->prefix . 'almaseo_404_daily';
+
+        // Calculate date ranges (calendar days, site timezone).
+        $today        = current_time('Y-m-d');
+        $seven_start  = gmdate('Y-m-d', strtotime('-6 days', current_time('U'))); // today + 6 prior = 7 days
+        $seven_dt     = $seven_start . ' 00:00:00';
+
+        // Opportunistically prune old rollup rows so the table can't grow
+        // unbounded. Runs at most hourly (this method is transient-cached).
+        $prune_before = gmdate('Y-m-d', strtotime('-35 days', current_time('U')));
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name from $wpdb->prefix
+        $wpdb->query($wpdb->prepare("DELETE FROM {$daily} WHERE hit_date < %s", $prune_before));
+
+        // Get stats
+        $stats = array();
+
+        // Total 404 HITS in the last 7 calendar days (not ignored). Summed from
+        // the per-day rollup so it reflects hits-in-range, not lifetime hits.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names derived from $wpdb->prefix, not user input
+        $stats['total_7d'] = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COALESCE(SUM(d.hits), 0) FROM {$daily} d
+             INNER JOIN {$table} l ON l.id = d.log_id
+             WHERE d.hit_date >= %s AND l.is_ignored = 0",
+            $seven_start
+        ));
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+        // Unique paths active in the last 7 days (not ignored). Counted from the
+        // log table's last_seen — already correct, kept so it stays accurate
+        // immediately after upgrade (the rollup table starts empty).
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table derived from $wpdb->prefix, not user input
+        $stats['unique_7d'] = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(DISTINCT path) FROM {$table} WHERE last_seen >= %s AND is_ignored = 0",
+            $seven_dt
+        ));
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+        // Today's 404 HITS (not ignored), from the per-day rollup.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names derived from $wpdb->prefix, not user input
+        $stats['today'] = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COALESCE(SUM(d.hits), 0) FROM {$daily} d
+             INNER JOIN {$table} l ON l.id = d.log_id
+             WHERE d.hit_date = %s AND l.is_ignored = 0",
+            $today
+        ));
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+        // Total ignored
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table derived from $wpdb->prefix, not user input
+        $stats['ignored'] = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$table} WHERE is_ignored = 1"
+        );
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+        // Cache for 1 hour
+        set_transient('almaseo_404_stats', $stats, HOUR_IN_SECONDS);
+
+        return $stats;
+    }
+    
+    /**
+     * Get top referrer domain
+     */
+    public static function get_top_referrer() {
+        // Check cache
+        $top_referrer = get_transient('almaseo_404_top_referrer');
+        if ($top_referrer !== false) {
+            return $top_referrer;
+        }
+        
+        global $wpdb;
+        $table = $wpdb->prefix . 'almaseo_404_log';
+        
+        $seven_days_ago = gmdate('Y-m-d H:i:s', strtotime('-7 days', current_time('U')));
+        
+        // Get all referrers from last 7 days
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table derived from $wpdb->prefix, not user input
+        $referrers = $wpdb->get_col($wpdb->prepare(
+            "SELECT referrer FROM {$table} WHERE last_seen >= %s AND is_ignored = 0 AND referrer IS NOT NULL AND referrer != ''",
+            $seven_days_ago
+        ));
+        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        
+        if (empty($referrers)) {
+            $top_referrer = 'None';
+        } else {
+            // Count domains
+            $domains = array();
+            foreach ($referrers as $referrer) {
+                $parsed = wp_parse_url($referrer);
+                if (isset($parsed['host'])) {
+                    $domain = $parsed['host'];
+                    if (!isset($domains[$domain])) {
+                        $domains[$domain] = 0;
+                    }
+                    $domains[$domain]++;
+                }
+            }
+            
+            if (empty($domains)) {
+                $top_referrer = 'None';
+            } else {
+                // Get top domain
+                arsort($domains);
+                $top_referrer = key($domains);
+            }
+        }
+        
+        // Cache for 1 hour
+        set_transient('almaseo_404_top_referrer', $top_referrer, HOUR_IN_SECONDS);
+        
+        return $top_referrer;
+    }
+    
+    /**
+     * Prepare data for redirect creation
+     */
+    public static function prepare_redirect_data($id) {
+        $log = self::get_log($id);
+        
+        if (!$log) {
+            return false;
+        }
+        
+        // Build source path
+        $source = $log['path'];
+        if (!empty($log['query'])) {
+            $source .= '?' . $log['query'];
+        }
+        
+        return array(
+            'source' => $source,
+            'target' => '', // Admin will fill this
+            'status' => 301,
+            'note' => sprintf(
+                /* translators: %1$d: number of 404 hits, %2$s: date last seen */
+                __('Created from 404 log: %1$d hits, last seen %2$s', 'almaseo-seo-playground'),
+                $log['hits'],
+                $log['last_seen']
+            )
+        );
+    }
+}
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

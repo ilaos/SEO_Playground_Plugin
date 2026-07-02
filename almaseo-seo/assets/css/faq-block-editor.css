@@ -1,0 +1,90 @@
+/**
+ * AlmaSEO FAQ Block — Editor Styles
+ *
+ * @package AlmaSEO
+ * @since   8.3.0
+ */
+
+/* ── Wrapper ────────────────────────────────────────────────────────── */
+.almaseo-faq-editor-wrap {
+    padding: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fafafa;
+}
+
+/* ── Placeholder (empty state) ──────────────────────────────────────── */
+.almaseo-faq-editor-placeholder {
+    padding: 32px 24px;
+    text-align: center;
+    border: 2px dashed #ccc;
+    border-radius: 4px;
+    background: #f9f9f9;
+}
+
+.almaseo-faq-editor-placeholder p {
+    margin-bottom: 16px;
+    color: #666;
+    font-size: 14px;
+}
+
+/* ── Q&A pair card ──────────────────────────────────────────────────── */
+.almaseo-faq-editor-pair {
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.almaseo-faq-editor-pair:last-child {
+    margin-bottom: 0;
+}
+
+/* ── Pair header (number + remove button) ───────────────────────────── */
+.almaseo-faq-editor-pair-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.almaseo-faq-editor-pair-number {
+    font-weight: 600;
+    font-size: 13px;
+    color: #1e1e1e;
+    background: #f0f0f0;
+    padding: 2px 8px;
+    border-radius: 3px;
+}
+
+/* ── Remove button ──────────────────────────────────────────────────── */
+.almaseo-faq-editor-remove {
+    color: #cc1818 !important;
+    font-size: 12px !important;
+}
+
+.almaseo-faq-editor-remove:hover {
+    color: #a00 !important;
+}
+
+/* ── Textareas ──────────────────────────────────────────────────────── */
+.almaseo-faq-editor-pair .components-base-control {
+    margin-bottom: 8px;
+}
+
+.almaseo-faq-editor-pair .components-textarea-control__input {
+    width: 100%;
+    min-height: 48px;
+    font-size: 13px;
+}
+
+/* ── Add Question button ────────────────────────────────────────────── */
+.almaseo-faq-editor-add {
+    margin-top: 12px;
+}
+
+/* ── Q&A list spacing ──────────────────────────────────────────────── */
+.almaseo-faq-editor-list {
+    margin-bottom: 4px;
+}
